@@ -9,14 +9,18 @@
 
 | Файл | Содержание |
 |------|-----------|
-| [01-races.md](01-races.md) | Полный список рас (11+4 в доп.), механика коррекций, расовые способности |
+| [01-races.md](01-races.md) | 10 рас (Core I + II): Background-таблицы, кости A–F, расовые способности, Enhanced Racial Abilities, языки, XP до уровня 10 |
 | [02-classes.md](02-classes.md) | Все 23 класса по типам (Warrior/Wizard/Other), XP-стоимость, ключевые характеристики |
 | [03-ability-scores-and-formulas.md](03-ability-scores-and-formulas.md) | 6 характеристик, таблица модификаторов, HP/MP формулы, Power Table, все формулы |
-| [04-combat-and-scas.md](04-combat-and-scas.md) | SCA (4 категории), поля оружия/брони, Check Packages, статус-эффекты, зоны боя |
+| [04-combat-and-scas.md](04-combat-and-scas.md) | SCA (4 категории), поля оружия/брони, Check Packages, статус-эффекты; Combat Feats Core II (47 новых) |
 | [05-magic-spells.md](05-magic-spells.md) | Все 12 магических школ/систем, структура секций заклинаний на листе |
-| [06-equipment.md](06-equipment.md) | Ранги, поля оружия/брони/аксессуаров, расходники, валюта, репутация |
+| [06-equipment.md](06-equipment.md) | Ранги, поля оружия/брони/аксессуаров, расходники, валюта, репутация; **Abyss Enhancement (Core II)** |
 | [07-general-skills-and-misc.md](07-general-skills-and-misc.md) | General Skills, расовые способности, Character Info, опыт, Fellow, доп. секции |
 | [08-supplements-and-books.md](08-supplements-and-books.md) | Все книги и дополнения, что они добавляют, версии листов |
+| [09-spells-core1.md](09-spells-core1.md) | Полные списки заклинаний Core I: Truespeech, Spiritualism, Divine, Magitech (кр. 1–6) |
+| [10-spells-core2.md](10-spells-core2.md) | Дополнения Core II: Truespeech/Spiritualism/Divine/Magitech (кр. 7–10) + 5 новых богов Divine |
+| [11-fairy-magic.md](11-fairy-magic.md) | Fairy Magic: 7 типов × 10 кругов (70 заклинаний), механика Fairy Tamer |
+| [12-techniques-spellsongs.md](12-techniques-spellsongs.md) | Techniques (Enhancer, 20 штук) + Spellsongs (Bard, 17 штук) + Finales (8 штук) |
 
 ---
 
@@ -61,14 +65,20 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 
 ## Открытые вопросы (актуальные)
 
-1. **Точные расовые коррекции** — числа по всем расам не задокументированы в EN-источниках; нужен доступ к PDF Rulebook или японскому вики
-2. **Полный список SCA** — только категории известны, не список
-3. **Точная книга для каждой расы** (Lildraken: Core II или I?)
-4. **General Skills список** — 72 навыка из Epic Treasury не задокументированы на EN
-5. **Конкретные заклинания** — только примеры, не полные списки
-6. **Bibliomancer** — механика Book Magic не задокументирована на EN
-7. **War Leader** — упоминается в контексте Mage Arts; отдельный класс или Tactician?
-8. **Background таблица** — точные значения Skill/Body/Mind для каждой расы×профессии
+### Закрыто по Core Rulebook I PDF
+- ✅ **Расовые коррекции** — полные таблицы Skill/Body/Mind и кости A–F для 7 рас Core I (→ 01-races.md)
+- ✅ **Background-таблицы** — точные Skill/Body/Mind для каждой расы × фона (→ 01-races.md)
+- ✅ **Заклинания Core I** — все 4 школы × 6 кругов (Truespeech, Spiritualism, Divine, Magitech) (→ 09-spells-core1.md)
+- ✅ **Specialized Divine Spells** — 8 богов × 2 заклинания (→ 09-spells-core1.md)
+
+### Остаётся открытым
+1. **Полный список SCA** — категории известны, конкретные способности требуют Part 3 PDF (pp. 248–265)
+2. **Расы Core II/III** — Lildraken, Grassrunner, Meria, Tiens, Leprechaun; нужен PDF Core II/III
+3. **General Skills список** — структура известна, конкретные 72+ навыка требуют Epic Treasury PDF
+4. **Fairy/Nature/Daemon/Book/Geomancy Magic** — школы из Core II и дополнений
+5. **Bibliomancer** — механика Book Magic (Core II)
+6. **War Leader** — отдельный класс или вариант Tactician?
+7. **Точные расовые коррекции для рас из доп.** (Alv, Shadow, Soleil и др.)
 
 ---
 
