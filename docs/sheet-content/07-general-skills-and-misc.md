@@ -10,8 +10,20 @@ trpg.syachi.work ytsheet guide, GM Binder, ccxp.info part 6, search results.
 General Skills отличаются от классовых — это навыки общего применения.
 
 ### Книжные данные
-- **Epic Treasury**: добавляет до **72 general skills** (+ 16 adventurer skills)
-- **Lacshia Life**: расширяет до **81 general skill** с механическими эффектами
+- **Epic Treasury**: полнотекстовая проверка PDF (2026-07-09) **не подтвердила** наличие General Skills в этой книге — вероятно, ошибка/устаревшая инфа из вторичного источника. См. `08-supplements-and-books.md`, примечание.
+- **"Lacshia Life" / Raxia Life** (скачана и проверена 2026-07-09): **тоже не содержит General Skills.** Реальное содержание — Part 2 "Expansion of Work Skills" (pp. 47–108), т.е. это ещё одно расширение той же системы Work Skills из Epic Treasury (не General Skills листа). "81 general skill" из старой заметки — по всей видимости, тоже неточность вторичного источника, спутавшая Work Skills с General Skills.
+- **Core Rulebook I/II — перепроверены полнотекстовым поиском (2026-07-09), гипотеза не подтвердилась в третий раз.** В оглавлении обеих книг термина "General Skills" нет вообще. Есть только "Skill Checks" (Core I, pp. 90–117) — раздел с class-based проверками, привязанными к конкретным классам (Conceal, First Aid, Disable Device, Pickpocket, Disguise, Tumble, Hide и т.д. — Standard Value = Class Level + ability modifier), и опциональные Work Skills (см. ниже).
+- **Вывод:** "General Skills (72+)" — по всей видимости, изначально ошибочное допущение раннего (доpymupdf) исследования проекта; такой отдельной механики в SW2.5 не подтверждено ни в одной из 5 проверенных книг (Core I, Core II, Epic Treasury, Raxia Life + оглавления). Если пользователь захочет продолжить поиск — придётся проверять оставшиеся дополнения (Magus Arts, Monstrous Lore и др.), но приоритет этому пункту, вероятно, стоит понизить.
+
+### Work Skills — расширенная система (Epic Treasury + Raxia Life)
+
+Обе книги описывают **одну и ту же опциональную систему Work Skills** (профессиональные навыки для ролплея, НЕ General Skills листа, не боевые):
+- До 15 уровней, но PC ограничены максимум 5 уровнями на один Work Skill и 10 суммарно на старте (правило из Epic Treasury).
+- Считается как обычный класс-чек: Standard Value = Level + ability modifier, Target Number — по усмотрению GM (CR I, p.94).
+- **Epic Treasury** (pp. 65–75): базовый список профессий — Armorer, Inventor, Weaver, Witch Doctor, Waiter/Waitress, Weatherman, Weaponsmith, Woodworker, Engineer, Author, Official, Gardener, Carpenter, Color Man, Locksmith, Cleric, Gravekeeper, Carriage Driver, Courtesan, Cook, Composer, Surgeon, Signalman, Cobbler, Whitesmith, Singer, Scholar, Sculptor, Scribe, Sailor, Soldier, Towerman, Dancer, Tour Guide, Distiller, Prestidigitator и др.
+- **Raxia Life** (pp. 47–108) значительно расширяет список, организуя профессии по месту/контексту: Towns and Villages (pp.53+), Craftsmen and Workshops (pp.69+), Knowledge/Research/Arts (pp.79+), Castles/Temples/Courts/Military (pp.94+), Suburbs — Countryside/Mountains/Highways (pp.100+), Suburbs — Rivers and Seas (pp.106+). Детальный список профессий из Raxia Life ещё не извлечён построчно (низкий приоритет — чисто ролплей-контент).
+- Не даёт боевого преимущества — чисто нарративный слой.
+- **Для нашего листа:** вероятно, опциональная секция post-MVP (см. `docs/features.md`), не входит в базовый MVP.
 
 ### Категории (предполагаемые по контексту)
 

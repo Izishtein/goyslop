@@ -1,6 +1,8 @@
 # SW 2.5 — Combat System & SCAs (Combat Feats)
 
 Sources: ccxp.info parts 2-3, EN World Let's Read p.2-3, GM Binder, RPG Pub forum.
+Core Rulebook I (community EN translation), pp. 249–265 — полный список Combat Feats/SCA Core I (подтверждено, 2026-07-09).
+Core Rulebook II (community EN translation), pp. 198–211 — дополнения Core II (подтверждено, ранее).
 
 ---
 
@@ -183,6 +185,81 @@ Total Evasion = Base Evasion + Armor Evasion Modifier + другие бонус�
 
 Позволяет отсутствующим игрокам или онлайн-персонажам виртуально участвовать в сессии.
 Отдельный лист/секция для Fellow-данных.
+
+---
+
+## Combat Feats — Core I base list (подтверждено, 2026-07-09)
+
+Source: Core Rulebook I, "Combat Feats Data", pp. 249–265 (эквивалент SCA — сама книга называет их "Combat Feats", термин "SCA" — сокращение, принятое в этом проекте).
+
+### Selectively Acquired Passive (Core I)
+
+| Феат | Условие | Использование | Эффект |
+|------|---------|--------------|--------|
+| **Guardian I** | Adv Level 5+, [Cover] | — | [Cover] можно объявлять сразу на до 3 целей |
+| **Dodge** | Нет | Щит | В ближнем бою каждый успешный Evasion check со щитом снижает Critical Threshold следующей атаки мастера на -1 (минимум 8); не более 1 атаки за ход |
+| **Evasive Maneuvers I** | Adv Level 3+ | — | Evasion check +1 |
+| **Tenacity** | Fighter/Grappler/Fencer Lv5+ | — | Max HP +15 |
+| **Twin Strike** | [Dual Wielding] | — | При двух атаках [Dual Wielding] можно выбрать другую цель для второй атаки после результата первой |
+| **Targeting** | Нет | — | Дальние атаки/area-эффекты не уходят "в молоко" при стрельбе в skirmish |
+| **Hawk Eye** | [Targeting] | — | Видит и может атаковать сквозь "щит" (shielded area) дальним оружием/магией |
+| **Improved Throw I** | Grappler Lv3+ | Grappler класс | Throw +10 power, можно кидать персонажей до 2 секций одной Accuracy |
+| **Dual Technique** | Adv Level 5+ | — | Убирает штраф Accuracy от [Dual Wielding] |
+| **Weapon Proficiency A/\*\*** | Нет | — | +1 урона выбранной категорией оружия; можно носить A-rank этой категории (можно брать несколько раз для разных категорий) |
+| **Weapon Proficiency S/\*\*** | [Weapon Proficiency A/\*\*] той же категории, Adv Level 5+ | — | +2 урона (итого +3); можно носить S-rank этой категории |
+| **Stomp** | Grappler Lv5+ | Grappler класс | После успешного Throw — дополнительный Kick |
+| **Ever-Changing I** | Grappler или Fencer Lv5+ | Grappler/Fencer класс | Можно объявить 2 активных Combat Feat за раунд (в одной атаке или в разных) |
+| **Armor Proficiency A/\*\*** | Нет | — | +1 Defense выбранной категорией брони; можно носить A-rank (можно брать несколько раз, эффекты складываются) |
+| **Armor Proficiency S/\*\*** | [Armor Proficiency A/\*\*] той же категории, Adv Level 5+ | — | +2 Defense (итого +3); можно носить S-rank |
+| **Metamagic Master** | [Universal Metamagic] | — | При [Universal Metamagic] можно комбинировать [Metamagic/Targets] с другими Metamagic по-разному для каждой цели |
+| **Dual Wielding** | Нет | — | Два одноручных оружия (Min STR ≤20), по одной атаке каждым за Major Action, каждая с -2 к Accuracy |
+| **MP Save/\*\*** | Adv Level 5+ | — | -1 MP на выбранный Wizard-класс (минимум 1); можно брать несколько раз для разных классов |
+
+### Selectively Acquired Active (Core I)
+
+| Феат | Условие | Apply | Risk | Эффект |
+|------|---------|-------|------|--------|
+| **Infight I** | Grappler Lv5+ | 10 сек (1 р), только 1 цель | Evasion -2 | Accuracy +2 против объявленной цели; нельзя атаковать других (кроме других секций той же цели) |
+| **Decoy Attack I** | Нет | 1 melee attack | — | Accuracy -2, урон +2; при уклонении враг получает -1 к Evasion (стак до -4, сбрасывается при провале уклонения) |
+| **△Cover I** | Нет | 10 сек (1 р) | — | Принимает вместо союзника атаки, попадающие по нему (Evasion/Neg эффекты); автопопадание по себе, не более 1 цели за раунд |
+| **Repeated Strike I** | Нет | Fighter/Fencer класс, 2H оружие; 1 melee attack | — | Если атака уклонена — немедленно повторная атака тем же оружием по той же цели |
+| **Aimed Attack I** | Нет | 1 weapon attack | — | Accuracy +1, Critical Threshold +1 (при пороге ≥13 крита не будет) |
+| **Power Strike I** | Нет | 1 melee attack | Evasion -2 | Урон ближнего боя +4 |
+| **Taunting Strike I** | Нет | 1 weapon attack | — | Провоцирует цель атаковать пользователя весь следующий раунд; урон -2; не действует на INT 18+/Intellect: High |
+| **△Defensive Stance** | Нет | 10 сек (1 р), только Normal/Limited Move | Большинство проверок -4 (кроме Death Check) | +4 к одной из: Evasion / Fortitude / Willpower (на выбор каждый раз) |
+| **Cleave I** | Fighter Lv3+ | Fighter класс, 2H не-wrestling оружие; 1 melee attack | — | Атака до 3 целей в досягаемости, одна Accuracy, урон каждому -3 |
+| **Violentcast I** | Нет | Wizard-type класс; 1 spell cast | — | Spellcasting check +2 для уронового заклинания |
+| **Lethal Strike I** | Нет | 1 melee attack | Evasion -2 | Power table roll +1 (для результата 3–11; двойные 1/6 не меняются) |
+| **Metamagic/Power Assurance** | Нет | Wizard-type; 10 сек (1 р), 2× MP | — | При броске урона по Power Table ≤4 — один переброс |
+| **Metamagic/Accuracy** | Нет | Wizard-type; 10 сек (1 р), 2× MP | — | Spellcasting check бросается дважды, выбирается лучший |
+| **Metamagic/Targets** | Нет | Wizard-type; 10 сек (1 р), MP ×N целей | — | Увеличивает число целей заклинания (Target: 1 Character/Object/spell); не действует на Range: Caster/Touch |
+| **Metamagic/Distance** | Нет | Wizard-type; 10 сек (1 р), MP ×N | — | Увеличивает дальность заклинания; не действует на Range: Caster/Touch |
+| **Metamagic/Time** | Нет | Wizard-type; 10 сек (1 р), MP ×N | — | Увеличивает длительность (кроме Duration: Instant/Permanent) |
+| **Metamagic/Area** | Нет | Wizard-type; 10 сек (1 р), MP ×N (max +6м) | — | Увеличивает радиус area-заклинаний на +1м за удвоение MP (макс 6м); при "Y"-целях также +5 к макс. числу целей за метр |
+| **Universal Metamagic** | Любой [Metamagic/\*\*] | Wizard-type; 10 сек (1 р) | — | Позволяет использовать любую комбинацию [Metamagic/\*\*], не изучая их все; MP-множители перемножаются |
+| **Magic Convergence** | Нет | Wizard-type; 1 spell cast | — | Area-заклинание ("Target: 1 area/Y") можно кастовать как "Target: 1 Character" |
+| **Magic Control** | [Targeting], [Magic Convergence] | 1 spell cast | — | Исключить произвольную цель из area/line-заклинания |
+| **Mana Strike** | Нет | Wizard-type; 1 melee attack | Fortitude и Willpower -2 | Урон ближнего боя += Magic Power пользователя |
+| **Multi-Action** | Adv Level 5+ | 1 melee attack + spell cast, Limited Move | — | Позволяет объединить атаку и каст в одно Major Action |
+| **Armor Piercer I** | Нет | Grappler класс; 1 melee attack | — | Defense цели ×½ (округление вверх), Critical Threshold +1 |
+
+### Selectively Acquired Major (Core I)
+
+| Феат | Условие | Использование | Эффект |
+|------|---------|--------------|--------|
+| **Snipe** | Нет | Marksman класс, 2H дальнобойное оружие | Следующий выстрел по назначенной цели: если Success Value ≥ Evasion цели +3 — урон ×2; если на +1/+2 выше — просто попадание без ×2 |
+| **Wordbreak** | Нет | Range: Touch, Target: 1 spell | Снимает одно поддерживаемое заклинание/эффект (длительность ≥10 сек); Skill Check на Magic Power против эффекта |
+
+### Automatically Acquired Passive (Core I)
+
+| Феат | Условие получения | Эффект |
+|------|-------------------|--------|
+| **Chain Attack** | Grappler Level 1 | Доп. атака 1H wrestling-оружием после атаки 1H wrestling-оружием (не более 1 доп. атаки даже при [Dual Wielding]; без штрафа -2) |
+| **Treasure Hunt** | Scout Level 5 | +1 к броску Loot Determination |
+| **Survivability** | Ranger Level 5 | Раз в день в природной среде — автоуспех Fortitude/Willpower (объявляется до броска) |
+| **Keen Eyes** | Sage Level 5 | +1 к броску Loot Determination |
+
+**Примечание:** Core II заменяет/дополняет часть этих фитов версиями "II" (см. раздел ниже) — где есть [...I], в Core II может быть соответствующий [...II] как замена.
 
 ---
 

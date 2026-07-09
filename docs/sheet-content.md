@@ -177,3 +177,7 @@
 - [06-equipment.md](sheet-content/06-equipment.md) — снаряжение и репутация
 - [07-general-skills-and-misc.md](sheet-content/07-general-skills-and-misc.md) — прочие секции
 - [08-supplements-and-books.md](sheet-content/08-supplements-and-books.md) — книги и дополнения
+- [09-spells-core1.md](sheet-content/09-spells-core1.md) — заклинания Core I (Truespeech, Spiritualism, Divine, Magitech)
+- [10-spells-core2.md](sheet-content/10-spells-core2.md) — дополнения Core II к заклинаниям
+- [11-fairy-magic.md](sheet-content/11-fairy-magic.md) — Fairy Magic (7 типов × 10 кругов)
+- [12-techniques-spellsongs.md](sheet-content/12-techniques-spellsongs.md) — Techniques, Spellsongs, Finales

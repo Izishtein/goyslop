@@ -3,6 +3,29 @@
 Sources:
 - Core Rulebook I (Cardia's Library EN translation), pp. 62–75 — расы Core I (подтверждено)
 - Core Rulebook II (EN translation), pp. 21–37 — расы Core II (подтверждено)
+- Core Rulebook III (EN translation), pp. 65–71 — расы Core III: Tiens, Leprechaun + Enhanced Racial Abilities Adv Level 11+ для всех рас (подтверждено)
+- Outlaw Profile Book (community EN translation), pp. 24–33 — расы Alv, Shadow, Soleil, Weakling (описание/языки/способности подтверждены; кости A–F не даны — книга использует альтернативную систему Vagrant)
+- Epic Treasury (community EN translation), p. 16 — Average Height by Race (не механическая, справочная таблица)
+- Raxia Life (community EN translation), pp. 45–46 — Abyssborn, Newman: краткий реприз описания/способностей (полные данные — в неполученной книге Arcane Relic)
+
+---
+
+## Средний рост по расам (Epic Treasury, справочно)
+
+| Раса | Средний рост (М/Ж) |
+|------|---------------------|
+| Human | 170см / 160см |
+| Elf | 180см / 170см |
+| Dwarf | 150см / 140см |
+| Tabbit | 100см / 100см |
+| Runefolk | разный / разный |
+| Nightmare | 180см / 170см |
+| Lykant | 180см / 170см |
+| Lildraken | 220см / 220см |
+| Grassrunner | 100см / 100см |
+| Meria | 170см / 160см |
+| Tiens | 190см / 180см |
+| Leprechaun | 130см / 120см |
 
 ---
 
@@ -426,16 +449,206 @@ Sources:
 
 ---
 
-## Расы Core III и дополнений (данные требуют PDF Core III)
+## Core Rulebook III — 2 новые расы (подтверждено)
 
-| Раса | Книга | Профиль |
-|------|-------|---------|
-| Tiens | Core III | — |
-| Leprechaun | Core III | — |
-| Alv | Outlaw Profile Book | Gothic elf-like |
-| Shadow | Outlaw Profile Book | Grey skin, third eye |
-| Soleil | Outlaw Profile Book | Solar warrior |
-| Weaklings | Outlaw Profile Book | — |
+Core Rulebook III — дополнение для высокоуровневых персонажей (рост до Level 15). Race-описания Tiens и Leprechaun даны дважды: в основных описаниях расы (Detailed Creation) и в отдельной секции "Additional Background Tables" — игрок может выбрать любую из двух таблиц фона для расы.
+
+### Tiens
+
+**Описание:** Раса с северной части континента Alframe, созданная магическим смешением людей и монстров в Magic Civilization Period для охраны Стены Бездны (Wall of the Abyss). Отличаются крепким телосложением, металлического цвета волосами, глазами как драгоценные камни, и кристаллизованными из маны самоцветами на лбу/груди/тыльной стороне ладоней. Взрослеют к 15 годам, живут ~50 лет, но могут по желанию впадать в анабиоз (не старея) — для пробуждения нужно влить 20 MP в самоцвет.
+
+**Starting Languages:** Daemonic (говорить) + Trade Common (говорить/читать/писать)
+**Restricted Classes:** нет
+
+**Racial Ability:**
+- **[Intercommunication]:** Общение с любым персонажем в радиусе 10 м (или соседняя зона в Simplified Combat), которого видно или с кем есть взаимопонимание — общий язык не нужен. По длительности как обычный разговор; Minor Action или Combat Preparation для назначения/смены цели. На животном/mythical beast маунте дополнительно даёт +1 к Accuracy Check и Evasion Check маунта на 1 минуту (6 раундов), не чаще раза в 6 часов.
+
+**Dice для характеристик:**
+
+| | A (DEX) | B (AGI) | C (STR) | D (VIT) | E (INT) | F (SPR) |
+|--|--|--|--|--|--|--|
+| Tiens | 2d | 2d | 1d | 1d+3 | 2d | 2d+6 |
+
+**Background Table (основная, из описания расы):**
+
+| 2d | Background | Starting Classes | Skill/Body/Mind | XP |
+|----|-----------|-----------------|-----------------|-----|
+| 2–4 | Cavalier | Rider | 10/11/7 | 2,500 |
+| 5–6 | Brawler | Grappler | 9/13/6 | 2,000 |
+| 7 | Warrior | Fighter | 8/12/8 | 2,000 |
+| 8–9 | Cleric | Priest | 7/12/9 | 2,000 |
+| 10–12 | Sorcerer | Sorcerer | 6/12/10 | 2,000 |
+
+**Additional Background Table:**
+
+| 2d | Background | Starting Classes | Skill/Body/Mind | XP |
+|----|-----------|-----------------|-----------------|-----|
+| 2–4 | Archer | Marksman | 11/12/5 | 2,500 |
+| 5–6 | Scout | Scout | 10/10/8 | 2,500 |
+| 7 | Magic Warrior | Fighter & Sorcerer | 9/11/8 | 1,000 |
+| 8–9 | Feytouched | Fairy Tamer | 7/11/10 | 2,000 |
+| 10–12 | Scholar | Sage | 8/11/9 | 2,500 |
+
+---
+
+### Leprechaun
+
+**Описание:** Миниатюрная раса (~130 см), населяет разные части Alframe, в основном городские районы. Внесли большой вклад в развитие Magitech Civilization Period, талантливы в использовании предметов и магитеха. Крупные волосатые уши, у мужчин часто полная борода. Живут под землёй или в руинах Magitech Civilization, поодиночке или семьями — редко показываются на людях благодаря способности становиться невидимыми. Взрослеют к 15, живут ~200 лет.
+
+**Starting Languages:** Magitech (говорить/читать/писать) + Trade Common (говорить/читать/писать)
+**Restricted Classes:** нет
+
+**Racial Abilities:**
+- **[Darkvision]:** Видит в темноте как при дневном свете.
+- **[Invisible Hand]:** Может носить два аксессуара типа "Other".
+- **[Unseen Artisan]:** Major Action, 5 MP — стать невидимым (как Truespeech-заклинание [Conceal Self], CR I p.224), но без ограничений на снаряжение.
+
+**Dice для характеристик:**
+
+| | A (DEX) | B (AGI) | C (STR) | D (VIT) | E (INT) | F (SPR) |
+|--|--|--|--|--|--|--|
+| Leprechaun | 2d | 1d | 2d | 2d | 2d | 2d |
+
+**Background Table (основная, из описания расы):**
+
+| 2d | Background | Starting Classes | Skill/Body/Mind | XP |
+|----|-----------|-----------------|-----------------|-----|
+| 2–4 | Agile Warrior | Fencer | 13/5/5 | 2,500 |
+| 5–6 | Archer | Marksman | 12/6/5 | 2,500 |
+| 7 | Spy | Scout | 14/4/5 | 2,500 |
+| 8–9 | Feytouched | Fairy Tamer | 11/4/8 | 2,000 |
+| 10–12 | Agile Warrior | Fencer | 11/5/7 | 2,500 |
+
+**Additional Background Table:**
+
+| 2d | Background | Starting Classes | Skill/Body/Mind | XP |
+|----|-----------|-----------------|-----------------|-----|
+| 2–4 | Wanderer | Ranger | 12/5/6 | 2,500 |
+| 5–6 | Hobbyist | Sage & Bard | 13/4/6 | 2,000 |
+| 7 | Artificer | Artificer | 12/4/7 | 2,000 |
+| 8–9 | Cleric | Priest | 10/5/8 | 2,000 |
+| 10–12 | Magician | Sorcerer or Conjurer | 11/3/9 | 2,000 |
+
+---
+
+## Enhanced Racial Abilities — Adv Level 11+ (Core III)
+
+Core Rulebook III добавляет второй уровень усиления расовых способностей — при достижении Adventurer Level 11+ (в дополнение к уровню 6+ из Core II).
+
+| Раса | Enhanced Racial Ability (11+) | Описание |
+|------|-------------------------------|----------|
+| Human | [Sword's Grace/Change Fate] | +2 к результату (вместо +1). Двойная 1↔6 — автоуспех/автопровал как раньше. Макс. на Power Table = 12. |
+| Elf | [Sword's Grace/Gentle Water] | Погружение в воду на 1 час восстанавливает HP/MP как 6 часов сна. Раз в день, не мешает обычному сну. |
+| Dwarf | [Sword's Grace/Body of Flame] | Дополнительно резист к Energy-урону (авто-половина; при Resist: Half — успешный Fortitude/Willpower превращает в Resist: Neg). |
+| Tabbit | [Sixth Sense] | +4 к результату Danger Sense или Avoid Trap check. |
+| Runefolk | [HP Conversion] | Можно использовать дважды в день. |
+| Nightmare | [Alternate Form] | В Alternate Form: +1 ко всем Accuracy и Spellcasting checks. |
+| Lykant | [Beast Form] | В Beast Form: +1 к модификатору Agility. |
+| Lildraken | [Sword's Grace/Wings of the Wind] | Полёт длится до 2 минут (12 раундов) в день (было меньше). |
+| Grassrunner | [Mana Interference] | Сложнее обнаружить магическим восприятием: +1 к Accuracy/Evasion против монстров с Perception: Magic; +1 к Hide check против них. |
+| Meria | [Thriving Life] | Дополнительное восстановление HP/MP в 18:00 (в дополнение к 6:00 утра). |
+| Tiens | [Intercommunication] | На 6-м уровне: радиус растёт до 30 м (все зоны в Simplified Combat). На 11-м: бонус маунту от вдохновения +1 (итого +2). |
+| Leprechaun | [Invisible Hand] | На 6-м уровне: три аксессуара "Other". На 11-м: смена аксессуара как Minor Action раз в 10 сек (1 раунд). |
+
+---
+
+## Outlaw Profile Book — 4 расы (подтверждено, частично)
+
+**Важная оговорка:** Outlaw Profile Book вводит альтернативную систему создания персонажа — **Vagrant** (не-авантюрист). Вместо стандартных костей A–F + единой Background Table здесь используется D66 Origin Table + Life Segments + Environment Table + Childhood Experiences Table (свои для каждой из 4 категорий: Warrior, Spy, Remote Support, Magic Warrior), где Ability Score Correction зависит от конкретного результата броска, а не от расы напрямую. **Стандартных костей характеристик (A–F) в привычном для нашего листа формате книга не даёт** — только описание расы, языки и расовые способности (ниже). Полноценная поддержка Vagrant-персонажей — отдельная большая фича вне текущего MVP (см. `docs/features.md`, там Vagrants не упоминаются).
+
+### Alv
+
+**Описание:** Редкая раса северной части Alframe. Восковая белая кожа, чёрные склеры, золотые/красные радужки. Слегка выше людей, стройные, высокий интеллект, но низкая живучесть. Из-за внешности и происхождения их часто путают с Barbarous и подвергают дискриминации — живут уединённо. Не могут выживать без чужой маны — должны минимум раз в неделю забирать ману прикосновением. Взрослеют к 15, живут ~250 лет.
+
+**Starting Languages:** Regional Dialect + Trade Common (говорить/читать/писать)
+**Restricted Classes:** не указано
+
+**Racial Abilities:**
+- **[Darkvision]:** Видит в темноте как при дневном свете.
+- **[Spirit Drain]:** Major Action — забрать ману у персонажа в касании ("Target: 1 Character", "Range/Area: Touch/-"). Действует как "Resistance: Can't" без проверки; снижает текущее MP цели на "Spirit Modifier пользователя + число его soulscar" (не ниже 0), восстанавливая себе столько же MP. Не более раз в день, чем текущий Spirit Modifier. Работает только на Humanoid (не-Alv) и Barbarous с MP.
+- **Штраф без маны:** Если Alv неделю не поглощал ману — все проверки с -4, нет восстановления HP/MP. Если ещё неделя без маны — смерть от истощения. Восстанавливается сразу после следующего поглощения маны.
+
+---
+
+### Shadow
+
+**Описание:** Раса с континента Razeldawn (к западу от Alframe); PC — те, кто перебрался/приплыл оттуда. Серая кожа, три глаза (видят в темноте), цвет глаз меняется как у кошки. Волосы серебристые/серые. Гибкие, хлыстообразные конечности — отличные ловкость и быстрота, идеальны как шпионы/убийцы. Низкий интеллект и дух — плохие маги, но третий глаз даёт сильное сопротивление магии. Взрослеют к 15, живут ~100 лет.
+
+**Starting Languages:** Shadow (говорить/читать/писать) + Trade Common (говорить/читать/писать)
+**Restricted Classes:** не указано
+
+**Racial Abilities:**
+- **[Darkvision]:** Видит в темноте как при дневном свете.
+- **[Moonlight's Protection]:** +4 к Willpower.
+
+---
+
+### Soleil
+
+**Описание:** Раса с западного континента Razeldawn, на Alframe очень редки. Крупное, пропорциональное, мускулистое телосложение; позитивный, лёгкий в общении характер. По легенде происходят от бога солнца Tidan. Не любят носить броню, татуируют тело солярными узорами. Язык — Soleilian, невербальный (жесты/позы), без письменности. Взрослеют к 15, живут ~300 лет.
+
+**Starting Languages:** Trade Common (говорить/читать) + Soleilian (говорить)
+**Restricted Classes:** не указано
+
+**Racial Abilities:**
+- **[Radiant Physique]:** Minor Action — тело начинает сиять, ослепляя. Один персонаж (или секция) в той же клетке получает -2 к Accuracy, Evasion и Spellcasting checks на 10 сек (1 раунд). "Resistance: Can't", действует независимо от восприятия/интеллекта цели. В металлической броне штраф уменьшается до -1. Раз в день.
+- **[Photosynthesis]:** 10 минут на солнце — восстанавливает 10 HP. Можно применять каждые 10 минут, максимум 1 час в день (итого 60 HP). Отдельно от сна, требует концентрации.
+- **[Child of the Sun]:** С 6:00 до 18:00 — +4 к Fortitude и Willpower checks (в помещении или снаружи). С 18:00 до 6:00 — -4 к тем же проверкам.
+
+---
+
+### Weakling
+
+**Описание:** Barbarous, рождённые с меньшим числом soulscar, чем обычно — внешне похожи на людей, но с чертами родителя-Barbarous. В книге описаны 4 варианта происхождения: **Garuda, Tannoz, Basilisk, Minotaur**. Физически крепкие, но обычно слабый интеллект/дух. Взрослеют к 15, живут ~100 лет вне зависимости от происхождения.
+
+**Starting Languages:** Barbaric (говорить/читать/писать) + Trade Common (говорить/читать/писать)
+**Restricted Classes:** не указано
+
+**Racial Ability (общая):**
+- **[Barbarous Body]:** В зависимости от расы родителя, одна характеристика +3, плюс уязвимость (Weakness) — детали зависят от происхождения.
+
+**Racial Abilities по происхождению:**
+- **Garuda Weakling:** [Immature Wings] — маленькие крылья, -20 к урону от падения, летать не может. [Wind-Edge Blade] — атака клинками ветра: Major Action, "Target: 1 Character", "Range/Area: 2 (30м)/Area/Target", Standard Value = Adv. Level + Fortitude Modifier против Willpower цели, урон "Power 10 + Adv. Level + Vitality Modifier" (ветер, Resistance: Half, Crit Value 10, 4 MP).
+- **Tannoz Weakling:** [Underwater Aptitude] — действует под водой как на суше. [Carapace Hand] — правая рука как Wrestling-оружие [Shell Claw] (апгрейдится до Sharp Claw/Fierce Claw при Weapon Proficiency A/S Wrestling); при двуручных проверках на Dexterity — штраф -2 (кроме предметов со Stance: 1H).
+- **Basilisk Weakling:** [Petrifying Gaze] — раз в раунд, Minor Action, "Target: 1 Character", "Range/Area: 2 (30м)/Target", Adv. Level + Spirit Modifier против Willpower цели → петрификация (Dexterity или Agility / -6, см. CR II p.329); curse-type, Resistance: Neg, не подряд, 5 MP. [Poisonous Blood] — при получении физического урона в ближнем бою атакующий получает 1d-2 (мин. 1) магического урона ядом.
+- **Minotaur Weakling:** [Darkvision]. [Herculean Strength] — двуручное оружие ближнего боя: +2 к Extra Damage.
+
+---
+
+## Arcane Relic — 2 расы (подтверждено частично, через реприз в Raxia Life)
+
+**Источник:** полные данные — в книге "Arcane Relic: Races and Treasures" (не скачана). Ниже — краткий реприз описания и расовых способностей из книги **Raxia Life**, pp. 45–46 (там же, где даны sample-персонажи "Abyssborn Boxer" и "Newman Priest"). **Костей A–F нет** — только описание и способности.
+
+### Abyssborn
+
+**Описание:** Редкие мутанты, зачатые и рождённые в Shallow Abyss (подтверждены только случаи от людей). Крупные, коренастые, кожа и глаза тёмно-фиолетовые (напоминают часть тела демона), но в остальном похожи на людей — можно скрыть одеждой/аксессуарами. Подвергаются дискриминации наравне с Nightmare. Подходят и воинам, и магам (в т.ч. magic warrior). Живут ~100 лет, 0 soulscar.
+
+**Racial Ability:**
+- **[Abyssal Bastard]:** При создании персонажа нужно выбрать Abyss Curse (CR II, p.251) — бросить трижды и выбрать один результат (при выпадении "2-1: Heavy" или "6-5: Clinging" — переброс). Один глаз (на выбор) окрашивается в тёмно-фиолетовый; может быть открыт максимум 1 минуту (6 раундов) в день, в остальное время закрыт (без штрафа за слепоту на этот глаз). Пока открыт — +1 к Accuracy checks. Можно скрыть повязкой/очками.
+
+**Enhanced Racial Ability (Adv Level 6+):**
+- **[Abyssal Bastard/Abyssal Eye]:** +1 к Accuracy checks (итого +2).
+
+---
+
+### Newman
+
+**Описание:** Созданы в Ancient Magic Civilization попыткой эволюционировать людей магией. Считались вымершими в Magitech Civilization Period, но пробудились после Diabolic Triumph — крайне редки. Блестящий ум и высокая Magic Power. Кожа и волосы белы как снег, глаза бледно-красные/голубые. На теле — небольшой магический круг, слабо светится при касте. Талантливы в магии, но плохи в стрельбе. Взрослеют к 15, живут только ~30 лет — умирают, когда останавливается сердце. 0 soulscar.
+
+**Racial Abilities:**
+- **[Child of Magic]:** +1 ко всей Magic Power. При автоуспехе Spellcasting check (двойная 6) — MP не тратится (включая Metamagics, эффект метамагии всё равно применяется), даже если MP берётся из Mako Stone или Familiar.
+- **[Déjà Vu]:** Раз в день, до броска — +2 к Observation check package и Knowledge check package (CR I, p.114).
+
+**Enhanced Racial Ability (Adv Level 6+):**
+- **[Child of Magic]:** При автопровале Spellcasting check (двойная 1) — MP тоже не тратится.
+
+---
+
+## Расы вне Core I–III, Outlaw Profile Book и Arcane Relic (данные требуют отдельных PDF)
+
+| Раса | Книга |
+|------|-------|
+| (пока не выявлены дополнительные PC-расы за пределами перечисленных выше книг) | — |
 
 ---
 
@@ -453,12 +666,14 @@ Sources:
 | Lildraken | **1d** | 2d | 2d | **2d+6** | **1d** | 2d | Core II |
 | Grassrunner | 2d | 2d | **1d** | **2d+6** | **1d** | **2d+6** | Core II |
 | Meria | **1d** | **1d** | **1d** | **2d+6** | **1d** | **1d** | Core II |
+| Tiens | 2d | 2d | **1d** | **1d+3** | 2d | **2d+6** | Core III |
+| Leprechaun | 2d | **1d** | 2d | 2d | 2d | 2d | Core III |
 
 ---
 
-## XP Table (стоимость классов — до уровня 10)
+## XP Table (стоимость классов — до уровня 15)
 
-Core Rulebook II расширяет прогрессию до Level 10. Числа в скобках — накопительный XP.
+Core Rulebook II расширяет прогрессию до Level 10, Core Rulebook III — до Level 15 (плюс новые Minor Classes: Rider, Alchemist). Числа в скобках — накопительный XP.
 
 | Level | Major Class | Minor Class |
 |-------|------------|-------------|
@@ -472,9 +687,14 @@ Core Rulebook II расширяет прогрессию до Level 10. Числ
 | 8 | 4,000 (16,500) | 3,000 (13,000) |
 | 9 | 5,000 (21,500) | 4,000 (17,000) |
 | 10 | 6,000 (27,500) | 5,000 (22,000) |
+| 11 | 7,500 (35,000) | 6,000 (28,000) |
+| 12 | 9,000 (44,000) | 7,500 (35,500) |
+| 13 | 10,500 (54,500) | 9,000 (44,500) |
+| 14 | 12,000 (66,500) | 10,500 (55,000) |
+| 15 | 13,500 (80,000) | 12,000 (67,000) |
 
-**Major Classes (Core I + II):** Fighter, Grappler, Sorcerer, Conjurer, Priest, Artificer, Fairy Tamer
-**Minor Classes (Core I + II):** Fencer, Marksman, Scout, Ranger, Sage, Enhancer, Bard
+**Major Classes (Core I–III):** Fighter, Grappler, Sorcerer, Conjurer, Priest, Artificer, Fairy Tamer
+**Minor Classes (Core I–III):** Fencer, Marksman, Scout, Ranger, Sage, Enhancer, Bard, **Rider**, **Alchemist** (два последних — новые классы Core III, требуют отдельного изучения механик)
 
 ---
 
@@ -518,3 +738,6 @@ Core Rulebook II расширяет прогрессию до Level 10. Числ
 7. **Enhanced Racial Abilities** при Adv Level 6+ — дополнительные поля или активация существующих.
 8. **Additional Background Tables** — игроки могут выбирать любую доступную таблицу, не обязательно основную.
 9. **Ability Score rolls** производятся 3 раза, игрок выбирает лучший сет (рекомендация GM).
+10. **Tiens [Intercommunication]** и **Leprechaun [Invisible Hand]** имеют по два уровня усиления (Adv Lv 6+ и 11+) — лист должен уметь показывать оба состояния способности в зависимости от уровня.
+11. **Adventurer Level cap** теперь 15 (было 10 в Core II) — таблицы прогресса/полей уровня должны поддерживать до 15.
+12. **Rider и Alchemist** — новые классы Core III (Minor Class), упомянуты в XP-таблице, но их механики (Mount Rules, Evocation) ещё не задокументированы — см. `state.md`, открытые пробелы.
