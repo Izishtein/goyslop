@@ -117,6 +117,18 @@
   color: var(--text-muted);
 }
 
+/* Advisory, not blocking: a correction the racial dice cannot roll is almost always a
+   typo, but the form still submits. */
+.invalid {
+  border-color: var(--warn);
+  outline-color: var(--warn);
+}
+
+.warning {
+  color: var(--warn);
+  font-size: 0.85rem;
+}
+
 .preview {
   display: flex;
   gap: var(--sp-5);

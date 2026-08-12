@@ -53,6 +53,31 @@ describe('CharacterCreationForm', () => {
     expect(characters[0].classes).toEqual([{ classId: 'artificer', level: 1 }]);
   });
 
+  it('flags a correction the racial dice cannot roll, without blocking submit', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.type(screen.getByLabelText(/^Name$/i), 'Typo Hero');
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:0');
+
+    // Human corrections are 2d6, so 2..12 are rollable and 13 is not.
+    const dexCorrection = screen.getByLabelText('DEX Correction');
+    await user.clear(dexCorrection);
+    await user.type(dexCorrection, '13');
+
+    expect(dexCorrection).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText(/DEX — 2d6 \(2–12\)/)).toBeInTheDocument();
+    // Advisory only: a house rule may legitimately land outside the die.
+    expect(screen.getByRole('button', { name: /create character/i })).toBeEnabled();
+
+    await user.clear(dexCorrection);
+    await user.type(dexCorrection, '12');
+
+    expect(dexCorrection).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByText(/2d6 \(2–12\)/)).not.toBeInTheDocument();
+  });
+
   it('requires a starting-class choice when the background offers a choice of classes', async () => {
     const user = userEvent.setup();
     renderForm();

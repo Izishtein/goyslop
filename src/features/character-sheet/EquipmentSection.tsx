@@ -97,202 +97,212 @@ export function EquipmentSection({ character }: { character: Character }) {
         </p>
       </div>
 
-      <h4>{t('sheet.weapons')}</h4>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>{t('sheet.name')}</th>
-              <th>{t('sheet.stance')}</th>
-              <th>{t('sheet.minStr')}</th>
-              <th>{t('sheet.accuracyBonus')}</th>
-              <th>{t('sheet.totalAccuracy')}</th>
-              <th>{t('sheet.power')}</th>
-              <th>{t('sheet.criticalValue')}</th>
-              <th>{t('sheet.extraDamageBonus')}</th>
-              <th>{t('sheet.totalExtraDamage')}</th>
-              <th>{t('sheet.rank')}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {character.equipment.weapons.map((weapon) => (
-              <tr key={weapon.id}>
-                <td>
-                  <input value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
-                </td>
-                <td>
-                  <select value={weapon.stance} onChange={(e) => updateWeapon(weapon.id, { stance: e.target.value as Weapon['stance'] })} aria-label={t('sheet.stance')}>
-                    <option value="1H">1H</option>
-                    <option value="2H">2H</option>
-                    <option value="special">{t('sheet.special')}</option>
-                  </select>
-                </td>
-                <td>
-                  <input type="number" value={weapon.minStr} onChange={(e) => updateWeapon(weapon.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={weapon.accuracyBonus}
-                    onChange={(e) => updateWeapon(weapon.id, { accuracyBonus: Number(e.target.value) })}
-                    aria-label={t('sheet.accuracyBonus')}
-                  />
-                </td>
-                <td className={styles.numeric}>{weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}</td>
-                <td>
-                  <input type="number" value={weapon.power} onChange={(e) => updateWeapon(weapon.id, { power: Number(e.target.value) })} aria-label={t('sheet.power')} />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={weapon.criticalValue}
-                    onChange={(e) => updateWeapon(weapon.id, { criticalValue: Number(e.target.value) })}
-                    aria-label={t('sheet.criticalValue')}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={weapon.extraDamageBonus}
-                    onChange={(e) => updateWeapon(weapon.id, { extraDamageBonus: Number(e.target.value) })}
-                    aria-label={t('sheet.extraDamageBonus')}
-                  />
-                </td>
-                <td className={styles.numeric}>{weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}</td>
-                <td>
-                  <select value={weapon.rank} onChange={(e) => updateWeapon(weapon.id, { rank: e.target.value as Weapon['rank'] })} aria-label={t('sheet.rank')}>
-                    {EQUIPMENT_RANKS.map((rank) => (
-                      <option key={rank} value={rank}>
-                        {rank}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <button type="button" onClick={() => removeWeapon(weapon.id)}>
-                    {t('sheet.remove')}
-                  </button>
-                </td>
+      {/* data-print-empty drops the whole sub-block from print: its "Add …" button is
+          hidden on paper anyway, leaving a heading over nothing. */}
+      <div className={styles.subsection} data-print-empty={character.equipment.weapons.length === 0 || undefined}>
+        <h4>{t('sheet.weapons')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.stance')}</th>
+                <th>{t('sheet.minStr')}</th>
+                <th>{t('sheet.accuracyBonus')}</th>
+                <th>{t('sheet.totalAccuracy')}</th>
+                <th>{t('sheet.power')}</th>
+                <th>{t('sheet.criticalValue')}</th>
+                <th>{t('sheet.extraDamageBonus')}</th>
+                <th>{t('sheet.totalExtraDamage')}</th>
+                <th>{t('sheet.rank')}</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className={styles.rowActions}>
-        <button type="button" onClick={addWeapon}>
-          {t('sheet.addWeapon')}
-        </button>
-      </div>
-
-      <h4 className={styles.subHead}>{t('sheet.armor')}</h4>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>{t('sheet.name')}</th>
-              <th>{t('sheet.defense')}</th>
-              <th>{t('sheet.evasionModifier')}</th>
-              <th>{t('sheet.minStr')}</th>
-              <th>{t('sheet.rank')}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {character.equipment.armor.map((armor) => (
-              <tr key={armor.id}>
-                <td>
-                  <input value={armor.name} onChange={(e) => updateArmor(armor.id, { name: e.target.value })} aria-label={t('sheet.name')} />
-                </td>
-                <td>
-                  <input type="number" value={armor.defense} onChange={(e) => updateArmor(armor.id, { defense: Number(e.target.value) })} aria-label={t('sheet.defense')} />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={armor.evasionModifier}
-                    onChange={(e) => updateArmor(armor.id, { evasionModifier: Number(e.target.value) })}
-                    aria-label={t('sheet.evasionModifier')}
-                  />
-                </td>
-                <td>
-                  <input type="number" value={armor.minStr} onChange={(e) => updateArmor(armor.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
-                </td>
-                <td>
-                  <select value={armor.rank} onChange={(e) => updateArmor(armor.id, { rank: e.target.value as Armor['rank'] })} aria-label={t('sheet.rank')}>
-                    {(['B', 'A', 'S'] as const).map((rank) => (
-                      <option key={rank} value={rank}>
-                        {rank}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <button type="button" onClick={() => removeArmor(armor.id)}>
-                    {t('sheet.remove')}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className={styles.rowActions}>
-        <button type="button" onClick={addArmor}>
-          {t('sheet.addArmor')}
-        </button>
-      </div>
-
-      <h4 className={styles.subHead}>{t('sheet.shield')}</h4>
-      {character.equipment.shield ? (
-        <div className={styles.inlineRow}>
-          <input value={character.equipment.shield.name} onChange={(e) => setShield({ name: e.target.value })} aria-label={t('sheet.name')} />
-          <label className={styles.field}>
-            <span>{t('sheet.defense')}</span>
-            <input
-              type="number"
-              value={character.equipment.shield.defenseBonus}
-              onChange={(e) => setShield({ defenseBonus: Number(e.target.value) })}
-              aria-label={t('sheet.defense')}
-            />
-          </label>
-          <label className={styles.field}>
-            <span>{t('sheet.evasionModifier')}</span>
-            <input
-              type="number"
-              value={character.equipment.shield.evasionBonus}
-              onChange={(e) => setShield({ evasionBonus: Number(e.target.value) })}
-              aria-label={t('sheet.evasionModifier')}
-            />
-          </label>
-          <button type="button" onClick={() => setShield(null)}>
-            {t('sheet.remove')}
-          </button>
+            </thead>
+            <tbody>
+              {character.equipment.weapons.map((weapon) => (
+                <tr key={weapon.id}>
+                  <td>
+                    <input value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                  </td>
+                  <td>
+                    <select value={weapon.stance} onChange={(e) => updateWeapon(weapon.id, { stance: e.target.value as Weapon['stance'] })} aria-label={t('sheet.stance')}>
+                      <option value="1H">1H</option>
+                      <option value="2H">2H</option>
+                      <option value="special">{t('sheet.special')}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="number" value={weapon.minStr} onChange={(e) => updateWeapon(weapon.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={weapon.accuracyBonus}
+                      onChange={(e) => updateWeapon(weapon.id, { accuracyBonus: Number(e.target.value) })}
+                      aria-label={t('sheet.accuracyBonus')}
+                    />
+                  </td>
+                  <td className={styles.numeric}>{weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}</td>
+                  <td>
+                    <input type="number" value={weapon.power} onChange={(e) => updateWeapon(weapon.id, { power: Number(e.target.value) })} aria-label={t('sheet.power')} />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={weapon.criticalValue}
+                      onChange={(e) => updateWeapon(weapon.id, { criticalValue: Number(e.target.value) })}
+                      aria-label={t('sheet.criticalValue')}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={weapon.extraDamageBonus}
+                      onChange={(e) => updateWeapon(weapon.id, { extraDamageBonus: Number(e.target.value) })}
+                      aria-label={t('sheet.extraDamageBonus')}
+                    />
+                  </td>
+                  <td className={styles.numeric}>{weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}</td>
+                  <td>
+                    <select value={weapon.rank} onChange={(e) => updateWeapon(weapon.id, { rank: e.target.value as Weapon['rank'] })} aria-label={t('sheet.rank')}>
+                      {EQUIPMENT_RANKS.map((rank) => (
+                        <option key={rank} value={rank}>
+                          {rank}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => removeWeapon(weapon.id)}>
+                      {t('sheet.remove')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      ) : (
         <div className={styles.rowActions}>
-          <button type="button" onClick={() => setShield({ name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0 })}>
-            {t('sheet.addShield')}
+          <button type="button" onClick={addWeapon}>
+            {t('sheet.addWeapon')}
           </button>
         </div>
-      )}
+      </div>
 
-      <h4 className={styles.subHead}>{t('sheet.accessories')}</h4>
-      {character.equipment.accessories.length === 0 && <p className={styles.empty}>{t('sheet.noAccessories')}</p>}
-      <ul className={styles.inlineList}>
-        {character.equipment.accessories.map((accessory) => (
-          <li key={accessory.id} className={styles.inlineRow}>
-            <input value={accessory.name} onChange={(e) => updateAccessory(accessory.id, { name: e.target.value })} aria-label={t('sheet.name')} />
-            <button type="button" onClick={() => removeAccessory(accessory.id)}>
+      <div className={styles.subsection} data-print-empty={character.equipment.armor.length === 0 || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.armor')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.defense')}</th>
+                <th>{t('sheet.evasionModifier')}</th>
+                <th>{t('sheet.minStr')}</th>
+                <th>{t('sheet.rank')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {character.equipment.armor.map((armor) => (
+                <tr key={armor.id}>
+                  <td>
+                    <input value={armor.name} onChange={(e) => updateArmor(armor.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                  </td>
+                  <td>
+                    <input type="number" value={armor.defense} onChange={(e) => updateArmor(armor.id, { defense: Number(e.target.value) })} aria-label={t('sheet.defense')} />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={armor.evasionModifier}
+                      onChange={(e) => updateArmor(armor.id, { evasionModifier: Number(e.target.value) })}
+                      aria-label={t('sheet.evasionModifier')}
+                    />
+                  </td>
+                  <td>
+                    <input type="number" value={armor.minStr} onChange={(e) => updateArmor(armor.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
+                  </td>
+                  <td>
+                    <select value={armor.rank} onChange={(e) => updateArmor(armor.id, { rank: e.target.value as Armor['rank'] })} aria-label={t('sheet.rank')}>
+                      {(['B', 'A', 'S'] as const).map((rank) => (
+                        <option key={rank} value={rank}>
+                          {rank}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => removeArmor(armor.id)}>
+                      {t('sheet.remove')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className={styles.rowActions}>
+          <button type="button" onClick={addArmor}>
+            {t('sheet.addArmor')}
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.subsection} data-print-empty={character.equipment.shield === null || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.shield')}</h4>
+        {character.equipment.shield ? (
+          <div className={styles.inlineRow}>
+            <input value={character.equipment.shield.name} onChange={(e) => setShield({ name: e.target.value })} aria-label={t('sheet.name')} />
+            <label className={styles.field}>
+              <span>{t('sheet.defense')}</span>
+              <input
+                type="number"
+                value={character.equipment.shield.defenseBonus}
+                onChange={(e) => setShield({ defenseBonus: Number(e.target.value) })}
+                aria-label={t('sheet.defense')}
+              />
+            </label>
+            <label className={styles.field}>
+              <span>{t('sheet.evasionModifier')}</span>
+              <input
+                type="number"
+                value={character.equipment.shield.evasionBonus}
+                onChange={(e) => setShield({ evasionBonus: Number(e.target.value) })}
+                aria-label={t('sheet.evasionModifier')}
+              />
+            </label>
+            <button type="button" onClick={() => setShield(null)}>
               {t('sheet.remove')}
             </button>
-          </li>
-        ))}
-      </ul>
-      <div className={styles.rowActions}>
-        <button type="button" onClick={addAccessory}>
-          {t('sheet.addAccessory')}
-        </button>
+          </div>
+        ) : (
+          <div className={styles.rowActions}>
+            <button type="button" onClick={() => setShield({ name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0 })}>
+              {t('sheet.addShield')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.subsection} data-print-empty={character.equipment.accessories.length === 0 || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.accessories')}</h4>
+        {character.equipment.accessories.length === 0 && <p className={styles.empty}>{t('sheet.noAccessories')}</p>}
+        <ul className={styles.inlineList}>
+          {character.equipment.accessories.map((accessory) => (
+            <li key={accessory.id} className={styles.inlineRow}>
+              <input value={accessory.name} onChange={(e) => updateAccessory(accessory.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+              <button type="button" onClick={() => removeAccessory(accessory.id)}>
+                {t('sheet.remove')}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className={styles.rowActions}>
+          <button type="button" onClick={addAccessory}>
+            {t('sheet.addAccessory')}
+          </button>
+        </div>
       </div>
 
       <h4 className={styles.subHead}>{t('sheet.currency')}</h4>

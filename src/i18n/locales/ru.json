@@ -4,6 +4,8 @@
     "newCharacter": "Новый персонаж",
     "delete": "Удалить персонажа",
     "deleteShort": "Удалить",
+    "confirmDelete": "Удалить «{{name}}»?",
+    "cancel": "Отмена",
     "language": "Язык"
   },
   "language": {
@@ -31,6 +33,7 @@
     "modifier": "Модификатор",
     "hpPreview": "HP max: {{value}}",
     "mpPreview": "MP max: {{value}}",
+    "correctionOutOfRange": "Коррекция (Correction) вне того, что могут выпасть расовые кости: {{list}}",
     "submit": "Создать персонажа"
   },
   "sheet": {

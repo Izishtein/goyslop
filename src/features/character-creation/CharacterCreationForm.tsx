@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { ABILITY_IDS, abilityModifier, abilityTotal, type AbilityId } from '../../lib/formulas/abilities';
-import { abilityBaseFromSplit, formatDiceNotation } from '../../lib/formulas/ability-base';
+import { abilityBaseFromSplit, correctionRange, formatDiceNotation, isCorrectionInRange } from '../../lib/formulas/ability-base';
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
@@ -41,6 +41,14 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
     const score = { base, correction: corrections[id], growth: growths[id], itemBonus: itemBonuses[id] };
     return { id, score, total: abilityTotal(score), modifier: abilityModifier(abilityTotal(score)) };
   });
+
+  /* A correction is a die result, so anything outside the racial die's range is a typo.
+     Zero is left alone: it is the untouched initial value, not a claimed roll. Flagging is
+     advisory — submitting stays possible, since house rules and GM fiat exist. */
+  const abilityDice = race?.abilityDice ?? null;
+  const badCorrections = abilityDice
+    ? ABILITY_IDS.filter((id) => corrections[id] !== 0 && !isCorrectionInRange(abilityDice[id], corrections[id]))
+    : [];
 
   const needsClassChoice = background?.startingClasses?.joiner === 'or';
   const startingClassIds = background?.startingClasses
@@ -180,13 +188,15 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
                     </div>
                   </div>
                   <label className={styles.abilityPart}>
-                    <span title={race?.abilityDice ? formatDiceNotation(race.abilityDice[id]) : undefined}>{t('creation.correctionShort')}</span>
+                    <span title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}>{t('creation.correctionShort')}</span>
                     <input
                       type="number"
                       value={corrections[id]}
                       onChange={(event) => setCorrections((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
                       aria-label={`${id} ${t('creation.correction')}`}
-                      title={race?.abilityDice ? formatDiceNotation(race.abilityDice[id]) : undefined}
+                      aria-invalid={badCorrections.includes(id) || undefined}
+                      className={badCorrections.includes(id) ? styles.invalid : undefined}
+                      title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}
                     />
                   </label>
                   <label className={styles.abilityPart}>
@@ -211,6 +221,19 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
               </article>
             ))}
           </div>
+
+          {badCorrections.length > 0 && abilityDice && (
+            <p className={styles.warning} role="status">
+              {t('creation.correctionOutOfRange', {
+                list: badCorrections
+                  .map((id) => {
+                    const { min, max } = correctionRange(abilityDice[id]);
+                    return `${id} — ${formatDiceNotation(abilityDice[id])} (${min}–${max})`;
+                  })
+                  .join(', '),
+              })}
+            </p>
+          )}
 
           <div className={styles.preview}>
             <strong className={styles.previewStat}>{t('creation.hpPreview', { value: previewHp })}</strong>

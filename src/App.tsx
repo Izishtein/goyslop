@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { charactersAtom, activeCharacterIdAtom } from './state/characters';
@@ -13,9 +14,15 @@ function App() {
   const [activeId, setActiveId] = useAtom(activeCharacterIdAtom);
   const activeCharacter = characters.find((character) => character.id === activeId);
 
+  /* Deleting is irreversible (localStorage only), so it takes two clicks. Inline rather
+     than a modal: the roster row is where the mistake happens, and it keeps the sheet
+     free of dialog machinery. */
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
   function deleteCharacter(id: string) {
     setCharacters((prev) => prev.filter((character) => character.id !== id));
     if (activeId === id) setActiveId(null);
+    setPendingDeleteId(null);
   }
 
   return (
@@ -58,14 +65,29 @@ function App() {
                 >
                   {t('io.exportShort')}
                 </button>
-                <button
-                  type="button"
-                  className={`${styles.rosterAction} ${styles.danger}`}
-                  onClick={() => deleteCharacter(character.id)}
-                  title={t('app.delete')}
-                >
-                  {t('app.deleteShort')}
-                </button>
+                {pendingDeleteId === character.id ? (
+                  <>
+                    <button
+                      type="button"
+                      className={`${styles.rosterAction} ${styles.danger}`}
+                      onClick={() => deleteCharacter(character.id)}
+                    >
+                      {t('app.confirmDelete', { name: character.name })}
+                    </button>
+                    <button type="button" className={styles.rosterAction} onClick={() => setPendingDeleteId(null)}>
+                      {t('app.cancel')}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className={`${styles.rosterAction} ${styles.danger}`}
+                    onClick={() => setPendingDeleteId(character.id)}
+                    title={t('app.delete')}
+                  >
+                    {t('app.deleteShort')}
+                  </button>
+                )}
               </li>
             ))}
           </ul>

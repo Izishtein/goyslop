@@ -180,6 +180,12 @@
   margin-top: var(--sp-2);
 }
 
+/* Groups a sub-heading with its content so print can drop the pair as a unit.
+   display: contents keeps the children as direct flex items of the section on screen. */
+.subsection {
+  display: contents;
+}
+
 /* ---- Ability cards ----------------------------------------------------- */
 
 /* 240px lands on an even 3 x 2 on desktop rather than a ragged 4 + 2. */
@@ -547,8 +553,11 @@
     print-color-adjust: exact;
   }
 
+  /* transition: none matters here — the screen bar animates its colour over 0.2s, so a
+     page rasterised the instant print media applies can still catch the screen green. */
   .fill {
     background: #777 !important;
+    transition: none;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -599,8 +608,13 @@
     background: transparent;
   }
 
-  /* Nothing to show on paper for an empty section — but keep the heading so the
-     printed sheet still has a place to write by hand. */
+  /* An empty equipment sub-block prints as a heading over nothing — its only content
+     is the (hidden) "Add …" button — so drop the whole pair. Sections that keep an
+     explicit "none" line still print their heading, which leaves a place to write. */
+  .subsection[data-print-empty] {
+    display: none;
+  }
+
   .empty {
     color: #666;
   }

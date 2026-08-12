@@ -4,6 +4,8 @@
     "newCharacter": "New character",
     "delete": "Delete character",
     "deleteShort": "Delete",
+    "confirmDelete": "Delete {{name}}?",
+    "cancel": "Cancel",
     "language": "Language"
   },
   "language": {
@@ -31,6 +33,7 @@
     "modifier": "Modifier",
     "hpPreview": "HP max: {{value}}",
     "mpPreview": "MP max: {{value}}",
+    "correctionOutOfRange": "Correction is outside what the racial dice can roll: {{list}}",
     "submit": "Create character"
   },
   "sheet": {
