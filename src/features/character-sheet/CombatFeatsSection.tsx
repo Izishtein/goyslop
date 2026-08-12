@@ -22,43 +22,59 @@ export function CombatFeatsSection({ character }: { character: Character }) {
   }
 
   return (
-    <section>
-      <h3>{t('sheet.combatFeats')}</h3>
-      <table className={styles.abilityTable}>
-        <thead>
-          <tr>
-            <th>{t('sheet.name')}</th>
-            <th>{t('sheet.category')}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {character.combatFeats.map((feat) => (
-            <tr key={feat.id}>
-              <td>
-                <input value={feat.name} onChange={(e) => updateFeat(feat.id, { name: e.target.value })} aria-label={t('sheet.name')} />
-              </td>
-              <td>
-                <select value={feat.category} onChange={(e) => updateFeat(feat.id, { category: e.target.value as CombatFeatCategory })} aria-label={t('sheet.category')}>
-                  {COMBAT_FEAT_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {t(`sheet.combatFeatCategory.${category}`)}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <button type="button" onClick={() => removeFeat(feat.id)}>
-                  {t('sheet.remove')}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button type="button" onClick={addFeat}>
-        {t('sheet.addCombatFeat')}
-      </button>
+    <section className={styles.section}>
+      <div className={styles.sectionHead}>
+        <h3>{t('sheet.combatFeats')}</h3>
+      </div>
+
+      {character.combatFeats.length === 0 ? (
+        <p className={styles.empty}>{t('sheet.noCombatFeats')}</p>
+      ) : (
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.category')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {character.combatFeats.map((feat) => (
+                <tr key={feat.id}>
+                  <td>
+                    <input value={feat.name} onChange={(e) => updateFeat(feat.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                  </td>
+                  <td>
+                    <select
+                      value={feat.category}
+                      onChange={(e) => updateFeat(feat.id, { category: e.target.value as CombatFeatCategory })}
+                      aria-label={t('sheet.category')}
+                    >
+                      {COMBAT_FEAT_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>
+                          {t(`sheet.combatFeatCategory.${category}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => removeFeat(feat.id)}>
+                      {t('sheet.remove')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className={styles.rowActions}>
+        <button type="button" onClick={addFeat}>
+          {t('sheet.addCombatFeat')}
+        </button>
+      </div>
     </section>
   );
 }

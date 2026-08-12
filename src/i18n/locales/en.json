@@ -2,7 +2,9 @@
   "app": {
     "title": "SW 2.5 Character Sheet",
     "newCharacter": "New character",
-    "delete": "Delete"
+    "delete": "Delete character",
+    "deleteShort": "Delete",
+    "language": "Language"
   },
   "language": {
     "en": "English",
@@ -10,6 +12,7 @@
   },
   "creation": {
     "title": "Create character",
+    "intro": "Pick a race and background — base ability scores come from the background table. Roll your racial dice and enter the results as Correction.",
     "name": "Name",
     "race": "Race",
     "background": "Background",
@@ -17,9 +20,13 @@
     "selectPlaceholder": "Select...",
     "ability": "Ability",
     "base": "Base",
+    "baseShort": "Base",
     "correction": "Correction",
+    "correctionShort": "Corr.",
     "growth": "Growth",
+    "growthShort": "Growth",
     "itemBonus": "Item bonus",
+    "itemBonusShort": "Item",
     "total": "Total",
     "modifier": "Modifier",
     "hpPreview": "HP max: {{value}}",
@@ -28,9 +35,11 @@
   },
   "sheet": {
     "adventurerLevel": "Adventurer Level",
+    "abilities": "Ability scores",
     "hp": "HP",
     "mp": "MP",
     "resetToMax": "Reset to max",
+    "resetToMaxShort": "Max",
     "fortitude": "Fortitude",
     "willpower": "Willpower",
     "noStatusEffects": "No active status effects",
@@ -66,12 +75,14 @@
     "shield": "Shield",
     "addShield": "Add shield",
     "accessories": "Accessories",
+    "noAccessories": "No accessories",
     "addAccessory": "Add accessory",
     "currency": "Currency",
     "cash": "Cash",
     "savings": "Savings",
     "debt": "Debt",
     "combatFeats": "SCA / Combat Feats",
+    "noCombatFeats": "No feats taken",
     "category": "Category",
     "addCombatFeat": "Add feat",
     "combatFeatCategory": {
@@ -83,6 +94,7 @@
   },
   "io": {
     "export": "Download JSON",
+    "exportShort": "JSON",
     "import": "Import JSON",
     "error": {
       "invalidJson": "That file isn't valid JSON.",

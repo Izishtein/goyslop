@@ -5,7 +5,7 @@ import { CharacterCreationForm } from './features/character-creation/CharacterCr
 import { CharacterSheetView } from './features/character-sheet/CharacterSheetView';
 import { downloadCharacter } from './features/character-io/downloadCharacter';
 import { ImportCharacterButton } from './features/character-io/ImportCharacterButton';
-import './App.css';
+import styles from './App.module.css';
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -19,42 +19,68 @@ function App() {
   }
 
   return (
-    <main>
-      <header>
-        <h1>{t('app.title')}</h1>
-        <label>
-          {t('language.en')} / {t('language.ru')}:{' '}
-          <select value={i18n.language} onChange={(event) => void i18n.changeLanguage(event.target.value)}>
+    <main className={styles.app}>
+      <header className={styles.topBar}>
+        <div className={styles.brand}>
+          <h1>{t('app.title')}</h1>
+        </div>
+        <label className={styles.langSwitch} htmlFor="lang-switch">
+          {t('app.language')}
+          {/* resolvedLanguage, not language: a detected "ru-RU" resolves to the "ru"
+              resource, and only the resolved value matches an option below. */}
+          <select
+            id="lang-switch"
+            value={i18n.resolvedLanguage ?? 'en'}
+            onChange={(event) => void i18n.changeLanguage(event.target.value)}
+          >
             <option value="en">EN</option>
             <option value="ru">RU</option>
           </select>
         </label>
       </header>
 
-      {characters.length > 0 && (
-        <nav>
-          <ul>
+      {characters.length > 0 ? (
+        <nav className={styles.roster}>
+          <ul className={styles.rosterList}>
             {characters.map((character) => (
-              <li key={character.id}>
-                <button type="button" onClick={() => setActiveId(character.id)}>
+              <li
+                key={character.id}
+                className={`${styles.rosterItem} ${character.id === activeId ? styles.active : ''}`}
+              >
+                <button type="button" className={styles.rosterName} onClick={() => setActiveId(character.id)}>
                   {character.name}
                 </button>
-                <button type="button" onClick={() => downloadCharacter(character)}>
-                  {t('io.export')}
+                <button
+                  type="button"
+                  className={styles.rosterAction}
+                  onClick={() => downloadCharacter(character)}
+                  title={t('io.export')}
+                >
+                  {t('io.exportShort')}
                 </button>
-                <button type="button" onClick={() => deleteCharacter(character.id)}>
-                  {t('app.delete')}
+                <button
+                  type="button"
+                  className={`${styles.rosterAction} ${styles.danger}`}
+                  onClick={() => deleteCharacter(character.id)}
+                  title={t('app.delete')}
+                >
+                  {t('app.deleteShort')}
                 </button>
               </li>
             ))}
           </ul>
-          <button type="button" onClick={() => setActiveId(null)}>
-            {t('app.newCharacter')}
-          </button>
-          <ImportCharacterButton />
+          <div className={styles.rosterTools}>
+            <button type="button" onClick={() => setActiveId(null)}>
+              {t('app.newCharacter')}
+            </button>
+            <ImportCharacterButton />
+          </div>
         </nav>
+      ) : (
+        <div className={styles.emptyState}>
+          <ImportCharacterButton />
+        </div>
       )}
-      {characters.length === 0 && <ImportCharacterButton />}
 
       {activeCharacter ? (
         <CharacterSheetView character={activeCharacter} />

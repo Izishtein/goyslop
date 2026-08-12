@@ -1,22 +1,52 @@
+/**
+ * Design tokens + base styles.
+ *
+ * Concept: modern clean UI, desktop-first but responsive, one long scroll.
+ * Both themes are defined here; `color-scheme` also keeps native controls
+ * (inputs, selects, scrollbars) in the matching theme.
+ */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Surfaces */
+  --bg: #f6f6f8;
+  --surface: #ffffff;
+  --surface-2: #f1f1f5;
+  --border: #e2e2e9;
+  --border-strong: #cdcdd8;
+
+  /* Text */
+  --text: #1b1b21;
+  --text-muted: #6a6a78;
+  --text-faint: #94949f;
+
+  /* Accent + semantic */
+  --accent: #6d4aff;
+  --accent-soft: rgba(109, 74, 255, 0.1);
+  --accent-text: #ffffff;
+  --ok: #1f9d63;
+  --warn: #c98a12;
+  --danger: #d4394b;
+  --mp: #3b71f0;
+
+  /* Shape */
+  --radius: 12px;
+  --radius-sm: 7px;
+  --shadow-sm: 0 1px 2px rgba(16, 16, 30, 0.06);
+  --shadow: 0 2px 8px rgba(16, 16, 30, 0.07), 0 1px 2px rgba(16, 16, 30, 0.05);
+
+  /* Spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -24,60 +54,150 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+    --bg: #101116;
+    --surface: #191b21;
+    --surface-2: #21232b;
+    --border: #2c2f39;
+    --border-strong: #3a3e4a;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --text: #e9e9ef;
+    --text-muted: #9b9bab;
+    --text-faint: #6e6e7d;
+
+    --accent: #a78bfa;
+    --accent-soft: rgba(167, 139, 250, 0.14);
+    --accent-text: #16121f;
+    --ok: #45c78a;
+    --warn: #e0aa3e;
+    --danger: #f0616f;
+    --mp: #7aa2f7;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
-  box-sizing: border-box;
+  background: var(--bg);
+  color: var(--text);
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3,
+h4 {
+  color: var(--text);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 28px;
-  margin: 0;
+  font-size: 1.25rem;
 }
 h2 {
-  font-size: 20px;
-  margin: 0 0 8px;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+h3 {
+  font-size: 1rem;
+}
+h4 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-code {
-  font-family: var(--mono);
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: var(--code-bg);
-  color: var(--text-h);
+p {
+  margin: 0;
+}
+
+/* ---- Form controls ---------------------------------------------------- */
+
+input,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  min-width: 0;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input:hover,
+select:hover {
+  border-color: var(--border-strong);
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+input[type='number'] {
+  text-align: center;
+}
+
+button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+button:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Primary action: the submit button of a form. */
+button[type='submit'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 500;
+}
+
+button[type='submit']:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  filter: brightness(1.08);
 }

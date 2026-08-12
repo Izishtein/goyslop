@@ -93,124 +93,137 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <h2>{t('creation.title')}</h2>
-
-      <div className={styles.field}>
-        <label htmlFor="char-name">{t('creation.name')}</label>
-        <input id="char-name" value={name} onChange={(event) => setName(event.target.value)} required />
+      <div>
+        <h2>{t('creation.title')}</h2>
+        <p className={styles.intro}>{t('creation.intro')}</p>
       </div>
 
-      <div className={styles.field}>
-        <label htmlFor="char-race">{t('creation.race')}</label>
-        <select id="char-race" value={raceId} onChange={(event) => handleRaceChange(event.target.value)} required>
-          <option value="" disabled>
-            {t('creation.selectPlaceholder')}
-          </option>
-          {RACES.filter((r) => r.backgroundTables).map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {race && (
+      <div className={styles.fields}>
         <div className={styles.field}>
-          <label htmlFor="char-background">{t('creation.background')}</label>
-          <select
-            id="char-background"
-            value={backgroundKey}
-            onChange={(event) => { setBackgroundKey(event.target.value); setChosenClassId(''); }}
-            required
-          >
+          <label htmlFor="char-name">{t('creation.name')}</label>
+          <input id="char-name" value={name} onChange={(event) => setName(event.target.value)} required />
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="char-race">{t('creation.race')}</label>
+          <select id="char-race" value={raceId} onChange={(event) => handleRaceChange(event.target.value)} required>
             <option value="" disabled>
               {t('creation.selectPlaceholder')}
             </option>
-            {backgroundOptions.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.entry.name} ({option.entry.rollRange}, {option.entry.xp} XP)
+            {RACES.filter((r) => r.backgroundTables).map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
               </option>
             ))}
           </select>
         </div>
-      )}
 
-      {needsClassChoice && background?.startingClasses && (
-        <div className={styles.field}>
-          <label htmlFor="char-starting-class">{t('creation.startingClass')}</label>
-          <select id="char-starting-class" value={chosenClassId} onChange={(event) => setChosenClassId(event.target.value)} required>
-            <option value="" disabled>
-              {t('creation.selectPlaceholder')}
-            </option>
-            {background.startingClasses.classIds.map((classId) => (
-              <option key={classId} value={classId}>
-                {getClass(classId)?.name ?? classId}
+        {race && (
+          <div className={styles.field}>
+            <label htmlFor="char-background">{t('creation.background')}</label>
+            <select
+              id="char-background"
+              value={backgroundKey}
+              onChange={(event) => {
+                setBackgroundKey(event.target.value);
+                setChosenClassId('');
+              }}
+              required
+            >
+              <option value="" disabled>
+                {t('creation.selectPlaceholder')}
               </option>
-            ))}
-          </select>
-        </div>
-      )}
+              {backgroundOptions.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.entry.name} ({option.entry.rollRange}, {option.entry.xp} XP)
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {needsClassChoice && background?.startingClasses && (
+          <div className={styles.field}>
+            <label htmlFor="char-starting-class">{t('creation.startingClass')}</label>
+            <select id="char-starting-class" value={chosenClassId} onChange={(event) => setChosenClassId(event.target.value)} required>
+              <option value="" disabled>
+                {t('creation.selectPlaceholder')}
+              </option>
+              {background.startingClasses.classIds.map((classId) => (
+                <option key={classId} value={classId}>
+                  {getClass(classId)?.name ?? classId}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
       {background && (
-        <table className={styles.abilityTable}>
-          <thead>
-            <tr>
-              <th>{t('creation.ability')}</th>
-              <th>{t('creation.base')}</th>
-              <th>{t('creation.correction')}</th>
-              <th>{t('creation.growth')}</th>
-              <th>{t('creation.itemBonus')}</th>
-              <th>{t('creation.total')}</th>
-              <th>{t('creation.modifier')}</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          <div className={styles.abilityGrid}>
             {abilities.map(({ id, score, total, modifier }) => (
-              <tr key={id}>
-                <td>{id}</td>
-                <td>{score.base}</td>
-                <td>
-                  <input
-                    type="number"
-                    value={corrections[id]}
-                    onChange={(event) => setCorrections((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                    aria-label={`${id} ${t('creation.correction')}`}
-                    title={race?.abilityDice ? formatDiceNotation(race.abilityDice[id]) : undefined}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={growths[id]}
-                    onChange={(event) => setGrowths((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                    aria-label={`${id} ${t('creation.growth')}`}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={itemBonuses[id]}
-                    onChange={(event) => setItemBonuses((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                    aria-label={`${id} ${t('creation.itemBonus')}`}
-                  />
-                </td>
-                <td>{total}</td>
-                <td>{modifier >= 0 ? `+${modifier}` : modifier}</td>
-              </tr>
+              <article key={id} className={styles.abilityCard} aria-label={id}>
+                <div className={styles.abilityTop}>
+                  <span className={styles.abilityName}>{id}</span>
+                  <span className={styles.abilityTotal} aria-label={`${id} ${t('creation.total')}`}>
+                    {total}
+                  </span>
+                  <span className={styles.abilityMod}>{modifier >= 0 ? `+${modifier}` : modifier}</span>
+                </div>
+
+                <div className={styles.abilityParts}>
+                  <div className={styles.abilityPart}>
+                    <span>{t('creation.baseShort')}</span>
+                    <div className={styles.abilityPartStatic} aria-label={`${id} ${t('creation.base')}`}>
+                      {score.base}
+                    </div>
+                  </div>
+                  <label className={styles.abilityPart}>
+                    <span title={race?.abilityDice ? formatDiceNotation(race.abilityDice[id]) : undefined}>{t('creation.correctionShort')}</span>
+                    <input
+                      type="number"
+                      value={corrections[id]}
+                      onChange={(event) => setCorrections((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                      aria-label={`${id} ${t('creation.correction')}`}
+                      title={race?.abilityDice ? formatDiceNotation(race.abilityDice[id]) : undefined}
+                    />
+                  </label>
+                  <label className={styles.abilityPart}>
+                    <span>{t('creation.growthShort')}</span>
+                    <input
+                      type="number"
+                      value={growths[id]}
+                      onChange={(event) => setGrowths((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                      aria-label={`${id} ${t('creation.growth')}`}
+                    />
+                  </label>
+                  <label className={styles.abilityPart}>
+                    <span>{t('creation.itemBonusShort')}</span>
+                    <input
+                      type="number"
+                      value={itemBonuses[id]}
+                      onChange={(event) => setItemBonuses((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                      aria-label={`${id} ${t('creation.itemBonus')}`}
+                    />
+                  </label>
+                </div>
+              </article>
             ))}
-          </tbody>
-        </table>
+          </div>
+
+          <div className={styles.preview}>
+            <strong className={styles.previewStat}>{t('creation.hpPreview', { value: previewHp })}</strong>
+            <strong className={styles.previewStat}>{t('creation.mpPreview', { value: previewMp })}</strong>
+          </div>
+        </>
       )}
 
-      {background && (
-        <p className={styles.preview}>
-          {t('creation.hpPreview', { value: previewHp })} · {t('creation.mpPreview', { value: previewMp })}
-        </p>
-      )}
-
-      <button type="submit" disabled={!canSubmit}>
-        {t('creation.submit')}
-      </button>
+      <div className={styles.actions}>
+        <button type="submit" disabled={!canSubmit}>
+          {t('creation.submit')}
+        </button>
+      </div>
     </form>
   );
 }

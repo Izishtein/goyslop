@@ -19,6 +19,7 @@ export function CombatStatsSection({ character }: { character: Character }) {
   const warriorRows = character.classes
     .filter((classLevel) => getClass(classLevel.classId)?.type === 'warrior')
     .map((classLevel) => {
+      // Marksman levels do not contribute to Evasion.
       const evasionLevel = classLevel.classId === 'marksman' ? 0 : classLevel.level;
       return {
         name: getClass(classLevel.classId)?.name ?? classLevel.classId,
@@ -38,47 +39,55 @@ export function CombatStatsSection({ character }: { character: Character }) {
   if (warriorRows.length === 0 && wizardRows.length === 0) return null;
 
   return (
-    <section>
-      <h3>{t('sheet.combatStats')}</h3>
+    <section className={styles.section}>
+      <div className={styles.sectionHead}>
+        <h3>{t('sheet.combatStats')}</h3>
+      </div>
+
       {warriorRows.length > 0 && (
-        <table className={styles.abilityTable}>
-          <thead>
-            <tr>
-              <th>{t('sheet.class')}</th>
-              <th>{t('sheet.accuracy')}</th>
-              <th>{t('sheet.evasion')}</th>
-              <th>{t('sheet.extraDamage')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {warriorRows.map((row) => (
-              <tr key={row.name}>
-                <td>{row.name}</td>
-                <td>{row.accuracy}</td>
-                <td>{row.evasion}</td>
-                <td>{row.extraDamage}</td>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.class')}</th>
+                <th>{t('sheet.accuracy')}</th>
+                <th>{t('sheet.evasion')}</th>
+                <th>{t('sheet.extraDamage')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {warriorRows.map((row) => (
+                <tr key={row.name}>
+                  <td>{row.name}</td>
+                  <td className={styles.numeric}>{row.accuracy}</td>
+                  <td className={styles.numeric}>{row.evasion}</td>
+                  <td className={styles.numeric}>{row.extraDamage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+
       {wizardRows.length > 0 && (
-        <table className={styles.abilityTable}>
-          <thead>
-            <tr>
-              <th>{t('sheet.class')}</th>
-              <th>{t('sheet.magicPower')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {wizardRows.map((row) => (
-              <tr key={row.name}>
-                <td>{row.name}</td>
-                <td>{row.magicPower}</td>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.class')}</th>
+                <th>{t('sheet.magicPower')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {wizardRows.map((row) => (
+                <tr key={row.name}>
+                  <td>{row.name}</td>
+                  <td className={styles.numeric}>{row.magicPower}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tickStatusEffects } from '../../lib/formulas/status-effects';
-import { STATUS_EFFECT_FIELDS, type Character, type StatusEffect, type StatusEffectDuration, type StatusEffectField, type StatusEffectModifier } from '../../types/character';
+import {
+  STATUS_EFFECT_FIELDS,
+  type Character,
+  type StatusEffect,
+  type StatusEffectDuration,
+  type StatusEffectField,
+  type StatusEffectModifier,
+} from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import styles from './CharacterSheetView.module.css';
 
@@ -25,6 +32,10 @@ interface DraftModifier {
   value: number;
 }
 
+function emptyDraft(): DraftModifier {
+  return { field: 'accuracy', customLabel: '', value: -1 };
+}
+
 export function StatusEffectsSection({ character }: { character: Character }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
@@ -33,10 +44,10 @@ export function StatusEffectsSection({ character }: { character: Character }) {
   const [source, setSource] = useState('');
   const [durationKind, setDurationKind] = useState<DurationKind>('rounds');
   const [rounds, setRounds] = useState(1);
-  const [modifiers, setModifiers] = useState<DraftModifier[]>([{ field: 'accuracy', customLabel: '', value: -1 }]);
+  const [modifiers, setModifiers] = useState<DraftModifier[]>([emptyDraft()]);
 
   function addModifierRow() {
-    setModifiers((prev) => [...prev, { field: 'accuracy', customLabel: '', value: -1 }]);
+    setModifiers((prev) => [...prev, emptyDraft()]);
   }
   function removeModifierRow(index: number) {
     setModifiers((prev) => prev.filter((_, i) => i !== index));
@@ -50,7 +61,7 @@ export function StatusEffectsSection({ character }: { character: Character }) {
     setSource('');
     setDurationKind('rounds');
     setRounds(1);
-    setModifiers([{ field: 'accuracy', customLabel: '', value: -1 }]);
+    setModifiers([emptyDraft()]);
   }
 
   function handleAdd(event: React.FormEvent) {
@@ -84,43 +95,54 @@ export function StatusEffectsSection({ character }: { character: Character }) {
   }
 
   return (
-    <section>
-      <h3>{t('statusEffects.title')}</h3>
-
-      {character.statusEffects.length === 0 ? (
-        <p>{t('sheet.noStatusEffects')}</p>
-      ) : (
-        <>
-          <ul className={styles.classList}>
-            {character.statusEffects.map((effect) => (
-              <li key={effect.id}>
-                <strong>{effect.name}</strong>
-                {effect.source ? ` (${effect.source})` : ''} — {describeDuration(effect.duration, t)}
-                {effect.modifiers.length > 0 && `: ${effect.modifiers.map((m) => describeModifier(m, t)).join(', ')}`}{' '}
-                <button type="button" onClick={() => removeEffect(effect.id)}>
-                  {t('sheet.remove')}
-                </button>
-              </li>
-            ))}
-          </ul>
+    <section className={styles.section}>
+      <div className={styles.sectionHead}>
+        <h3>{t('statusEffects.title')}</h3>
+        {character.statusEffects.length > 0 && (
           <button type="button" onClick={nextRound}>
             {t('statusEffects.nextRound')}
           </button>
-        </>
+        )}
+      </div>
+
+      {character.statusEffects.length === 0 ? (
+        <p className={styles.empty}>{t('sheet.noStatusEffects')}</p>
+      ) : (
+        <ul className={styles.effectList}>
+          {character.statusEffects.map((effect) => (
+            <li key={effect.id} className={styles.effect}>
+              <span className={styles.effectName}>{effect.name}</span>
+              {effect.source && <span className={styles.effectMeta}>{effect.source}</span>}
+              <span className={styles.effectMeta}>{describeDuration(effect.duration, t)}</span>
+              <span className={styles.effectMods}>
+                {effect.modifiers.map((modifier, index) => (
+                  <span key={index} className={styles.modChip}>
+                    {describeModifier(modifier, t)}
+                  </span>
+                ))}
+              </span>
+              <span className={styles.effectSpacer} />
+              <button type="button" onClick={() => removeEffect(effect.id)}>
+                {t('sheet.remove')}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
 
-      <form onSubmit={handleAdd} className={styles.sheet}>
+      <form onSubmit={handleAdd} className={styles.effectForm}>
         <h4>{t('statusEffects.addTitle')}</h4>
-        <div className={styles.trackers}>
-          <div>
+
+        <div className={styles.formRow}>
+          <div className={styles.field}>
             <label htmlFor="effect-name">{t('statusEffects.name')}</label>
             <input id="effect-name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
-          <div>
+          <div className={styles.field}>
             <label htmlFor="effect-source">{t('statusEffects.source')}</label>
             <input id="effect-source" value={source} onChange={(e) => setSource(e.target.value)} />
           </div>
-          <div>
+          <div className={styles.field}>
             <label htmlFor="effect-duration">{t('statusEffects.duration')}</label>
             <select id="effect-duration" value={durationKind} onChange={(e) => setDurationKind(e.target.value as DurationKind)}>
               <option value="rounds">{t('statusEffects.rounds')}</option>
@@ -129,70 +151,66 @@ export function StatusEffectsSection({ character }: { character: Character }) {
             </select>
           </div>
           {durationKind === 'rounds' && (
-            <div>
+            <div className={styles.field}>
               <label htmlFor="effect-rounds">{t('statusEffects.rounds')}</label>
               <input id="effect-rounds" type="number" min={1} value={rounds} onChange={(e) => setRounds(Number(e.target.value))} />
             </div>
           )}
         </div>
 
-        <table className={styles.abilityTable}>
-          <thead>
-            <tr>
-              <th>{t('sheet.name')}</th>
-              <th>{t('statusEffects.modifierField')}</th>
-              <th>{t('statusEffects.modifierValue')}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {modifiers.map((modifier, index) => (
-              <tr key={index}>
-                <td>
-                  {modifier.field === 'custom' && (
-                    <input
-                      value={modifier.customLabel}
-                      onChange={(e) => updateModifierRow(index, { customLabel: e.target.value })}
-                      placeholder={t('statusEffects.custom')}
-                      aria-label={t('statusEffects.custom')}
-                    />
-                  )}
-                </td>
-                <td>
-                  <select
-                    value={modifier.field}
-                    onChange={(e) => updateModifierRow(index, { field: e.target.value as StatusEffectField })}
-                    aria-label={t('statusEffects.modifierField')}
-                  >
-                    {STATUS_EFFECT_FIELDS.map((field) => (
-                      <option key={field} value={field}>
-                        {t(`statusEffects.field.${field}`)}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={modifier.value}
-                    onChange={(e) => updateModifierRow(index, { value: Number(e.target.value) })}
-                    aria-label={t('statusEffects.modifierValue')}
-                  />
-                </td>
-                <td>
-                  <button type="button" onClick={() => removeModifierRow(index)} disabled={modifiers.length === 1}>
-                    {t('sheet.remove')}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button type="button" onClick={addModifierRow}>
-          {t('statusEffects.addModifier')}
-        </button>
+        {modifiers.map((modifier, index) => (
+          <div key={index} className={styles.formRow}>
+            <div className={styles.field}>
+              <label htmlFor={`modifier-field-${index}`}>{t('statusEffects.modifierField')}</label>
+              <select
+                id={`modifier-field-${index}`}
+                value={modifier.field}
+                onChange={(e) => updateModifierRow(index, { field: e.target.value as StatusEffectField })}
+                aria-label={t('statusEffects.modifierField')}
+              >
+                {STATUS_EFFECT_FIELDS.map((field) => (
+                  <option key={field} value={field}>
+                    {t(`statusEffects.field.${field}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <button type="submit">{t('statusEffects.addEffect')}</button>
+            {modifier.field === 'custom' && (
+              <div className={styles.field}>
+                <label htmlFor={`modifier-label-${index}`}>{t('statusEffects.custom')}</label>
+                <input
+                  id={`modifier-label-${index}`}
+                  value={modifier.customLabel}
+                  onChange={(e) => updateModifierRow(index, { customLabel: e.target.value })}
+                  aria-label={t('statusEffects.custom')}
+                />
+              </div>
+            )}
+
+            <div className={styles.field}>
+              <label htmlFor={`modifier-value-${index}`}>{t('statusEffects.modifierValue')}</label>
+              <input
+                id={`modifier-value-${index}`}
+                type="number"
+                value={modifier.value}
+                onChange={(e) => updateModifierRow(index, { value: Number(e.target.value) })}
+                aria-label={t('statusEffects.modifierValue')}
+              />
+            </div>
+
+            <button type="button" onClick={() => removeModifierRow(index)} disabled={modifiers.length === 1}>
+              {t('sheet.remove')}
+            </button>
+          </div>
+        ))}
+
+        <div className={styles.formActions}>
+          <button type="button" onClick={addModifierRow}>
+            {t('statusEffects.addModifier')}
+          </button>
+          <button type="submit">{t('statusEffects.addEffect')}</button>
+        </div>
       </form>
     </section>
   );

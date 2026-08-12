@@ -14,6 +14,9 @@ void i18n
     },
     fallbackLng: 'en',
     supportedLngs: ['en', 'ru'],
+    // Without this, a browser reporting "ru-RU" finds no exact resource and falls
+    // back to English; languageOnly strips the region so it resolves to "ru".
+    load: 'languageOnly',
     interpolation: { escapeValue: false },
   });
 

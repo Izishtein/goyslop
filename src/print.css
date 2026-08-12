@@ -1,21 +1,34 @@
 /**
- * Print / "Save as PDF" styles for the character sheet.
+ * Global print / "Save as PDF" rules.
  *
- * Targets elements semantically rather than via extra marker classes: on the sheet
- * screen every <button> and <form> is an editing control (add/remove/reset/next round
- * and the add-status-effect form), and <nav> is the character switcher — none of it
- * belongs on paper. The data itself lives in inputs, which print their current value.
+ * Only page-level concerns live here (page box, palette, hiding editing chrome,
+ * generic table + input rendering). Layout that depends on component-local class
+ * names is handled by an `@media print` block inside that component's CSS module,
+ * since those class names are hashed and unreachable from here.
+ *
+ * Targets elements semantically rather than via marker classes: on the sheet every
+ * <button> and <form> is an editing control and <nav> is the character switcher —
+ * none of it belongs on paper. The data itself lives in inputs, which print their
+ * current value.
  */
 @media print {
   /* Force a light, ink-friendly palette regardless of the viewer's theme. */
   :root {
-    --text: #000;
-    --text-h: #000;
     --bg: #fff;
+    --surface: #fff;
+    --surface-2: #fff;
     --border: #999;
+    --border-strong: #999;
+    --text: #000;
+    --text-muted: #000;
+    --text-faint: #333;
+    --accent: #000;
+    --accent-soft: transparent;
+    --shadow: none;
+    --shadow-sm: none;
     color: #000;
     background: #fff;
-    font-size: 11pt;
+    font-size: 10pt;
     line-height: 1.3;
   }
 
@@ -29,16 +42,9 @@
     color: #000;
   }
 
-  main {
-    max-width: none;
-    padding: 0;
-  }
-
   /* Editing chrome: character switcher, language picker, every action button,
      and the add-status-effect form. */
   nav,
-  header label,
-  header select,
   button,
   form {
     display: none !important;
@@ -70,11 +76,6 @@
     min-width: 0 !important;
   }
 
-  /* Standalone inputs (HP/MP trackers, currency) only ever hold short values. */
-  input[type='number'] {
-    width: 4em;
-  }
-
   /* Number spinners are pure screen affordances. */
   input[type='number'] {
     -moz-appearance: textfield;
@@ -87,19 +88,18 @@
   }
 
   h1 {
-    font-size: 16pt;
-    margin: 0 0 4mm;
-  }
-  h2 {
     font-size: 14pt;
   }
+  h2 {
+    font-size: 13pt;
+  }
   h3 {
-    font-size: 12pt;
-    margin: 4mm 0 2mm;
+    font-size: 11pt;
+    margin: 2mm 0 1mm;
   }
   h4 {
-    font-size: 11pt;
-    margin: 3mm 0 1mm;
+    font-size: 9pt;
+    margin: 2mm 0 1mm;
   }
 
   /* table-layout: fixed makes the columns share the page width instead of being
@@ -118,6 +118,7 @@
     border: 1px solid #999 !important;
     padding: 1mm !important;
     color: #000 !important;
+    white-space: normal !important;
   }
 
   /* Data may be broken mid-word to stay inside its cell... */
@@ -128,9 +129,12 @@
   /* ...but headers are fixed labels, so they get a smaller size that fits instead
      of being split into unreadable fragments ("Accurac / y"). */
   th {
-    font-size: 7.5pt;
+    font-size: 7pt;
     overflow-wrap: normal;
     hyphens: auto;
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* First column is a name in every table on the sheet (weapon/armor/feat/class);
@@ -147,21 +151,11 @@
     display: none;
   }
 
-  th {
-    background: #eee !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
   /* Don't strand a heading at the bottom of a page. */
   h2,
   h3,
   h4 {
     break-after: avoid;
-  }
-
-  section {
-    break-inside: auto;
   }
 
   /* Links would otherwise print their href in some engines; none are meaningful here. */

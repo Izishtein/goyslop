@@ -61,17 +61,17 @@ describe('CharacterSheetView', () => {
     const user = userEvent.setup();
     const store = renderSheet(makeCharacter());
 
-    const strRow = screen.getByRole('row', { name: /^STR/ });
-    expect(within(strRow).getAllByRole('cell')[5]).toHaveTextContent('6'); // base 4 + correction 2
+    expect(screen.getByLabelText('STR Total')).toHaveTextContent('6'); // base 4 + correction 2
 
     const strGrowth = screen.getByLabelText('STR Growth');
     await user.clear(strGrowth);
     await user.type(strGrowth, '3');
 
-    expect(within(strRow).getAllByRole('cell')[5]).toHaveTextContent('9'); // 4 + 2 + 3
+    expect(screen.getByLabelText('STR Total')).toHaveTextContent('9'); // 4 + 2 + 3
+    expect(screen.getByLabelText('STR Modifier')).toHaveTextContent('+1');
 
     // Fighter Lv2, STR total 9 -> modifier +1 -> Extra Damage = 2 + 1 = 3
-    const combatTable = screen.getAllByRole('table')[1];
+    const combatTable = screen.getAllByRole('table')[0];
     const fighterRow = within(combatTable).getByRole('row', { name: /Fighter/ });
     expect(within(fighterRow).getAllByRole('cell')[3]).toHaveTextContent('3');
 
@@ -96,7 +96,7 @@ describe('CharacterSheetView', () => {
     const store = renderSheet(makeCharacter());
 
     // Fighter Lv2, VIT total 4 -> modifier +0 -> base Fortitude = 2.
-    expect(screen.getByText(/Fortitude: 2/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Fortitude')).toHaveTextContent('2');
 
     // Draft modifier defaults to field "accuracy", value -1; only the field needs changing.
     await user.type(screen.getByLabelText('Name', { selector: '#effect-name' }), 'Poison');
@@ -107,13 +107,13 @@ describe('CharacterSheetView', () => {
 
     await user.click(screen.getByRole('button', { name: /^add effect$/i }));
 
-    expect(screen.getByText(/Fortitude: 1/)).toBeInTheDocument(); // 2 + (-1)
-    expect(screen.getByText(/Poison/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Fortitude')).toHaveTextContent('1'); // 2 + (-1)
+    expect(screen.getByText('Poison')).toBeInTheDocument();
     expect(screen.getByText(/1 round left/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /next round/i }));
 
     expect(store.get(charactersAtom)[0].statusEffects).toHaveLength(0);
-    expect(screen.getByText(/Fortitude: 2/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Fortitude')).toHaveTextContent('2');
   });
 });

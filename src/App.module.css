@@ -1,0 +1,142 @@
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-4) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.brand small {
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.langSwitch {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---- Character switcher ------------------------------------------------ */
+
+.roster {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  padding: var(--sp-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.rosterList {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.rosterItem {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.rosterItem.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Name button carries the identity; the icon buttons sit flush beside it. */
+.rosterName {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 16ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rosterAction {
+  border: none;
+  border-radius: 0;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+}
+
+.rosterAction:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.rosterAction.danger:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+.rosterTools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: var(--sp-4) var(--sp-3) var(--sp-5);
+  }
+
+  .topBar {
+    align-items: flex-start;
+  }
+}
+
+@media print {
+  .app {
+    max-width: none;
+    padding: 0;
+    gap: 3mm;
+  }
+
+  /* The language picker is a control, not sheet content. */
+  .langSwitch,
+  .emptyState {
+    display: none;
+  }
+}

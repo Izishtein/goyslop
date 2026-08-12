@@ -1,34 +1,607 @@
 .sheet {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 640px;
+  gap: var(--sp-4);
 }
 
-.classList {
-  list-style: none;
-  padding: 0;
+/* ---- Identity card ----------------------------------------------------- */
+
+.identity {
   display: flex;
-  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.identityMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.classBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.classBadge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---- Vitals (HP/MP bars + saves) --------------------------------------- */
+
+.vitals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.gaugeHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.gaugeLabel {
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.gaugeValue {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.gaugeValue input {
+  width: 4.5em;
+}
+
+.gaugeMax {
+  color: var(--text-muted);
+}
+
+.track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+/* HP colour reflects how much trouble the character is in. */
+.hpOk {
+  background: var(--ok);
+}
+.hpWarn {
+  background: var(--warn);
+}
+.hpDanger {
+  background: var(--danger);
+}
+.mpFill {
+  background: var(--mp);
+}
+
+.saves {
+  display: flex;
+  gap: var(--sp-5);
+  align-items: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.statValue {
+  font-size: 1.35rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Section card ------------------------------------------------------ */
+
+.section {
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 
-.trackers {
+.sectionNote {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.subHead {
+  margin-top: var(--sp-2);
+}
+
+/* ---- Ability cards ----------------------------------------------------- */
+
+/* 240px lands on an even 3 x 2 on desktop rather than a ragged 4 + 2. */
+.abilityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-3);
+}
+
+.abilityCard {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
 }
 
-.trackers input {
-  width: 4em;
+.abilityTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
 }
 
-.abilityTable {
-  border-collapse: collapse;
+.abilityName {
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
 }
 
-.abilityTable th,
-.abilityTable td {
-  border: 1px solid var(--border-color, #ccc);
-  padding: 4px 8px;
+.abilityTotal {
+  margin-left: auto;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.abilityMod {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.abilityParts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-1);
+}
+
+.abilityPart {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.abilityPart span {
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.abilityPart input {
+  width: 100%;
+  padding: 3px 2px;
+  font-size: 0.85rem;
+}
+
+.abilityPartStatic {
+  font-size: 0.85rem;
+  padding: 3px 2px;
   text-align: center;
+  color: var(--text-muted);
+}
+
+/* ---- Tables ------------------------------------------------------------ */
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+}
+
+.table th,
+.table td {
+  padding: 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  white-space: nowrap;
+}
+
+/* Headers wrap; keeping them on one line is what pushed the 11-column weapons
+   table past the page ("Extra Damage bonus" alone forced ~130px). */
+.table thead th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+}
+.table thead th:last-child {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table td:first-child,
+.table th:first-child {
+  text-align: left;
+}
+
+.table input,
+.table select {
+  width: 100%;
+  min-width: 4.5em;
+}
+
+.table td input[type='number'] {
+  min-width: 3.2em;
+}
+
+/* Names are the one free-text column and must not clip. */
+.table td:first-child input {
+  min-width: 9em;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* ---- Misc lists / rows ------------------------------------------------- */
+
+.rowActions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.inlineList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.inlineRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.inlineRow input {
+  flex: 1;
+  min-width: 12ch;
+}
+
+.empty {
+  color: var(--text-faint);
+  font-size: 0.88rem;
+}
+
+.money {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.moneyField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moneyField span {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.moneyField input {
+  width: 8em;
+}
+
+/* ---- Status effects ---------------------------------------------------- */
+
+.effectList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.effect {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+
+.effectName {
+  font-weight: 600;
+}
+
+.effectMeta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.effectMods {
+  display: flex;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+}
+
+.modChip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.effectSpacer {
+  margin-left: auto;
+}
+
+.effectForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.formRow {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.field > label {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .identity,
+  .vitals,
+  .section {
+    padding: var(--sp-3);
+  }
+
+  .abilityParts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- Print ------------------------------------------------------------- */
+
+@media print {
+  .sheet {
+    gap: 3mm;
+  }
+
+  /* Cards become flat blocks: the screen's padding/shadow/rounding just wastes
+     paper and ink. */
+  .identity,
+  .vitals,
+  .section {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    gap: 2mm;
+  }
+
+  .section {
+    break-inside: avoid;
+  }
+
+  .identity {
+    border-bottom: 1px solid #999;
+    padding-bottom: 2mm;
+  }
+
+  .classBadge {
+    border: 1px solid #999;
+    background: transparent;
+    color: #000;
+    padding: 0 2mm;
+  }
+
+  .vitals {
+    display: flex;
+    gap: 8mm;
+    align-items: flex-end;
+  }
+
+  /* A filled bar survives greyscale printing and still reads at a glance. */
+  .track {
+    width: 40mm;
+    border: 1px solid #999;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .fill {
+    background: #777 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .statValue {
+    font-size: 12pt;
+  }
+
+  /* Six ability cards across a portrait page leaves no room for the breakdown,
+     so print them three-up over two rows. */
+  .abilityGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2mm;
+  }
+
+  .abilityCard {
+    border: 1px solid #999;
+    background: transparent;
+    padding: 1.5mm;
+    gap: 1mm;
+    break-inside: avoid;
+  }
+
+  .abilityTotal {
+    font-size: 12pt;
+  }
+
+  .abilityMod {
+    border: 1px solid #999;
+    background: transparent;
+    color: #000;
+  }
+
+  .tableWrap {
+    overflow-x: visible;
+  }
+
+  .effect {
+    background: transparent;
+    border: 1px solid #999;
+    border-left: 2px solid #000;
+    padding: 1mm 2mm;
+    break-inside: avoid;
+  }
+
+  .modChip {
+    border: 1px solid #999;
+    background: transparent;
+  }
+
+  /* Nothing to show on paper for an empty section — but keep the heading so the
+     printed sheet still has a place to write by hand. */
+  .empty {
+    color: #666;
+  }
 }

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore } from 'jotai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -31,17 +31,15 @@ describe('CharacterCreationForm', () => {
     await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:0');
 
     // Human Artificer background: base Skill/Body/Mind = 8/4/9 -> DEX/AGI base 8, STR/VIT base 4, INT/SPR base 9.
-    const dexRow = screen.getByRole('row', { name: /^DEX/ });
-    const dexCells = within(dexRow).getAllByRole('cell');
-    expect(dexCells[1]).toHaveTextContent('8'); // base
-    expect(dexCells[5]).toHaveTextContent('8'); // total (no correction yet)
+    expect(screen.getByLabelText('DEX Base')).toHaveTextContent('8');
+    expect(screen.getByLabelText('DEX Total')).toHaveTextContent('8'); // no correction yet
     expect(screen.getByText(/HP max: 7/)).toBeInTheDocument();
     expect(screen.getByText(/MP max: 12/)).toBeInTheDocument();
 
     const dexCorrection = screen.getByLabelText('DEX Correction');
     await user.clear(dexCorrection);
     await user.type(dexCorrection, '3');
-    expect(within(dexRow).getAllByRole('cell')[5]).toHaveTextContent('11');
+    expect(screen.getByLabelText('DEX Total')).toHaveTextContent('11');
 
     await user.click(screen.getByRole('button', { name: /create character/i }));
 
