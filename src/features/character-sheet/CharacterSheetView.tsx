@@ -46,6 +46,9 @@ export function CharacterSheetView({ character }: { character: Character }) {
         <p>
           {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
         </p>
+        <button type="button" onClick={() => window.print()}>
+          {t('sheet.print')}
+        </button>
       </header>
 
       <ul className={styles.classList}>
