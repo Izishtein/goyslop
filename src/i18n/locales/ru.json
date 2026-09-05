@@ -34,7 +34,16 @@
     "hpPreview": "HP max: {{value}}",
     "mpPreview": "MP max: {{value}}",
     "correctionOutOfRange": "Коррекция (Correction) вне того, что могут выпасть расовые кости: {{list}}",
-    "submit": "Создать персонажа"
+    "submit": "Создать персонажа",
+    "backgroundTable": {
+      "primary": "Основная таблица",
+      "additional": "Дополнительная таблица (Core II)"
+    },
+    "gmOnly": "с разрешения GM",
+    "rollsOwnSplit": "Эта предыстория не даёт фиксированных Skill/Body/Mind — их бросают костями. Внесите то, что выпало.",
+    "skill": "Skill",
+    "body": "Body",
+    "mind": "Mind"
   },
   "sheet": {
     "adventurerLevel": "Уровень авантюриста",

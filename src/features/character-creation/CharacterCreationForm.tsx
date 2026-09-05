@@ -2,7 +2,13 @@ import { useMemo, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { ABILITY_IDS, abilityModifier, abilityTotal, type AbilityId } from '../../lib/formulas/abilities';
-import { abilityBaseFromSplit, correctionRange, formatDiceNotation, isCorrectionInRange } from '../../lib/formulas/ability-base';
+import {
+  abilityBaseFromSplit,
+  correctionRange,
+  formatDiceNotation,
+  isCorrectionInRange,
+  type SkillBodyMind,
+} from '../../lib/formulas/ability-base';
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
@@ -34,7 +40,16 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
   const backgroundOptions = useMemo(() => (race ? listBackgroundOptions(race) : []), [race]);
   const background = backgroundOptions.find((option) => option.key === backgroundKey)?.entry;
 
-  const split = background?.stats ? { skill: background.stats[0], body: background.stats[1], mind: background.stats[2] } : null;
+  /* A few rows (Human "Adventurer") roll their own Skill/Body/Mind instead of listing a
+     fixed split, so those numbers have to come from the player. */
+  const [rolledSplit, setRolledSplit] = useState<SkillBodyMind>({ skill: 0, body: 0, mind: 0 });
+  const rollsOwnSplit = Boolean(background) && !background?.stats;
+
+  const split = background
+    ? background.stats
+      ? { skill: background.stats[0], body: background.stats[1], mind: background.stats[2] }
+      : rolledSplit
+    : null;
 
   const abilities = ABILITY_IDS.map((id) => {
     const base = split ? abilityBaseFromSplit(split, id) : 0;
@@ -62,7 +77,11 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
   const vitTotal = abilities.find((a) => a.id === 'VIT')?.total ?? 0;
   const sprTotal = abilities.find((a) => a.id === 'SPR')?.total ?? 0;
   const wizardLevelSum = startingClassIds.filter((id) => getClass(id)?.type === 'wizard').length;
-  const previewHp = hpMax(1, vitTotal);
+  /* Adventurer Level is the highest class level, so a background granting no starting class
+     ("Normal", "Adventurer") leaves the character at level 0 — previewing HP as if a level-1
+     class existed stored a current HP above the sheet's max. */
+  const previewAdventurerLevel = startingClassIds.length > 0 ? 1 : 0;
+  const previewHp = hpMax(previewAdventurerLevel, vitTotal);
   const previewMp = mpMax(wizardLevelSum, sprTotal);
 
   const canSubmit = name.trim().length > 0 && Boolean(background) && (!needsClassChoice || Boolean(chosenClassId));
@@ -71,6 +90,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
     setRaceId(nextRaceId);
     setBackgroundKey('');
     setChosenClassId('');
+    setRolledSplit({ skill: 0, body: 0, mind: 0 });
   }
 
   function handleSubmit(event: React.FormEvent) {
@@ -135,17 +155,29 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
               onChange={(event) => {
                 setBackgroundKey(event.target.value);
                 setChosenClassId('');
+                setRolledSplit({ skill: 0, body: 0, mind: 0 });
               }}
               required
             >
               <option value="" disabled>
                 {t('creation.selectPlaceholder')}
               </option>
-              {backgroundOptions.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {option.entry.name} ({option.entry.rollRange}, {option.entry.xp} XP)
-                </option>
-              ))}
+              {/* Grouped by source table: the player rolls on one of them, and without the
+                  grouping both tables' "2-4" rows sit in the list looking interchangeable. */}
+              {(['primary', 'additional'] as const).map((table) => {
+                const options = backgroundOptions.filter((option) => option.table === table);
+                if (options.length === 0) return null;
+                return (
+                  <optgroup key={table} label={t(`creation.backgroundTable.${table}`)}>
+                    {options.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.entry.name} (
+                        {option.entry.rollRange === '*' ? t('creation.gmOnly') : option.entry.rollRange}, {option.entry.xp} XP)
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
           </div>
         )}
@@ -169,6 +201,25 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
 
       {background && (
         <>
+          {rollsOwnSplit && (
+            <div className={styles.rolledSplit}>
+              <p className={styles.intro}>{t('creation.rollsOwnSplit')}</p>
+              <div className={styles.fields}>
+                {(['skill', 'body', 'mind'] as const).map((part) => (
+                  <div key={part} className={styles.field}>
+                    <label htmlFor={`split-${part}`}>{t(`creation.${part}`)}</label>
+                    <input
+                      id={`split-${part}`}
+                      type="number"
+                      value={rolledSplit[part]}
+                      onChange={(event) => setRolledSplit((prev) => ({ ...prev, [part]: Number(event.target.value) }))}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className={styles.abilityGrid}>
             {abilities.map(({ id, score, total, modifier }) => (
               <article key={id} className={styles.abilityCard} aria-label={id}>

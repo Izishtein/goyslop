@@ -78,6 +78,73 @@ describe('CharacterCreationForm', () => {
     expect(screen.queryByText(/2d6 \(2–12\)/)).not.toBeInTheDocument();
   });
 
+  it('lets the player enter Skill/Body/Mind for a background that rolls its own', async () => {
+    const user = userEvent.setup();
+    const { store } = renderForm();
+
+    await user.type(screen.getByLabelText(/^Name$/i), 'Rolled Hero');
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    // Human "Adventurer" (GM permission): the book prints 2d/2d/2d instead of fixed values.
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:7');
+
+    await user.clear(screen.getByLabelText(/^Skill$/i));
+    await user.type(screen.getByLabelText(/^Skill$/i), '9');
+    await user.clear(screen.getByLabelText(/^Body$/i));
+    await user.type(screen.getByLabelText(/^Body$/i), '6');
+    await user.clear(screen.getByLabelText(/^Mind$/i));
+    await user.type(screen.getByLabelText(/^Mind$/i), '7');
+
+    expect(screen.getByLabelText('DEX Base')).toHaveTextContent('9'); // DEX/AGI from Skill
+    expect(screen.getByLabelText('VIT Base')).toHaveTextContent('6'); // STR/VIT from Body
+    expect(screen.getByLabelText('SPR Base')).toHaveTextContent('7'); // INT/SPR from Mind
+
+    await user.click(screen.getByRole('button', { name: /create character/i }));
+    expect(store.get(charactersAtom)[0].abilities.DEX.base).toBe(9);
+  });
+
+  it('previews HP at Adventurer Level 0 for a background that grants no starting class', async () => {
+    const user = userEvent.setup();
+    const { store } = renderForm();
+
+    await user.type(screen.getByLabelText(/^Name$/i), 'Classless Hero');
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    // Human "Normal": 7/7/7, starting class None -> Adventurer Level 0, so HP = 0 * 3 + VIT.
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:3');
+
+    expect(screen.getByText('HP max: 7')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /create character/i }));
+    const created = store.get(charactersAtom)[0];
+    expect(created.classes).toEqual([]);
+    // Stored current HP must not exceed the max the sheet recomputes from the same formula.
+    expect(created.hp.current).toBe(7);
+  });
+
+  it('hides the Skill/Body/Mind inputs for backgrounds that list fixed values', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:0');
+
+    expect(screen.queryByLabelText(/^Skill$/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('DEX Base')).toHaveTextContent('8');
+  });
+
+  it('groups background options by source table and marks the GM-only row', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+
+    const groups = screen.getByLabelText(/^Background$/i).querySelectorAll('optgroup');
+    expect([...groups].map((group) => group.label)).toEqual(['Primary table', 'Additional table (Core II)']);
+    // Both tables have a "2-4" row, so the grouping is what tells them apart.
+    expect(screen.getByRole('option', { name: 'Artificer (2-4, 2000 XP)' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Archer (2-4, 2500 XP)' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Adventurer (GM permission, 3000 XP)' })).toBeInTheDocument();
+  });
+
   it('requires a starting-class choice when the background offers a choice of classes', async () => {
     const user = userEvent.setup();
     renderForm();

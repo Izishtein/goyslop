@@ -34,7 +34,16 @@
     "hpPreview": "HP max: {{value}}",
     "mpPreview": "MP max: {{value}}",
     "correctionOutOfRange": "Correction is outside what the racial dice can roll: {{list}}",
-    "submit": "Create character"
+    "submit": "Create character",
+    "backgroundTable": {
+      "primary": "Primary table",
+      "additional": "Additional table (Core II)"
+    },
+    "gmOnly": "GM permission",
+    "rollsOwnSplit": "This background rolls its own Skill/Body/Mind instead of listing fixed values — enter what you rolled.",
+    "skill": "Skill",
+    "body": "Body",
+    "mind": "Mind"
   },
   "sheet": {
     "adventurerLevel": "Adventurer Level",

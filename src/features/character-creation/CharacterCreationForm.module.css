@@ -158,3 +158,13 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Shown only for background rows that roll their own Skill/Body/Mind. */
+.rolledSplit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
