@@ -131,6 +131,32 @@ export const CurrencySchema = z.object({
 });
 export type Currency = z.infer<typeof CurrencySchema>;
 
+/** Free-text personal details. Age is a string on purpose: an Elf's "about 200" and a
+ *  Runefolk's "unknown" are both normal answers. `avatar` holds a downscaled data URL —
+ *  see lib/avatar.ts for why it is not the original file. */
+export const ProfileSchema = z.object({
+  gender: z.string().default(''),
+  age: z.string().default(''),
+  avatar: z.string().default(''),
+});
+export type Profile = z.infer<typeof ProfileSchema>;
+
+/** Sheet section 10: the parts of a character that are prose, not numbers. */
+export const NotesSchema = z.object({
+  story: z.string().default(''),
+  goals: z.string().default(''),
+  gm: z.string().default(''),
+});
+export type Notes = z.infer<typeof NotesSchema>;
+
+export const ConnectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  relation: z.string(),
+  notes: z.string().optional(),
+});
+export type Connection = z.infer<typeof ConnectionSchema>;
+
 /** One recorded ability growth. The book's growth roll table is not in the research docs,
  *  so the sheet records the outcome the player rolled rather than rolling for them. */
 export const GrowthEntrySchema = z.object({
@@ -196,5 +222,8 @@ export const CharacterSchema = z.object({
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */
   reputation: z.number().int().min(0).default(0),
+  profile: ProfileSchema.default(() => ({ gender: '', age: '', avatar: '' })),
+  notes: NotesSchema.default(() => ({ story: '', goals: '', gm: '' })),
+  connections: z.array(ConnectionSchema).default(() => []),
 });
 export type Character = z.infer<typeof CharacterSchema>;

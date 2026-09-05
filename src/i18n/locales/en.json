@@ -146,7 +146,22 @@
     "reputation": "Reputation",
     "adventurerRank": "Adventurer Rank",
     "freeRenown": "Free Renown Items",
-    "toNextRank": "{{missing}} to {{rank}}"
+    "toNextRank": "{{missing}} to {{rank}}",
+    "gender": "Gender",
+    "age": "Age",
+    "avatar": "Portrait",
+    "avatarAdd": "Add portrait",
+    "avatarReplace": "Replace portrait",
+    "avatarOf": "Portrait of {{name}}",
+    "avatarError": "That file could not be read as an image.",
+    "notes": "Notes & connections",
+    "noteStory": "Background story",
+    "noteGoals": "Personal goals",
+    "noteGm": "Campaign / GM notes",
+    "connections": "Connections",
+    "connectionName": "Name",
+    "connectionRelation": "Relation",
+    "addConnection": "Add connection"
   },
   "io": {
     "export": "Download JSON",

@@ -116,6 +116,9 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       spells: [],
       growthLog: [],
       reputation: 0,
+      profile: { gender: '', age: '', avatar: '' },
+      notes: { story: '', goals: '', gm: '' },
+      connections: [],
     };
 
     const parsed = CharacterSchema.parse(character);

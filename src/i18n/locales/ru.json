@@ -146,7 +146,22 @@
     "reputation": "Репутация",
     "adventurerRank": "Ранг авантюриста",
     "freeRenown": "Бесплатных Renown Items",
-    "toNextRank": "{{missing}} до ранга {{rank}}"
+    "toNextRank": "{{missing}} до ранга {{rank}}",
+    "gender": "Пол",
+    "age": "Возраст",
+    "avatar": "Портрет",
+    "avatarAdd": "Добавить портрет",
+    "avatarReplace": "Заменить портрет",
+    "avatarOf": "Портрет: {{name}}",
+    "avatarError": "Этот файл не удалось прочитать как изображение.",
+    "notes": "Заметки и связи",
+    "noteStory": "История персонажа",
+    "noteGoals": "Личные цели",
+    "noteGm": "Кампания и заметки мастера",
+    "connections": "Связи",
+    "connectionName": "Имя",
+    "connectionRelation": "Кто это",
+    "addConnection": "Добавить связь"
   },
   "io": {
     "export": "Скачать JSON",

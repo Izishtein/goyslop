@@ -503,6 +503,90 @@
   }
 }
 
+
+/* ---- Portrait, profile fields, notes ----------------------------------- */
+
+.avatarBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.avatar,
+.avatarEmpty {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.avatarActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+/* The native file input is unstyleable and shouts its filename, so the label is the button. */
+.avatarPick {
+  padding: 4px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.avatarPick input {
+  display: none;
+}
+
+.profileFields {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.profileField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profileField span {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.profileField input {
+  width: 10em;
+}
+
+.noteField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.noteField span {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.noteField textarea {
+  width: 100%;
+  min-height: 3.2em;
+  resize: vertical;
+  font: inherit;
+  overflow: hidden;
+}
+
 /* ---- Print ------------------------------------------------------------- */
 
 @media print {
@@ -613,6 +697,29 @@
      explicit "none" line still print their heading, which leaves a place to write. */
   .subsection[data-print-empty] {
     display: none;
+  }
+
+
+  /* The portrait is part of the sheet; its picker is not. */
+  .avatar,
+  .avatarEmpty {
+    width: 22mm;
+    height: 22mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .avatarEmpty {
+    display: none;
+  }
+
+  /* Textareas grow to their content in the component, so nothing is clipped on paper. */
+  .noteField textarea {
+    border: none !important;
+    border-bottom: 1px solid #ccc !important;
+    background: transparent !important;
+    padding: 0 !important;
+    overflow: visible;
   }
 
   /* Editing chrome built from a <select> rather than a button or a form. */

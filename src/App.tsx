@@ -31,8 +31,11 @@ function App() {
         <div className={styles.brand}>
           <h1>{t('app.title')}</h1>
         </div>
-        <label className={styles.langSwitch} htmlFor="lang-switch">
-          {t('app.language')}
+        {/* Label beside the select, not around it: wrapping it made the accessible name
+            "Language" + every option's text ("LanguageENRU"), the same trap the creation
+            form fell into. */}
+        <div className={styles.langSwitch}>
+          <label htmlFor="lang-switch">{t('app.language')}</label>
           {/* resolvedLanguage, not language: a detected "ru-RU" resolves to the "ru"
               resource, and only the resolved value matches an option below. */}
           <select
@@ -43,7 +46,7 @@ function App() {
             <option value="en">EN</option>
             <option value="ru">RU</option>
           </select>
-        </label>
+        </div>
       </header>
 
       {characters.length > 0 ? (

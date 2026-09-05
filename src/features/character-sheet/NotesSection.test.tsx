@@ -5,13 +5,13 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
 import { CharacterSchema, type Character } from '../../types/character';
-import { AbilitySection } from './AbilitySection';
+import { NotesSection } from './NotesSection';
 
 function Harness({ id }: { id: string }) {
   const characters = useAtomValue(charactersAtom);
   const character = characters.find((c) => c.id === id);
   if (!character) return null;
-  return <AbilitySection character={character} />;
+  return <NotesSection character={character} />;
 }
 
 beforeEach(() => {
@@ -27,7 +27,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     raceId: 'human',
     background: 'Artificer',
     abilities: { DEX: zero, AGI: zero, STR: zero, VIT: zero, INT: zero, SPR: zero },
-    classes: [{ classId: 'fighter', level: 3 }],
+    classes: [{ classId: 'artificer', level: 1 }],
     hp: { current: 8 },
     mp: { current: 8 },
     statusEffects: [],
@@ -56,50 +56,56 @@ function renderSection(character: Character) {
   return store;
 }
 
-describe('AbilitySection growth log', () => {
-  it('taking a growth raises the ability and logs it at the current Adventurer Level', async () => {
+describe('NotesSection', () => {
+  it('keeps each note field separately', async () => {
     const user = userEvent.setup();
     const store = renderSection(makeCharacter());
 
-    await user.click(screen.getByRole('button', { name: 'STR Take a growth' }));
+    await user.type(screen.getByLabelText('Background story'), 'Raised in Zaltehm.');
+    await user.type(screen.getByLabelText('Personal goals'), 'Find the missing caravan.');
 
-    const character = store.get(charactersAtom)[0];
-    expect(character.abilities.STR.growth).toBe(1);
-    expect(character.growthLog).toEqual([
-      { id: expect.any(String), ability: 'STR', adventurerLevel: 3 }, // Fighter Lv3
-    ]);
-    expect(screen.getByLabelText('STR Total')).toHaveTextContent('9'); // base 8 + growth 1
+    expect(store.get(charactersAtom)[0].notes).toEqual({
+      story: 'Raised in Zaltehm.',
+      goals: 'Find the missing caravan.',
+      gm: '',
+    });
   });
 
-  it('removing a log line takes its +1 back, so log and Growth cannot drift apart', async () => {
+  it('adds, edits and removes a connection', async () => {
     const user = userEvent.setup();
     const store = renderSection(makeCharacter());
 
-    await user.click(screen.getByRole('button', { name: 'INT Take a growth' }));
-    await user.click(screen.getByRole('button', { name: 'INT Take a growth' }));
-    expect(store.get(charactersAtom)[0].abilities.INT.growth).toBe(2);
+    await user.click(screen.getByRole('button', { name: 'Add connection' }));
+    await user.type(screen.getByLabelText('Name'), 'Sara');
+    await user.type(screen.getByLabelText('Relation'), 'guild contact');
 
-    await user.click(screen.getAllByRole('button', { name: 'INT Remove' })[0]);
+    expect(store.get(charactersAtom)[0].connections[0]).toMatchObject({ name: 'Sara', relation: 'guild contact' });
 
-    const character = store.get(charactersAtom)[0];
-    expect(character.abilities.INT.growth).toBe(1);
-    expect(character.growthLog).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Sara Remove' }));
+    expect(store.get(charactersAtom)[0].connections).toEqual([]);
   });
 
-  it('keeps a note on a log line', async () => {
+  it('grows a note field to its content so print does not clip it', async () => {
     const user = userEvent.setup();
-    const store = renderSection(makeCharacter());
+    renderSection(makeCharacter());
 
-    await user.click(screen.getByRole('button', { name: 'AGI Take a growth' }));
-    await user.type(screen.getByLabelText('Notes'), 'rolled 7');
+    const story = screen.getByLabelText('Background story') as HTMLTextAreaElement;
+    // jsdom reports no layout, so this only asserts the handler sets an explicit height.
+    await user.type(story, 'a long history');
 
-    expect(store.get(charactersAtom)[0].growthLog[0].note).toBe('rolled 7');
+    expect(story.style.height).not.toBe('');
   });
 
-  it('backfills the growth log for characters saved before it existed', () => {
+  it('backfills notes, connections and profile for characters saved before they existed', () => {
     const legacy = { ...makeCharacter() } as Partial<Character>;
-    delete legacy.growthLog;
+    delete legacy.notes;
+    delete legacy.connections;
+    delete legacy.profile;
 
-    expect(CharacterSchema.parse(legacy).growthLog).toEqual([]);
+    const parsed = CharacterSchema.parse(legacy);
+
+    expect(parsed.notes).toEqual({ story: '', goals: '', gm: '' });
+    expect(parsed.connections).toEqual([]);
+    expect(parsed.profile).toEqual({ gender: '', age: '', avatar: '' });
   });
 });

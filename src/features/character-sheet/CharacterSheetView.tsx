@@ -9,11 +9,13 @@ import { getRace, racialAbilitiesFor } from '../../data/races';
 import type { Character } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import { AbilitySection } from './AbilitySection';
+import { AvatarField } from './AvatarField';
 import { ClassesSection } from './ClassesSection';
 import { CombatStatsSection } from './CombatStatsSection';
 import { EquipmentSection } from './EquipmentSection';
 import { CombatFeatsSection } from './CombatFeatsSection';
 import { SpellsSection } from './SpellsSection';
+import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
 import styles from './CharacterSheetView.module.css';
 
@@ -51,14 +53,39 @@ export function CharacterSheetView({ character }: { character: Character }) {
     update((c) => ({ ...c, [field]: { current: value } }));
   }
 
+  function updateProfile(field: 'gender' | 'age', value: string) {
+    update((c) => ({ ...c, profile: { ...c.profile, [field]: value } }));
+  }
+
   return (
     <section className={styles.sheet}>
       <header className={styles.identity}>
+        <AvatarField character={character} />
+
         <div className={styles.identityMain}>
           <h2>{character.name}</h2>
           <p className={styles.meta}>
             {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
           </p>
+
+          <div className={styles.profileFields}>
+            <label className={styles.profileField}>
+              <span>{t('sheet.gender')}</span>
+              <input
+                value={character.profile.gender}
+                onChange={(event) => updateProfile('gender', event.target.value)}
+                aria-label={t('sheet.gender')}
+              />
+            </label>
+            <label className={styles.profileField}>
+              <span>{t('sheet.age')}</span>
+              <input
+                value={character.profile.age}
+                onChange={(event) => updateProfile('age', event.target.value)}
+                aria-label={t('sheet.age')}
+              />
+            </label>
+          </div>
           <ul className={styles.classBadges}>
             {character.classes.map((classLevel) => (
               <li key={classLevel.classId} className={styles.classBadge}>
@@ -159,6 +186,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <CombatFeatsSection character={character} />
 
       <StatusEffectsSection character={character} />
+
+      <NotesSection character={character} />
     </section>
   );
 }

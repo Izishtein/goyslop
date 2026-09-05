@@ -37,6 +37,9 @@ function makeCharacter(): Character {
     spells: [],
     growthLog: [],
     reputation: 0,
+    profile: { gender: '', age: '', avatar: '' },
+    notes: { story: '', goals: '', gm: '' },
+    connections: [],
   };
 }
 
