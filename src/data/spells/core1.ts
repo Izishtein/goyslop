@@ -1,55 +1,12 @@
-/**
- * Spell catalog, Core Rulebook I (docs/sheet-content/09-spells-core1.md).
- *
- * Index data only — name, school, circle and MP cost. Effect text is deliberately not
- * carried here: the research docs hold it in Russian only, and this app ships EN and RU
- * side by side. Each spell a character knows has its own free-text note on the sheet.
- *
- * `school` matches ClassDefinition.magicSchool, which is how the sheet works out which
- * spells a given character can pick.
- */
-export interface SpellDefinition {
-  id: string;
-  name: string;
-  school: string;
-  /** 1-6 in Core I; a caster knows circles up to their class level. */
-  circle: number;
-  mp: number;
-  /** True when the book prints the cost as a base plus an open-ended extra. */
-  mpVariable?: boolean;
-  /** Specialized Divine spells belong to a single deity. */
-  deity?: string;
-  /** Magitech spells are cast through a magisphere of the given size. */
-  magisphere?: string;
-  sourceBook: string;
-}
+import { DIVINE, MAGITECH, makeSpell, SPIRITUALISM, TRUESPEECH, type SpellDefinition } from './types';
 
 const CORE1 = 'Core Rulebook I';
 
-function spell(
-  school: string,
-  circle: number,
-  name: string,
-  mp: number,
-  extra: Partial<SpellDefinition> = {},
-): SpellDefinition {
-  return {
-    id: `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    name,
-    school,
-    circle,
-    mp,
-    sourceBook: CORE1,
-    ...extra,
-  };
-}
+const spell = (school: string, circle: number, name: string, mp: number, extra: Partial<SpellDefinition> = {}) =>
+  makeSpell(CORE1, school, circle, name, mp, extra);
 
-const TRUESPEECH = 'Truespeech Magic';
-const SPIRITUALISM = 'Spiritualism Magic';
-const DIVINE = 'Divine Magic';
-const MAGITECH = 'Magitech';
-
-export const SPELLS: SpellDefinition[] = [
+/** Core Rulebook I, pp. 217-247 (docs/sheet-content/09-spells-core1.md). */
+export const CORE1_SPELLS: SpellDefinition[] = [
   // --- Truespeech Magic (Sorcerer), pp. 219-224 ---
   spell(TRUESPEECH, 1, 'Energy Bolt', 5),
   spell(TRUESPEECH, 1, 'Dull Weapon', 2),
@@ -163,16 +120,3 @@ export const SPELLS: SpellDefinition[] = [
   spell(MAGITECH, 6, 'Set Disguise', 3, { magisphere: 'Small' }),
   spell(MAGITECH, 6, 'Resist Bomb', 6, { magisphere: 'Medium' }),
 ];
-
-/** Schools the catalog covers; other schools exist but have no data yet (Core II+). */
-export const CATALOGUED_SCHOOLS = [TRUESPEECH, SPIRITUALISM, DIVINE, MAGITECH];
-
-export function listSpellsBySchool(school: string): SpellDefinition[] {
-  return SPELLS.filter((spellDef) => spellDef.school === school).sort(
-    (a, b) => a.circle - b.circle || a.name.localeCompare(b.name),
-  );
-}
-
-export function getSpell(id: string): SpellDefinition | undefined {
-  return SPELLS.find((spellDef) => spellDef.id === id);
-}

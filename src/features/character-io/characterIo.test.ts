@@ -26,6 +26,8 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    growthLog: [],
+    reputation: 0,
     ...overrides,
   };
 }

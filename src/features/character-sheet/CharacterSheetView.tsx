@@ -5,7 +5,7 @@ import { fortitude, willpower } from '../../lib/formulas/derived-stats';
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
-import { getRace } from '../../data/races';
+import { getRace, racialAbilitiesFor } from '../../data/races';
 import type { Character } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import { AbilitySection } from './AbilitySection';
@@ -35,6 +35,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
   const update = useUpdateCharacter(character.id);
 
   const race = getRace(character.raceId);
+  const racialAbilities = racialAbilitiesFor(character.raceId);
   const advLevel = adventurerLevel(character.classes);
   const wizLevels = wizardLevelSum(character.classes);
 
@@ -65,6 +66,21 @@ export function CharacterSheetView({ character }: { character: Character }) {
               </li>
             ))}
           </ul>
+
+          {/* Racial abilities unlock at Adventurer Level 6 and 11, so the ones still out of
+              reach are shown dimmed with their level rather than hidden. */}
+          {racialAbilities.length > 0 && (
+            <ul className={styles.racialAbilities} aria-label={t('sheet.racialAbilities')}>
+              {racialAbilities.map((ability, index) => {
+                const locked = advLevel < ability.fromLevel;
+                return (
+                  <li key={`${ability.name}-${index}`} className={locked ? styles.racialAbilityLocked : undefined}>
+                    [{ability.name}]{ability.fromLevel > 0 ? ` Lv${ability.fromLevel}+` : ''}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
         <button type="button" onClick={() => window.print()}>
           {t('sheet.print')}

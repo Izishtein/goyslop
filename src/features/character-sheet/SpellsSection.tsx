@@ -44,7 +44,7 @@ export function SpellsSection({ character }: { character: Character }) {
   function addFromCatalog() {
     const found = getSpell(spellId);
     if (!found) return;
-    addSpell({ id: crypto.randomUUID(), name: found.name, school: found.school, circle: found.circle, mp: found.mp });
+    addSpell({ id: crypto.randomUUID(), name: found.name, school: found.school, circle: found.circle, mp: found.mp ?? 0 });
     setSpellId('');
   }
 
@@ -147,7 +147,8 @@ export function SpellsSection({ character }: { character: Character }) {
             <label htmlFor="add-spell">{t('sheet.addSpell')}</label>
             <select id="add-spell" value={spellId} onChange={(e) => setSpellId(e.target.value)}>
               <option value="">{t('creation.selectPlaceholder')}</option>
-              {[1, 2, 3, 4, 5, 6].map((circle) => {
+              {/* Core I stops at circle 6; Core II and Fairy Magic go to 10. */}
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((circle) => {
                 const inCircle = options.filter((spell) => spell.circle === circle);
                 if (inCircle.length === 0) return null;
                 return (
@@ -159,8 +160,9 @@ export function SpellsSection({ character }: { character: Character }) {
                   >
                     {inCircle.map((spell) => (
                       <option key={spell.id} value={spell.id} disabled={known.has(spell.name)}>
-                        {spell.name} — {spell.mp} MP{spell.deity ? ` (${spell.deity})` : ''}
+                        {spell.name} — {spell.mp ?? '?'} MP{spell.deity ? ` (${spell.deity})` : ''}
                         {spell.magisphere ? ` (${spell.magisphere})` : ''}
+                        {spell.fairyType ? ` (${spell.fairyType})` : ''}
                       </option>
                     ))}
                   </optgroup>

@@ -114,6 +114,8 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       // The background's XP is a starting purse; the classes it grants come free on top.
       experience: { total: background.xp, spent: 0 },
       spells: [],
+      growthLog: [],
+      reputation: 0,
     };
 
     const parsed = CharacterSchema.parse(character);

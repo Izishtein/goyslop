@@ -36,6 +36,8 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     combatFeats: [],
     experience: { total: 3000, spent: 0 },
     spells: [],
+    growthLog: [],
+    reputation: 0,
     ...overrides,
   };
 }
@@ -130,5 +132,19 @@ describe('ClassesSection', () => {
     const parsed = CharacterSchema.parse(legacy);
 
     expect(parsed.experience).toEqual({ total: 0, spent: 0 });
+  });
+  it('derives the Adventurer Rank and the gap to the next one from reputation', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ reputation: 90 }));
+
+    // Core II chart: 50 is Rapier, 100 is Broad Sword.
+    expect(screen.getByLabelText('Adventurer Rank')).toHaveTextContent('Rapier');
+    expect(screen.getByText(/10 to Broad Sword/)).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText('Reputation'));
+    await user.type(screen.getByLabelText('Reputation'), '100');
+
+    expect(screen.getByLabelText('Adventurer Rank')).toHaveTextContent('Broad Sword');
+    expect(screen.getByText(/Free Renown Items: 10/)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ABILITY_IDS, abilityModifier, abilityTotal, type AbilityId } from '../../lib/formulas/abilities';
+import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character } from '../../types/character';
@@ -19,6 +20,43 @@ export function AbilitySection({ character }: { character: Character }) {
     update((c) => ({
       ...c,
       abilities: { ...c.abilities, [id]: { ...c.abilities[id], [field]: value } },
+    }));
+  }
+
+  /* A growth is +1 to an ability plus a line in the log saying when it was taken. The
+     book's growth roll is not in the research docs, so the sheet records the result the
+     player rolled instead of rolling for them. Removing a log line takes the +1 back, so
+     the log and the Growth column can never drift apart. */
+  function addGrowth(id: AbilityId) {
+    update((c) => ({
+      ...c,
+      abilities: { ...c.abilities, [id]: { ...c.abilities[id], growth: c.abilities[id].growth + 1 } },
+      growthLog: [
+        ...c.growthLog,
+        { id: crypto.randomUUID(), ability: id, adventurerLevel: adventurerLevel(c.classes) },
+      ],
+    }));
+  }
+
+  function removeGrowth(entryId: string) {
+    update((c) => {
+      const entry = c.growthLog.find((logged) => logged.id === entryId);
+      if (!entry) return c;
+      return {
+        ...c,
+        abilities: {
+          ...c.abilities,
+          [entry.ability]: { ...c.abilities[entry.ability], growth: c.abilities[entry.ability].growth - 1 },
+        },
+        growthLog: c.growthLog.filter((logged) => logged.id !== entryId),
+      };
+    });
+  }
+
+  function setGrowthNote(entryId: string, note: string) {
+    update((c) => ({
+      ...c,
+      growthLog: c.growthLog.map((logged) => (logged.id === entryId ? { ...logged, note } : logged)),
     }));
   }
 
@@ -67,6 +105,51 @@ export function AbilitySection({ character }: { character: Character }) {
             </article>
           );
         })}
+      </div>
+
+      <div className={`${styles.inlineRow} ${styles.controlRow}`}>
+        <span className={styles.growthLabel}>{t('sheet.takeGrowth')}</span>
+        {ABILITY_IDS.map((id) => (
+          <button key={id} type="button" onClick={() => addGrowth(id)} aria-label={`${id} ${t('sheet.takeGrowth')}`}>
+            {id} +1
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.subsection} data-print-empty={character.growthLog.length === 0 || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.growthLog')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.growthAbility')}</th>
+                <th>{t('sheet.adventurerLevel')}</th>
+                <th>{t('sheet.spellNotes')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {character.growthLog.map((entry) => (
+                <tr key={entry.id}>
+                  <td>{entry.ability}</td>
+                  <td className={styles.numeric}>{entry.adventurerLevel}</td>
+                  <td>
+                    <input
+                      value={entry.note ?? ''}
+                      onChange={(event) => setGrowthNote(entry.id, event.target.value)}
+                      aria-label={t('sheet.spellNotes')}
+                    />
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => removeGrowth(entry.id)} aria-label={`${entry.ability} ${t('sheet.remove')}`}>
+                      {t('sheet.remove')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

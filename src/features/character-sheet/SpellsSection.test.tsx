@@ -36,6 +36,8 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    growthLog: [],
+    reputation: 0,
     ...overrides,
   };
 }
@@ -97,15 +99,16 @@ describe('SpellsSection', () => {
 
   it('supports hand-written spells for schools with no catalog', async () => {
     const user = userEvent.setup();
-    // Fairy Tamer casts Fairy Magic, which is Core II and not catalogued yet.
-    const store = renderSection(makeCharacter({ classes: [{ classId: 'fairy-tamer', level: 1 }] }));
+    // A Druid casts Nature Magic, which the research docs cover by mechanics and counts
+    // only — there is no per-spell list to build a catalog from.
+    const store = renderSection(makeCharacter({ classes: [{ classId: 'druid', level: 1 }] }));
 
     expect(screen.getByText(/No catalog for this school yet/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Add by hand' }));
-    await user.type(screen.getAllByLabelText('Spell')[0], 'Fairy Whisper');
+    await user.type(screen.getAllByLabelText('Spell')[0], 'Thorn Bind');
 
-    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Fairy Whisper', school: 'Fairy Magic' });
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Thorn Bind', school: 'Nature Magic' });
   });
 
   it('says so when the character has no Wizard-type class at all', () => {

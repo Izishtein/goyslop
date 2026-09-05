@@ -138,7 +138,15 @@
     "addSpellAction": "Add spell",
     "addCustomSpell": "Add by hand",
     "circle": "Circle {{circle}}",
-    "aboveClassLevel": "above class level"
+    "aboveClassLevel": "above class level",
+    "takeGrowth": "Take a growth",
+    "growthLog": "Growth log",
+    "growthAbility": "Ability",
+    "racialAbilities": "Racial abilities",
+    "reputation": "Reputation",
+    "adventurerRank": "Adventurer Rank",
+    "freeRenown": "Free Renown Items",
+    "toNextRank": "{{missing}} to {{rank}}"
   },
   "io": {
     "export": "Download JSON",

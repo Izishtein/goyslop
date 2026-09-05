@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CLASSES, getClass } from '../../data/classes';
 import { getRace } from '../../data/races';
+import { rankForReputation, reputationToNextRank } from '../../lib/formulas/adventurer-rank';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { classLevelXpCost, MAX_CLASS_LEVEL } from '../../lib/formulas/xp-cost';
 import { useUpdateCharacter } from '../../state/characters';
@@ -29,6 +30,8 @@ export function ClassesSection({ character }: { character: Character }) {
   );
 
   const remaining = character.experience.total - character.experience.spent;
+  const rank = rankForReputation(character.reputation);
+  const nextRank = reputationToNextRank(character.reputation);
 
   function spend(amount: number) {
     update((c) => ({ ...c, experience: { ...c.experience, spent: Math.max(0, c.experience.spent + amount) } }));
@@ -36,6 +39,10 @@ export function ClassesSection({ character }: { character: Character }) {
 
   function setExperience(field: 'total' | 'spent', value: number) {
     update((c) => ({ ...c, experience: { ...c.experience, [field]: Math.max(0, value) } }));
+  }
+
+  function setReputation(value: number) {
+    update((c) => ({ ...c, reputation: Math.max(0, value) }));
   }
 
   function changeLevel(classId: string, delta: 1 | -1) {
@@ -97,6 +104,24 @@ export function ClassesSection({ character }: { character: Character }) {
           <strong className={`${styles.numeric} ${remaining < 0 ? styles.overspent : ''}`} aria-label={t('sheet.xpRemaining')}>
             {remaining}
           </strong>
+        </div>
+
+        <label className={styles.moneyField}>
+          <span>{t('sheet.reputation')}</span>
+          <input
+            type="number"
+            value={character.reputation}
+            onChange={(e) => setReputation(Number(e.target.value))}
+            aria-label={t('sheet.reputation')}
+          />
+        </label>
+        <div className={styles.moneyField}>
+          <span>{t('sheet.adventurerRank')}</span>
+          <strong aria-label={t('sheet.adventurerRank')}>{rank.name}</strong>
+          <span className={styles.rankHint}>
+            {t('sheet.freeRenown')}: {rank.free}
+            {nextRank ? ` · ${t('sheet.toNextRank', { missing: nextRank.missing, rank: nextRank.rank.name })}` : ''}
+          </span>
         </div>
       </div>
 

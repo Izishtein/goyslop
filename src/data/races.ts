@@ -358,3 +358,111 @@ export const RACES: RaceDefinition[] = [
 export function getRace(id: string): RaceDefinition | undefined {
   return RACES.find((race) => race.id === id);
 }
+
+/**
+ * Racial abilities, from docs/sheet-content/01-races.md.
+ *
+ * Names only, exactly as the books bracket them — the effect text lives in the research
+ * docs in Russian, and the app is bilingual (same call as the spell catalog). `fromLevel`
+ * is the Adventurer Level at which that version of the ability comes online: 0 from
+ * creation, 6 and 11 for the Core II / Core III enhancements.
+ */
+export interface RacialAbility {
+  name: string;
+  fromLevel: 0 | 6 | 11;
+}
+
+const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
+  human: [
+    { name: "Sword's Grace/Change Fate", fromLevel: 0 },
+    { name: "Sword's Grace/Change Fate", fromLevel: 6 },
+    { name: "Sword's Grace/Change Fate", fromLevel: 11 },
+  ],
+  elf: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Sword's Grace/Gentle Water", fromLevel: 0 },
+    { name: "Sword's Grace/Gentle Water", fromLevel: 6 },
+    { name: "Sword's Grace/Gentle Water", fromLevel: 11 },
+  ],
+  dwarf: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Sword's Grace/Body of Flame", fromLevel: 0 },
+    { name: "Sword's Grace/Body of Flame", fromLevel: 6 },
+    { name: "Sword's Grace/Body of Flame", fromLevel: 11 },
+  ],
+  tabbit: [
+    { name: 'Sixth Sense', fromLevel: 0 },
+    { name: 'Sixth Sense', fromLevel: 6 },
+    { name: 'Sixth Sense', fromLevel: 11 },
+  ],
+  runefolk: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'HP Conversion', fromLevel: 0 },
+    { name: 'HP Conversion', fromLevel: 11 },
+  ],
+  nightmare: [
+    { name: 'Alternate Form', fromLevel: 0 },
+    { name: 'Weakness', fromLevel: 0 },
+    { name: 'Alternate Form', fromLevel: 11 },
+  ],
+  lykant: [
+    { name: 'Darkvision (Beast Form)', fromLevel: 0 },
+    { name: 'Beast Form', fromLevel: 0 },
+    { name: 'Beast Form', fromLevel: 11 },
+  ],
+  lildraken: [
+    { name: 'Scaly Hide', fromLevel: 0 },
+    { name: 'Tail Whip', fromLevel: 0 },
+    { name: "Sword's Grace/Wings of the Wind", fromLevel: 0 },
+    { name: "Sword's Grace/Wings of the Wind", fromLevel: 11 },
+  ],
+  grassrunner: [
+    { name: 'Mana Interference', fromLevel: 0 },
+    { name: 'Natural Communication', fromLevel: 0 },
+    { name: 'Mana Interference', fromLevel: 11 },
+  ],
+  meria: [
+    { name: 'Thriving Life', fromLevel: 0 },
+    { name: 'Thriving Life', fromLevel: 11 },
+  ],
+  // Core III prints both steps for these two under the Level 11+ table.
+  tiens: [
+    { name: 'Intercommunication', fromLevel: 0 },
+    { name: 'Intercommunication', fromLevel: 6 },
+    { name: 'Intercommunication', fromLevel: 11 },
+  ],
+  leprechaun: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 0 },
+    { name: 'Unseen Artisan', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 6 },
+    { name: 'Invisible Hand', fromLevel: 11 },
+  ],
+  alv: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Spirit Drain', fromLevel: 0 },
+  ],
+  shadow: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Moonlight's Protection", fromLevel: 0 },
+  ],
+  soleil: [
+    { name: 'Radiant Physique', fromLevel: 0 },
+    { name: 'Photosynthesis', fromLevel: 0 },
+    { name: 'Child of the Sun', fromLevel: 0 },
+  ],
+  weakling: [{ name: 'Barbarous Body', fromLevel: 0 }],
+  abyssborn: [
+    { name: 'Abyssal Bastard', fromLevel: 0 },
+    { name: 'Abyssal Bastard/Abyssal Eye', fromLevel: 6 },
+  ],
+  newman: [
+    { name: 'Child of Magic', fromLevel: 0 },
+    { name: 'Déjà Vu', fromLevel: 0 },
+    { name: 'Child of Magic', fromLevel: 6 },
+  ],
+};
+
+export function racialAbilitiesFor(raceId: string): RacialAbility[] {
+  return RACIAL_ABILITIES[raceId] ?? [];
+}

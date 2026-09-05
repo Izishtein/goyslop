@@ -131,6 +131,17 @@ export const CurrencySchema = z.object({
 });
 export type Currency = z.infer<typeof CurrencySchema>;
 
+/** One recorded ability growth. The book's growth roll table is not in the research docs,
+ *  so the sheet records the outcome the player rolled rather than rolling for them. */
+export const GrowthEntrySchema = z.object({
+  id: z.string(),
+  ability: AbilityIdSchema,
+  /** Adventurer Level at the moment the growth was taken, for the log. */
+  adventurerLevel: z.number().int().min(0),
+  note: z.string().optional(),
+});
+export type GrowthEntry = z.infer<typeof GrowthEntrySchema>;
+
 /** A spell the character knows. Catalog picks and hand-written entries share one shape:
  *  the picker only prefills the fields, and everything stays editable afterwards. */
 export const KnownSpellSchema = z.object({
@@ -182,5 +193,8 @@ export const CharacterSchema = z.object({
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),
   spells: z.array(KnownSpellSchema).default(() => []),
+  growthLog: z.array(GrowthEntrySchema).default(() => []),
+  /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */
+  reputation: z.number().int().min(0).default(0),
 });
 export type Character = z.infer<typeof CharacterSchema>;

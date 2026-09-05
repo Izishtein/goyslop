@@ -35,6 +35,8 @@ function makeCharacter(id: string, name: string): Character {
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    growthLog: [],
+    reputation: 0,
   };
 }
 
