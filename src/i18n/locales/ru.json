@@ -112,7 +112,7 @@
     "levelDown": "понизить уровень",
     "noClasses": "Классов пока нет — опыт на них ещё не потрачен.",
     "addClass": "Добавить класс",
-    "addClassAction": "Добавить",
+    "addClassAction": "Добавить класс",
     "xpTotal": "Опыт получен (XP)",
     "xpSpent": "Опыт потрачен",
     "xpRemaining": "Опыт остался",
@@ -124,7 +124,21 @@
     "classRankName": {
       "major": "Major",
       "minor": "Minor"
-    }
+    },
+    "spells": "Заклинания",
+    "spellName": "Заклинание",
+    "spellSchool": "Школа",
+    "spellCircle": "Круг",
+    "spellMp": "MP",
+    "spellNotes": "Заметки",
+    "noSpells": "Заклинания ещё не записаны.",
+    "noMagicSchools": "Нет волшебного класса — персонаж не колдует.",
+    "noCatalogForSchool": "Каталога для этой школы пока нет — вносите заклинания вручную.",
+    "addSpell": "Добавить из каталога",
+    "addSpellAction": "Добавить заклинание",
+    "addCustomSpell": "Добавить вручную",
+    "circle": "Круг {{circle}}",
+    "aboveClassLevel": "выше уровня класса"
   },
   "io": {
     "export": "Скачать JSON",

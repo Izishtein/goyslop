@@ -35,6 +35,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     currency: { cash: 1200, savings: 0, debt: 0 },
     combatFeats: [],
     experience: { total: 3000, spent: 0 },
+    spells: [],
     ...overrides,
   };
 }
@@ -76,7 +77,7 @@ describe('ClassesSection', () => {
 
     // Fencer is a Minor class: level 1 costs 500.
     await user.selectOptions(screen.getByLabelText('Add a class'), 'fencer');
-    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await user.click(screen.getByRole('button', { name: 'Add class' }));
 
     const character = store.get(charactersAtom)[0];
     expect(character.classes).toContainEqual({ classId: 'fencer', level: 1 });

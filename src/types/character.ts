@@ -63,12 +63,20 @@ export const StatusEffectSchema = z.object({
 });
 export type StatusEffect = z.infer<typeof StatusEffectSchema>;
 
+/*
+ * Rows below are created blank by the sheet's "Add …" buttons and named afterwards, so
+ * their `name` must accept an empty string. Requiring a non-empty name here cost a
+ * character its entire record: the blank row failed validation on the next read from
+ * localStorage, and that read drops the whole character. StatusEffectSchema keeps
+ * .min(1) because effects are added through a form that refuses a blank name.
+ */
+
 export const EQUIPMENT_RANKS = ['B', 'A', 'S', 'SS'] as const;
 export const EquipmentRankSchema = z.enum(EQUIPMENT_RANKS);
 
 export const WeaponSchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string(),
   stance: z.enum(['1H', '2H', 'special']),
   minStr: z.number().int(),
   accuracyBonus: z.number().int().default(0),
@@ -83,7 +91,7 @@ export type Weapon = z.infer<typeof WeaponSchema>;
 
 export const ArmorSchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string(),
   defense: z.number().int(),
   evasionModifier: z.number().int().default(0),
   minStr: z.number().int(),
@@ -94,7 +102,7 @@ export type Armor = z.infer<typeof ArmorSchema>;
 
 export const ShieldSchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string(),
   defenseBonus: z.number().int(),
   evasionBonus: z.number().int().default(0),
   minStr: z.number().int(),
@@ -103,7 +111,7 @@ export type Shield = z.infer<typeof ShieldSchema>;
 
 export const AccessorySchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string(),
   notes: z.string().optional(),
 });
 export type Accessory = z.infer<typeof AccessorySchema>;
@@ -123,6 +131,19 @@ export const CurrencySchema = z.object({
 });
 export type Currency = z.infer<typeof CurrencySchema>;
 
+/** A spell the character knows. Catalog picks and hand-written entries share one shape:
+ *  the picker only prefills the fields, and everything stays editable afterwards. */
+export const KnownSpellSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  school: z.string(),
+  /** Core I stops at 6; Core II schools go to 10. */
+  circle: z.number().int().min(1).max(10),
+  mp: z.number().int().min(0),
+  notes: z.string().optional(),
+});
+export type KnownSpell = z.infer<typeof KnownSpellSchema>;
+
 /** Experience is a two-number ledger, exactly as it is tracked on paper: everything the
  *  character has earned, and everything already turned into class levels. Both stay
  *  editable — the GM awards XP, and XP can go to things this app does not model. */
@@ -138,7 +159,7 @@ export type CombatFeatCategory = z.infer<typeof CombatFeatCategorySchema>;
 
 export const CombatFeatSchema = z.object({
   id: z.string(),
-  name: z.string().min(1),
+  name: z.string(),
   category: CombatFeatCategorySchema,
 });
 export type CombatFeat = z.infer<typeof CombatFeatSchema>;
@@ -160,5 +181,6 @@ export const CharacterSchema = z.object({
   currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0 })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),
+  spells: z.array(KnownSpellSchema).default(() => []),
 });
 export type Character = z.infer<typeof CharacterSchema>;

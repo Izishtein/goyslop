@@ -13,6 +13,7 @@ import { ClassesSection } from './ClassesSection';
 import { CombatStatsSection } from './CombatStatsSection';
 import { EquipmentSection } from './EquipmentSection';
 import { CombatFeatsSection } from './CombatFeatsSection';
+import { SpellsSection } from './SpellsSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
 import styles from './CharacterSheetView.module.css';
 
@@ -136,6 +137,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <CombatStatsSection character={character} />
 
       <EquipmentSection character={character} />
+
+      <SpellsSection character={character} />
 
       <CombatFeatsSection character={character} />
 

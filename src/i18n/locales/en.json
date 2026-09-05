@@ -112,7 +112,7 @@
     "levelDown": "level down",
     "noClasses": "No classes yet — this character has not spent experience on one.",
     "addClass": "Add a class",
-    "addClassAction": "Add",
+    "addClassAction": "Add class",
     "xpTotal": "XP earned",
     "xpSpent": "XP spent",
     "xpRemaining": "XP left",
@@ -124,7 +124,21 @@
     "classRankName": {
       "major": "Major",
       "minor": "Minor"
-    }
+    },
+    "spells": "Spells",
+    "spellName": "Spell",
+    "spellSchool": "School",
+    "spellCircle": "Circle",
+    "spellMp": "MP",
+    "spellNotes": "Notes",
+    "noSpells": "No spells recorded yet.",
+    "noMagicSchools": "No Wizard-type class — this character casts nothing.",
+    "noCatalogForSchool": "No catalog for this school yet — add spells by hand.",
+    "addSpell": "Add from catalog",
+    "addSpellAction": "Add spell",
+    "addCustomSpell": "Add by hand",
+    "circle": "Circle {{circle}}",
+    "aboveClassLevel": "above class level"
   },
   "io": {
     "export": "Download JSON",

@@ -49,6 +49,34 @@ describe('charactersAtom storage migration', () => {
     expect(character.name).toBe('Legacy Hero');
   });
 
+  it('keeps a character whose sheet has unnamed rows waiting to be filled in', () => {
+    // Every "Add ..." button on the sheet creates a blank row that the player names
+    // afterwards. Rejecting those cost the whole character on the next read.
+    localStorage.setItem(
+      'sw25.characters',
+      JSON.stringify([
+        {
+          ...OLD_SHAPE_CHARACTER,
+          equipment: {
+            weapons: [{ id: 'w1', name: '', stance: '1H', minStr: 0, accuracyBonus: 0, power: 1, criticalValue: 10, extraDamageBonus: 0, rank: 'B' }],
+            armor: [],
+            shield: null,
+            accessories: [{ id: 'a1', name: '' }],
+          },
+          combatFeats: [{ id: 'f1', name: '', category: 'passive' }],
+          spells: [{ id: 's1', name: '', school: 'Truespeech Magic', circle: 1, mp: 0 }],
+        },
+      ]),
+    );
+
+    const store = createStore();
+    const characters = mountAndGet(store);
+
+    expect(characters).toHaveLength(1);
+    expect(characters[0].equipment.weapons).toHaveLength(1);
+    expect(characters[0].spells).toHaveLength(1);
+  });
+
   it('drops entries that fail validation entirely instead of crashing', () => {
     localStorage.setItem('sw25.characters', JSON.stringify([OLD_SHAPE_CHARACTER, { not: 'a character' }]));
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

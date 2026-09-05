@@ -25,6 +25,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     currency: { cash: 1200, savings: 0, debt: 0 },
     combatFeats: [],
     experience: { total: 0, spent: 0 },
+    spells: [],
     ...overrides,
   };
 }
