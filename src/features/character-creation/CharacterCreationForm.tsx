@@ -111,6 +111,8 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       equipment: { weapons: [], armor: [], shield: null, accessories: [] },
       currency: { cash: 1200, savings: 0, debt: 0 },
       combatFeats: [],
+      // The background's XP is a starting purse; the classes it grants come free on top.
+      experience: { total: background.xp, spent: 0 },
     };
 
     const parsed = CharacterSchema.parse(character);

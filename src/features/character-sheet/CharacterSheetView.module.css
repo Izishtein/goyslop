@@ -615,7 +615,17 @@
     display: none;
   }
 
+  /* Editing chrome built from a <select> rather than a button or a form. */
+  .controlRow {
+    display: none;
+  }
+
   .empty {
     color: #666;
   }
+}
+
+/* Spending more XP than the character earned is a bookkeeping error worth seeing. */
+.overspent {
+  color: var(--danger);
 }

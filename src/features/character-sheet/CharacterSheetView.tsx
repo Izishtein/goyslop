@@ -9,6 +9,7 @@ import { getRace } from '../../data/races';
 import type { Character } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import { AbilitySection } from './AbilitySection';
+import { ClassesSection } from './ClassesSection';
 import { CombatStatsSection } from './CombatStatsSection';
 import { EquipmentSection } from './EquipmentSection';
 import { CombatFeatsSection } from './CombatFeatsSection';
@@ -129,6 +130,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       </div>
 
       <AbilitySection character={character} />
+
+      <ClassesSection character={character} />
 
       <CombatStatsSection character={character} />
 

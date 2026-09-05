@@ -42,6 +42,7 @@ function makeCharacter(): Character {
     equipment: { weapons: [], armor: [], shield: null, accessories: [] },
     currency: { cash: 1200, savings: 0, debt: 0 },
     combatFeats: [],
+    experience: { total: 0, spent: 0 },
   };
 }
 
@@ -71,7 +72,10 @@ describe('CharacterSheetView', () => {
     expect(screen.getByLabelText('STR Modifier')).toHaveTextContent('+1');
 
     // Fighter Lv2, STR total 9 -> modifier +1 -> Extra Damage = 2 + 1 = 3
-    const combatTable = screen.getAllByRole('table')[0];
+    // Scope to the Combat stats card: several sections render tables, and their order
+    // on the sheet is not something this test should depend on.
+    const combatSection = screen.getByRole('heading', { name: /combat stats/i }).closest('section') as HTMLElement;
+    const combatTable = within(combatSection).getByRole('table');
     const fighterRow = within(combatTable).getByRole('row', { name: /Fighter/ });
     expect(within(fighterRow).getAllByRole('cell')[3]).toHaveTextContent('3');
 

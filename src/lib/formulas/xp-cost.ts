@@ -3,6 +3,9 @@ import type { ClassRank } from '../../data/classes';
 const MAJOR_CLASS_LEVEL_XP = [1000, 1000, 1500, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7500, 9000, 10500, 12000, 13500];
 const MINOR_CLASS_LEVEL_XP = [500, 1000, 1000, 1500, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7500, 9000, 10500, 12000];
 
+/** Adventurer Level caps at 15, so no class table goes further. */
+export const MAX_CLASS_LEVEL = MAJOR_CLASS_LEVEL_XP.length;
+
 function levelTable(rank: ClassRank): number[] {
   return rank === 'major' ? MAJOR_CLASS_LEVEL_XP : MINOR_CLASS_LEVEL_XP;
 }

@@ -102,6 +102,28 @@
       "declaration": "Declaration",
       "majorAction": "Major Action",
       "auto": "Auto-Acquired"
+    },
+    "classes": "Classes & experience",
+    "classType": "Type",
+    "classRank": "Rank",
+    "level": "Level",
+    "nextLevelCost": "Next level",
+    "levelUp": "level up",
+    "levelDown": "level down",
+    "noClasses": "No classes yet — this character has not spent experience on one.",
+    "addClass": "Add a class",
+    "addClassAction": "Add",
+    "xpTotal": "XP earned",
+    "xpSpent": "XP spent",
+    "xpRemaining": "XP left",
+    "classTypeName": {
+      "warrior": "Warrior",
+      "wizard": "Wizard",
+      "other": "Other"
+    },
+    "classRankName": {
+      "major": "Major",
+      "minor": "Minor"
     }
   },
   "io": {

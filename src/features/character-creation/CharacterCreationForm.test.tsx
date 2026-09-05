@@ -51,6 +51,8 @@ describe('CharacterCreationForm', () => {
     expect(characters[0].hp.current).toBe(7);
     expect(characters[0].mp.current).toBe(12);
     expect(characters[0].classes).toEqual([{ classId: 'artificer', level: 1 }]);
+    // The Artificer row grants 2000 XP; its starting class comes free on top of that.
+    expect(characters[0].experience).toEqual({ total: 2000, spent: 0 });
   });
 
   it('flags a correction the racial dice cannot roll, without blocking submit', async () => {

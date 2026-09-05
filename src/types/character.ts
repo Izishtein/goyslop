@@ -123,6 +123,15 @@ export const CurrencySchema = z.object({
 });
 export type Currency = z.infer<typeof CurrencySchema>;
 
+/** Experience is a two-number ledger, exactly as it is tracked on paper: everything the
+ *  character has earned, and everything already turned into class levels. Both stay
+ *  editable — the GM awards XP, and XP can go to things this app does not model. */
+export const ExperienceSchema = z.object({
+  total: z.number().int().min(0),
+  spent: z.number().int().min(0),
+});
+export type Experience = z.infer<typeof ExperienceSchema>;
+
 export const COMBAT_FEAT_CATEGORIES = ['passive', 'declaration', 'majorAction', 'auto'] as const;
 export const CombatFeatCategorySchema = z.enum(COMBAT_FEAT_CATEGORIES);
 export type CombatFeatCategory = z.infer<typeof CombatFeatCategorySchema>;
@@ -150,5 +159,6 @@ export const CharacterSchema = z.object({
   equipment: EquipmentSchema.default(() => ({ weapons: [], armor: [], shield: null, accessories: [] })),
   currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0 })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
+  experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),
 });
 export type Character = z.infer<typeof CharacterSchema>;

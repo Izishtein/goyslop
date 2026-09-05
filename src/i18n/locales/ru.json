@@ -102,6 +102,28 @@
       "declaration": "По объявлению",
       "majorAction": "Основное действие",
       "auto": "Автополучаемая"
+    },
+    "classes": "Классы и опыт",
+    "classType": "Тип",
+    "classRank": "Ранг",
+    "level": "Уровень",
+    "nextLevelCost": "Следующий уровень",
+    "levelUp": "повысить уровень",
+    "levelDown": "понизить уровень",
+    "noClasses": "Классов пока нет — опыт на них ещё не потрачен.",
+    "addClass": "Добавить класс",
+    "addClassAction": "Добавить",
+    "xpTotal": "Опыт получен (XP)",
+    "xpSpent": "Опыт потрачен",
+    "xpRemaining": "Опыт остался",
+    "classTypeName": {
+      "warrior": "Боевой",
+      "wizard": "Волшебный",
+      "other": "Прочий"
+    },
+    "classRankName": {
+      "major": "Major",
+      "minor": "Minor"
     }
   },
   "io": {
