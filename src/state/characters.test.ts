@@ -78,6 +78,27 @@ describe('charactersAtom storage migration', () => {
     expect(characters[0].spells).toHaveLength(1);
   });
 
+  it('keeps a character who knows a spell above circle 10', () => {
+    // Nature Magic, Summoning Arts and Abyssal Magic run to circle 15. The schema capped
+    // the circle at 10, so saving a Druid's 15th-circle spell and reloading dropped the
+    // whole character — the catalog could hand the sheet a row its own schema rejected.
+    localStorage.setItem(
+      'sw25.characters',
+      JSON.stringify([
+        {
+          ...OLD_SHAPE_CHARACTER,
+          spells: [{ id: 's1', name: 'Natural Haven', school: 'Nature Magic', circle: 15, mp: 30 }],
+        },
+      ]),
+    );
+
+    const store = createStore();
+    const characters = mountAndGet(store);
+
+    expect(characters).toHaveLength(1);
+    expect(characters[0].spells[0].circle).toBe(15);
+  });
+
   it('drops entries that fail validation entirely instead of crashing', () => {
     localStorage.setItem('sw25.characters', JSON.stringify([OLD_SHAPE_CHARACTER, { not: 'a character' }]));
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

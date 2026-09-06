@@ -221,8 +221,10 @@ export const KnownSpellSchema = z.object({
   id: z.string(),
   name: z.string(),
   school: z.string(),
-  /** Core I stops at 6; Core II schools go to 10. */
-  circle: z.number().int().min(1).max(10),
+  /** Core I stops at 6, Core II and Fairy Magic at 10, the supplement schools at 15.
+   *  The cap has to cover the widest of them: a stricter one does not merely reject the
+   *  spell, it fails the whole character on the next read from localStorage and drops it. */
+  circle: z.number().int().min(1).max(15),
   mp: z.number().int().min(0),
   notes: z.string().optional(),
 });
