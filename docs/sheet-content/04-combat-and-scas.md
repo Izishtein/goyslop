@@ -342,3 +342,64 @@ Source: Core Rulebook II, pp. 198–211.
 | **Potion Master** △ | Ranger Level 9 | — | Может использовать зелье на себя в Combat Preparation или Minor Action; 1 зелье за фазу |
 | **Weakness Exploit** | Sage Level 7 | — | При Monster Knowledge check с SV ≥ слабости монстра: все бонусы от слабой точки удваиваются |
 | **Mana Save** | Sage Level 9 | — | Все расходы MP -1 (минимум 1); при удвоении MP от [Metamagic/**] — сначала снижение, потом удвоение |
+
+---
+
+## Combat Feats — Core III additions (подтверждено, 2026-09-06)
+
+Source: Core Rulebook III, pp. 199–205. Всего **27 феатов**: 12 selectively passive,
+7 selectively active, 8 automatically acquired. Как и в Core II, большинство — третья
+ступень цепочек Core I/II (Aimed Attack III, Power Strike III, Lethal Strike III,
+Armor Piercer III, Violentcast II, Critical Cast II, Pinpoint Attack II, Powerful Magic II,
+Ever-Changing II, Additional Songs III), поэтому действуют те же правила замены
+(см. «Replacement Combat Feats» выше).
+
+Отдельная группа — четыре феата **Алхимика** (Core III вводит сам класс): Enhanced
+Evocations I/II, Distant Evocations, Consecutive Evocation, Card Reduction — они работают
+с Evocations и Material Cards, а не с MP.
+
+### Selectively Acquired Passive — новые (Core III)
+
+| Феат | Условие | Использование | Эффект |
+|------|---------|--------------|--------|
+| **Capacity** | Adv Level 11+ | — | Max MP +15. **Grassrunner не может взять** |
+| **Additional Songs III** | [Additional Songs II]/Adv Level 13+ | — | Ещё +1 к числу известных Spellsong/Finale (итого +3) |
+| **Peerless Double Swords** | Adv Level 11+ | — | Снимает ограничение по минимальной силе оружия для [Dual Wielding] |
+| **Weapon Master** | [Weapon Proficiency S/\*\*] (любая категория)/Adv Level 11+ | — | Можно владеть оружием любого ранга вплоть до SS во всех категориях (ограничения классов сохраняются) |
+| **Enhanced Evocations I** | Alchemist Level 3+ | Alchemist класс | Evocation check +1 |
+| **Enhanced Evocations II** | [Enhanced Evocations I]/Alchemist Level 9+ | Alchemist класс | Evocation check +2 |
+| **Distant Evocations** | Alchemist Level 5+ | Alchemist класс | Evocation с «Range/Area: Touch/-» считается «1(10m)/Shot»; при «Target: 1 Character» можно бить по нескольким целям, удвоив расход Material Cards |
+| **Ever-Changing II** | [Ever-Changing I]/Grappler или Fencer Level 13+ | Grappler или Fencer класс | Можно объявлять **3** активных феата за раунд (как угодно распределяя между атаками); риски суммируются |
+| **Armor Master** | [Armor Proficiency S/\*\*] (любая категория)/Adv Level 11+ | — | Можно носить броню любого ранга вплоть до SS во всех категориях |
+| **Powerful Magic II** | [Powerful Magic I]/Adv Level 11+, два Wizard-класса Level 10+ | — | Magic Power всех освоенных школ +2 |
+| **Pinpoint Attack II** | [Pinpoint Attack I]/Adv Level 13+ | — | Accuracy +2 |
+| **Consecutive Evocation** | Alchemist Level 5+ | — | Evocation через Major Action выполняется дважды: две разные Evocation, у каждой свой check и своя цель |
+
+### Selectively Acquired Active — новые (Core III)
+
+| Феат | Условие | Применение | Риск | Эффект |
+|------|---------|-----------|------|--------|
+| **Card Reduction** | Alchemist Level 5+, Alchemist класс | 1 использование Evocation | — | Расход Material Cards -1 (минимум 1). При увеличении числа целей сначала снижение, потом умножение |
+| **Aimed Attack III** | [Aimed Attack II]/Adv Level 11+ | 1 атака оружием | — | Accuracy +3 (при нескольких одновременных атаках — на все) |
+| **Critical Cast II** | [Critical Cast I]/Adv Level 11+, Wizard-класс | 1 каст | — | Дополнительно к [Critical Cast I]: игнорируется иммунитет к критам и любые модификаторы Critical Threshold цели; при «Resistance: Half» крит происходит даже у сопротивившегося (урон считается с критом, затем делится пополам) |
+| **Power Strike III** | [Power Strike II]/Fighter Level 15+ | 1 ближняя атака | Evasion -2 | Урон ближней атаки +20 (при нескольких целях — одной случайной, выбранной до расчёта урона) |
+| **Violentcast II** | [Violentcast I]/Adv Level 13+, Wizard-класс | 1 каст | — | Spellcasting check +3, если заклинание только наносит урон |
+| **Lethal Strike III** | [Lethal Strike II]/Fencer Level 11+ | 1 ближняя атака | — | Бросок по power table +1 при результате 3–11; игнорируются иммунитет к критам и модификаторы Critical Threshold; двойные 1 и 6 работают как обычно |
+| **Armor Piercer III** | [Armor Piercer II]/Grappler Level 15+ | 1 ближняя атака | — | Defense цели считается вдвое меньше (округление вверх), при крите — 0; иммунитет к критам и модификаторы Critical Threshold игнорируются |
+
+### Automatically Acquired Passive — новые (Core III)
+
+| Феат | Условие получения | Использование | Эффект |
+|------|------------------|--------------|--------|
+| **Battle Master** | Fighter или Grappler Level 13 | — | Можно объявлять 2 активных феата за раунд (один и тот же — не дважды за одно действие); риски суммируются |
+| **Rune Master** | Любой Wizard-класс Level 11 | — | Можно объявлять 2 активных феата за раунд, но хотя бы один — с «Use: Wizard-Type Class» |
+| **Treasure Master** | Scout Level 12 | — | Бросок Loot Determination +1 (складывается с другими такими эффектами) |
+| **Skill Master** | Scout Level 15 | Scout класс | Один переброс 2d за проверку, если SV считался по уровню Scout (с другими эффектами переброса — не более +1 переброса) |
+| **Shukuchi** | Ranger Level 12 | — | В раунде с Full Move доступны действия уровня Normal Move (штраф Evasion -4 остаётся) |
+| **Run-and-Gun** | Ranger Level 15 | — | В раунде с Normal Move доступны действия уровня Limited Move |
+| **Mana Resistance** | Sage Level 12 | — | Весь входящий магический урон -5 |
+| **Sage's Wisdom** | Sage Level 15 | — | Один переброс 2d за проверку, если SV считался по уровню Sage |
+
+**Про несколько активных феатов за раунд:** [Ever-Changing], [Battle Master] и [Rune Master]
+**не складываются**. Персонаж, у которого их несколько, в начале хода объявляет, какой
+именно использует (CR III, p. 205).

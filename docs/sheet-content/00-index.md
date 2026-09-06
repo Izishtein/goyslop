@@ -84,7 +84,8 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 - ✅ **XP-таблица расширена до Level 15** (→ 01-races.md)
 - ✅ **Rider класс** — Mount Rules (владение/аренда/бой), ~30 Stunts, полная механика → `02-classes.md`
 - ✅ **Alchemist класс** — Evocations (~28 штук, Material Cards вместо MP, 5 цветов × 4 ранга), полная механика → `02-classes.md`
-- Остаётся не задокументировано: новые Combat Feats (pp.199–205), снаряжение/mounts data (pp.206–262), боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439)
+- ✅ **Combat Feats Core III** (pp.199–205) — 27 феатов: 12 selectively passive, 7 active, 8 automatic (2026-09-06) → `04-combat-and-scas.md`
+- Остаётся не задокументировано: снаряжение/mounts data (pp.206–262), боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439)
 
 ### Закрыто по Outlaw Profile Book PDF (2026-07-09)
 - ✅ **Расы Alv, Shadow, Soleil, Weakling** — описание, языки, расовые способности (→ 01-races.md). Кости A–F отсутствуют — эти расы используют отдельную систему создания персонажа Vagrant (D66 Origin/Environment/Childhood Experience таблицы), не совместимую напрямую с форматом остальных рас.
@@ -133,7 +134,7 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 
 ### Остаётся открытым
 1. **War Leader** — отдельный класс или вариант Tactician? (не встретился ни в Magus Arts, ни в Monstrous Lore, ни в Abyss Breaker, ни в Tyrants Crypts) — возможно, никогда не существовал как класс, аналогично прежней General Skills-гипотезе
-2. **Core III прочий контент**: новые Combat Feats (pp.199–205), новое снаряжение и mounts data (pp.206–262), боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439)
+2. **Core III прочий контент**: новое снаряжение и mounts data (pp.206–262), боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439) — Combat Feats закрыты 2026-09-06
 3. **Magus Arts Stunts/Evocations (pp.173–184)** — соотношение с Core III версией не проверено (дубликат для справки или расширение — по аналогии с Abyss Enhancement/Abyss Skills в Abyss Breaker)
 4. **Система создания персонажа Vagrant** (Outlaw Profile Book) — отдельная, большая механика (D66 Origin/Environment/Childhood tables, категории Warrior/Spy/Remote Support/Magic Warrior вместо классов) — вне текущего MVP, но может понадобиться, если решим поддерживать не-авантюристов
 5. **Кости A–F для Abyssborn, Newman** — требуют книгу Arcane Relic (не скачана)
