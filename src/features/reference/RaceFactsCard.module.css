@@ -1,0 +1,59 @@
+/* Sits inside the creation form, so it reads as a note on the choice rather than a card
+   of its own: quiet border, no shadow, nothing that competes with the ability cards. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.88rem;
+}
+
+.dice {
+  display: flex;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.die {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dieLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.range {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.line {
+  margin: 0;
+}
+
+.label {
+  display: inline-block;
+  margin-right: var(--sp-2);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.split {
+  margin-left: var(--sp-3);
+  color: var(--text-muted);
+}
+
+.source {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}

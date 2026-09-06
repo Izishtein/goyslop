@@ -1,18 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, Connection, Notes } from '../../types/character';
+import { autoGrow } from './autoGrow';
 import styles from './CharacterSheetView.module.css';
-
-/** Textareas clip whatever does not fit their box, and print has no scrollbar — so each
- *  one grows to its content, on screen and on paper alike. */
-function autoGrow(element: HTMLTextAreaElement | null) {
-  if (!element) return;
-  element.style.height = 'auto';
-  // scrollHeight is the content box; with border-box sizing the borders have to be added
-  // back, or the last line ends up a pixel or two under the bottom edge.
-  const borders = element.offsetHeight - element.clientHeight;
-  element.style.height = `${element.scrollHeight + borders}px`;
-}
 
 const NOTE_FIELDS: Array<{ key: keyof Notes; label: string }> = [
   { key: 'story', label: 'sheet.noteStory' },
@@ -44,9 +34,9 @@ export function NotesSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-notes">
       <div className={styles.sectionHead}>
-        <h3>{t('sheet.notes')}</h3>
+        <h3 id="section-notes">{t('sheet.notes')}</h3>
       </div>
 
       {NOTE_FIELDS.map((field) => (

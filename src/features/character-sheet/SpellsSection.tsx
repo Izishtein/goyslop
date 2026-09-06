@@ -4,6 +4,7 @@ import { getClass } from '../../data/classes';
 import { CATALOGUED_SCHOOLS, getSpell, listSpellsBySchool } from '../../data/spells';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
+import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
 
 /** The schools this character casts from, in class order — Wizard-type classes only. */
@@ -31,10 +32,15 @@ export function SpellsSection({ character }: { character: Character }) {
   const pickableSchools = schools.filter((school) => CATALOGUED_SCHOOLS.includes(school));
   const [school, setSchool] = useState('');
   const [spellId, setSpellId] = useState('');
+  const [search, setSearch] = useState('');
 
   const activeSchool = school || pickableSchools[0] || '';
   const known = new Set(character.spells.map((spell) => spell.name));
-  const options = activeSchool ? listSpellsBySchool(activeSchool) : [];
+  const allOptions = activeSchool ? listSpellsBySchool(activeSchool) : [];
+  // 257 spells in one list is a scroll, not a choice. Filtering by name narrows it without
+  // hiding the circle grouping, so a filtered list still says what is out of reach.
+  const query = search.trim().toLowerCase();
+  const options = query ? allOptions.filter((spell) => spell.name.toLowerCase().includes(query)) : allOptions;
   const levelInSchool = activeSchool ? schoolLevel(character, activeSchool) : 0;
 
   function addSpell(spell: KnownSpell) {
@@ -61,9 +67,9 @@ export function SpellsSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-spells">
       <div className={styles.sectionHead}>
-        <h3>{t('sheet.spells')}</h3>
+        <h3 id="section-spells">{t('sheet.spells')}</h3>
         <p className={styles.sectionNote}>
           {schools.length > 0 ? schools.join(' · ') : t('sheet.noMagicSchools')}
         </p>
@@ -86,10 +92,10 @@ export function SpellsSection({ character }: { character: Character }) {
               {character.spells.map((spell) => (
                 <tr key={spell.id}>
                   <td>
-                    <input value={spell.name} onChange={(e) => updateSpell(spell.id, { name: e.target.value })} aria-label={t('sheet.spellName')} />
+                    <PrintableField value={spell.name} onChange={(e) => updateSpell(spell.id, { name: e.target.value })} aria-label={t('sheet.spellName')} />
                   </td>
                   <td>
-                    <input value={spell.school} onChange={(e) => updateSpell(spell.id, { school: e.target.value })} aria-label={t('sheet.spellSchool')} />
+                    <PrintableField value={spell.school} onChange={(e) => updateSpell(spell.id, { school: e.target.value })} aria-label={t('sheet.spellSchool')} />
                   </td>
                   <td>
                     <input
@@ -108,7 +114,7 @@ export function SpellsSection({ character }: { character: Character }) {
                     />
                   </td>
                   <td>
-                    <input value={spell.notes ?? ''} onChange={(e) => updateSpell(spell.id, { notes: e.target.value })} aria-label={t('sheet.spellNotes')} />
+                    <PrintableField value={spell.notes ?? ''} onChange={(e) => updateSpell(spell.id, { notes: e.target.value })} aria-label={t('sheet.spellNotes')} />
                   </td>
                   <td>
                     <button type="button" onClick={() => removeSpell(spell.id)} aria-label={`${spell.name} ${t('sheet.remove')}`}>
@@ -144,6 +150,17 @@ export function SpellsSection({ character }: { character: Character }) {
                 ))}
               </select>
             )}
+            <label htmlFor="spell-search">{t('sheet.searchSpells')}</label>
+            <input
+              id="spell-search"
+              type="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setSpellId('');
+              }}
+              placeholder={t('sheet.searchSpellsHint')}
+            />
             <label htmlFor="add-spell">{t('sheet.addSpell')}</label>
             <select id="add-spell" value={spellId} onChange={(e) => setSpellId(e.target.value)}>
               <option value="">{t('creation.selectPlaceholder')}</option>
@@ -172,6 +189,7 @@ export function SpellsSection({ character }: { character: Character }) {
             <button type="button" onClick={addFromCatalog} disabled={!spellId}>
               {t('sheet.addSpellAction')}
             </button>
+            {query && options.length === 0 && <p className={styles.empty}>{t('sheet.searchNoMatch')}</p>}
           </>
         ) : (
           <p className={styles.empty}>{t('sheet.noCatalogForSchool')}</p>

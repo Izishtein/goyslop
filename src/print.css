@@ -76,6 +76,20 @@
     min-width: 0 !important;
   }
 
+  /* A placeholder is a hint, not the character's data — printed, it reads as though the
+     player had written "rope, lantern, backpack" into the field. Transparent rather than
+     removed so the field keeps its height on the page. */
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+  }
+
+  /* Same for the arrow Chrome draws inside a <input list=...>: on screen it advertises
+     the suggestions, on paper it is a dropdown marker sitting in the middle of the data. */
+  input::-webkit-calendar-picker-indicator {
+    display: none !important;
+  }
+
   /* Number spinners are pure screen affordances. */
   input[type='number'] {
     -moz-appearance: textfield;

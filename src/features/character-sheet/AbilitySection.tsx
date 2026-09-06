@@ -61,9 +61,9 @@ export function AbilitySection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-abilities">
       <div className={styles.sectionHead}>
-        <h3>{t('sheet.abilities')}</h3>
+        <h3 id="section-abilities">{t('sheet.abilities')}</h3>
       </div>
 
       <div className={styles.abilityGrid}>

@@ -1,5 +1,6 @@
 import { createStore } from 'jotai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { EMPTY_INVENTORY } from '../types/character';
 import { charactersAtom } from './characters';
 
 beforeEach(() => {
@@ -43,8 +44,8 @@ describe('charactersAtom storage migration', () => {
     const store = createStore();
     const [character] = mountAndGet(store);
 
-    expect(character.equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [] });
-    expect(character.currency).toEqual({ cash: 0, savings: 0, debt: 0 });
+    expect(character.equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY });
+    expect(character.currency).toEqual({ cash: 0, savings: 0, debt: 0, spendingLog: '' });
     expect(character.combatFeats).toEqual([]);
     expect(character.name).toBe('Legacy Hero');
   });

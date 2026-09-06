@@ -1,10 +1,10 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import type { Character } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE } from '../../types/character';
 import { CharacterSheetView } from './CharacterSheetView';
 
 /** Mirrors how App.tsx re-derives the live character from the atom, so edits made via
@@ -39,11 +39,13 @@ function makeCharacter(): Character {
     hp: { current: 10 },
     mp: { current: 0 },
     statusEffects: [],
-    equipment: { weapons: [], armor: [], shield: null, accessories: [] },
-    currency: { cash: 1200, savings: 0, debt: 0 },
+    equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+    currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    arts: [],
+    performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
     profile: { gender: '', age: '', avatar: '' },
@@ -81,8 +83,9 @@ describe('CharacterSheetView', () => {
     // Scope to the Combat stats card: several sections render tables, and their order
     // on the sheet is not something this test should depend on.
     const combatSection = screen.getByRole('heading', { name: /combat stats/i }).closest('section') as HTMLElement;
-    const combatTable = within(combatSection).getByRole('table');
-    const fighterRow = within(combatTable).getByRole('row', { name: /Fighter/ });
+    // The section now holds two tables — the class rows and the check packages — so go
+    // straight for the row rather than assuming which table comes first.
+    const fighterRow = within(combatSection).getByRole('row', { name: /Fighter/ });
     expect(within(fighterRow).getAllByRole('cell')[3]).toHaveTextContent('3');
 
     expect(store.get(charactersAtom)[0].abilities.STR.growth).toBe(3);
@@ -125,5 +128,47 @@ describe('CharacterSheetView', () => {
 
     expect(store.get(charactersAtom)[0].statusEffects).toHaveLength(0);
     expect(screen.getByLabelText('Fortitude')).toHaveTextContent('2');
+  });
+});
+
+describe('CharacterSheetView HP and MP limits', () => {
+  it('refuses a current HP above the maximum the character actually has', async () => {
+    const user = userEvent.setup();
+    const store = renderSheet(makeCharacter());
+    const max = Number(screen.getByLabelText('HP').closest('span')?.textContent?.match(/\/ (\d+)/)?.[1]);
+
+    const field = screen.getByLabelText('HP');
+    await user.clear(field);
+    await user.type(field, String(max + 12));
+
+    expect(store.get(charactersAtom)[0].hp.current).toBe(max);
+  });
+
+  it('leaves negative HP alone — below zero is what a Death Check is for', () => {
+    const store = renderSheet(makeCharacter());
+
+    // fireEvent, not userEvent: typing a minus keystroke by keystroke goes through the
+    // intermediate value "-", which is not a number, and a controlled field drops it.
+    fireEvent.change(screen.getByLabelText('HP'), { target: { value: '-4' } });
+
+    expect(store.get(charactersAtom)[0].hp.current).toBe(-4);
+  });
+
+  it('shows a stored value that outlived its maximum as the maximum', () => {
+    // Drop a level of VIT and yesterday's total becomes impossible; the bar clamped to
+    // 100% while the number kept claiming otherwise.
+    renderSheet({ ...makeCharacter(), hp: { current: 9999 } });
+
+    const field = screen.getByLabelText('HP') as HTMLInputElement;
+    const max = Number(field.closest('span')?.textContent?.match(/\/ (\d+)/)?.[1]);
+    expect(Number(field.value)).toBe(max);
+  });
+
+  it('keeps MP out of the negatives — unlike HP there is no state below empty', () => {
+    const store = renderSheet(makeCharacter());
+
+    fireEvent.change(screen.getByLabelText('MP'), { target: { value: '-3' } });
+
+    expect(store.get(charactersAtom)[0].mp.current).toBe(0);
   });
 });

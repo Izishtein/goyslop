@@ -12,9 +12,10 @@ import {
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
-import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character } from '../../types/character';
+import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
-import { listBackgroundOptions } from './backgroundOptions';
+import { listBackgroundOptions } from '../../lib/backgrounds';
+import { RaceFactsCard } from '../reference/RaceFactsCard';
 import styles from './CharacterCreationForm.module.css';
 
 type NumberByAbility = Record<AbilityId, number>;
@@ -108,12 +109,14 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       hp: { current: previewHp },
       mp: { current: previewMp },
       statusEffects: [],
-      equipment: { weapons: [], armor: [], shield: null, accessories: [] },
-      currency: { cash: 1200, savings: 0, debt: 0 },
+      equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+      currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
       combatFeats: [],
       // The background's XP is a starting purse; the classes it grants come free on top.
       experience: { total: background.xp, spent: 0 },
       spells: [],
+      arts: [],
+      performance: EMPTY_PERFORMANCE,
       growthLog: [],
       reputation: 0,
       profile: { gender: '', age: '', avatar: '' },
@@ -206,6 +209,8 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
           </div>
         )}
       </div>
+
+      {race && <RaceFactsCard race={race} background={background} />}
 
       {background && (
         <>

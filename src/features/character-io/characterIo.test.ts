@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { characterFileName, characterToJson, parseImportedCharacter } from './characterIo';
-import type { Character } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE } from '../../types/character';
 
 function makeCharacter(overrides: Partial<Character> = {}): Character {
   return {
@@ -21,11 +21,13 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     hp: { current: 7 },
     mp: { current: 12 },
     statusEffects: [],
-    equipment: { weapons: [], armor: [], shield: null, accessories: [] },
-    currency: { cash: 1200, savings: 0, debt: 0 },
+    equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+    currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    arts: [],
+    performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
     profile: { gender: '', age: '', avatar: '' },
@@ -58,7 +60,7 @@ describe('characterToJson + parseImportedCharacter round-trip', () => {
     const result = parseImportedCharacter(JSON.stringify(legacyShape));
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.character.equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [] });
+      expect(result.character.equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY });
     }
   });
 });

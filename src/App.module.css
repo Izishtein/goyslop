@@ -110,6 +110,23 @@
   gap: var(--sp-2);
 }
 
+/* Saving is broken and the page is the only place that can say so, so it reads as an
+   alert rather than a hint. Kept off paper: a printed sheet is already a copy. */
+.saveError {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+@media print {
+  .saveError {
+    display: none;
+  }
+}
+
 .emptyState {
   display: flex;
   align-items: center;

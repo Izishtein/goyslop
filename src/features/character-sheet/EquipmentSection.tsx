@@ -1,11 +1,17 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EQUIPMENT_RANKS, type Accessory, type Armor, type Character, type Shield, type Weapon } from '../../types/character';
+import { EQUIPMENT_RANKS, type AbyssEnhancement, type Accessory, type Armor, type Character, type InventoryItem, type Shield, type Weapon } from '../../types/character';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { evasion as baseEvasionFormula } from '../../lib/formulas/derived-stats';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
+import { meetsStrength, requiredStrength } from '../../lib/formulas/requirements';
 import { totalDefense, totalEvasion, weaponTotalAccuracy, weaponTotalExtraDamage } from '../../lib/formulas/weapon-stats';
+import { ABYSS_CURSES, MAX_ABYSS_ENHANCEMENTS, enhancementsFor, getAbyssCurse, type AbyssTarget } from '../../data/abyss';
 import { getClass } from '../../data/classes';
+import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import { useUpdateCharacter } from '../../state/characters';
+import { autoGrow } from './autoGrow';
+import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
 
 function primaryWarriorLevel(character: Character): number {
@@ -15,20 +21,70 @@ function primaryWarriorLevel(character: Character): number {
 }
 
 function newWeapon(): Weapon {
-  return { id: crypto.randomUUID(), name: '', stance: '1H', minStr: 0, accuracyBonus: 0, power: 1, criticalValue: 10, extraDamageBonus: 0, rank: 'B' };
+  return { id: crypto.randomUUID(), name: '', stance: '1H', minStr: 0, accuracyBonus: 0, power: 1, criticalValue: 10, extraDamageBonus: 0, rank: 'B', abyss: [] };
 }
 
 function newArmor(): Armor {
-  return { id: crypto.randomUUID(), name: '', defense: 0, evasionModifier: 0, minStr: 0, rank: 'B' };
+  return { id: crypto.randomUUID(), name: '', defense: 0, evasionModifier: 0, minStr: 0, rank: 'B', abyss: [] };
 }
 
 function newAccessory(): Accessory {
   return { id: crypto.randomUUID(), name: '' };
 }
 
+/** Weapons, armor and the shield all take Abyss Enhancements, so the section works over
+ *  a flat view of them; storing each enhancement on its own item is what keeps a removed
+ *  weapon from leaving orphaned rows behind. */
+interface AbyssHolder {
+  id: string;
+  name: string;
+  target: AbyssTarget;
+  abyss: AbyssEnhancement[];
+}
+
+function abyssHolders(character: Character): AbyssHolder[] {
+  const { weapons, armor, shield } = character.equipment;
+  return [
+    ...weapons.map((weapon) => ({ id: weapon.id, name: weapon.name, target: 'weapon' as const, abyss: weapon.abyss })),
+    ...armor.map((piece) => ({ id: piece.id, name: piece.name, target: 'armor' as const, abyss: piece.abyss })),
+    ...(shield ? [{ id: shield.id, name: shield.name, target: 'shield' as const, abyss: shield.abyss }] : []),
+  ];
+}
+
+function newItem(): InventoryItem {
+  return { id: crypto.randomUUID(), name: '', quantity: 1, weight: '', notes: '' };
+}
+
+/** Suggestion list shared by every inventory row; a page only ever shows one sheet. */
+const CONSUMABLES_LIST_ID = 'consumable-presets';
+
 export function EquipmentSection({ character }: { character: Character }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
+  const [abyssTargetId, setAbyssTargetId] = useState('');
+
+  const strTotal = abilityTotal(character.abilities.STR);
+  // A Fencer halves a weapon's requirement — armor and shields keep theirs.
+  const isFencer = character.classes.some((classLevel) => classLevel.classId === 'fencer');
+
+  /** The requirement marker shown beside a Min STR the character cannot meet. */
+  function strengthWarning(minStr: number, halved: boolean) {
+    if (meetsStrength(strTotal, minStr, halved)) return null;
+    const needed = requiredStrength(minStr, halved);
+    return (
+      <span className={styles.unmetMark} title={t('sheet.strengthShort', { needed, have: strTotal })}>
+        ⚠
+      </span>
+    );
+  }
+
+  const holders = abyssHolders(character);
+  const enhanceable = holders.filter((holder) => holder.abyss.length < MAX_ABYSS_ENHANCEMENTS);
+  const abyssRows = holders.flatMap((holder) => holder.abyss.map((enhancement) => ({ holder, enhancement })));
+  const activeAbyssTarget = enhanceable.find((holder) => holder.id === abyssTargetId) ?? enhanceable[0];
+
+  const inventory = character.equipment.inventory;
+  const inventoryEmpty = inventory.adventurersSet === '' && inventory.items.length === 0 && inventory.ammoType === '' && inventory.ammoCount === 0;
 
   const dexMod = abilityModifier(abilityTotal(character.abilities.DEX));
   const strMod = abilityModifier(abilityTotal(character.abilities.STR));
@@ -78,19 +134,70 @@ export function EquipmentSection({ character }: { character: Character }) {
       ...c,
       equipment: {
         ...c.equipment,
-        shield: patch === null ? null : { ...(c.equipment.shield ?? { id: crypto.randomUUID(), name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0 }), ...patch },
+        shield: patch === null ? null : { ...(c.equipment.shield ?? { id: crypto.randomUUID(), name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0, abyss: [] }), ...patch },
       },
     }));
   }
 
-  function setCurrency(field: keyof Character['currency'], value: number) {
+  function setInventory(patch: Partial<Character['equipment']['inventory']>) {
+    update((c) => ({ ...c, equipment: { ...c.equipment, inventory: { ...c.equipment.inventory, ...patch } } }));
+  }
+  function updateItem(id: string, patch: Partial<InventoryItem>) {
+    update((c) => ({
+      ...c,
+      equipment: {
+        ...c.equipment,
+        inventory: { ...c.equipment.inventory, items: c.equipment.inventory.items.map((item) => (item.id === id ? { ...item, ...patch } : item)) },
+      },
+    }));
+  }
+  function addItem() {
+    update((c) => ({ ...c, equipment: { ...c.equipment, inventory: { ...c.equipment.inventory, items: [...c.equipment.inventory.items, newItem()] } } }));
+  }
+  function removeItem(id: string) {
+    update((c) => ({
+      ...c,
+      equipment: { ...c.equipment, inventory: { ...c.equipment.inventory, items: c.equipment.inventory.items.filter((item) => item.id !== id) } },
+    }));
+  }
+
+  /** Rewrites the enhancement list of whichever weapon, armor or shield owns this id. */
+  function updateAbyss(holderId: string, next: (list: AbyssEnhancement[]) => AbyssEnhancement[]) {
+    update((c) => ({
+      ...c,
+      equipment: {
+        ...c.equipment,
+        weapons: c.equipment.weapons.map((weapon) => (weapon.id === holderId ? { ...weapon, abyss: next(weapon.abyss) } : weapon)),
+        armor: c.equipment.armor.map((piece) => (piece.id === holderId ? { ...piece, abyss: next(piece.abyss) } : piece)),
+        shield:
+          c.equipment.shield && c.equipment.shield.id === holderId
+            ? { ...c.equipment.shield, abyss: next(c.equipment.shield.abyss) }
+            : c.equipment.shield,
+      },
+    }));
+  }
+  function addEnhancement() {
+    if (!activeAbyssTarget) return;
+    updateAbyss(activeAbyssTarget.id, (list) => [...list, { id: crypto.randomUUID(), type: '', notes: '', curseRoll: '', curseName: '' }]);
+  }
+  function updateEnhancement(holderId: string, enhancementId: string, patch: Partial<AbyssEnhancement>) {
+    updateAbyss(holderId, (list) => list.map((enhancement) => (enhancement.id === enhancementId ? { ...enhancement, ...patch } : enhancement)));
+  }
+  function removeEnhancement(holderId: string, enhancementId: string) {
+    updateAbyss(holderId, (list) => list.filter((enhancement) => enhancement.id !== enhancementId));
+  }
+
+  function setCurrency(field: 'cash' | 'savings' | 'debt', value: number) {
     update((c) => ({ ...c, currency: { ...c.currency, [field]: value } }));
+  }
+  function setSpendingLog(value: string) {
+    update((c) => ({ ...c, currency: { ...c.currency, spendingLog: value } }));
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-equipment">
       <div className={styles.sectionHead}>
-        <h3>{t('sheet.equipment')}</h3>
+        <h3 id="section-equipment">{t('sheet.equipment')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.totalDefense')}: <strong className={styles.numeric}>{defense}</strong> · {t('sheet.totalEvasion')}:{' '}
           <strong className={styles.numeric}>{evasionTotal}</strong>
@@ -122,7 +229,7 @@ export function EquipmentSection({ character }: { character: Character }) {
               {character.equipment.weapons.map((weapon) => (
                 <tr key={weapon.id}>
                   <td>
-                    <input value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                    <PrintableField value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
                   </td>
                   <td>
                     <select value={weapon.stance} onChange={(e) => updateWeapon(weapon.id, { stance: e.target.value as Weapon['stance'] })} aria-label={t('sheet.stance')}>
@@ -131,8 +238,9 @@ export function EquipmentSection({ character }: { character: Character }) {
                       <option value="special">{t('sheet.special')}</option>
                     </select>
                   </td>
-                  <td>
+                  <td className={meetsStrength(strTotal, weapon.minStr, isFencer) ? undefined : styles.unmet}>
                     <input type="number" value={weapon.minStr} onChange={(e) => updateWeapon(weapon.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
+                    {strengthWarning(weapon.minStr, isFencer)}
                   </td>
                   <td>
                     <input
@@ -207,7 +315,7 @@ export function EquipmentSection({ character }: { character: Character }) {
               {character.equipment.armor.map((armor) => (
                 <tr key={armor.id}>
                   <td>
-                    <input value={armor.name} onChange={(e) => updateArmor(armor.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                    <PrintableField value={armor.name} onChange={(e) => updateArmor(armor.id, { name: e.target.value })} aria-label={t('sheet.name')} />
                   </td>
                   <td>
                     <input type="number" value={armor.defense} onChange={(e) => updateArmor(armor.id, { defense: Number(e.target.value) })} aria-label={t('sheet.defense')} />
@@ -220,8 +328,9 @@ export function EquipmentSection({ character }: { character: Character }) {
                       aria-label={t('sheet.evasionModifier')}
                     />
                   </td>
-                  <td>
+                  <td className={meetsStrength(strTotal, armor.minStr) ? undefined : styles.unmet}>
                     <input type="number" value={armor.minStr} onChange={(e) => updateArmor(armor.id, { minStr: Number(e.target.value) })} aria-label={t('sheet.minStr')} />
+                    {strengthWarning(armor.minStr, false)}
                   </td>
                   <td>
                     <select value={armor.rank} onChange={(e) => updateArmor(armor.id, { rank: e.target.value as Armor['rank'] })} aria-label={t('sheet.rank')}>
@@ -255,6 +364,17 @@ export function EquipmentSection({ character }: { character: Character }) {
           <div className={styles.inlineRow}>
             <input value={character.equipment.shield.name} onChange={(e) => setShield({ name: e.target.value })} aria-label={t('sheet.name')} />
             <label className={styles.field}>
+              <span>{t('sheet.minStr')}</span>
+              <input
+                type="number"
+                value={character.equipment.shield.minStr}
+                onChange={(e) => setShield({ minStr: Number(e.target.value) })}
+                aria-label={t('sheet.minStr')}
+                className={meetsStrength(strTotal, character.equipment.shield.minStr) ? undefined : styles.unmet}
+              />
+            </label>
+            {strengthWarning(character.equipment.shield.minStr, false)}
+            <label className={styles.field}>
               <span>{t('sheet.defense')}</span>
               <input
                 type="number"
@@ -278,7 +398,7 @@ export function EquipmentSection({ character }: { character: Character }) {
           </div>
         ) : (
           <div className={styles.rowActions}>
-            <button type="button" onClick={() => setShield({ name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0 })}>
+            <button type="button" onClick={() => setShield({ name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0, abyss: [] })}>
               {t('sheet.addShield')}
             </button>
           </div>
@@ -305,6 +425,194 @@ export function EquipmentSection({ character }: { character: Character }) {
         </div>
       </div>
 
+      <div className={styles.subsection} data-print-empty={abyssRows.length === 0 || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.abyssEnhancement')}</h4>
+        {abyssRows.length > 0 && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.abyssItem')}</th>
+                  <th>{t('sheet.abyssType')}</th>
+                  <th>{t('sheet.itemNote')}</th>
+                  <th>{t('sheet.abyssCurse')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {abyssRows.map(({ holder, enhancement }) => (
+                  <tr key={enhancement.id}>
+                    {/* Plain text, not an input: the name belongs to the item's own row, and
+                        text wraps on paper where an input would clip it. */}
+                    <td>{holder.name || t('sheet.unnamedItem')}</td>
+                    <td>
+                      <select
+                        value={enhancement.type}
+                        onChange={(e) => updateEnhancement(holder.id, enhancement.id, { type: e.target.value })}
+                        aria-label={t('sheet.abyssType')}
+                      >
+                        <option value=""></option>
+                        {enhancementsFor(holder.target).map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <PrintableField
+                        value={enhancement.notes}
+                        onChange={(e) => updateEnhancement(holder.id, enhancement.id, { notes: e.target.value })}
+                        aria-label={t('sheet.itemNote')}
+                      />
+                    </td>
+                    <td>
+                      {/* One select for both fields: the roll indexes the book's 6×6 table
+                          and the name is stored alongside so the sheet prints it. */}
+                      <select
+                        value={enhancement.curseRoll}
+                        onChange={(e) =>
+                          updateEnhancement(holder.id, enhancement.id, {
+                            curseRoll: e.target.value,
+                            curseName: getAbyssCurse(e.target.value)?.name ?? '',
+                          })
+                        }
+                        aria-label={t('sheet.abyssCurse')}
+                      >
+                        <option value=""></option>
+                        {ABYSS_CURSES.map((curse) => (
+                          <option key={curse.roll} value={curse.roll}>
+                            {curse.roll} — {curse.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => removeEnhancement(holder.id, enhancement.id)}>
+                        {t('sheet.remove')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className={`${styles.inlineRow} ${styles.controlRow}`}>
+          {holders.length === 0 ? (
+            <p className={styles.empty}>{t('sheet.abyssNoEquipment')}</p>
+          ) : (
+            <>
+              <label htmlFor="abyss-target">{t('sheet.abyssItem')}</label>
+              <select id="abyss-target" value={activeAbyssTarget?.id ?? ''} onChange={(e) => setAbyssTargetId(e.target.value)}>
+                {enhanceable.map((holder) => (
+                  <option key={holder.id} value={holder.id}>
+                    {holder.name || t('sheet.unnamedItem')}
+                  </option>
+                ))}
+              </select>
+              {/* The book allows two per item and no more; past that only the curses can be re-rolled. */}
+              <button type="button" onClick={addEnhancement} disabled={!activeAbyssTarget}>
+                {t('sheet.addAbyss')}
+              </button>
+              {enhanceable.length === 0 && <p className={styles.empty}>{t('sheet.abyssAllFull')}</p>}
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.subsection} data-print-empty={inventoryEmpty || undefined}>
+        <h4 className={styles.subHead}>{t('sheet.inventory')}</h4>
+
+        <label className={styles.noteField}>
+          <span>{t('sheet.adventurersSet')}</span>
+          <input
+            value={inventory.adventurersSet}
+            onChange={(e) => setInventory({ adventurersSet: e.target.value })}
+            placeholder={t('sheet.adventurersSetHint')}
+            aria-label={t('sheet.adventurersSet')}
+          />
+        </label>
+
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.quantity')}</th>
+                <th>{t('sheet.weight')}</th>
+                <th>{t('sheet.itemNote')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventory.items.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    {/* The rules name a handful of consumables outright; everything else is
+                        hand-typed, so this suggests rather than constrains. */}
+                    <PrintableField
+                      list={CONSUMABLES_LIST_ID}
+                      value={item.name}
+                      onChange={(e) => updateItem(item.id, { name: e.target.value })}
+                      aria-label={t('sheet.name')}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min={0}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(item.id, { quantity: Number(e.target.value) })}
+                      aria-label={t('sheet.quantity')}
+                    />
+                  </td>
+                  <td>
+                    <PrintableField value={item.weight} onChange={(e) => updateItem(item.id, { weight: e.target.value })} aria-label={t('sheet.weight')} />
+                  </td>
+                  <td>
+                    <PrintableField value={item.notes} onChange={(e) => updateItem(item.id, { notes: e.target.value })} aria-label={t('sheet.itemNote')} />
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => removeItem(item.id)}>
+                      {t('sheet.remove')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <datalist id={CONSUMABLES_LIST_ID}>
+          {CONSUMABLE_PRESETS.map((preset) => (
+            <option key={preset} value={preset} />
+          ))}
+        </datalist>
+        <div className={styles.rowActions}>
+          <button type="button" onClick={addItem}>
+            {t('sheet.addItem')}
+          </button>
+        </div>
+
+        <div className={styles.money}>
+          <label className={styles.moneyField}>
+            <span>{t('sheet.ammoType')}</span>
+            <input value={inventory.ammoType} onChange={(e) => setInventory({ ammoType: e.target.value })} aria-label={t('sheet.ammoType')} />
+          </label>
+          <label className={styles.moneyField}>
+            <span>{t('sheet.ammoCount')}</span>
+            <input
+              type="number"
+              min={0}
+              value={inventory.ammoCount}
+              onChange={(e) => setInventory({ ammoCount: Number(e.target.value) })}
+              aria-label={t('sheet.ammoCount')}
+            />
+          </label>
+        </div>
+      </div>
+
       <h4 className={styles.subHead}>{t('sheet.currency')}</h4>
       <div className={styles.money}>
         <label className={styles.moneyField}>
@@ -318,6 +626,23 @@ export function EquipmentSection({ character }: { character: Character }) {
         <label className={styles.moneyField}>
           <span>{t('sheet.debt')}</span>
           <input type="number" value={character.currency.debt} onChange={(e) => setCurrency('debt', Number(e.target.value))} aria-label={t('sheet.debt')} />
+        </label>
+      </div>
+
+      <div className={styles.subsection} data-print-empty={character.currency.spendingLog === '' || undefined}>
+        <label className={styles.noteField}>
+          <span>{t('sheet.spendingLog')}</span>
+          <textarea
+            value={character.currency.spendingLog}
+            onChange={(e) => {
+              setSpendingLog(e.target.value);
+              autoGrow(e.target);
+            }}
+            ref={autoGrow}
+            rows={2}
+            placeholder={t('sheet.spendingLogHint')}
+            aria-label={t('sheet.spendingLog')}
+          />
         </label>
       </div>
     </section>

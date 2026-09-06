@@ -74,6 +74,22 @@ export type StatusEffect = z.infer<typeof StatusEffectSchema>;
 export const EQUIPMENT_RANKS = ['B', 'A', 'S', 'SS'] as const;
 export const EquipmentRankSchema = z.enum(EQUIPMENT_RANKS);
 
+/** One Abyss Enhancement burned into a piece of equipment, with the Abyss Curse it drags
+ *  along (Core II). Deliberately *not* capped at two here even though the book allows no
+ *  more: a length cap in the schema would make an over-filled import fail validation, and
+ *  a failed parse drops the whole character. The sheet enforces the limit instead. */
+export const AbyssEnhancementSchema = z.object({
+  id: z.string(),
+  type: z.string().default(''),
+  /** Where the rolled category or damage type gets written for the "vs …" enhancements. */
+  notes: z.string().default(''),
+  curseRoll: z.string().default(''),
+  curseName: z.string().default(''),
+});
+export type AbyssEnhancement = z.infer<typeof AbyssEnhancementSchema>;
+
+const abyssField = z.array(AbyssEnhancementSchema).default(() => []);
+
 export const WeaponSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -86,6 +102,7 @@ export const WeaponSchema = z.object({
   range: z.string().optional(),
   rank: EquipmentRankSchema,
   notes: z.string().optional(),
+  abyss: abyssField,
 });
 export type Weapon = z.infer<typeof WeaponSchema>;
 
@@ -97,6 +114,7 @@ export const ArmorSchema = z.object({
   minStr: z.number().int(),
   rank: EquipmentRankSchema,
   notes: z.string().optional(),
+  abyss: abyssField,
 });
 export type Armor = z.infer<typeof ArmorSchema>;
 
@@ -106,6 +124,7 @@ export const ShieldSchema = z.object({
   defenseBonus: z.number().int(),
   evasionBonus: z.number().int().default(0),
   minStr: z.number().int(),
+  abyss: abyssField,
 });
 export type Shield = z.infer<typeof ShieldSchema>;
 
@@ -116,11 +135,37 @@ export const AccessorySchema = z.object({
 });
 export type Accessory = z.infer<typeof AccessorySchema>;
 
+/** A carried item. `quantity` is what actually gets ticked down in play (potions, gems,
+ *  magispheres); `weight` is free text because SW2.5 has no encumbrance rule — most rows
+ *  have nothing meaningful to put there, and a forced 0 would only be noise on paper. */
+export const InventoryItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  quantity: z.number().int().default(1),
+  weight: z.string().default(''),
+  notes: z.string().default(''),
+});
+export type InventoryItem = z.infer<typeof InventoryItemSchema>;
+
+/** The pack. The Adventurer's Set is a single line because the book sells it as one, and
+ *  ammunition gets its own counter rather than an item row — a Marksman changes that number
+ *  every fight while the type stays put. */
+export const InventorySchema = z.object({
+  adventurersSet: z.string().default(''),
+  items: z.array(InventoryItemSchema).default(() => []),
+  ammoType: z.string().default(''),
+  ammoCount: z.number().int().default(0),
+});
+export type Inventory = z.infer<typeof InventorySchema>;
+
+export const EMPTY_INVENTORY: Inventory = { adventurersSet: '', items: [], ammoType: '', ammoCount: 0 };
+
 export const EquipmentSchema = z.object({
   weapons: z.array(WeaponSchema),
   armor: z.array(ArmorSchema),
   shield: ShieldSchema.nullable(),
   accessories: z.array(AccessorySchema),
+  inventory: InventorySchema.default(() => EMPTY_INVENTORY),
 });
 export type Equipment = z.infer<typeof EquipmentSchema>;
 
@@ -128,6 +173,8 @@ export const CurrencySchema = z.object({
   cash: z.number().int(),
   savings: z.number().int(),
   debt: z.number().int(),
+  /** Free-form "item :: cost" ledger, per the inventory box in docs/sheet-content. */
+  spendingLog: z.string().default(''),
 });
 export type Currency = z.infer<typeof CurrencySchema>;
 
@@ -201,6 +248,46 @@ export const CombatFeatSchema = z.object({
 });
 export type CombatFeat = z.infer<typeof CombatFeatSchema>;
 
+export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
+export const ArtKindSchema = z.enum(ART_KINDS);
+
+/** A learned Technique, Spellsong or Finale (Core II). One row shape covers all three:
+ *  the fields a kind does not use simply stay empty, which keeps one add/edit/remove path
+ *  and one migration for the whole section. Rows taken from the catalog arrive filled in,
+ *  hand-written ones start blank — and `notes` is where the player writes what it does,
+ *  since the catalog deliberately carries no effect text. */
+export const KnownArtSchema = z.object({
+  id: z.string(),
+  kind: ArtKindSchema,
+  name: z.string(),
+  /** Class level the book requires — 1 or 5 for everything printed so far. */
+  requiredLevel: z.number().int().default(1),
+  /** Technique: one of the duration codes in `data/arts.ts`, translated for display. */
+  duration: z.string().default(''),
+  preparation: z.boolean().default(false),
+  singing: z.boolean().default(false),
+  pets: z.string().default(''),
+  effectCondition: z.string().default(''),
+  rhythm: z.string().default(''),
+  flourish: z.number().int().default(0),
+  extraRhythm: z.string().default(''),
+  resistance: z.string().default(''),
+  damageType: z.string().default(''),
+  notes: z.string().default(''),
+});
+export type KnownArt = z.infer<typeof KnownArtSchema>;
+
+/** The Bard's rhythm pool and pet. Rhythm is banked by performing and spent on Finales,
+ *  so like HP and MP it is a tracker the player moves during a fight, not a derived value. */
+export const PerformanceSchema = z.object({
+  rhythmNote: z.number().int().default(0),
+  rhythmHeart: z.number().int().default(0),
+  pet: z.string().default(''),
+});
+export type Performance = z.infer<typeof PerformanceSchema>;
+
+export const EMPTY_PERFORMANCE: Performance = { rhythmNote: 0, rhythmHeart: 0, pet: '' };
+
 export const CharacterSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
   id: z.string(),
@@ -214,11 +301,14 @@ export const CharacterSchema = z.object({
   statusEffects: z.array(StatusEffectSchema),
   // .default(...) lets parse() backfill characters saved before these fields existed,
   // instead of throwing when loading old data from localStorage.
-  equipment: EquipmentSchema.default(() => ({ weapons: [], armor: [], shield: null, accessories: [] })),
-  currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0 })),
+  equipment: EquipmentSchema.default(() => ({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY })),
+  currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0, spendingLog: '' })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),
   spells: z.array(KnownSpellSchema).default(() => []),
+  /** Enhancer Techniques and Bard Spellsongs/Finales — see KnownArtSchema. */
+  arts: z.array(KnownArtSchema).default(() => []),
+  performance: PerformanceSchema.default(() => EMPTY_PERFORMANCE),
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */
   reputation: z.number().int().min(0).default(0),

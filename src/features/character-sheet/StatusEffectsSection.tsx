@@ -95,9 +95,9 @@ export function StatusEffectsSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-status-effects">
       <div className={styles.sectionHead}>
-        <h3>{t('statusEffects.title')}</h3>
+        <h3 id="section-status-effects">{t('statusEffects.title')}</h3>
         {character.statusEffects.length > 0 && (
           <button type="button" onClick={nextRound}>
             {t('statusEffects.nextRound')}

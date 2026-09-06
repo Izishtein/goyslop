@@ -1,0 +1,194 @@
+/*
+ * The reference screen. Layout and table chrome deliberately echo the character sheet
+ * (src/features/character-sheet/CharacterSheetView.module.css) rather than composing from
+ * it: the sheet's rules are tuned for editable rows of inputs, and everything here is
+ * read-only text that wants to wrap.
+ */
+.reference {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.head h2 {
+  margin: 0;
+}
+
+.note {
+  margin: var(--sp-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  max-width: 70ch;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.tab[aria-pressed='true'],
+.tabActive {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Pickers above a catalog: chrome, not data, so they go with the buttons on paper. */
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.panelHead h3 {
+  margin: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.group h4 {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+}
+
+.table th,
+.table td {
+  padding: 6px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.table thead th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: var(--surface-2);
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.table tbody tr:last-child td,
+.table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.rowName {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Dice sit on two lines: the notation, then the span it can actually roll. */
+.dice {
+  white-space: nowrap;
+}
+
+.range {
+  display: block;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.missing {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.ability {
+  display: block;
+  white-space: nowrap;
+}
+
+.prose {
+  min-width: 28ch;
+  max-width: 52ch;
+}
+
+@media print {
+  .reference {
+    gap: 3mm;
+  }
+
+  .panel {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  /* The sheet prints one section per card and forbids splitting a table, which is right
+     for a dozen rows and wrong for a catalog: an unsplittable 257-row table either
+     overflows one page or jumps whole to the next. Let these break, and repeat the
+     header row on every page they land on. */
+  .table {
+    break-inside: auto;
+  }
+
+  .table thead {
+    display: table-header-group;
+  }
+
+  .table tr {
+    break-inside: avoid;
+  }
+
+  /* print.css reserves 18% for the first column because on the sheet it is always a name
+     input. Here the first column is a race or class name that sizes itself. */
+  .table th:first-child,
+  .table td:first-child {
+    width: auto;
+  }
+
+  .note {
+    color: #333;
+  }
+
+  .controlRow {
+    display: none;
+  }
+}

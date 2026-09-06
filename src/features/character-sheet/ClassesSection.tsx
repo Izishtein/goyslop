@@ -72,9 +72,9 @@ export function ClassesSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} aria-labelledby="section-classes">
       <div className={styles.sectionHead}>
-        <h3>{t('sheet.classes')}</h3>
+        <h3 id="section-classes">{t('sheet.classes')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.adventurerLevel')}: <strong className={styles.numeric}>{adventurerLevel(character.classes)}</strong>
         </p>

@@ -15,6 +15,7 @@ import { CombatStatsSection } from './CombatStatsSection';
 import { EquipmentSection } from './EquipmentSection';
 import { CombatFeatsSection } from './CombatFeatsSection';
 import { SpellsSection } from './SpellsSection';
+import { ArtsSection } from './ArtsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
 import styles from './CharacterSheetView.module.css';
@@ -46,11 +47,19 @@ export function CharacterSheetView({ character }: { character: Character }) {
   const vitTotal = abilityTotal(character.abilities.VIT);
   const sprTotal = abilityTotal(character.abilities.SPR);
 
-  const hp = { current: character.hp.current, max: hpMax(advLevel, vitTotal) };
-  const mp = { current: character.mp.current, max: mpMax(wizLevels, sprTotal) };
+  const hpTotal = hpMax(advLevel, vitTotal);
+  const mpTotal = mpMax(wizLevels, sprTotal);
+  /* Displayed clamped as well as written clamped: a stored value can outlive the maximum
+     that justified it (drop a level of VIT and yesterday's 23 becomes impossible), and the
+     bar hid that — it clamps to 100% while the number kept claiming 30 / 23.
+     HP has no floor: below zero is a real state, that is what a Death Check is for. */
+  const hp = { current: Math.min(character.hp.current, hpTotal), max: hpTotal };
+  const mp = { current: Math.max(0, Math.min(character.mp.current, mpTotal)), max: mpTotal };
 
   function updateCurrent(field: 'hp' | 'mp', value: number) {
-    update((c) => ({ ...c, [field]: { current: value } }));
+    const max = field === 'hp' ? hpTotal : mpTotal;
+    const clamped = field === 'hp' ? Math.min(value, max) : Math.max(0, Math.min(value, max));
+    update((c) => ({ ...c, [field]: { current: clamped } }));
   }
 
   function updateProfile(field: 'gender' | 'age', value: string) {
@@ -182,6 +191,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <EquipmentSection character={character} />
 
       <SpellsSection character={character} />
+
+      <ArtsSection character={character} />
 
       <CombatFeatsSection character={character} />
 

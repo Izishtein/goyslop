@@ -4,7 +4,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import { CharacterSchema, type Character } from '../../types/character';
+import { CharacterSchema, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
 import { SpellsSection } from './SpellsSection';
 
 function Harness({ id }: { id: string }) {
@@ -31,11 +31,13 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     hp: { current: 8 },
     mp: { current: 8 },
     statusEffects: [],
-    equipment: { weapons: [], armor: [], shield: null, accessories: [] },
-    currency: { cash: 1200, savings: 0, debt: 0 },
+    equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+    currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    arts: [],
+    performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
     profile: { gender: '', age: '', avatar: '' },
@@ -136,5 +138,50 @@ describe('SpellsSection', () => {
     delete legacy.spells;
 
     expect(CharacterSchema.parse(legacy).spells).toEqual([]);
+  });
+});
+
+describe('SpellsSection catalog search', () => {
+  it('narrows the catalog to the spells whose name matches', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter());
+
+    await user.type(screen.getByLabelText('Search'), 'bolt');
+
+    const names = [...screen.getByLabelText('Add from catalog').querySelectorAll('option')]
+      .map((option) => option.textContent ?? '')
+      .filter((label) => label !== 'Select...');
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.every((label) => label.toLowerCase().includes('bolt'))).toBe(true);
+  });
+
+  it('keeps the circle grouping, so a filtered list still shows what is out of reach', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter());
+
+    await user.type(screen.getByLabelText('Search'), 'a');
+
+    const groups = [...screen.getByLabelText('Add from catalog').querySelectorAll('optgroup')].map((group) => group.label);
+    expect(groups.some((label) => label.includes('above class level'))).toBe(true);
+  });
+
+  it('says so when nothing matches instead of showing an empty picker', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter());
+
+    await user.type(screen.getByLabelText('Search'), 'zzzzz');
+
+    expect(screen.getByText('Nothing in this school matches.')).toBeInTheDocument();
+  });
+
+  it('adds the spell that survived the filter', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    await user.type(screen.getByLabelText('Search'), 'energy');
+    await user.selectOptions(screen.getByLabelText('Add from catalog'), 'energy-bolt');
+    await user.click(screen.getByRole('button', { name: 'Add spell' }));
+
+    expect(store.get(charactersAtom)[0].spells[0].name).toBe('Energy Bolt');
   });
 });

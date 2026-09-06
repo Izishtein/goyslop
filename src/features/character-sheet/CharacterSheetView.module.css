@@ -343,6 +343,11 @@
   min-width: 9em;
 }
 
+/* Print-only twin of a text field — see PrintableField.tsx. */
+.printValue {
+  display: none;
+}
+
 .numeric {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
@@ -679,6 +684,20 @@
     overflow-x: visible;
   }
 
+  /* Swap every free-text field for its wrapping twin: an <input> would print one line and
+     cut the rest off inside the cell, which loses whatever the player wrote past the edge. */
+  .screenField {
+    display: none !important;
+  }
+
+  .printValue {
+    display: block;
+    overflow-wrap: break-word;
+    min-height: 1em;
+    /* The field it stands in for renders its text from the left; the cell would centre it. */
+    text-align: left;
+  }
+
   .effect {
     background: transparent;
     border: 1px solid #999;
@@ -730,6 +749,19 @@
   .empty {
     color: #666;
   }
+}
+
+/* Equipment the character is not strong enough for. Colour alone would not carry this,
+   so the cell also gains a marker glyph with the requirement spelled out in its title. */
+.unmet {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.unmetMark {
+  color: var(--danger);
+  margin-left: 2px;
+  cursor: help;
 }
 
 /* Spending more XP than the character earned is a bookkeeping error worth seeing. */

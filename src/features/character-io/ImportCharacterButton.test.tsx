@@ -4,7 +4,7 @@ import { Provider, createStore } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
-import type { Character } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE } from '../../types/character';
 import { ImportCharacterButton } from './ImportCharacterButton';
 
 beforeEach(() => {
@@ -30,11 +30,13 @@ function makeCharacter(): Character {
     hp: { current: 7 },
     mp: { current: 12 },
     statusEffects: [],
-    equipment: { weapons: [], armor: [], shield: null, accessories: [] },
-    currency: { cash: 1200, savings: 0, debt: 0 },
+    equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+    currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
     experience: { total: 0, spent: 0 },
     spells: [],
+    arts: [],
+    performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
     profile: { gender: '', age: '', avatar: '' },
