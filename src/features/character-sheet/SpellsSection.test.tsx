@@ -104,16 +104,32 @@ describe('SpellsSection', () => {
 
   it('supports hand-written spells for schools with no catalog', async () => {
     const user = userEvent.setup();
-    // A Druid casts Nature Magic, which the research docs cover by mechanics and counts
-    // only — there is no per-spell list to build a catalog from.
-    const store = renderSection(makeCharacter({ classes: [{ classId: 'druid', level: 1 }] }));
+    // A Bibliomancer casts Arcane Magic, whose spell list sits in Tyrants Crypts and is
+    // held back by the translation embargo — no per-spell list to build a catalog from.
+    const store = renderSection(makeCharacter({ classes: [{ classId: 'bibliomancer', level: 1 }] }));
 
     expect(screen.getByText(/No catalog for this school yet/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Add by hand' }));
     await user.type(screen.getAllByLabelText('Spell')[0], 'Thorn Bind');
 
-    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Thorn Bind', school: 'Nature Magic' });
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Thorn Bind', school: 'Arcane Magic' });
+  });
+
+  it('offers the supplement schools from the catalog too', async () => {
+    const user = userEvent.setup();
+    // Nature Magic runs to level 15, well past the ten circles of the Core schools.
+    const store = renderSection(makeCharacter({ classes: [{ classId: 'druid', level: 15 }] }));
+
+    await user.selectOptions(screen.getByLabelText('Add from catalog'), 'natural-haven');
+    await user.click(screen.getByRole('button', { name: 'Add spell' }));
+
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({
+      name: 'Natural Haven',
+      school: 'Nature Magic',
+      circle: 15,
+      mp: 30,
+    });
   });
 
   it('says so when the character has no Wizard-type class at all', () => {

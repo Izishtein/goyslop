@@ -15,8 +15,13 @@ describe('spell catalog', () => {
       Magitech: 23 + 14,
       // Six elemental types of ten; the Basic type is unverified in the source doc.
       'Fairy Magic': 60,
+      // Monstrous Lore and Abyss Breaker run to level 15: four Nature spells per level,
+      // three Summoning Arts per level (four at level 2), two or three Abyssal per level.
+      'Nature Magic': 60,
+      'Summoning Arts': 46,
+      'Abyssal Magic': 35,
     });
-    expect(SPELLS).toHaveLength(257);
+    expect(SPELLS).toHaveLength(398);
   });
 
   it('has unique ids', () => {
@@ -24,9 +29,13 @@ describe('spell catalog', () => {
   });
 
   it('keeps every spell inside the printed circles', () => {
+    // The four Core schools and Fairy Magic stop at circle 10; the three supplement
+    // schools are printed as fifteen levels.
+    const topCircle = (school: string) =>
+      ['Nature Magic', 'Summoning Arts', 'Abyssal Magic'].includes(school) ? 15 : 10;
     for (const spell of SPELLS) {
       expect(spell.circle).toBeGreaterThanOrEqual(1);
-      expect(spell.circle).toBeLessThanOrEqual(10);
+      expect(spell.circle).toBeLessThanOrEqual(topCircle(spell.school));
       if (spell.mp !== undefined) expect(spell.mp).toBeGreaterThanOrEqual(0);
     }
   });

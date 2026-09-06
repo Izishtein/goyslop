@@ -13,7 +13,7 @@ export interface SpellDefinition {
   id: string;
   name: string;
   school: string;
-  /** 1-6 in Core I, up to 10 with Core II and Fairy Magic. */
+  /** 1-6 in Core I, up to 10 with Core II and Fairy Magic, up to 15 in the supplement schools. */
   circle: number;
   /** Undefined where the source table does not print a cost (Fairy Magic, one cut page). */
   mp?: number;
@@ -33,6 +33,9 @@ export const SPIRITUALISM = 'Spiritualism Magic';
 export const DIVINE = 'Divine Magic';
 export const MAGITECH = 'Magitech';
 export const FAIRY = 'Fairy Magic';
+export const NATURE = 'Nature Magic';
+export const SUMMONING = 'Summoning Arts';
+export const ABYSSAL = 'Abyssal Magic';
 
 export function spellId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

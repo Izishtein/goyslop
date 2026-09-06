@@ -21,6 +21,7 @@
 | [10-spells-core2.md](10-spells-core2.md) | Дополнения Core II: Truespeech/Spiritualism/Divine/Magitech (кр. 7–10) + 5 новых богов Divine |
 | [11-fairy-magic.md](11-fairy-magic.md) | Fairy Magic: 7 типов × 10 кругов (70 заклинаний), механика Fairy Tamer |
 | [12-techniques-spellsongs.md](12-techniques-spellsongs.md) | Techniques (Enhancer, 20 штук) + Spellsongs (Bard, 17 штук) + Finales (8 штук) |
+| [13-spells-supplements.md](13-spells-supplements.md) | Построчные списки Nature Magic (60), Summoning Arts (46), Abyssal Magic (35) — уровни 1–15 |
 
 ---
 
@@ -110,13 +111,13 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 - Обнаружено, но не задокументировано подробно: новая школа **Deep Magic** (Sorcerer+Conjurer), **Stunts** (pp.173–177, пересекается с Core III гэпом), **Evocations** (Alchemist, pp.178–184, пересекается с Core III/Alchemist гэпом), 9 новых богов (1st/2nd/3rd Sword — пересекается с "Second Sword" гэпом Core III), расширенная Fairy Magic (3-type/6-type selection)
 
 ### Закрыто по Monstrous Lore PDF (2026-07-09)
-- ✅ **Druid класс** — Nature Magic (~59 заклинаний), Symbols of Beneficence/Symbolic Lore, полная механика → `02-classes.md`
-- ✅ **Daemonologist класс (Summoner/Daemon Tamer)** — Summoning Arts (~46 заклинаний), Gate Imp/Abyss Gate/Daemon Action Chart/Banishment, полная механика → `02-classes.md`
+- ✅ **Druid класс** — Nature Magic, Symbols of Beneficence/Symbolic Lore, полная механика → `02-classes.md`; построчный список 60 заклинаний (2026-09-06) → `13-spells-supplements.md`
+- ✅ **Daemonologist класс (Summoner/Daemon Tamer)** — Summoning Arts, Gate Imp/Abyss Gate/Daemon Action Chart/Banishment, полная механика → `02-classes.md`; построчный список 46 заклинаний (2026-09-06) → `13-spells-supplements.md`
 - ✅ **New Backgrounds для Daemon Tamer/Druid/Jockey(Rider)/Alchemist** по всем расам Core I–III → `02-classes.md`
 - Обнаружено, но не задокументировано подробно: ~400 монстров (Part 2, pp.56+), Golem Enhancing Items (доп. к Core II Conjurer, pp.225–235), Familiar Data (для Sorcerer [Familiar]/[Familiar II], pp.236–243)
 
 ### Закрыто по Abyss Breaker PDF (2026-07-09)
-- ✅ **Abyss Gazer класс** — Abyssal Magic (~27 заклинаний с системой Enhancement через Daemon's Blood/Abyss Shards), полная механика → `02-classes.md`. **Подтверждено: отдельный класс от Daemonologist** (не синоним) — счётчик классов скорректирован с 23 до 24
+- ✅ **Abyss Gazer класс** — Abyssal Magic (система Enhancement через Daemon's Blood/Abyss Shards), полная механика → `02-classes.md`; построчный список 35 заклинаний (2026-09-06) → `13-spells-supplements.md`. **Подтверждено: отдельный класс от Daemonologist** (не синоним) — счётчик классов скорректирован с 23 до 24
 - ✅ **Dark Hunter класс** — Essence Weaving (~28 штук), Mental Power = Class Level + SPR modifier, полная механика → `02-classes.md`
 - ✅ **Thrown Weapons** (B/A/S/SS ранги) и **Abyss Skills/Abyss Corruption** (расширение Abyss Enhancement) → `06-equipment.md`
 - Обнаружено, но не задокументировано подробно: World lore (Part 2), Random Shallow Abyss generation rules (Part 3), Monster Data (Part 4, 80+ монстров Бездны)

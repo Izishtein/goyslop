@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
-import { CATALOGUED_SCHOOLS, getSpell, listSpellsBySchool } from '../../data/spells';
+import { CATALOGUED_SCHOOLS, getSpell, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
 import { PrintableField } from './PrintableField';
@@ -15,6 +15,11 @@ function magicSchoolsOf(character: Character): string[] {
     .map((classDef) => classDef?.magicSchool)
     .filter((school): school is string => Boolean(school));
   return [...new Set(schools)];
+}
+
+/** The circles a list of spells actually covers, in order. */
+function circlesIn(spells: SpellDefinition[]): number[] {
+  return [...new Set(spells.map((spell) => spell.circle))].sort((a, b) => a - b);
 }
 
 /** Highest level among the classes that cast from this school — the circle they know up to. */
@@ -164,8 +169,9 @@ export function SpellsSection({ character }: { character: Character }) {
             <label htmlFor="add-spell">{t('sheet.addSpell')}</label>
             <select id="add-spell" value={spellId} onChange={(e) => setSpellId(e.target.value)}>
               <option value="">{t('creation.selectPlaceholder')}</option>
-              {/* Core I stops at circle 6; Core II and Fairy Magic go to 10. */}
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((circle) => {
+              {/* Core I stops at circle 6, Core II and Fairy Magic reach 10, and the three
+                  supplement schools run to 15 — so the groups come from the data. */}
+              {circlesIn(options).map((circle) => {
                 const inCircle = options.filter((spell) => spell.circle === circle);
                 if (inCircle.length === 0) return null;
                 return (

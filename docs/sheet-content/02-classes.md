@@ -190,7 +190,7 @@ Adventurer Level (уровень авантюриста) = наивысший у
 - **Natural Power / Natural Power II** (MP0) — даёт временное MP (Power 10/30) только для каста Nature Magic, только в природной среде (CR I p.101), сгорает в конце хода кастера.
 - Некоторые заклинания определяют физический урон броском 2d по таблице (нельзя менять броском [Sword's Grace/Change Fate]); такой урон считается "Magic Weapon Damage", не рубящим/дробящим.
 
-**Заклинания (Nature Magic Data, pp. 20–27):** ~59 заклинаний, MP-диапазон 0–30 (Natural Haven, Blaze Shower — топовые). Именование `[Имя/Животное]` — совпадающие "Имя" не суммируются на одной цели. Полный построчный список не транскрибирован (объёмный, низкий приоритет для MVP) — при необходимости брать из `files/Sword World 2.5 - Monstrous Lore.pdf`, pp. 20–27.
+**Заклинания (Nature Magic Data, pp. 20–27):** **60 заклинаний** (4 на каждом из 15 уровней; прежняя оценка «~59» была прикидкой), MP-диапазон 0–30 (Natural Haven, Blaze Shower — топовые). Именование `[Имя/Животное]` — совпадающие "Имя" не суммируются на одной цели. **Построчный список — `13-spells-supplements.md`** (в приложении: `src/data/spells/nature.ts`).
 
 **Снаряжение (Additional Items, p.54):** Symbol of Beneficence (100 г), Raw Sacred Wood (100 г, материал), 3 ранга боевых посохов-Staff of the Sacred Tree (Oak/Iron Bands/Dense Oak Staff, B/A/S-ранг).
 
@@ -215,7 +215,7 @@ Adventurer Level (уровень авантюриста) = наивысший у
 
 **Список призываемых Daemon'ов (List of Summonable Daemons, p.39+):** таблица по Monster Level (1–9+, полностью не выписана) с колонками Summoning Sacrifice (цена), Banish Tribute Cost, Willpower, страница Daemon Action Chart, страница Monster Data.
 
-**Заклинания (Summoning Arts Data, pp. 40–45):** ~46 заклинаний, MP 1–50 (топовые: [Soul Sacrifice] — превращение в Doppelganger, [Daemon's Legion] — армия Daemon'ов с ресурсом "Daemon Might", [Lethal Dimension]). Полный построчный список не транскрибирован (низкий приоритет для MVP) — при необходимости брать из `files/Sword World 2.5 - Monstrous Lore.pdf`, pp. 40–45.
+**Заклинания (Summoning Arts Data, pp. 40–45):** **46 заклинаний** (по 3 на уровень, на 2-м — 4), MP 1–50 (топовые: [Soul Sacrifice] — превращение в Doppelganger, [Daemon's Legion] — армия Daemon'ов с ресурсом "Daemon Might", [Lethal Dimension]). **Построчный список — `13-spells-supplements.md`** (в приложении: `src/data/spells/summoning.ts`).
 
 **Для листа персонажа:** поля Gate Imp (есть/потерян), Imp Seal (модель, экипирован), текущий призванный Daemon (имя/уровень/оставшееся MP на изгнание), список известных заклинаний Summoning Arts, счётчик Infamy/Disgrace, список Daemon Seminarium (если есть).
 
@@ -231,7 +231,7 @@ Adventurer Level (уровень авантюриста) = наивысший у
 
 **Abyssal Spell Enhancement** — ключевая механика школы: при касте можно **дополнительно** потратить Enhancement Material (**Daemon's Blood** 200г / **Crystallized Daemon's Blood** 1600г / **Crystallized Great Daemon's Blood** 3200г / **Abyss Shard** — не продаётся) для получения доп. эффекта, уникального для каждого заклинания (изменение типа урона, доп. цель, Minor Action вместо Major и т.д.). Без ограничений на количество применений, но материалы тратятся всегда (даже при провале каста), при авто-провале (двойная 1) — тоже теряются. Дешёвые материалы можно заменять дорогими, но не наоборот; Abyss Shard нельзя заменить ничем. Enhancement Duration у каждого эффекта своя ("One Time" = разово, либо на время).
 
-**Заклинания (pp. 20–27):** ~27 заклинаний, MP 1–50, многие с уникальными "Enhancement Effect 1/2". Полный построчный список не транскрибирован (низкий приоритет) — при необходимости брать из `files/Sword World 2.5 - Abyss Breaker.pdf`, pp. 20–27.
+**Заклинания (pp. 20–27):** **35 заклинаний** (2–3 на уровень; прежняя оценка «~27» была прикидкой), MP 1–50, у каждого один-два "Enhancement Effect". **Построчный список — `13-spells-supplements.md`** (в приложении: `src/data/spells/abyssal.ts`).
 
 **Для листа персонажа:** список известных заклинаний Abyssal Magic, инвентарь Enhancement Materials (4 типа), Abyssal Knife (экипирован?).
 
