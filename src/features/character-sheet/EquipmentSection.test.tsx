@@ -37,6 +37,9 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     experience: { total: 0, spent: 0 },
     spells: [],
     arts: [],
+    evocations: [],
+    materialCards: {},
+    mounts: [],
     performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
@@ -216,7 +219,7 @@ describe('EquipmentSection Abyss Enhancement', () => {
       equipment: {
         ...base.equipment,
         weapons: [weapon({ abyss: [{ id: 'e1', type: '', notes: '', curseRoll: '', curseName: '' }] })],
-        shield: { id: 's1', name: 'Buckler', defenseBonus: 1, evasionBonus: 0, minStr: 8, abyss: [{ id: 'e2', type: '', notes: '', curseRoll: '', curseName: '' }] },
+        shield: { id: 's1', name: 'Buckler', defenseBonus: 1, evasionBonus: 0, minStr: 8, notes: '', rank: 'B' as const, abyss: [{ id: 'e2', type: '', notes: '', curseRoll: '', curseName: '' }] },
       },
     });
 
@@ -315,5 +318,80 @@ describe('EquipmentSection strength requirements', () => {
     });
 
     expect(within(screen.getAllByLabelText('Min STR')[0].closest('td') as HTMLElement).getByTitle(/Requires STR 18/)).toBeInTheDocument();
+  });
+});
+
+describe('EquipmentSection catalog pickers', () => {
+  it('fills a weapon row from the catalog, keeping the printed stance marker in the note', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    // Normal Lance prints two lines: 1H on foot and 1HR in the saddle. The mounted one is
+    // the second option, and it is the reason a Jockey buys the lance at all.
+    await user.selectOptions(screen.getByLabelText('Weapon from catalog'), 'normal-lance#1');
+    await user.click(screen.getByRole('button', { name: 'Add weapon from catalog' }));
+
+    const [weapon] = store.get(charactersAtom)[0].equipment.weapons;
+    expect(weapon).toMatchObject({
+      name: 'Normal Lance',
+      stance: '1H',
+      minStr: 20,
+      accuracyBonus: -1,
+      power: 35,
+      criticalValue: 10,
+      rank: 'A',
+      notes: '1HR',
+    });
+  });
+
+  it('starts a gun at Power 0, because the book prints none — the bullet carries it', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    await user.selectOptions(screen.getByLabelText('Weapon from catalog'), 'desperado#0');
+    await user.click(screen.getByRole('button', { name: 'Add weapon from catalog' }));
+
+    const [weapon] = store.get(charactersAtom)[0].equipment.weapons;
+    expect(weapon).toMatchObject({ name: 'Desperado', power: 0, criticalValue: 11, range: '2(60m)' });
+    expect(weapon.notes).toContain('Magazine 2');
+  });
+
+  it('fills an armor row and offers its SS rank, which the rank select used to be missing', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    await user.selectOptions(screen.getByLabelText('Armor from catalog'), 'imperial');
+    await user.click(screen.getByRole('button', { name: 'Add armor from catalog' }));
+
+    const [armor] = store.get(charactersAtom)[0].equipment.armor;
+    expect(armor).toMatchObject({ name: 'Imperial', defense: 14, evasionModifier: -1, minStr: 30, rank: 'SS' });
+    expect([...screen.getByLabelText('Rank').querySelectorAll('option')].map((option) => option.value)).toContain('SS');
+  });
+
+  it('notes Mount Protection on a shield that carries it', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    await user.selectOptions(screen.getByLabelText('Shield from catalog'), 'knight-shield');
+    await user.click(screen.getByRole('button', { name: 'Add shield from catalog' }));
+
+    expect(store.get(charactersAtom)[0].equipment.shield).toMatchObject({
+      name: 'Knight Shield',
+      defenseBonus: 2,
+      minStr: 15,
+      rank: 'A',
+      notes: 'Mount Protection',
+    });
+  });
+
+  it('still adds a blank row for anything the catalog does not carry', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    // The catalog holds Core III only; a Longsword out of Core I is still typed by hand.
+    await user.click(screen.getByRole('button', { name: 'Add weapon' }));
+
+    expect(store.get(charactersAtom)[0].equipment.weapons).toHaveLength(1);
+    expect(store.get(charactersAtom)[0].equipment.weapons[0].name).toBe('');
   });
 });

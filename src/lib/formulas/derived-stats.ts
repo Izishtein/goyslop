@@ -33,6 +33,11 @@ export function enhancerPower(enhancerClassLevel: number, intModifier: number): 
   return enhancerClassLevel + intModifier;
 }
 
+/** Alchemist: the Standard Value of every Evocation check (Core III p. 107). */
+export function evocationPower(alchemistClassLevel: number, intModifier: number): number {
+  return alchemistClassLevel + intModifier;
+}
+
 /*
  * Check packages: Standard Values a player rolls against all session long, each of them
  * "class level + ability modifier" like the combat ones above

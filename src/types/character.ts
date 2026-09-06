@@ -73,6 +73,7 @@ export type StatusEffect = z.infer<typeof StatusEffectSchema>;
 
 export const EQUIPMENT_RANKS = ['B', 'A', 'S', 'SS'] as const;
 export const EquipmentRankSchema = z.enum(EQUIPMENT_RANKS);
+export type EquipmentRank = z.infer<typeof EquipmentRankSchema>;
 
 /** One Abyss Enhancement burned into a piece of equipment, with the Abyss Curse it drags
  *  along (Core II). Deliberately *not* capped at two here even though the book allows no
@@ -124,6 +125,10 @@ export const ShieldSchema = z.object({
   defenseBonus: z.number().int(),
   evasionBonus: z.number().int().default(0),
   minStr: z.number().int(),
+  /** Weapons and armor already had one; the shield needed it for "Mount Protection",
+   *  which is the whole reason a Jockey buys a particular shield (Core III p. 220). */
+  notes: z.string().default(''),
+  rank: EquipmentRankSchema.default('B'),
   abyss: abyssField,
 });
 export type Shield = z.infer<typeof ShieldSchema>;
@@ -290,6 +295,85 @@ export type Performance = z.infer<typeof PerformanceSchema>;
 
 export const EMPTY_PERFORMANCE: Performance = { rhythmNote: 0, rhythmHeart: 0, pet: '' };
 
+/** A known Evocation (Core III). The Alchemist pays in Material Cards rather than MP, and
+ *  the rank of the card spent is chosen at the table, so the row records the cost as the
+ *  book prints it ("Green ×2") and leaves the rank out. `notes` carries the effect, which
+ *  the catalog deliberately does not. */
+export const KnownEvocationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  /** Alchemist level the book requires: 1, 5 or 10. */
+  requiredLevel: z.number().int().default(1),
+  cards: z.string().default(''),
+  /** ▶▶ — usable as a Minor Action. */
+  minorAction: z.boolean().default(false),
+  /** △ — usable during Combat Preparation. */
+  preparation: z.boolean().default(false),
+  notes: z.string().default(''),
+});
+export type KnownEvocation = z.infer<typeof KnownEvocationSchema>;
+
+/** The Alchemist's stock of Material Cards, keyed "<colour>-<rank>" (see data/evocations.ts).
+ *  A record rather than a fixed 5×4 object so an unseen colour or rank cannot break a
+ *  saved character; anything missing simply reads as zero. */
+export const MaterialCardsSchema = z.record(z.string(), z.number().int().min(0));
+export type MaterialCards = z.infer<typeof MaterialCardsSchema>;
+
+/** One section of a mount (Core III). A single-section mount has exactly one of these with
+ *  an empty name; Tilgris, Draconet and the Lesser Dragon have two to four, each a separate
+ *  target with its own HP. Numbers are copied from the catalog at the mount's level and stay
+ *  editable, like every other row on this sheet — a GM's mount is a legal mount too. */
+export const MountSectionSchema = z.object({
+  name: z.string().default(''),
+  attack: z.string().default(''),
+  accuracy: z.number().int().default(0),
+  /** A dice expression as the book prints it ("2d+15"), not a number. */
+  damage: z.string().default(''),
+  evasion: z.number().int().default(0),
+  defense: z.number().int().default(0),
+  hpMax: z.number().int().default(0),
+  /** Tracked in play: a section at 0 HP is disabled until regenerated. */
+  hpCurrent: z.number().int().default(0),
+  mp: z.number().int().default(0),
+  /** The book prints these against the main section only; the others stay at 0. */
+  fortitude: z.number().int().default(0),
+  willpower: z.number().int().default(0),
+  /** One mount weapon and one mount armor per section (Core III p. 249). */
+  weapon: z.string().default(''),
+  armor: z.string().default(''),
+});
+export type MountSection = z.infer<typeof MountSectionSchema>;
+
+/** How the jockey holds the mount: rented through a Mount Contract, or bought outright with
+ *  a Proprietary Contract — which is also what grants +10 Max HP to every section. */
+export const MOUNT_CONTRACTS = ['rental', 'proprietary'] as const;
+export const MountContractSchema = z.enum(MOUNT_CONTRACTS);
+
+/** A mount on the sheet: a small monster rather than an item, so it carries its own stat
+ *  block. `level` is the mount's level — the jockey's Adventurer Level clamped to the
+ *  mount's Appropriate Level range — and re-picking it refills the section numbers. */
+export const KnownMountSchema = z.object({
+  id: z.string(),
+  /** Catalog id, or '' for a mount typed in by hand. */
+  mountId: z.string().default(''),
+  name: z.string(),
+  category: z.string().default(''),
+  level: z.number().int().default(1),
+  appropriateLevel: z.string().default(''),
+  intelligence: z.string().default(''),
+  perception: z.string().default(''),
+  language: z.string().default(''),
+  weakPoint: z.string().default(''),
+  movement: z.string().default(''),
+  contract: MountContractSchema.default('rental'),
+  /** Reduced to a figurine or packed into a sphere, rather than standing next to you. */
+  carried: z.boolean().default(false),
+  sections: z.array(MountSectionSchema).default(() => []),
+  uniqueSkills: z.string().default(''),
+  notes: z.string().default(''),
+});
+export type KnownMount = z.infer<typeof KnownMountSchema>;
+
 export const CharacterSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
   id: z.string(),
@@ -310,6 +394,11 @@ export const CharacterSchema = z.object({
   spells: z.array(KnownSpellSchema).default(() => []),
   /** Enhancer Techniques and Bard Spellsongs/Finales — see KnownArtSchema. */
   arts: z.array(KnownArtSchema).default(() => []),
+  /** Alchemist Evocations and the Material Cards they are paid with — see KnownEvocationSchema. */
+  evocations: z.array(KnownEvocationSchema).default(() => []),
+  materialCards: MaterialCardsSchema.default(() => ({})),
+  /** The Rider's mounts — see KnownMountSchema. */
+  mounts: z.array(KnownMountSchema).default(() => []),
   performance: PerformanceSchema.default(() => EMPTY_PERFORMANCE),
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */

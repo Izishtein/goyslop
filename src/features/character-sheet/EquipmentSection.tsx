@@ -9,6 +9,18 @@ import { totalDefense, totalEvasion, weaponTotalAccuracy, weaponTotalExtraDamage
 import { ABYSS_CURSES, MAX_ABYSS_ENHANCEMENTS, enhancementsFor, getAbyssCurse, type AbyssTarget } from '../../data/abyss';
 import { getClass } from '../../data/classes';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
+import {
+  ARMORS,
+  GENERAL_ITEM_NAMES,
+  SHIELDS,
+  WEAPON_CATEGORIES,
+  getArmor,
+  getShield,
+  getWeapon,
+  listWeaponsByCategory,
+  type WeaponDefinition,
+  type WeaponStanceRow,
+} from '../../data/equipment';
 import { useUpdateCharacter } from '../../state/characters';
 import { autoGrow } from './autoGrow';
 import { PrintableField } from './PrintableField';
@@ -26,6 +38,46 @@ function newWeapon(): Weapon {
 
 function newArmor(): Armor {
   return { id: crypto.randomUUID(), name: '', defense: 0, evasionModifier: 0, minStr: 0, rank: 'B', abyss: [] };
+}
+
+function newShield(): Shield {
+  return { id: crypto.randomUUID(), name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0, notes: '', rank: 'B', abyss: [] };
+}
+
+/** The sheet stores 1H/2H/special; the book prints 1HR, 1H*, 1HW, 1H#, 2Hs, 2Hp and so on.
+ *  Every one of those still is a one- or two-handed weapon for feats and restrictions
+ *  (Core I p. 264), so the code maps down and the exact marker is kept in the row's note —
+ *  it is what tells a Jockey which line to use while mounted. */
+function stanceOf(code: string): Weapon['stance'] {
+  if (code.startsWith('1H')) return '1H';
+  if (code.startsWith('2H')) return '2H';
+  return 'special';
+}
+
+function joinNotes(...parts: (string | undefined)[]): string {
+  return parts.filter((part): part is string => Boolean(part)).join(' · ');
+}
+
+/** One catalog line becomes one weapon row. A weapon printed with two grips gives one row
+ *  per grip, because Power and Crit differ between them and a row stores a single set. */
+function weaponRowFrom(definition: WeaponDefinition, stanceRow: WeaponStanceRow): Weapon {
+  const stanceNote = stanceRow.stance === '1H' || stanceRow.stance === '2H' ? undefined : stanceRow.stance;
+  return {
+    id: crypto.randomUUID(),
+    name: definition.name,
+    stance: stanceOf(stanceRow.stance),
+    minStr: stanceRow.minStr,
+    accuracyBonus: stanceRow.accuracy,
+    // Guns print no Power — the bullet carries it — so the row starts at 0 for the player
+    // to fill in from the ammunition they load.
+    power: stanceRow.power ?? 0,
+    criticalValue: stanceRow.criticalValue,
+    extraDamageBonus: stanceRow.extraDamage,
+    range: definition.range,
+    rank: definition.rank,
+    notes: joinNotes(stanceNote, definition.magazine ? `Magazine ${definition.magazine}` : undefined, definition.notes) || undefined,
+    abyss: [],
+  };
 }
 
 function newAccessory(): Accessory {
@@ -62,6 +114,11 @@ export function EquipmentSection({ character }: { character: Character }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
   const [abyssTargetId, setAbyssTargetId] = useState('');
+  // A weapon printed with two grips is two options, so the picker's value carries the row
+  // index alongside the catalog id.
+  const [weaponPick, setWeaponPick] = useState('');
+  const [armorPick, setArmorPick] = useState('');
+  const [shieldPick, setShieldPick] = useState('');
 
   const strTotal = abilityTotal(character.abilities.STR);
   // A Fencer halves a weapon's requirement — armor and shields keep theirs.
@@ -105,6 +162,15 @@ export function EquipmentSection({ character }: { character: Character }) {
   function addWeapon() {
     update((c) => ({ ...c, equipment: { ...c.equipment, weapons: [...c.equipment.weapons, newWeapon()] } }));
   }
+  function addWeaponFromCatalog() {
+    const [id, index] = weaponPick.split('#');
+    const definition = getWeapon(id);
+    const stanceRow = definition?.rows[Number(index)];
+    if (!definition || !stanceRow) return;
+    const row = weaponRowFrom(definition, stanceRow);
+    update((c) => ({ ...c, equipment: { ...c.equipment, weapons: [...c.equipment.weapons, row] } }));
+    setWeaponPick('');
+  }
   function removeWeapon(id: string) {
     update((c) => ({ ...c, equipment: { ...c.equipment, weapons: c.equipment.weapons.filter((w) => w.id !== id) } }));
   }
@@ -114,6 +180,22 @@ export function EquipmentSection({ character }: { character: Character }) {
   }
   function addArmor() {
     update((c) => ({ ...c, equipment: { ...c.equipment, armor: [...c.equipment.armor, newArmor()] } }));
+  }
+  function addArmorFromCatalog() {
+    const definition = getArmor(armorPick);
+    if (!definition) return;
+    const row: Armor = {
+      id: crypto.randomUUID(),
+      name: definition.name,
+      defense: definition.defense,
+      evasionModifier: definition.evasion,
+      minStr: definition.minStr,
+      rank: definition.rank,
+      notes: definition.notes,
+      abyss: [],
+    };
+    update((c) => ({ ...c, equipment: { ...c.equipment, armor: [...c.equipment.armor, row] } }));
+    setArmorPick('');
   }
   function removeArmor(id: string) {
     update((c) => ({ ...c, equipment: { ...c.equipment, armor: c.equipment.armor.filter((a) => a.id !== id) } }));
@@ -134,9 +216,22 @@ export function EquipmentSection({ character }: { character: Character }) {
       ...c,
       equipment: {
         ...c.equipment,
-        shield: patch === null ? null : { ...(c.equipment.shield ?? { id: crypto.randomUUID(), name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0, abyss: [] }), ...patch },
+        shield: patch === null ? null : { ...(c.equipment.shield ?? newShield()), ...patch },
       },
     }));
+  }
+  function addShieldFromCatalog() {
+    const definition = getShield(shieldPick);
+    if (!definition) return;
+    setShield({
+      name: definition.name,
+      defenseBonus: definition.defense,
+      evasionBonus: definition.evasion,
+      minStr: definition.minStr,
+      rank: definition.rank,
+      notes: joinNotes(definition.mountProtection ? t('sheet.mountProtection') : undefined, definition.notes),
+    });
+    setShieldPick('');
   }
 
   function setInventory(patch: Partial<Character['equipment']['inventory']>) {
@@ -222,6 +317,8 @@ export function EquipmentSection({ character }: { character: Character }) {
                 <th>{t('sheet.extraDamageBonus')}</th>
                 <th>{t('sheet.totalExtraDamage')}</th>
                 <th>{t('sheet.rank')}</th>
+                <th>{t('sheet.range')}</th>
+                <th>{t('sheet.itemNote')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -281,6 +378,20 @@ export function EquipmentSection({ character }: { character: Character }) {
                     </select>
                   </td>
                   <td>
+                    <PrintableField
+                      value={weapon.range ?? ''}
+                      onChange={(e) => updateWeapon(weapon.id, { range: e.target.value })}
+                      aria-label={t('sheet.range')}
+                    />
+                  </td>
+                  <td>
+                    <PrintableField
+                      value={weapon.notes ?? ''}
+                      onChange={(e) => updateWeapon(weapon.id, { notes: e.target.value })}
+                      aria-label={t('sheet.itemNote')}
+                    />
+                  </td>
+                  <td>
                     <button type="button" onClick={() => removeWeapon(weapon.id)}>
                       {t('sheet.remove')}
                     </button>
@@ -290,7 +401,29 @@ export function EquipmentSection({ character }: { character: Character }) {
             </tbody>
           </table>
         </div>
-        <div className={styles.rowActions}>
+        {/* The catalog only holds what Core III adds, so the blank-row button stays the
+            main way in: a Longsword is still typed by hand. */}
+        <div className={`${styles.rowActions} ${styles.controlRow}`}>
+          <label htmlFor="add-weapon-catalog">{t('sheet.weaponFromCatalog')}</label>
+          <select id="add-weapon-catalog" value={weaponPick} onChange={(e) => setWeaponPick(e.target.value)}>
+            <option value="">{t('creation.selectPlaceholder')}</option>
+            {WEAPON_CATEGORIES.map((category) => (
+              <optgroup key={category} label={t(`sheet.weaponCategory.${category}`)}>
+                {listWeaponsByCategory(category).flatMap((definition) =>
+                  definition.rows.map((stanceRow, index) => (
+                    <option key={`${definition.id}#${index}`} value={`${definition.id}#${index}`}>
+                      {definition.name} ({definition.rank}) — {stanceRow.stance}
+                      {stanceRow.power === undefined ? '' : `, ${t('sheet.power')} ${stanceRow.power}`}
+                      {definition.price === undefined ? '' : `, ${definition.price.toLocaleString('ru-RU')} G`}
+                    </option>
+                  )),
+                )}
+              </optgroup>
+            ))}
+          </select>
+          <button type="button" onClick={addWeaponFromCatalog} disabled={!weaponPick} aria-label={t('sheet.addWeaponFromCatalog')}>
+            {t('sheet.addFromCatalog')}
+          </button>
           <button type="button" onClick={addWeapon}>
             {t('sheet.addWeapon')}
           </button>
@@ -308,6 +441,7 @@ export function EquipmentSection({ character }: { character: Character }) {
                 <th>{t('sheet.evasionModifier')}</th>
                 <th>{t('sheet.minStr')}</th>
                 <th>{t('sheet.rank')}</th>
+                <th>{t('sheet.itemNote')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -333,13 +467,23 @@ export function EquipmentSection({ character }: { character: Character }) {
                     {strengthWarning(armor.minStr, false)}
                   </td>
                   <td>
+                    {/* EQUIPMENT_RANKS, not a hand-written B/A/S: armor reaches SS just as
+                        weapons do, and the short list left an SS piece with no option to
+                        match its stored rank — the select rendered blank. */}
                     <select value={armor.rank} onChange={(e) => updateArmor(armor.id, { rank: e.target.value as Armor['rank'] })} aria-label={t('sheet.rank')}>
-                      {(['B', 'A', 'S'] as const).map((rank) => (
+                      {EQUIPMENT_RANKS.map((rank) => (
                         <option key={rank} value={rank}>
                           {rank}
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td>
+                    <PrintableField
+                      value={armor.notes ?? ''}
+                      onChange={(e) => updateArmor(armor.id, { notes: e.target.value })}
+                      aria-label={t('sheet.itemNote')}
+                    />
                   </td>
                   <td>
                     <button type="button" onClick={() => removeArmor(armor.id)}>
@@ -351,7 +495,23 @@ export function EquipmentSection({ character }: { character: Character }) {
             </tbody>
           </table>
         </div>
-        <div className={styles.rowActions}>
+        <div className={`${styles.rowActions} ${styles.controlRow}`}>
+          <label htmlFor="add-armor-catalog">{t('sheet.armorFromCatalog')}</label>
+          <select id="add-armor-catalog" value={armorPick} onChange={(e) => setArmorPick(e.target.value)}>
+            <option value="">{t('creation.selectPlaceholder')}</option>
+            {(['nonmetallic', 'metal'] as const).map((kind) => (
+              <optgroup key={kind} label={t(`sheet.armorKind.${kind}`)}>
+                {ARMORS.filter((definition) => definition.kind === kind).map((definition) => (
+                  <option key={definition.id} value={definition.id}>
+                    {definition.name} ({definition.rank}) — {t('sheet.defense')} {definition.defense}, {definition.price.toLocaleString('ru-RU')} G
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <button type="button" onClick={addArmorFromCatalog} disabled={!armorPick} aria-label={t('sheet.addArmorFromCatalog')}>
+            {t('sheet.addFromCatalog')}
+          </button>
           <button type="button" onClick={addArmor}>
             {t('sheet.addArmor')}
           </button>
@@ -392,13 +552,45 @@ export function EquipmentSection({ character }: { character: Character }) {
                 aria-label={t('sheet.evasionModifier')}
               />
             </label>
+            <label className={styles.field}>
+              <span>{t('sheet.rank')}</span>
+              <select
+                value={character.equipment.shield.rank}
+                onChange={(e) => setShield({ rank: e.target.value as Shield['rank'] })}
+                aria-label={t('sheet.rank')}
+              >
+                {EQUIPMENT_RANKS.map((rank) => (
+                  <option key={rank} value={rank}>
+                    {rank}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <PrintableField
+              value={character.equipment.shield.notes}
+              onChange={(e) => setShield({ notes: e.target.value })}
+              aria-label={t('sheet.itemNote')}
+            />
             <button type="button" onClick={() => setShield(null)}>
               {t('sheet.remove')}
             </button>
           </div>
         ) : (
-          <div className={styles.rowActions}>
-            <button type="button" onClick={() => setShield({ name: '', defenseBonus: 0, evasionBonus: 0, minStr: 0, abyss: [] })}>
+          <div className={`${styles.rowActions} ${styles.controlRow}`}>
+            <label htmlFor="add-shield-catalog">{t('sheet.shieldFromCatalog')}</label>
+            <select id="add-shield-catalog" value={shieldPick} onChange={(e) => setShieldPick(e.target.value)}>
+              <option value="">{t('creation.selectPlaceholder')}</option>
+              {SHIELDS.map((definition) => (
+                <option key={definition.id} value={definition.id}>
+                  {definition.name} ({definition.rank}) — {t('sheet.defense')} {definition.defense}, {definition.price.toLocaleString('ru-RU')} G
+                  {definition.mountProtection ? ` · ${t('sheet.mountProtection')}` : ''}
+                </option>
+              ))}
+            </select>
+            <button type="button" onClick={addShieldFromCatalog} disabled={!shieldPick} aria-label={t('sheet.addShieldFromCatalog')}>
+              {t('sheet.addFromCatalog')}
+            </button>
+            <button type="button" onClick={() => setShield(newShield())}>
               {t('sheet.addShield')}
             </button>
           </div>
@@ -584,8 +776,11 @@ export function EquipmentSection({ character }: { character: Character }) {
             </tbody>
           </table>
         </div>
+        {/* Consumables the rules name outright, plus the Core III general equipment,
+            potions, tools and accessories — suggestions for a free-text field, not a
+            closed list. */}
         <datalist id={CONSUMABLES_LIST_ID}>
-          {CONSUMABLE_PRESETS.map((preset) => (
+          {[...CONSUMABLE_PRESETS, ...GENERAL_ITEM_NAMES].map((preset) => (
             <option key={preset} value={preset} />
           ))}
         </datalist>

@@ -334,8 +334,20 @@
   min-width: 4.5em;
 }
 
+/* Spinner arrows off inside tables. They sit on top of the value in a narrow cell, and a
+   Min STR of 20 rendered as a clipped "2" once the weapons table grew to thirteen columns.
+   Nothing is lost: these cells are typed into, never stepped, and print.css already drops
+   the arrows on paper for the same reason. Number inputs outside tables keep theirs. */
 .table td input[type='number'] {
   min-width: 3.2em;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.table td input[type='number']::-webkit-outer-spin-button,
+.table td input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Names are the one free-text column and must not clip. */

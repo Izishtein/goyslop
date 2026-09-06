@@ -22,6 +22,9 @@
 | [11-fairy-magic.md](11-fairy-magic.md) | Fairy Magic: 7 типов × 10 кругов (70 заклинаний), механика Fairy Tamer |
 | [12-techniques-spellsongs.md](12-techniques-spellsongs.md) | Techniques (Enhancer, 20 штук) + Spellsongs (Bard, 17 штук) + Finales (8 штук) |
 | [13-spells-supplements.md](13-spells-supplements.md) | Построчные списки Nature Magic (60), Summoning Arts (46), Abyssal Magic (35) — уровни 1–15 |
+| [14-evocations.md](14-evocations.md) | Evocations Алхимика (26): требуемый уровень, Material Cards, эффекты по рангам B/A/S/SS |
+| [15-items-core3.md](15-items-core3.md) | Снаряжение Core III (pp. 206–249): 63 оружия, 16 брони, 9 щитов, общее снаряжение и аксессуары, Ignidite/Manatite-улучшения |
+| [16-mounts.md](16-mounts.md) | Маунты Core III (pp. 247–262): 17 маунтов по уровням и секциям, варианты за репутацию, вооружение и переноска |
 
 ---
 
@@ -83,9 +86,11 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 - ✅ **Enhanced Racial Abilities Adv Level 11+** — для всех 12 рас Core I–III (→ 01-races.md)
 - ✅ **XP-таблица расширена до Level 15** (→ 01-races.md)
 - ✅ **Rider класс** — Mount Rules (владение/аренда/бой), ~30 Stunts, полная механика → `02-classes.md`
-- ✅ **Alchemist класс** — Evocations (~28 штук, Material Cards вместо MP, 5 цветов × 4 ранга), полная механика → `02-classes.md`
+- ✅ **Alchemist класс** — Evocations (Material Cards вместо MP, 5 цветов × 4 ранга), полная механика → `02-classes.md`; построчный список 26 Evocations (2026-09-06) → `14-evocations.md`
 - ✅ **Combat Feats Core III** (pp.199–205) — 27 феатов: 12 selectively passive, 7 active, 8 automatic (2026-09-06) → `04-combat-and-scas.md`
-- Остаётся не задокументировано: снаряжение/mounts data (pp.206–262), боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439)
+- ✅ **Снаряжение Core III** (pp. 206–249) — 63 оружия, 16 брони, 9 щитов, общее снаряжение, аксессуары, Ignidite/Extra Manatite и цены усилений Core II на SS-ранге (2026-09-06) → `15-items-core3.md`
+- ✅ **Маунты Core III** (pp. 247–262) — 17 маунтов с таблицами по уровням, 7 вариантов за репутацию, 27 предметов снаряжения маунта (2026-09-06) → `16-mounts.md`. Класс Rider получил на лист то, чем пользоваться
+- Остаётся не задокументировано: боги "Second Sword" (Part 4), обширный бестиарий (pp. 327–439)
 
 ### Закрыто по Outlaw Profile Book PDF (2026-07-09)
 - ✅ **Расы Alv, Shadow, Soleil, Weakling** — описание, языки, расовые способности (→ 01-races.md). Кости A–F отсутствуют — эти расы используют отдельную систему создания персонажа Vagrant (D66 Origin/Environment/Childhood Experience таблицы), не совместимую напрямую с форматом остальных рас.
@@ -109,7 +114,8 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 - ✅ **Geomancer класс** — Aspects/Qi Points/Geograph, полная механика → `02-classes.md`
 - ✅ **Tactician класс** — Stratagems/Maneuvers/Edge, полная механика → `02-classes.md`
 - ❌ **Druid, Daemonologist** — в Magus Arts только лор-комментарий (Class Commentary), НЕ полные механики; книга сама отсылает к "ML" (Monstrous Lore) за Nature Magic/Summoning Arts
-- Обнаружено, но не задокументировано подробно: новая школа **Deep Magic** (Sorcerer+Conjurer), **Stunts** (pp.173–177, пересекается с Core III гэпом), **Evocations** (Alchemist, pp.178–184, пересекается с Core III/Alchemist гэпом), 9 новых богов (1st/2nd/3rd Sword — пересекается с "Second Sword" гэпом Core III), расширенная Fairy Magic (3-type/6-type selection)
+- ✅ **Evocations в Magus Arts (pp.181–184) — точная перепечатка Core III pp.190–198** (те же 26 названий, карты и эффекты), сверено 2026-09-06 → `14-evocations.md`. Половина вопроса «дубликат или расширение» закрыта; Stunts (pp.173–177) построчно не сверялись, но раздел устроен так же — правила со ссылкой «список см. p. 175»
+- Обнаружено, но не задокументировано подробно: новая школа **Deep Magic** (Sorcerer+Conjurer), 9 новых богов (1st/2nd/3rd Sword — пересекается с "Second Sword" гэпом Core III), расширенная Fairy Magic (3-type/6-type selection)
 
 ### Закрыто по Monstrous Lore PDF (2026-07-09)
 - ✅ **Druid класс** — Nature Magic, Symbols of Beneficence/Symbolic Lore, полная механика → `02-classes.md`; построчный список 60 заклинаний (2026-09-06) → `13-spells-supplements.md`

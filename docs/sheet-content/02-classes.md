@@ -322,6 +322,8 @@ Jockey садится/спешивается Minor Action (обычный нае
 
 **Для листа персонажа:** поля Mount (тип, Appropriate Level, статуэтка да/нет), Mount Contract/Proprietary Contract, список известных Stunts (~1 за уровень Rider), трекер "маунт оседлан/спешен".
 
+**Данные маунтов** (17 штук по уровням и секциям, вооружение маунта, переноска) — `16-mounts.md`; на листе они уже есть отдельной секцией. **Списка Stunts построчно ещё нет** — Core III pp. 84–106, это единственное, чего классу Rider на листе не хватает.
+
 ---
 
 ## Alchemist — полная механика (Core Rulebook III, pp. 107–113, 190–198, подтверждено 2026-07-09)
@@ -340,7 +342,7 @@ Jockey садится/спешивается Minor Action (обычный нае
 - **Combat Preparation** — как Minor Action (максимум 1 применение).
 - Ограничение: в раунд использования Evocation нельзя делать Full Move.
 
-**Заклинания (Evocation Data, pp.190–198):** ~28 Evocations, значки ⏩ (Minor Action) и △ (Combat Preparation) как у спеллов. Полный построчный список не транскрибирован (низкий приоритет) — при необходимости брать из `files/Sword World 2.5 - Core Rulebook III.pdf`, pp. 190–198.
+**Evocations (Evocation Data, pp.190–198):** **26 Evocations** (9 на 1-м уровне класса, 10 на 5-м, 7 на 10-м; прежняя оценка «~28» была прикидкой), значки ▶▶ (Minor Action) и △ (Combat Preparation) как у спеллов. **Построчный список — `14-evocations.md`** (в приложении: `src/data/evocations.ts`). Magus Arts pp.181–184 — та же таблица без изменений.
 
 **Для листа персонажа:** инвентарь Material Cards (5 цветов × 4 ранга, счётчик по каждому), Alchemy Kit/Card Shooter (экипирован?), список известных Evocations.
 

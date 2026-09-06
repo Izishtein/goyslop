@@ -4,6 +4,7 @@ import {
   bardicPower,
   dangerSense,
   enhancerPower,
+  evocationPower,
   evasion,
   extraDamage,
   firstAid,
@@ -46,6 +47,10 @@ describe('derived combat stats', () => {
 
   it('enhancerPower = Enhancer class level + INT modifier', () => {
     expect(enhancerPower(3, 2)).toBe(5);
+  });
+
+  it('evocationPower = Alchemist class level + INT modifier', () => {
+    expect(evocationPower(4, 1)).toBe(5);
   });
 });
 

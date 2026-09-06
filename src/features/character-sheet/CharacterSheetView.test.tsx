@@ -45,6 +45,9 @@ function makeCharacter(): Character {
     experience: { total: 0, spent: 0 },
     spells: [],
     arts: [],
+    evocations: [],
+    materialCards: {},
+    mounts: [],
     performance: EMPTY_PERFORMANCE,
     growthLog: [],
     reputation: 0,
@@ -95,7 +98,7 @@ describe('CharacterSheetView', () => {
     const user = userEvent.setup();
     renderSheet(makeCharacter());
 
-    await user.click(screen.getByRole('button', { name: /add weapon/i }));
+    await user.click(screen.getByRole('button', { name: 'Add weapon' }));
 
     // Fighter Lv2, DEX total 8 -> modifier +1 -> Total Accuracy = 2 + 1 + 0 = 3
     const weaponsHeading = screen.getByRole('heading', { name: /weapons/i });

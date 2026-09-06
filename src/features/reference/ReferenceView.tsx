@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackgroundsReference } from './BackgroundsReference';
-import { ArtsReference, CombatFeatsReference, ItemsReference, SpellsReference } from './CatalogReference';
+import { ArtsReference, CombatFeatsReference, EquipmentReference, EvocationsReference, MountsReference, ItemsReference, SpellsReference } from './CatalogReference';
 import { ClassesReference } from './ClassesReference';
 import { RacesReference } from './RacesReference';
 import styles from './ReferenceView.module.css';
 
-const TABS = ['races', 'classes', 'backgrounds', 'spells', 'feats', 'arts', 'items'] as const;
+const TABS = ['races', 'classes', 'backgrounds', 'spells', 'feats', 'arts', 'evocations', 'equipment', 'mounts', 'items'] as const;
 type ReferenceTab = (typeof TABS)[number];
 
 const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
@@ -16,6 +16,9 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   spells: SpellsReference,
   feats: CombatFeatsReference,
   arts: ArtsReference,
+  evocations: EvocationsReference,
+  equipment: EquipmentReference,
+  mounts: MountsReference,
   items: ItemsReference,
 };
 
