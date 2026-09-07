@@ -2,6 +2,7 @@ import { ABYSSAL_SPELLS } from './abyssal';
 import { ARCANE_SPELLS } from './arcane';
 import { CORE1_SPELLS } from './core1';
 import { CORE2_SPELLS } from './core2';
+import { CORE3_SPELLS } from './core3';
 import { FAIRY_SPELLS } from './fairy';
 import { NATURE_SPELLS } from './nature';
 import { SUMMONING_SPELLS } from './summoning';
@@ -23,6 +24,7 @@ export type { SpellDefinition } from './types';
 export const SPELLS: SpellDefinition[] = [
   ...CORE1_SPELLS,
   ...CORE2_SPELLS,
+  ...CORE3_SPELLS,
   ...FAIRY_SPELLS,
   ...NATURE_SPELLS,
   ...SUMMONING_SPELLS,
