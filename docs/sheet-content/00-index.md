@@ -25,6 +25,7 @@
 | [14-evocations.md](14-evocations.md) | Evocations Алхимика (26): требуемый уровень, Material Cards, эффекты по рангам B/A/S/SS |
 | [15-items-core3.md](15-items-core3.md) | Снаряжение Core III (pp. 206–249): 63 оружия, 16 брони, 9 щитов, общее снаряжение и аксессуары, Ignidite/Manatite-улучшения |
 | [16-mounts.md](16-mounts.md) | Маунты Core III (pp. 247–262): 17 маунтов по уровням и секциям, варианты за репутацию, вооружение и переноска |
+| [17-arcane-magic.md](17-arcane-magic.md) | Arcane Magic Библиоманта (28 заклинаний) и три фита по рангу грамуара. **Источник — фан-вики, не книга**: список из Tyrants Crypts под эмбарго |
 
 ---
 
@@ -130,7 +131,7 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 - Обнаружено, но не задокументировано подробно: World lore (Part 2), Random Shallow Abyss generation rules (Part 3), Monster Data (Part 4, 80+ монстров Бездны)
 
 ### Закрыто по Tyrants Crypts PDF — Preview-версия (2026-07-09)
-- ✅ **Bibliomancer класс** — Arcane Magic, полная механика класса (Grimoire, Prepared/Emergency Spell Slots по таблице ур.1–15, Critical Failure Value, покупка/находка заклинаний поштучно) → `02-classes.md`. **Это была последняя книга по классам — все 24 класса SW2.5 теперь подтверждены по первоисточникам.**
+- ✅ **Bibliomancer класс** — Arcane Magic, полная механика класса (Grimoire, Prepared/Emergency Spell Slots по таблице ур.1–15, Critical Failure Value, покупка/находка заклинаний поштучно) → `02-classes.md`. **Это была последняя книга по классам — все 24 класса SW2.5 теперь подтверждены по первоисточникам.** Построчный список заклинаний снят с фан-вики 2026-09-06 → `17-arcane-magic.md` (соответствие книге не подтверждено).
 - ❌ **Не в Preview (эмбарго переводчиков, нужен оригинал):** сам список заклинаний Arcane Magic, 8 Work Skills, Dig Arts/Challenges, Leondar Archipelago lore, Random Tomb Creation Rules, Magic Items, 80+ монстров
 
 ### Закрыто по Core Rulebook III — Rider/Alchemist (2026-07-09)
