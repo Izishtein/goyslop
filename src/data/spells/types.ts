@@ -36,6 +36,7 @@ export const FAIRY = 'Fairy Magic';
 export const NATURE = 'Nature Magic';
 export const SUMMONING = 'Summoning Arts';
 export const ABYSSAL = 'Abyssal Magic';
+export const ARCANE = 'Arcane Magic';
 
 export function spellId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

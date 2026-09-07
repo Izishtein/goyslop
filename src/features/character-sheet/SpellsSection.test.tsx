@@ -105,18 +105,30 @@ describe('SpellsSection', () => {
     expect(screen.getByRole('option', { name: /^Light — 1 MP/ })).toBeDisabled();
   });
 
-  it('supports hand-written spells for schools with no catalog', async () => {
+  it('offers Arcane Magic from the catalog, even though Tyrants Crypts is embargoed', async () => {
     const user = userEvent.setup();
-    // A Bibliomancer casts Arcane Magic, whose spell list sits in Tyrants Crypts and is
-    // held back by the translation embargo — no per-spell list to build a catalog from.
+    // Transcribed from the fan wiki, not the book — see docs/sheet-content/17-arcane-magic.md.
     const store = renderSection(makeCharacter({ classes: [{ classId: 'bibliomancer', level: 1 }] }));
 
-    expect(screen.getByText(/No catalog for this school yet/)).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Add from catalog'), 'acus-malitiae');
+    await user.click(screen.getByRole('button', { name: 'Add spell' }));
+
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({
+      name: 'Acus Malitiae',
+      school: 'Arcane Magic',
+      circle: 1,
+      mp: 3,
+    });
+  });
+
+  it('still supports a hand-written spell alongside the catalog', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
 
     await user.click(screen.getByRole('button', { name: 'Add by hand' }));
     await user.type(screen.getAllByLabelText('Spell')[0], 'Thorn Bind');
 
-    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Thorn Bind', school: 'Arcane Magic' });
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Thorn Bind', school: 'Truespeech Magic' });
   });
 
   it('offers the supplement schools from the catalog too', async () => {

@@ -11,8 +11,10 @@ describe('combat feat catalog', () => {
       'Core Rulebook II': 47,
       // 12 selectively acquired passive, 7 active, 8 automatic.
       'Core Rulebook III': 27,
+      // Bibliomancer's grimoire-rank chain — see docs/sheet-content/17-arcane-magic.md.
+      'Tyrants Crypts (fan wiki)': 3,
     });
-    expect(COMBAT_FEATS).toHaveLength(121);
+    expect(COMBAT_FEATS).toHaveLength(121 + 3);
   });
 
   it('has unique ids', () => {

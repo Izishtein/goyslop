@@ -1,4 +1,5 @@
 import { ABYSSAL_SPELLS } from './abyssal';
+import { ARCANE_SPELLS } from './arcane';
 import { CORE1_SPELLS } from './core1';
 import { CORE2_SPELLS } from './core2';
 import { FAIRY_SPELLS } from './fairy';
@@ -6,6 +7,7 @@ import { NATURE_SPELLS } from './nature';
 import { SUMMONING_SPELLS } from './summoning';
 import {
   ABYSSAL,
+  ARCANE,
   DIVINE,
   FAIRY,
   MAGITECH,
@@ -25,12 +27,10 @@ export const SPELLS: SpellDefinition[] = [
   ...NATURE_SPELLS,
   ...SUMMONING_SPELLS,
   ...ABYSSAL_SPELLS,
+  ...ARCANE_SPELLS,
 ];
 
-/**
- * Schools with catalog data. Arcane Magic is the one school still without a per-spell list:
- * Tyrants Crypts is under a translation embargo, so the sheet offers hand entry for it.
- */
+/** Schools with catalog data — every wizard school in the class catalog. */
 export const CATALOGUED_SCHOOLS = [
   TRUESPEECH,
   SPIRITUALISM,
@@ -40,6 +40,7 @@ export const CATALOGUED_SCHOOLS = [
   NATURE,
   SUMMONING,
   ABYSSAL,
+  ARCANE,
 ];
 
 export function listSpellsBySchool(school: string): SpellDefinition[] {

@@ -20,8 +20,10 @@ describe('spell catalog', () => {
       'Nature Magic': 60,
       'Summoning Arts': 46,
       'Abyssal Magic': 35,
+      // Bibliomancer, five ranks — see docs/sheet-content/17-arcane-magic.md.
+      'Arcane Magic': 28,
     });
-    expect(SPELLS).toHaveLength(398);
+    expect(SPELLS).toHaveLength(398 + 28);
   });
 
   it('has unique ids', () => {
@@ -29,10 +31,11 @@ describe('spell catalog', () => {
   });
 
   it('keeps every spell inside the printed circles', () => {
-    // The four Core schools and Fairy Magic stop at circle 10; the three supplement
-    // schools are printed as fifteen levels.
+    // The four Core schools and Fairy Magic stop at circle 10; the three supplement schools
+    // are printed as fifteen levels. Arcane Magic's five ranks unlock as late as level 13,
+    // stored as a pseudo-circle (see data/spells/arcane.ts) — 15 covers it too.
     const topCircle = (school: string) =>
-      ['Nature Magic', 'Summoning Arts', 'Abyssal Magic'].includes(school) ? 15 : 10;
+      ['Nature Magic', 'Summoning Arts', 'Abyssal Magic', 'Arcane Magic'].includes(school) ? 15 : 10;
     for (const spell of SPELLS) {
       expect(spell.circle).toBeGreaterThanOrEqual(1);
       expect(spell.circle).toBeLessThanOrEqual(topCircle(spell.school));

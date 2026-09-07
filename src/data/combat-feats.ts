@@ -25,6 +25,8 @@ export interface CombatFeatDefinition {
 const CORE1 = 'Core Rulebook I';
 const CORE2 = 'Core Rulebook II';
 const CORE3 = 'Core Rulebook III';
+/** Marked as the wiki's, not the book's — the book itself is embargoed. */
+const TYRANTS_CRYPTS = 'Tyrants Crypts (fan wiki)';
 
 function make(sourceBook: string, category: CombatFeatCategory, names: string[]): CombatFeatDefinition[] {
   return names.map((name) => ({
@@ -168,6 +170,11 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
     'Mana Resistance',
     "Sage's Wisdom",
   ]),
+  // Bibliomancer's grimoire-rank chain, transcribed from the same fan wiki as the school's
+  // spell list (see docs/sheet-content/17-arcane-magic.md) — Tyrants Crypts is embargoed.
+  // Each rung requires the one before it plus a Bibliomancer level; not modeled, same as
+  // every other feat's prerequisites (the sheet's free note field carries it).
+  ...make(TYRANTS_CRYPTS, 'passive', ['Grimoire Proficiency A', 'Grimoire Proficiency S', 'Grimoire Mastery']),
 ];
 
 export function listCombatFeatsByCategory(category: CombatFeatCategory): CombatFeatDefinition[] {
