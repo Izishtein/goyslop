@@ -27,6 +27,7 @@ const CORE2 = 'Core Rulebook II';
 const CORE3 = 'Core Rulebook III';
 /** Marked as the wiki's, not the book's — the book itself is embargoed. */
 const TYRANTS_CRYPTS = 'Tyrants Crypts (fan wiki)';
+const MAGUS_ARTS = 'Magus Arts';
 
 function make(sourceBook: string, category: CombatFeatCategory, names: string[]): CombatFeatDefinition[] {
   return names.map((name) => ({
@@ -170,6 +171,22 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
     'Mana Resistance',
     "Sage's Wisdom",
   ]),
+  // Magus Arts pp. 22 and 34 — the Geomancer's and Tactician's own feats. Found 2026-09-07
+  // by checking our catalog against the Russian feat digest the owner added to files/, which
+  // prints English names in brackets and so can be matched name for name.
+  ...make(MAGUS_ARTS, 'passive', [
+    'Spreading Triad',
+    'Dividing Triad',
+    'Frontline Mastermind',
+    'Additional Stratagem/Maneuver I',
+    'Additional Stratagem/Maneuver II',
+    'Additional Stratagem/Maneuver III',
+  ]),
+  // Declared right after a Stratagem two ranks lower than the last, so it is not passive
+  // even though it sits in the book's "selectively acquired passive" block; the digest
+  // files it as active too.
+  ...make(MAGUS_ARTS, 'declaration', ['Versatile']),
+
   // Bibliomancer's grimoire-rank chain, transcribed from the same fan wiki as the school's
   // spell list (see docs/sheet-content/17-arcane-magic.md) — Tyrants Crypts is embargoed.
   // Each rung requires the one before it plus a Bibliomancer level; not modeled, same as

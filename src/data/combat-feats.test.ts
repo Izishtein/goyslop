@@ -13,8 +13,10 @@ describe('combat feat catalog', () => {
       'Core Rulebook III': 27,
       // Bibliomancer's grimoire-rank chain — see docs/sheet-content/17-arcane-magic.md.
       'Tyrants Crypts (fan wiki)': 3,
+      // Geomancer's two (p. 22) and the Tactician's five (p. 34).
+      'Magus Arts': 7,
     });
-    expect(COMBAT_FEATS).toHaveLength(121 + 3);
+    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7);
   });
 
   it('has unique ids', () => {
