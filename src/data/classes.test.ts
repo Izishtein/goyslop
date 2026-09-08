@@ -31,6 +31,17 @@ describe('class catalog', () => {
     }
   });
 
+  it('keeps the ranks that decide what a level costs', () => {
+    // Rank is the whole XP price of a level (1000 for major, 500 for minor), and Battle
+    // Dancer had it wrong until 2026-09-07: our research doc said Minor, while the Russian
+    // class digest and the fan wiki's class index both say Major. Battle Mastery is the one
+    // class book missing from files/, so nothing in the repo can catch a regression here.
+    expect(getClass('battle-dancer')).toMatchObject({ type: 'warrior', rank: 'major' });
+    const ranks = Object.fromEntries(CLASSES.map((c) => [c.id, c.rank]));
+    expect(Object.values(ranks).filter((r) => r === 'major')).toHaveLength(12);
+    expect(Object.values(ranks).filter((r) => r === 'minor')).toHaveLength(12);
+  });
+
   it('looks a class up by id and answers what type it is', () => {
     expect(getClass('fencer')?.name).toBe('Fencer');
     expect(getClass('nonesuch')).toBeUndefined();

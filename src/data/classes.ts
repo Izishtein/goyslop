@@ -37,7 +37,11 @@ export const CLASSES: ClassDefinition[] = [
   { id: 'grappler', name: 'Grappler', type: 'warrior', rank: 'major', sourceBook: 'Core Rulebook I', keyAbilities: ['STR', 'DEX'] },
   { id: 'fencer', name: 'Fencer', type: 'warrior', rank: 'minor', sourceBook: 'Core Rulebook I', keyAbilities: ['DEX', 'AGI'] },
   { id: 'marksman', name: 'Marksman', type: 'warrior', rank: 'minor', sourceBook: 'Core Rulebook I', keyAbilities: ['DEX'] },
-  { id: 'battle-dancer', name: 'Battle Dancer', type: 'warrior', rank: 'minor', sourceBook: 'Battle Mastery', keyAbilities: ['DEX', 'AGI'] },
+  // Major, not minor: Battle Mastery is the one class book missing from files/, and our
+  // research doc had it as Minor from a secondary source. Both independent sources say
+  // otherwise — the Russian class digest ("Основной класс боевого типа") and the fan wiki's
+  // class index ("Battle Dancer (Major)") — and the rank sets the XP price of every level.
+  { id: 'battle-dancer', name: 'Battle Dancer', type: 'warrior', rank: 'major', sourceBook: 'Battle Mastery', keyAbilities: ['DEX', 'AGI'] },
 
   // Wizard-type
   { id: 'sorcerer', name: 'Sorcerer', type: 'wizard', rank: 'major', sourceBook: 'Core Rulebook I', magicSchool: 'Truespeech Magic', keyAbilities: WIZARD_ABILITIES },

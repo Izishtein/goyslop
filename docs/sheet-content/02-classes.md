@@ -35,7 +35,7 @@ Adventurer Level (уровень авантюриста) = наивысший у
 | **Grappler** | Major | STR, DEX | Core I | Борьба и безоружный бой; Chain Attack feat; уникальное оружие; броня как у Fencer |
 | **Fencer** | Minor | DEX, AGI | Core I | Финессовый боец; STR делится на 2 (округл. вверх) для расчёта минимальной STR снаряжения; повышенный шанс крита с любым оружием |
 | **Marksman** | Minor | DEX | Core I | Дальнобойный бой; не вносит вклад в Evasion от зон |
-| **Battle Dancer** | Minor | DEX, AGI | Battle Mastery | +1 Evasion/Accuracy/Damage за уровень; танцевальные манёвры; может носить оружие Grappler; броня как у Grappler; дополнительная SCA из ограниченного списка на уровне 1 |
+| **Battle Dancer** | **Major** (исправлено 2026-09-07) | DEX, AGI | Battle Mastery | +1 Evasion/Accuracy/Damage за уровень; танцевальные манёвры; может носить оружие Grappler; броня как у Grappler; дополнительная SCA из ограниченного списка на уровне 1 |
 
 ---
 
