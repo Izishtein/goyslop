@@ -20,6 +20,7 @@
 import type { EquipmentRank } from '../types/character';
 
 const CORE3 = 'Core Rulebook III';
+const AGE_OF_GRIMOIRE = 'Age of Grimoire (SW 2.0)';
 
 /** Slug of the printed name. The "+" is spelled out rather than dropped: Mana Coat and
  *  Mana Coat+ are two different pieces of armor at two different prices, and stripping the
@@ -374,6 +375,25 @@ export const GENERAL_ITEMS: GeneralItemDefinition[] = [
   item('classItem', 'Card Shooter', '1,500', 'Increases the range of Evocations', { stance: '1H' }),
   item('classItem', 'Material Card', '20 - 20,000', 'Consumed by Evocations'),
   item('classItem', 'Tiny Armor', '2,120/6,120', "Familiar's Defense +3/+6"),
+
+  // Grimoires (Bibliomancer's focus) — SW 2.0's "Age of Grimoire", pp. 37-38. Tyrants Crypts
+  // prints no item data for grimoires at all (see 17-arcane-magic.md); this predecessor book
+  // is the only source found, same caveat as the spell list already sourced from the fan
+  // wiki. All are Stance: 1H; rank and Min STR are folded into notes since GeneralItemDefinition
+  // has no columns for them and the reference table would need a whole new shape for nine rows.
+  //
+  // The reference table for this catalog has no Book column at all (every other row here is
+  // Core III, so it never needed one) — sourceBook alone would leave the SW 2.0 caveat
+  // invisible on screen. The notes prefix makes it visible without one.
+  item('classItem', 'Initiates Grimoire', '100', 'Age of Grimoire (SW 2.0): Rank B, Min STR 1 — required to cast Arcane Magic', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', "Teacher's Grimoire", '1,000', 'Age of Grimoire (SW 2.0): Rank A, Min STR 9 — usable as a Shield, no Evasion, Defense 2', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', "Scholar's Grimoire", '2,000', 'Age of Grimoire (SW 2.0): Rank A, Min STR 10 — usable as a melee weapon: Accuracy +1, Power 20, Crit 12', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Unity', '4,000', 'Age of Grimoire (SW 2.0): Rank A, Min STR 1 — casting Arcane Magic restores 3 HP at end of turn', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Wisdom', '5,000', 'Age of Grimoire (SW 2.0): Rank S, Min STR 15 — usable as a Shield, no Evasion, Defense 3', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Reason', '10,000', "Age of Grimoire (SW 2.0): Rank S, Min STR 1 — Arcane Magic MP cost -1 (not below the spell's own minimum)", { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Truth', '22,000', 'Age of Grimoire (SW 2.0): Rank S, Min STR 15 — usable as a melee weapon: Accuracy +2, Power 30, Crit 12', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Divine Wisdom', '90,000', 'Age of Grimoire (SW 2.0): Rank SS, Min STR 10 — Fortitude/Willpower +4 against Arcane Magic', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+  item('classItem', 'Grimoire of Fundamental Truths', '120,000', 'Age of Grimoire (SW 2.0): Rank SS, Min STR 20 — Arcane Magic damage/recovery on the Power Table +3', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
 
   // Adventure tools — p. 223
   item('adventure', 'Chalk of the Lost', '1,200', 'Lights up when you pass the mark again', { stance: '1H' }),

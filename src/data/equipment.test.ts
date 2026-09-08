@@ -51,12 +51,13 @@ describe('Core III equipment catalog', () => {
       travel: 5,
       potion: 3,
       repair: 3,
-      classItem: 7,
+      // +9 Bibliomancer grimoires (Age of Grimoire, SW 2.0 — see 17-arcane-magic.md).
+      classItem: 7 + 9,
       adventure: 5,
       accessory: 19,
       ammunition: 2,
     });
-    expect(GENERAL_ITEMS).toHaveLength(45);
+    expect(GENERAL_ITEMS).toHaveLength(45 + 9);
   });
 
   it('has unique ids inside every list', () => {
