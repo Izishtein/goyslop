@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackgroundsReference } from './BackgroundsReference';
-import { ArtsReference, CombatFeatsReference, EquipmentReference, EvocationsReference, MountsReference, ItemsReference, SpellsReference } from './CatalogReference';
+import {
+  ArtsReference,
+  CombatFeatsReference,
+  EquipmentReference,
+  EvocationsReference,
+  MountsReference,
+  ItemsReference,
+  SpellsReference,
+  WorkSkillsReference,
+} from './CatalogReference';
 import { ClassesReference } from './ClassesReference';
 import { RacesReference } from './RacesReference';
 import styles from './ReferenceView.module.css';
 
-const TABS = ['races', 'classes', 'backgrounds', 'spells', 'feats', 'arts', 'evocations', 'equipment', 'mounts', 'items'] as const;
+const TABS = ['races', 'classes', 'backgrounds', 'spells', 'feats', 'arts', 'evocations', 'equipment', 'mounts', 'items', 'workSkills'] as const;
 type ReferenceTab = (typeof TABS)[number];
 
 const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
@@ -20,6 +29,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   equipment: EquipmentReference,
   mounts: MountsReference,
   items: ItemsReference,
+  workSkills: WorkSkillsReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

@@ -412,6 +412,21 @@ export const KnownMountSchema = z.object({
 });
 export type KnownMount = z.infer<typeof KnownMountSchema>;
 
+/** A known Work Skill (§ 3 optional system, Epic Treasury/Raxia Life). Catalog picks and
+ *  hand-written entries share one shape, same as spells and arts — `notes` is where a
+ *  player writes what a check does, since the catalog carries no check text or level
+ *  bonuses (see data/work-skills.ts). Level is not capped at parse time: the book's "5 per
+ *  skill, 10 total" is a creation-time guideline the sheet surfaces as a warning, not a
+ *  hard rule an import could fail on. */
+export const KnownWorkSkillSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: z.string().default(''),
+  level: z.number().int().min(1).max(15),
+  notes: z.string().default(''),
+});
+export type KnownWorkSkill = z.infer<typeof KnownWorkSkillSchema>;
+
 export const CharacterSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
   id: z.string(),
@@ -445,5 +460,7 @@ export const CharacterSchema = z.object({
   notes: NotesSchema.default(() => ({ story: '', goals: '', gm: '' })),
   connections: z.array(ConnectionSchema).default(() => []),
   fellow: FellowSchema.default(() => EMPTY_FELLOW),
+  /** § 3 optional system — see KnownWorkSkillSchema. */
+  workSkills: z.array(KnownWorkSkillSchema).default(() => []),
 });
 export type Character = z.infer<typeof CharacterSchema>;

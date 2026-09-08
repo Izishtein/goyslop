@@ -331,7 +331,23 @@
     "mountFortShort": "Fort",
     "mountWillShort": "Will",
     "mountWeaponShort": "Weapon",
-    "mountArmorShort": "Armor"
+    "mountArmorShort": "Armor",
+    "workSkills": "Work Skills",
+    "workSkillsIntro": "Optional (Epic Treasury pp. 65-68, Raxia Life pp. 47-108): non-adventuring professions, used for out-of-combat checks. Guideline for a new PC: 5 levels per skill, 10 levels total — not enforced, a bookkeeping reminder. A level, once taken, is never lost.",
+    "workSkillsLevels": "Levels taken",
+    "noWorkSkills": "No work skills taken.",
+    "workSkillNotes": "What it's good for",
+    "addWorkSkillFromCatalog": "Add work skill from catalog",
+    "addWorkSkillAction": "Add",
+    "addCustomWorkSkill": "Add by hand",
+    "workSkillCategory": {
+      "towns": "Towns and Villages",
+      "craftsmen": "Craftsmen and Workshops",
+      "knowledge": "Knowledge, Research, and Arts",
+      "military": "Castles, Temples, Courts, and Military",
+      "countryside": "Suburbs (Countryside, Mountains and Highways)",
+      "rivers": "Suburbs (Rivers and Seas)"
+    }
   },
   "io": {
     "export": "Download JSON",
@@ -390,7 +406,8 @@
       "items": "Items & the Abyss",
       "evocations": "Evocations",
       "equipment": "Equipment",
-      "mounts": "Mounts"
+      "mounts": "Mounts",
+      "workSkills": "Work Skills"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -484,6 +501,8 @@
       "armor": "Mount armor",
       "carry": "Carry items",
       "regeneration": "Regeneration items"
-    }
+    },
+    "workSkillsNote": "All 81 work skills Raxia Life lists, by the book's own six categories. Only the name, profession and book page are catalogued — the checks and level bonuses stay in the book.",
+    "workSkillProfession": "Profession"
   }
 }

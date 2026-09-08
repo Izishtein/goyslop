@@ -46,6 +46,7 @@ function makeCharacter(id: string, name: string): Character {
     notes: { story: '', goals: '', gm: '' },
     connections: [],
     fellow: EMPTY_FELLOW,
+    workSkills: [],
   };
 }
 

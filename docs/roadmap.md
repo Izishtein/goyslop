@@ -151,7 +151,7 @@ Core III pp. 206–262 разобраны целиком, двумя пачка�
 | Система | Книга | Объём | Что даёт |
 |---------|-------|-------|----------|
 | **Fellow** | ~~Core II~~ Core Rulebook I pp. 192–202 | ~~1 пачка~~ **сделано 2026-09-08** | Не спутник-NPC, а публикация своего PC как гостевого NPC для чужой группы: неуязвимый, действует только по своей Fellow Action Table. `FellowSection.tsx`, разбор в `04-combat-and-scas.md` |
-| **Work Skills** | Epic Treasury, Raxia Life | 1–2 пачки | Профессии для ролплея; чисто справочный контент, расчётов нет |
+| **Work Skills** | ~~Epic Treasury, Raxia Life~~ | ~~1–2 пачки~~ **сделано 2026-09-08** | Профессии для ролплея; чисто справочный контент, расчётов нет. Каталог на 81 навык (Raxia Life pp. 47–108) по шести категориям, `WorkSkillsSection.tsx`, разбор в `19-work-skills.md` |
 | **Point Buy** | Epic Treasury | 1 пачка | Альтернатива броску костей при создании персонажа |
 | **Treasure Drop** | Epic Treasury | 1 пачка | Таблицы добычи; ближе к инструменту мастера, чем к листу игрока |
 | **Vagrant** | Outlaw Profile Book | 2 пачки | Создание не-авантюристов: D66-таблицы вместо рас и классов. Заодно закроет расы Alv/Shadow/Soleil/Weakling, у которых нет костей A–F (хотя после находки Arcane Relic в § 1.7 это больше не единственный путь к ним). **Плюс свой набор боевых черт** (Follow-Up, Enhanced Resistance I–II, Cheat Cast I–II, Shield Bash I, Shadow Step I, Desperate Strike I–III, Herald Strike и др.) — в нашем каталоге их нет намеренно, они часть этой системы. Herald Strike и Shadow Step I заодно значатся в бонус-листе Боевого Танцора 1-го уровня как варианты «только для бродяг» (Battle Mastery, найдено 2026-09-08) |

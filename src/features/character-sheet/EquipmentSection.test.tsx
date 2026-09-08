@@ -47,6 +47,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     notes: { story: '', goals: '', gm: '' },
     connections: [],
     fellow: EMPTY_FELLOW,
+    workSkills: [],
     ...overrides,
   };
 }

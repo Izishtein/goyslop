@@ -24,6 +24,7 @@ import {
   listMountsByCategory,
 } from '../../data/mounts';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
+import { listWorkSkillsByCategory, WORK_SKILL_CATEGORIES } from '../../data/work-skills';
 import { COMBAT_FEAT_CATEGORIES } from '../../types/character';
 import styles from './ReferenceView.module.css';
 
@@ -590,6 +591,47 @@ export function MountsReference() {
                     <td>
                       {[entry.notes ?? '', entry.proprietaryOnly ? t('reference.proprietaryOnly') : ''].filter(Boolean).join(' · ')}
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+export function WorkSkillsReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-work-skills">
+      <div className={styles.panelHead}>
+        <h3 id="reference-work-skills">{t('reference.tab.workSkills')}</h3>
+        <p className={styles.note}>{t('reference.workSkillsNote')}</p>
+      </div>
+
+      {WORK_SKILL_CATEGORIES.map((category) => (
+        <div key={category} className={styles.group}>
+          <h4>{t(`sheet.workSkillCategory.${category}`)}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('reference.workSkillProfession')}</th>
+                  <th>{t('reference.book')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listWorkSkillsByCategory(category).map((entry) => (
+                  <tr key={entry.id}>
+                    <th scope="row" className={styles.rowName}>
+                      {entry.name}
+                    </th>
+                    <td>{entry.profession}</td>
+                    <td>Raxia Life p. {entry.page}</td>
                   </tr>
                 ))}
               </tbody>

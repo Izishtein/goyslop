@@ -126,6 +126,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       notes: { story: '', goals: '', gm: '' },
       connections: [],
       fellow: EMPTY_FELLOW,
+      workSkills: [],
     };
 
     const parsed = CharacterSchema.parse(character);
