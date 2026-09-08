@@ -15,8 +15,10 @@ describe('combat feat catalog', () => {
       'Tyrants Crypts (fan wiki)': 3,
       // Geomancer's two (p. 22) and the Tactician's five (p. 34).
       'Magus Arts': 7,
+      // Cleansing Dance, granted at Battle Dancer 7 (p. 41).
+      'Battle Mastery': 1,
     });
-    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7);
+    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7 + 1);
   });
 
   it('has unique ids', () => {

@@ -37,10 +37,10 @@ export const CLASSES: ClassDefinition[] = [
   { id: 'grappler', name: 'Grappler', type: 'warrior', rank: 'major', sourceBook: 'Core Rulebook I', keyAbilities: ['STR', 'DEX'] },
   { id: 'fencer', name: 'Fencer', type: 'warrior', rank: 'minor', sourceBook: 'Core Rulebook I', keyAbilities: ['DEX', 'AGI'] },
   { id: 'marksman', name: 'Marksman', type: 'warrior', rank: 'minor', sourceBook: 'Core Rulebook I', keyAbilities: ['DEX'] },
-  // Major, not minor: Battle Mastery is the one class book missing from files/, and our
-  // research doc had it as Minor from a secondary source. Both independent sources say
-  // otherwise — the Russian class digest ("Основной класс боевого типа") and the fan wiki's
-  // class index ("Battle Dancer (Major)") — and the rank sets the XP price of every level.
+  // Major, not minor: our research doc had Minor from a secondary source, and the rank sets
+  // the XP price of every level. Caught by the Russian class digest and the fan wiki, then
+  // confirmed against the book itself — Battle Mastery prints "Battle Dancer (Warrior-Type
+  // Major Class)". That book is not in files/; it is in the owner's own collection.
   { id: 'battle-dancer', name: 'Battle Dancer', type: 'warrior', rank: 'major', sourceBook: 'Battle Mastery', keyAbilities: ['DEX', 'AGI'] },
 
   // Wizard-type
@@ -65,6 +65,15 @@ export const CLASSES: ClassDefinition[] = [
   { id: 'tactician', name: 'Tactician', type: 'other', rank: 'minor', sourceBook: 'Magus Arts', keyAbilities: ['INT'] },
   { id: 'geomancer', name: 'Geomancer', type: 'other', rank: 'minor', sourceBook: 'Magus Arts', keyAbilities: ['INT'] },
   { id: 'dark-hunter', name: 'Dark Hunter', type: 'other', rank: 'minor', sourceBook: 'Abyss Breaker', keyAbilities: ['DEX', 'SPR'] },
+  // Barbarous Rage p. 57: "Heritor Class — Other-Type Minor Class". Key abilities from the
+  // proficiencies the book lists: Accuracy checks (DEX) and Evasion checks (AGI) for a
+  // character's sections other than the main one.
+  //
+  // The book is not in files/ — it lives in the owner's own collection — so this is the one
+  // class entry no PDF in this repository can confirm. It is also only useful to characters
+  // with multiple sections (Diablos, Drakes, Basilisks, Scissorscorpions), and those
+  // barbarous races are not in the race catalog yet; the sheet notes as much.
+  { id: 'heritor', name: 'Heritor', type: 'other', rank: 'minor', sourceBook: 'Barbarous Rage', keyAbilities: ['DEX', 'AGI'] },
 ];
 
 export function getClass(id: string): ClassDefinition | undefined {

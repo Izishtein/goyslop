@@ -7,6 +7,28 @@ Source: fujimi-trpg-online.jp/game/sw25rule.html (полный список от
 
 ---
 
+## Вторая коллекция книг (вне репозитория, у владельца) — осмотрена 2026-09-08
+
+Владелец указал на `E:\НРИ\Sword World Rus`. Там лежат **английские книги, которых нет в `files/`**, и они закрывают несколько наших «нет источника». Путь к правилам: `SW 2.5 - Translated Books\Supplements\Rulebooks`.
+
+| Книга | Что закрывает | Статус у нас |
+|---|---|---|
+| **Arcane Relic** | Расы: Spriggan, Abyssborn, **Newman**, Fluorite, Dark Dwarf, **Alv**, **Shadow**, **Soleil**, **Weakling** + редкие подвиды десяти рас; сокровища, ловушки, снаряжение | **Была единственной известной недостающей книгой.** Кости Abyssborn прочитаны: `A:2d B:1d C:1d+6 D:2d E:2d F:1d`. Alv/Shadow/Soleil/Weakling, у которых у нас нет костей, тоже здесь |
+| **Battle Mastery** | Battle Dancer целиком, 18 боевых школ, School Secrets | Ранг класса подтверждён по ней 2026-09-08; сам класс и школы не разобраны |
+| **Barbarous Rage** | **Класс Heritor (p. 57) и Вливания (p. 58+)**, многочастные расы (Диабло, Дрейки, Василиски, Сизорскорпионы), их уникальные навыки и Transformation Sheet | Класс заведён 2026-09-08 отсюда. Вливания и расы — нет |
+| **Barbarous Saga (Races & Gods Only)** | Варварские расы с костями и предысториями (напр. Broken Drake) **и боги** | Не разобрана |
+| **Character Building Book** | Опции создания персонажа | Не разобрана, содержание не изучено |
+| **Tactician and Geomancer Fellow Rules** | Правила Fellow для Тактика и Геоманта + сценарий | Не разобрана; наш § 3 «Fellow» ждёт именно этого |
+| **Barbarous Supplements Special Q&A** | Разъяснения по варварским дополнениям | Не разобрана |
+| **Monochromatica**, **Tales of the Dragon's Remains Blade (превью)** | Bubble worlds | Не разобраны |
+| Путеводители: **Natural History of Dorden**, Kingsfall, Cyrecode, Burlight, Start Guide Granzale | Мир и локальный контент | Не разобраны |
+
+Там же — **русские машинные переводы** (`01 Машинный перевод`), включая `2.0 Age of Grimoire.pdf`: это книга-первоисточник класса Арканист/Библиомант, чью Arcane Magic мы завели с фан-вики. И `2.5 Tycheroko, the God who Guides Heroes.docx` — отдельный бог, то есть потенциально ещё один набор специализированной божественной магии.
+
+**Про эмбарго.** Ничего из перечисленного не отменяет того, что Tyrants Crypts остаётся превью: более новые книги достать по-прежнему нельзя. Но и «нет источника» у нас теперь остаётся только там, где книги нет ни в одной из двух коллекций.
+
+---
+
 ## Основные книги правил (Core Rulebooks)
 
 | Книга | Уровни | Что добавляет |
@@ -36,7 +58,7 @@ Source: fujimi-trpg-online.jp/game/sw25rule.html (полный список от
 | **Epic Treasury** (エピックトレジャー) | — (см. примечание) | — | **Проверено по PDF (2026-07-09):** Adventurer Class Commentary — лор/ролплей по всем 23 уже известным классам (НЕ новые классы); Gods and Faith of Alframe; Point Buy Character Creation; **Work Skills** (проф. навыки, до 15 ур., НЕ то же самое, что General Skills листа); Treasure Drop; Advanced Combat (2D grid); Fellow Extended Action Table; Item Lists + Detailed Data; Mount and Mount Equipment + Mount Data (pp. 165–179, пересекается с Rider class) |
 | **Monstrous Lore** (モンスタロア, скачана и проверена полнотекстово 2026-07-09) | **Druid (Major), Daemonologist/Summoner/Daemon Tamer (Major)** — полная механика подтверждена | — | Part 1 (pp.9–54): Druid → Nature Magic (~59 заклинаний, Symbols of Beneficence/Symbolic Lore), Daemonologist → Summoning Arts (~46 заклинаний, Gate Imp/Abyss Gate/Daemon Action Chart/Banishment), New Backgrounds для обоих классов + Rider/Alchemist. Part 2 (pp.56+): Natural History + Monster Data (~400 монстров, Barbarous/Animals/Plants/Undead/Constructs/Magitech/Mythical Beasts/Fairies/Daemons/Humanoids), Golem Data (Enhancing Items — доп. к Core II Conjurer Golems), Familiar Data (для Sorcerer [Familiar]/[Familiar II]) → `02-classes.md` |
 | **Magus Arts** (правильное название, не "Mage Arts") | **Подтверждено (2026-07-09): Geomancer (Minor), Tactician (Minor)** — полная механика | — | **Проверено по PDF (186 стр.):** Part 1 — полные данные Geomancer (Aspects/Qi/Geograph) и Tactician (Stratagems/Maneuvers/Edge) → `02-classes.md`. Part 2 — лор-комментарий (НЕ полная механика) по Druid и Daemonologist — отсылает к "ML" (Monstrous Lore) за деталями Nature Magic/Summoning Arts; 9 новых богов (1st/2nd/3rd Sword, включая "Second Sword" — пересекается с гэпом Core III). Part 3 — компендиум заклинаний всех школ ур.1–15 + **новая школа Deep Magic** (требует Sorcerer+Conjurer одновременно) + расширенная Fairy Magic (3-type/6-type selection, Chaos-заклинания). Part 4 — **Stunts** (pp.173–177) и **Evocations** (Alchemist, pp.178–184) — совпадает с открытыми гэпами Core III/Alchemist! Не задокументированы подробно — см. `state.md` |
-| **Battle Mastery** (バトルマスタリー) | Battle Dancer (**Major**, исправлено 2026-09-07) | — | 18 новых боевых школ; 10 боссов |
+| **Battle Mastery** (バトルマスタリー) | Battle Dancer (**Major**, подтверждено по книге 2026-09-08: «Battle Dancer (Warrior-Type Major Class)») | — | 18 новых боевых школ; 10 боссов |
 | **Arcane Relic** (アーケインレリック, полное название "Arcane Relic: Races and Treasures") | — | **Подтверждено (через реприз в Raxia Life, 2026-07-09): Abyssborn, Newman** | Мощные артефакты; 10 боссов; 5-летний юбилей. Сама книга не скачана — краткие описания рас и способностей взяты из реприза в Raxia Life, pp. 45–46 |
 | **Barbaros Rage** (バルバロスレイジ) | Physical Master (для Barbaros PC) | 10 видов Barbaros | Правила игры за Barbaros; отдельный лист |
 | **Abyss Breaker** (アビスブレイカー, скачана и проверена полнотекстово 2026-07-09) | **Подтверждено: Abyss Gazer (Wizard-Type Major, Abyssal Magic, ~27 заклинаний с системой Enhancement), Dark Hunter (Other-Type Minor, Essence Weaving, ~28 штук, Mental Power = Lv+SPR)** | — | Part 1 (pp.13–46): полные механики обоих классов → `02-classes.md`; **Thrown Weapons** (B/A/S/SS ранги, новая категория оружия) и **Abyss Skills/Abyss Corruption** (новая опция для Abyss Enhancement — именные способности вместо типовых бонусов, риск постоянных штрафов вплоть до потери PC как Daemon) → `06-equipment.md`. Базовый Abyss Enhancement (pp.38–43) — не новый, это переиздание системы из Core Rulebook II для справки. Part 2–4 (World lore, Random Shallow generation, Monster Data) — не задокументированы, не приоритет для листа персонажа |

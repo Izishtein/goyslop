@@ -28,6 +28,7 @@ const CORE3 = 'Core Rulebook III';
 /** Marked as the wiki's, not the book's — the book itself is embargoed. */
 const TYRANTS_CRYPTS = 'Tyrants Crypts (fan wiki)';
 const MAGUS_ARTS = 'Magus Arts';
+const BATTLE_MASTERY = 'Battle Mastery';
 
 function make(sourceBook: string, category: CombatFeatCategory, names: string[]): CombatFeatDefinition[] {
   return names.map((name) => ({
@@ -182,6 +183,12 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
     'Additional Stratagem/Maneuver II',
     'Additional Stratagem/Maneuver III',
   ]),
+  // The Russian digest knew this one on 2026-09-07 and no English book in files/ did; it
+  // turned up in Battle Mastery p. 41 the next day, in the owner's other collection. The
+  // book grants it outright — "when you reach level 7 Battle Dancer, you will automatically
+  // learn the Combat Feat [Cleansing Dance]" — hence the auto category.
+  ...make(BATTLE_MASTERY, 'auto', ['Cleansing Dance']),
+
   // Declared right after a Stratagem two ranks lower than the last, so it is not passive
   // even though it sits in the book's "selectively acquired passive" block; the digest
   // files it as active too.

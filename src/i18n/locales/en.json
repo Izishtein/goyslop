@@ -401,6 +401,7 @@
       "alchemist": "Evocations (~28 of them, and not magic) are paid for with Material Cards instead of MP: five colours across four ranks.",
       "tactician": "Stratagems buff allies without spending MP and bank Edge, which pays for personal Maneuvers. Needs a voice and a Strategist Insignia.",
       "geomancer": "A Geograph banks Qi points that turn into Aspects — a random effect over a zone; no MP, a Minor Action.",
+      "heritor": "Only helps characters with multiple sections — Diablos, Drakes, Basilisks, Scissorscorpions — whose other sections it drives: one Infusion per level, plus Defense, Max HP and Max MP for those sections. Barbarous Rage, a book outside files/; those races are not in the catalog yet.",
       "dark-hunter": "Essence Weavings (~28 of them): steering thrown weapons and buffing yourself at the cost of HP. Mental Power = class level + SPR modifier."
     },
     "race": "Race",

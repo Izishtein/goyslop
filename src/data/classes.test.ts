@@ -3,8 +3,9 @@ import { ABILITY_IDS } from '../lib/formulas/abilities';
 import { CLASSES, getClass, isWarriorType, isWizardType } from './classes';
 
 describe('class catalog', () => {
-  it('holds all 24 classes with unique ids', () => {
-    expect(CLASSES).toHaveLength(24);
+  it('holds all 25 classes with unique ids', () => {
+    // 24 from Core I-III and the supplements, plus Heritor from Barbarous Rage.
+    expect(CLASSES).toHaveLength(25);
     expect(new Set(CLASSES.map((c) => c.id)).size).toBe(CLASSES.length);
   });
 
@@ -33,13 +34,13 @@ describe('class catalog', () => {
 
   it('keeps the ranks that decide what a level costs', () => {
     // Rank is the whole XP price of a level (1000 for major, 500 for minor), and Battle
-    // Dancer had it wrong until 2026-09-07: our research doc said Minor, while the Russian
-    // class digest and the fan wiki's class index both say Major. Battle Mastery is the one
-    // class book missing from files/, so nothing in the repo can catch a regression here.
+    // Dancer had it wrong until 2026-09-07: our research doc said Minor. Battle Mastery
+    // settles it — "Battle Dancer (Warrior-Type Major Class)" — but that book lives in the
+    // owner's collection, not in files/, so nothing in the repo can catch a regression here.
     expect(getClass('battle-dancer')).toMatchObject({ type: 'warrior', rank: 'major' });
     const ranks = Object.fromEntries(CLASSES.map((c) => [c.id, c.rank]));
     expect(Object.values(ranks).filter((r) => r === 'major')).toHaveLength(12);
-    expect(Object.values(ranks).filter((r) => r === 'minor')).toHaveLength(12);
+    expect(Object.values(ranks).filter((r) => r === 'minor')).toHaveLength(13);
   });
 
   it('looks a class up by id and answers what type it is', () => {
