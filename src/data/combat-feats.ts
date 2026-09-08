@@ -188,6 +188,10 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
   // book grants it outright — "when you reach level 7 Battle Dancer, you will automatically
   // learn the Combat Feat [Cleansing Dance]" — hence the auto category.
   ...make(BATTLE_MASTERY, 'auto', ['Cleansing Dance']),
+  // p. 37: "Prer. None Use Wizard-Type Classes / Appl. 1 spell cast Risk None" — an Appl.
+  // and Risk field means an Active Combat Feat by the book's own key, declared before
+  // casting like Metamagic/Targets and Violentcast I (both 'declaration' in this catalog).
+  ...make(BATTLE_MASTERY, 'declaration', ['Quick Cast']),
 
   // Declared right after a Stratagem two ranks lower than the last, so it is not passive
   // even though it sits in the book's "selectively acquired passive" block; the digest

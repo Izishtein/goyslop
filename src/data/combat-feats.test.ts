@@ -15,10 +15,14 @@ describe('combat feat catalog', () => {
       'Tyrants Crypts (fan wiki)': 3,
       // Geomancer's two (p. 22) and the Tactician's five (p. 34).
       'Magus Arts': 7,
-      // Cleansing Dance, granted at Battle Dancer 7 (p. 41).
-      'Battle Mastery': 1,
+      // Cleansing Dance (auto, p. 41) and Quick Cast (declaration, p. 37) — the only two
+      // Battle Mastery combat feats not already covered by our catalog, found by a full pass
+      // through the book's feat cards. Everything else the book prints or cross-references
+      // (Chain Attack, Mana Resistance, Metamagic/**, the Vagrant-only options in Battle
+      // Dancer's bonus feat list) is either already catalogued or belongs to Vagrant (§ 3).
+      'Battle Mastery': 2,
     });
-    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7 + 1);
+    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7 + 2);
   });
 
   it('has unique ids', () => {
