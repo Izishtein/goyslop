@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { characterFileName, characterToJson, parseImportedCharacter } from './characterIo';
-import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW } from '../../types/character';
 
 function makeCharacter(overrides: Partial<Character> = {}): Character {
   return {
@@ -36,6 +36,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     profile: { gender: '', age: '', avatar: '' },
     notes: { story: '', goals: '', gm: '' },
     connections: [],
+    fellow: EMPTY_FELLOW,
     ...overrides,
   };
 }

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import './i18n';
 import App from './App';
 import { activeCharacterIdAtom, charactersAtom, STORAGE_ERROR_EVENT } from './state/characters';
-import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE } from './types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW } from './types/character';
 
 beforeEach(() => {
   localStorage.clear();
@@ -45,6 +45,7 @@ function makeCharacter(id: string, name: string): Character {
     profile: { gender: '', age: '', avatar: '' },
     notes: { story: '', goals: '', gm: '' },
     connections: [],
+    fellow: EMPTY_FELLOW,
   };
 }
 

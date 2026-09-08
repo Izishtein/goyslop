@@ -12,7 +12,7 @@ import {
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
-import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
+import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character, EMPTY_FELLOW, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { listBackgroundOptions } from '../../lib/backgrounds';
 import { RaceFactsCard } from '../reference/RaceFactsCard';
@@ -125,6 +125,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       profile: { gender: '', age: '', avatar: '' },
       notes: { story: '', goals: '', gm: '' },
       connections: [],
+      fellow: EMPTY_FELLOW,
     };
 
     const parsed = CharacterSchema.parse(character);

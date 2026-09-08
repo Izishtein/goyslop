@@ -17,6 +17,7 @@ import { CombatFeatsSection } from './CombatFeatsSection';
 import { SpellsSection } from './SpellsSection';
 import { ArtsSection } from './ArtsSection';
 import { EvocationsSection } from './EvocationsSection';
+import { FellowSection } from './FellowSection';
 import { MountsSection } from './MountsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
@@ -206,6 +207,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <StatusEffectsSection character={character} />
 
       <NotesSection character={character} />
+
+      <FellowSection character={character} />
     </section>
   );
 }

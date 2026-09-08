@@ -209,6 +209,44 @@ export const ConnectionSchema = z.object({
 });
 export type Connection = z.infer<typeof ConnectionSchema>;
 
+/**
+ * The Fellow card (Core Rulebook I pp. 192-202, § 3 optional system): a simplified,
+ * damage-immune version of this PC that another play group can borrow as a guest NPC.
+ *
+ * Name, race, gender, age, adventurer level, MP and classes are read straight off the PC
+ * elsewhere on the sheet, not duplicated here — the book copies them from the PC "as is",
+ * so there is nothing to store that the sheet does not already compute. Only what the
+ * Fellow format adds beyond the PC lives in this schema: a self-introduction, the
+ * languages line (the sheet has no general language tracker — see roadmap), whether the
+ * player wants XP/rewards credited back, and the Fellow Action Table itself.
+ *
+ * The Action Table is free text throughout. It is built per Fellow from that specific PC's
+ * own abilities (a Fighter's table looks nothing like a Sorcerer's), so there is no catalog
+ * to pick from — same reasoning as the free-note fields on known spells and techniques.
+ */
+export const FellowActionSchema = z.object({
+  id: z.string(),
+  /** The 1d range this action answers to, e.g. "1-2" or "5". Free text: the book groups
+   *  six faces across as few or as many rows as the Fellow has actions for. */
+  roll: z.string(),
+  name: z.string(),
+  dialogue: z.string().optional(),
+  /** The check or attack value the book prints for this row, e.g. "12" or "Power 25/Crit Value 10+4". */
+  value: z.string().optional(),
+  effect: z.string().optional(),
+});
+export type FellowAction = z.infer<typeof FellowActionSchema>;
+
+export const FellowSchema = z.object({
+  selfIntroduction: z.string().default(''),
+  languages: z.string().default(''),
+  wantsExperience: z.boolean().default(false),
+  wantsReward: z.boolean().default(false),
+  actions: z.array(FellowActionSchema).default(() => []),
+});
+export type Fellow = z.infer<typeof FellowSchema>;
+export const EMPTY_FELLOW: Fellow = { selfIntroduction: '', languages: '', wantsExperience: false, wantsReward: false, actions: [] };
+
 /** One recorded ability growth. The book's growth roll table is not in the research docs,
  *  so the sheet records the outcome the player rolled rather than rolling for them. */
 export const GrowthEntrySchema = z.object({
@@ -406,5 +444,6 @@ export const CharacterSchema = z.object({
   profile: ProfileSchema.default(() => ({ gender: '', age: '', avatar: '' })),
   notes: NotesSchema.default(() => ({ story: '', goals: '', gm: '' })),
   connections: z.array(ConnectionSchema).default(() => []),
+  fellow: FellowSchema.default(() => EMPTY_FELLOW),
 });
 export type Character = z.infer<typeof CharacterSchema>;

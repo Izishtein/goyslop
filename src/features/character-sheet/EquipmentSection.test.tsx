@@ -4,7 +4,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import { CharacterSchema, EMPTY_INVENTORY, type Character, type Weapon, EMPTY_PERFORMANCE } from '../../types/character';
+import { CharacterSchema, EMPTY_INVENTORY, type Character, type Weapon, EMPTY_PERFORMANCE, EMPTY_FELLOW } from '../../types/character';
 import { EquipmentSection } from './EquipmentSection';
 
 function Harness({ id }: { id: string }) {
@@ -46,6 +46,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     profile: { gender: '', age: '', avatar: '' },
     notes: { story: '', goals: '', gm: '' },
     connections: [],
+    fellow: EMPTY_FELLOW,
     ...overrides,
   };
 }
