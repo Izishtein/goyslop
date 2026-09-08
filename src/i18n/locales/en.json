@@ -44,7 +44,11 @@
     "rollsOwnSplit": "This background rolls its own Skill/Body/Mind instead of listing fixed values — enter what you rolled.",
     "skill": "Skill",
     "body": "Body",
-    "mind": "Mind"
+    "mind": "Mind",
+    "pointBuy": "Point Buy (no dice)",
+    "pointBuyHint": "Optional (Epic Treasury p. 64): pick each value instead of rolling it. Every pick has a point cost shown next to it — the six Ability corrections must total 0 or less, and a rolled Skill/Body/Mind totals separately.",
+    "pointBuyTotal": "Point Buy total (A–F): {{total}}",
+    "pointBuyStartingTotal": "Point Buy total (Skill/Body/Mind): {{total}}"
   },
   "sheet": {
     "adventurerLevel": "Adventurer Level",

@@ -159,6 +159,21 @@
   }
 }
 
+.pointBuyToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.9rem;
+  width: fit-content;
+}
+
+/* Sits next to a Correction/Skill/Body/Mind input when Point Buy is on. */
+.pointCost {
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
 /* Shown only for background rows that roll their own Skill/Body/Mind. */
 .rolledSplit {
   display: flex;

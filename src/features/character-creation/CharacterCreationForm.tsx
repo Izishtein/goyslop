@@ -10,6 +10,7 @@ import {
   type SkillBodyMind,
 } from '../../lib/formulas/ability-base';
 import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
+import { abilityPointCost, startingAbilityPointCost } from '../../lib/formulas/point-buy';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
 import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character, EMPTY_FELLOW, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
@@ -24,6 +25,10 @@ function zeroByAbility(): NumberByAbility {
   return { DEX: 0, AGI: 0, STR: 0, VIT: 0, INT: 0, SPR: 0 };
 }
 
+function formatCost(cost: number): string {
+  return cost > 0 ? `+${cost}` : `${cost}`;
+}
+
 export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) => void }) {
   const { t } = useTranslation();
   const setCharacters = useSetAtom(charactersAtom);
@@ -34,6 +39,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
   const [backgroundKey, setBackgroundKey] = useState('');
   const [chosenClassId, setChosenClassId] = useState('');
   const [corrections, setCorrections] = useState<NumberByAbility>(zeroByAbility());
+  const [pointBuy, setPointBuy] = useState(false);
   const [growths, setGrowths] = useState<NumberByAbility>(zeroByAbility());
   const [itemBonuses, setItemBonuses] = useState<NumberByAbility>(zeroByAbility());
 
@@ -65,6 +71,20 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
   const badCorrections = abilityDice
     ? ABILITY_IDS.filter((id) => corrections[id] !== 0 && !isCorrectionInRange(abilityDice[id], corrections[id]))
     : [];
+
+  /* Point Buy (Epic Treasury p. 64): an opt-in alternative to rolling the A-F dice. The
+     Correction value itself does not change meaning — it stays the number a die would have
+     given — Point Buy only prices that choice, and the six A-F picks must total 0 or less.
+     Advisory like badCorrections above: flagged, not blocked. */
+  const pointCosts = abilityDice ? ABILITY_IDS.map((id) => abilityPointCost(abilityDice[id], corrections[id])) : [];
+  const pointTotal = pointCosts.reduce((sum: number, cost) => sum + (cost ?? 0), 0);
+
+  /* Human backgrounds that roll their own Skill/Body/Mind get a second, separate budget —
+     the book keeps the two untied rather than pooling them. */
+  const startingCosts = rollsOwnSplit
+    ? (['skill', 'body', 'mind'] as const).map((part) => startingAbilityPointCost(rolledSplit[part]))
+    : [];
+  const startingPointTotal = startingCosts.reduce((sum: number, cost) => sum + (cost ?? 0), 0);
 
   const needsClassChoice = background?.startingClasses?.joiner === 'or';
   const startingClassIds = background?.startingClasses
@@ -219,76 +239,95 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
 
       {background && (
         <>
+          <label className={styles.pointBuyToggle}>
+            <input type="checkbox" checked={pointBuy} onChange={(event) => setPointBuy(event.target.checked)} />
+            {t('creation.pointBuy')}
+          </label>
+          {pointBuy && <p className={styles.intro}>{t('creation.pointBuyHint')}</p>}
+
           {rollsOwnSplit && (
             <div className={styles.rolledSplit}>
               <p className={styles.intro}>{t('creation.rollsOwnSplit')}</p>
               <div className={styles.fields}>
-                {(['skill', 'body', 'mind'] as const).map((part) => (
-                  <div key={part} className={styles.field}>
-                    <label htmlFor={`split-${part}`}>{t(`creation.${part}`)}</label>
-                    <input
-                      id={`split-${part}`}
-                      type="number"
-                      value={rolledSplit[part]}
-                      onChange={(event) => setRolledSplit((prev) => ({ ...prev, [part]: Number(event.target.value) }))}
-                    />
-                  </div>
-                ))}
+                {(['skill', 'body', 'mind'] as const).map((part, index) => {
+                  const cost = startingCosts[index];
+                  return (
+                    <div key={part} className={styles.field}>
+                      <label htmlFor={`split-${part}`}>{t(`creation.${part}`)}</label>
+                      <input
+                        id={`split-${part}`}
+                        type="number"
+                        value={rolledSplit[part]}
+                        onChange={(event) => setRolledSplit((prev) => ({ ...prev, [part]: Number(event.target.value) }))}
+                      />
+                      {pointBuy && cost !== undefined && <span className={styles.pointCost}>{formatCost(cost)}</span>}
+                    </div>
+                  );
+                })}
               </div>
+              {pointBuy && (
+                <p className={startingPointTotal > 0 ? styles.warning : styles.intro} role="status">
+                  {t('creation.pointBuyStartingTotal', { total: formatCost(startingPointTotal) })}
+                </p>
+              )}
             </div>
           )}
 
           <div className={styles.abilityGrid}>
-            {abilities.map(({ id, score, total, modifier }) => (
-              <article key={id} className={styles.abilityCard} aria-label={id}>
-                <div className={styles.abilityTop}>
-                  <span className={styles.abilityName}>{id}</span>
-                  <span className={styles.abilityTotal} aria-label={`${id} ${t('creation.total')}`}>
-                    {total}
-                  </span>
-                  <span className={styles.abilityMod}>{modifier >= 0 ? `+${modifier}` : modifier}</span>
-                </div>
-
-                <div className={styles.abilityParts}>
-                  <div className={styles.abilityPart}>
-                    <span>{t('creation.baseShort')}</span>
-                    <div className={styles.abilityPartStatic} aria-label={`${id} ${t('creation.base')}`}>
-                      {score.base}
-                    </div>
+            {abilities.map(({ id, score, total, modifier }, index) => {
+              const cost = pointCosts[index];
+              return (
+                <article key={id} className={styles.abilityCard} aria-label={id}>
+                  <div className={styles.abilityTop}>
+                    <span className={styles.abilityName}>{id}</span>
+                    <span className={styles.abilityTotal} aria-label={`${id} ${t('creation.total')}`}>
+                      {total}
+                    </span>
+                    <span className={styles.abilityMod}>{modifier >= 0 ? `+${modifier}` : modifier}</span>
                   </div>
-                  <label className={styles.abilityPart}>
-                    <span title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}>{t('creation.correctionShort')}</span>
-                    <input
-                      type="number"
-                      value={corrections[id]}
-                      onChange={(event) => setCorrections((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                      aria-label={`${id} ${t('creation.correction')}`}
-                      aria-invalid={badCorrections.includes(id) || undefined}
-                      className={badCorrections.includes(id) ? styles.invalid : undefined}
-                      title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}
-                    />
-                  </label>
-                  <label className={styles.abilityPart}>
-                    <span>{t('creation.growthShort')}</span>
-                    <input
-                      type="number"
-                      value={growths[id]}
-                      onChange={(event) => setGrowths((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                      aria-label={`${id} ${t('creation.growth')}`}
-                    />
-                  </label>
-                  <label className={styles.abilityPart}>
-                    <span>{t('creation.itemBonusShort')}</span>
-                    <input
-                      type="number"
-                      value={itemBonuses[id]}
-                      onChange={(event) => setItemBonuses((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
-                      aria-label={`${id} ${t('creation.itemBonus')}`}
-                    />
-                  </label>
-                </div>
-              </article>
-            ))}
+
+                  <div className={styles.abilityParts}>
+                    <div className={styles.abilityPart}>
+                      <span>{t('creation.baseShort')}</span>
+                      <div className={styles.abilityPartStatic} aria-label={`${id} ${t('creation.base')}`}>
+                        {score.base}
+                      </div>
+                    </div>
+                    <label className={styles.abilityPart}>
+                      <span title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}>{t('creation.correctionShort')}</span>
+                      <input
+                        type="number"
+                        value={corrections[id]}
+                        onChange={(event) => setCorrections((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                        aria-label={`${id} ${t('creation.correction')}`}
+                        aria-invalid={badCorrections.includes(id) || undefined}
+                        className={badCorrections.includes(id) ? styles.invalid : undefined}
+                        title={abilityDice ? formatDiceNotation(abilityDice[id]) : undefined}
+                      />
+                      {pointBuy && cost !== undefined && <span className={styles.pointCost}>{formatCost(cost)}</span>}
+                    </label>
+                    <label className={styles.abilityPart}>
+                      <span>{t('creation.growthShort')}</span>
+                      <input
+                        type="number"
+                        value={growths[id]}
+                        onChange={(event) => setGrowths((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                        aria-label={`${id} ${t('creation.growth')}`}
+                      />
+                    </label>
+                    <label className={styles.abilityPart}>
+                      <span>{t('creation.itemBonusShort')}</span>
+                      <input
+                        type="number"
+                        value={itemBonuses[id]}
+                        onChange={(event) => setItemBonuses((prev) => ({ ...prev, [id]: Number(event.target.value) }))}
+                        aria-label={`${id} ${t('creation.itemBonus')}`}
+                      />
+                    </label>
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
           {badCorrections.length > 0 && abilityDice && (
@@ -301,6 +340,12 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
                   })
                   .join(', '),
               })}
+            </p>
+          )}
+
+          {pointBuy && abilityDice && (
+            <p className={pointTotal > 0 ? styles.warning : styles.intro} role="status">
+              {t('creation.pointBuyTotal', { total: formatCost(pointTotal) })}
             </p>
           )}
 

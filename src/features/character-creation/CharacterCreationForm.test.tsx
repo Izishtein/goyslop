@@ -147,6 +147,64 @@ describe('CharacterCreationForm', () => {
     expect(screen.getByRole('option', { name: 'Adventurer (GM permission, 3000 XP)' })).toBeInTheDocument();
   });
 
+  it('shows a Point Buy cost next to Correction only once the toggle is on', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:0');
+
+    const dexCorrection = screen.getByLabelText('DEX Correction');
+    await user.clear(dexCorrection);
+    await user.type(dexCorrection, '3');
+
+    // Human is 2d6 for every ability; a picked 3 costs -20 (Epic Treasury p. 64).
+    expect(screen.queryByText('-20')).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText(/Point Buy \(no dice\)/i));
+    expect(screen.getByText('-20')).toBeInTheDocument();
+  });
+
+  it('totals the six A-F picks and flags going over the 0-point budget', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:0');
+    await user.click(screen.getByLabelText(/Point Buy \(no dice\)/i));
+
+    expect(screen.getByText(/Point Buy total \(A–F\): 0/)).toBeInTheDocument();
+
+    // Two 12s (+70 each) blow well past a 0-or-less budget.
+    for (const id of ['DEX', 'STR']) {
+      const field = screen.getByLabelText(`${id} Correction`);
+      await user.clear(field);
+      await user.type(field, '12');
+    }
+
+    const total = screen.getByText(/Point Buy total \(A–F\)/);
+    expect(total).toHaveTextContent('+140');
+    expect(total.className).toMatch(/warning/);
+  });
+
+  it('gives a rolled Skill/Body/Mind its own separate Point Buy budget', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
+    // Human "Adventurer" (GM permission): rolls its own Skill/Body/Mind on 2d.
+    await user.selectOptions(screen.getByLabelText(/^Background$/i), 'primary:7');
+    await user.click(screen.getByLabelText(/Point Buy \(no dice\)/i));
+
+    const skillField = screen.getByLabelText(/^Skill$/i);
+    await user.clear(skillField);
+    await user.type(skillField, '12');
+
+    // A rolled 12 costs +160 on the Adventurer 2d Table — nothing to do with the A-F budget.
+    expect(screen.getByText(/Point Buy total \(Skill\/Body\/Mind\): \+160/)).toBeInTheDocument();
+    expect(screen.getByText(/Point Buy total \(A–F\): 0/)).toBeInTheDocument();
+  });
+
   it('requires a starting-class choice when the background offers a choice of classes', async () => {
     const user = userEvent.setup();
     renderForm();

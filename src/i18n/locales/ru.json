@@ -44,7 +44,11 @@
     "rollsOwnSplit": "Эта предыстория не даёт фиксированных Skill/Body/Mind — их бросают костями. Внесите то, что выпало.",
     "skill": "Skill",
     "body": "Body",
-    "mind": "Mind"
+    "mind": "Mind",
+    "pointBuy": "Point Buy (без костей)",
+    "pointBuyHint": "Опционально (Epic Treasury, стр. 64): выбирайте каждое значение вместо броска. У каждого выбора есть очковая стоимость рядом с полем — сумма по шести характеристикам A-F должна быть 0 или меньше, а брошенные Skill/Body/Mind считаются отдельным бюджетом.",
+    "pointBuyTotal": "Point Buy, итого (A–F): {{total}}",
+    "pointBuyStartingTotal": "Point Buy, итого (Skill/Body/Mind): {{total}}"
   },
   "sheet": {
     "adventurerLevel": "Уровень авантюриста",
