@@ -21,8 +21,12 @@ describe('combat feat catalog', () => {
       // (Chain Attack, Mana Resistance, Metamagic/**, the Vagrant-only options in Battle
       // Dancer's bonus feat list) is either already catalogued or belongs to Vagrant (§ 3).
       'Battle Mastery': 2,
+      // Vagrant Combat Feats, pp. 138-141 — 3 passive, 12 declaration, 2 auto (Quick Cast is
+      // also printed here but treated as the same feat already catalogued under Battle
+      // Mastery, not a second entry). See docs/sheet-content/22-vagrant-misc.md.
+      'Outlaw Profile Book': 17,
     });
-    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7 + 2);
+    expect(COMBAT_FEATS).toHaveLength(121 + 3 + 7 + 2 + 17);
   });
 
   it('has unique ids', () => {

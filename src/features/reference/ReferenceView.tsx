@@ -10,6 +10,7 @@ import {
   ItemsReference,
   SpellsReference,
   TreasureDropReference,
+  VagrantReference,
   WorkSkillsReference,
 } from './CatalogReference';
 import { ClassesReference } from './ClassesReference';
@@ -29,6 +30,7 @@ const TABS = [
   'items',
   'workSkills',
   'treasureDrop',
+  'vagrant',
 ] as const;
 type ReferenceTab = (typeof TABS)[number];
 
@@ -45,6 +47,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   items: ItemsReference,
   workSkills: WorkSkillsReference,
   treasureDrop: TreasureDropReference,
+  vagrant: VagrantReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

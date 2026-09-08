@@ -412,7 +412,8 @@
       "equipment": "Equipment",
       "mounts": "Mounts",
       "workSkills": "Work Skills",
-      "treasureDrop": "Treasure Drop"
+      "treasureDrop": "Treasure Drop",
+      "vagrant": "Vagrant"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -516,6 +517,29 @@
     "treasurePointsShort": "pts",
     "treasureEnhancementAbilities": "Treasure Enhancement Abilities List",
     "treasureDropTable": "Treasure Drop Table",
-    "category": "Category/Classification"
+    "category": "Category/Classification",
+    "vagrantNote": "An alternative character-creation system for a non-adventurer PC (Outlaw Profile Book, Part 1). Pick a Category and Type instead of a free class pick, then roll the Childhood and Adolescent Experience tables for that race instead of the racial correction dice. Nothing here is wired into character creation — read the numbers here and enter them on the sheet by hand, the same way Work Skills and Treasure Drop are reference-only.",
+    "vagrantTypes": "Category / Type",
+    "vagrantCategoryHeader": "Category",
+    "vagrantCourses": "Courses",
+    "vagrantPrimaryClass": "Primary class",
+    "vagrantSubclass": "Subclass",
+    "vagrantRemainingXp": "Remaining XP",
+    "vagrantLanguages": "Additional languages",
+    "vagrantSpecialNotes": "Special notes",
+    "vagrantCategory": {
+      "warrior": "Warrior",
+      "spy": "Spy",
+      "remoteSupport": "Remote Support",
+      "magicWarrior": "Magic Warrior"
+    },
+    "vagrantSelectableRaces": "Selectable races by Type",
+    "vagrantChildhood": "Childhood Experience",
+    "vagrantChildhoodNote": "Replaces the racial A-F correction dice: pick a race and Category, roll 1d66 (1d6 for five tables marked D6), and use the printed Ability Score Correction as-is.",
+    "vagrantRoll": "Roll",
+    "vagrantDeprecated": "Deprecated for",
+    "vagrantExperienceFocus": "Experience (Focus)",
+    "vagrantAdolescent": "Adolescent Experience",
+    "vagrantCombatFeat": "Combat Feat"
   }
 }

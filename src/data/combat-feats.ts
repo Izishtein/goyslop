@@ -29,6 +29,7 @@ const CORE3 = 'Core Rulebook III';
 const TYRANTS_CRYPTS = 'Tyrants Crypts (fan wiki)';
 const MAGUS_ARTS = 'Magus Arts';
 const BATTLE_MASTERY = 'Battle Mastery';
+const OUTLAW_PROFILE_BOOK = 'Outlaw Profile Book';
 
 function make(sourceBook: string, category: CombatFeatCategory, names: string[]): CombatFeatDefinition[] {
   return names.map((name) => ({
@@ -191,6 +192,9 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
   // p. 37: "Prer. None Use Wizard-Type Classes / Appl. 1 spell cast Risk None" — an Appl.
   // and Risk field means an Active Combat Feat by the book's own key, declared before
   // casting like Metamagic/Targets and Violentcast I (both 'declaration' in this catalog).
+  // Outlaw Profile Book p. 139 prints an identically-named, identically-worded Quick Cast as
+  // one of its own Vagrant Combat Feats (§ 3, docs/sheet-content/22-vagrant-misc.md) — treated
+  // as the same feat reprinted across two supplements, not a second catalog entry.
   ...make(BATTLE_MASTERY, 'declaration', ['Quick Cast']),
 
   // Declared right after a Stratagem two ranks lower than the last, so it is not passive
@@ -203,6 +207,33 @@ export const COMBAT_FEATS: CombatFeatDefinition[] = [
   // Each rung requires the one before it plus a Bibliomancer level; not modeled, same as
   // every other feat's prerequisites (the sheet's free note field carries it).
   ...make(TYRANTS_CRYPTS, 'passive', ['Grimoire Proficiency A', 'Grimoire Proficiency S', 'Grimoire Mastery']),
+
+  // Vagrant Combat Feats, pp. 138-141 — learnable only through the Outlaw Profile Book's
+  // Vagrant character-creation system (§ 3), not freely available to any character, but the
+  // data model here carries no "who can take this" restriction for any feat (Core or
+  // supplement), so they sit in the same flat catalog with their book named as sourceBook.
+  // Category from the book's own section headers: "Selectively Acquired Passive"/"...Active"
+  // map to passive/declaration the same way Core I-III's own headers do; none has a Major
+  // Action cost, so none is majorAction. Transcribed in docs/sheet-content/22-vagrant-misc.md.
+  ...make(OUTLAW_PROFILE_BOOK, 'passive', ['Follow-Up', 'Enhanced Resistance I', 'Enhanced Resistance II']),
+  ...make(OUTLAW_PROFILE_BOOK, 'declaration', [
+    'Cheat Cast I',
+    'Cheat Cast II',
+    'Shield Bash I',
+    'Shield Bash II',
+    'Shadow Step I',
+    'Shadow Step II',
+    'Desperate Strike I',
+    'Desperate Strike II',
+    'Desperate Strike III',
+    'Herald Strike',
+    'Wild Strike I',
+    'Wild Strike II',
+  ]),
+  // Optional substitutes for a normal auto-acquired feat (Plunder replaces Scout/Ranger/Sage's
+  // [Treasure Hunt], Crude Take replaces [Survivability]) — the book also allows substituting
+  // [Keen Eyes], but prints no replacement feat for that slot, so there is no third entry here.
+  ...make(OUTLAW_PROFILE_BOOK, 'auto', ['Plunder', 'Crude Take']),
 ];
 
 export function listCombatFeatsByCategory(category: CombatFeatCategory): CombatFeatDefinition[] {

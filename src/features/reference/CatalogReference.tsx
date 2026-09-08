@@ -23,6 +23,7 @@ import {
   listMountGear,
   listMountsByCategory,
 } from '../../data/mounts';
+import { getRace } from '../../data/races';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
 import {
   getTreasureDropTable,
@@ -30,7 +31,17 @@ import {
   TREASURE_ENHANCEMENT_ABILITIES,
   TREASURE_POINTS_ESTIMATE,
 } from '../../data/treasure-drop';
+import {
+  ADOLESCENT_EXPERIENCE_TABLES,
+  getChildhoodExperienceTable,
+  listCategoriesForRace,
+  listVagrantRaceIds,
+  listVagrantTypesByCategory,
+  VAGRANT_CATEGORIES,
+  type VagrantCategory,
+} from '../../data/vagrant';
 import { listWorkSkillsByCategory, WORK_SKILL_CATEGORIES } from '../../data/work-skills';
+import { ABILITY_IDS } from '../../lib/formulas/abilities';
 import { COMBAT_FEAT_CATEGORIES } from '../../types/character';
 import styles from './ReferenceView.module.css';
 
@@ -762,6 +773,223 @@ export function TreasureDropReference() {
         ))}
 
         {table.footnotes && table.footnotes.length > 0 && <p className={styles.note}>{table.footnotes.join(' ')}</p>}
+      </div>
+    </section>
+  );
+}
+
+const VAGRANT_CATEGORY_LABEL_KEY: Record<VagrantCategory, string> = {
+  warrior: 'warrior',
+  spy: 'spy',
+  remoteSupport: 'remoteSupport',
+  magicWarrior: 'magicWarrior',
+};
+
+export function VagrantReference() {
+  const { t } = useTranslation();
+  const raceIds = listVagrantRaceIds();
+  const [childhoodRace, setChildhoodRace] = useState(raceIds[0]);
+  const childhoodCategories = listCategoriesForRace(childhoodRace);
+  const [childhoodCategory, setChildhoodCategory] = useState<VagrantCategory>(childhoodCategories[0]);
+  const activeChildhoodCategory = childhoodCategories.includes(childhoodCategory) ? childhoodCategory : childhoodCategories[0];
+  const childhoodTable = getChildhoodExperienceTable(childhoodRace, activeChildhoodCategory);
+
+  const allTypes = VAGRANT_CATEGORIES.flatMap((category) => listVagrantTypesByCategory(category));
+  const [vagrantTypeId, setVagrantTypeId] = useState(allTypes[0].id);
+  const vagrantType = allTypes.find((type) => type.id === vagrantTypeId);
+
+  const [adolescentId, setAdolescentId] = useState(ADOLESCENT_EXPERIENCE_TABLES[0].id);
+  const adolescentTable = ADOLESCENT_EXPERIENCE_TABLES.find((table) => table.id === adolescentId) ?? ADOLESCENT_EXPERIENCE_TABLES[0];
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-vagrant">
+      <div className={styles.panelHead}>
+        <h3 id="reference-vagrant">{t('reference.tab.vagrant')}</h3>
+        <p className={styles.note}>{t('reference.vagrantNote')}</p>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.vagrantTypes')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('reference.vagrantCategoryHeader')}</th>
+                <th>{t('reference.vagrantCourses')}</th>
+                <th>{t('reference.vagrantPrimaryClass')}</th>
+                <th>{t('reference.vagrantSubclass')}</th>
+                <th>{t('reference.vagrantRemainingXp')}</th>
+                <th>{t('reference.vagrantLanguages')}</th>
+                <th>{t('reference.vagrantSpecialNotes')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allTypes.map((type) => (
+                <tr key={type.id}>
+                  <th scope="row" className={styles.rowName}>
+                    {type.name}
+                  </th>
+                  <td>{t(`reference.vagrantCategory.${VAGRANT_CATEGORY_LABEL_KEY[type.category]}`)}</td>
+                  <td>{type.courses}</td>
+                  <td>{type.primaryClass}</td>
+                  <td>{type.subclass ?? '—'}</td>
+                  <td>{type.remainingXp}</td>
+                  <td>{type.additionalLanguages}</td>
+                  <td className={styles.prose}>{type.specialNotes || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.vagrantSelectableRaces')}</h4>
+        <div className={styles.controlRow}>
+          <label htmlFor="reference-vagrant-type">{t('reference.vagrantTypes')}</label>
+          <select id="reference-vagrant-type" value={vagrantTypeId} onChange={(event) => setVagrantTypeId(event.target.value)}>
+            {VAGRANT_CATEGORIES.map((category) => (
+              <optgroup key={category} label={t(`reference.vagrantCategory.${VAGRANT_CATEGORY_LABEL_KEY[category]}`)}>
+                {listVagrantTypesByCategory(category).map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        {vagrantType && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('reference.race')}</th>
+                  <th>{t('creation.background')}</th>
+                  <th>
+                    {t('creation.skill')} / {t('creation.body')} / {t('creation.mind')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {vagrantType.selectableRaces.map((entry) => (
+                  <tr key={entry.raceId}>
+                    <th scope="row" className={styles.rowName}>
+                      {getRace(entry.raceId)?.name ?? entry.raceId}
+                    </th>
+                    <td>{entry.background}</td>
+                    <td className={styles.numeric}>{entry.skillBodyMind.join('/')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.vagrantChildhood')}</h4>
+        <p className={styles.note}>{t('reference.vagrantChildhoodNote')}</p>
+        <div className={styles.controlRow}>
+          <label htmlFor="reference-vagrant-childhood-race">{t('reference.race')}</label>
+          <select
+            id="reference-vagrant-childhood-race"
+            value={childhoodRace}
+            onChange={(event) => setChildhoodRace(event.target.value)}
+          >
+            {raceIds.map((raceId) => (
+              <option key={raceId} value={raceId}>
+                {getRace(raceId)?.name ?? raceId}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="reference-vagrant-childhood-category">{t('reference.vagrantCategoryHeader')}</label>
+          <select
+            id="reference-vagrant-childhood-category"
+            value={activeChildhoodCategory}
+            onChange={(event) => setChildhoodCategory(event.target.value as VagrantCategory)}
+          >
+            {childhoodCategories.map((category) => (
+              <option key={category} value={category}>
+                {t(`reference.vagrantCategory.${VAGRANT_CATEGORY_LABEL_KEY[category]}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+        {childhoodTable && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('reference.vagrantRoll')}</th>
+                  <th>{t('reference.vagrantDeprecated')}</th>
+                  <th>{t('reference.vagrantExperienceFocus')}</th>
+                  {ABILITY_IDS.map((id) => (
+                    <th key={id} className={styles.numeric}>
+                      {id}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {childhoodTable.rows.map((row, index) => (
+                  <tr key={`${row.roll}-${index}`}>
+                    <th scope="row" className={styles.numeric}>
+                      {row.roll}
+                    </th>
+                    <td>{row.deprecatedTypes.length > 0 ? row.deprecatedTypes.join(', ') : '—'}</td>
+                    <td>
+                      {row.experience}
+                      {row.focus && <span className={styles.range}>{row.focus}</span>}
+                    </td>
+                    {ABILITY_IDS.map((id) => (
+                      <td key={id} className={styles.numeric}>
+                        {row.correction[id]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.vagrantAdolescent')}</h4>
+        <div className={styles.controlRow}>
+          <label htmlFor="reference-vagrant-adolescent">{t('reference.vagrantAdolescent')}</label>
+          <select id="reference-vagrant-adolescent" value={adolescentId} onChange={(event) => setAdolescentId(event.target.value)}>
+            {ADOLESCENT_EXPERIENCE_TABLES.map((table) => (
+              <option key={table.id} value={table.id}>
+                {table.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.vagrantRoll')}</th>
+                <th>{t('sheet.name')}</th>
+                <th>{t('reference.vagrantCombatFeat')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {adolescentTable.rows.map((row, index) => (
+                <tr key={`${row.roll}-${index}`}>
+                  <th scope="row" className={styles.numeric}>
+                    {row.roll}
+                  </th>
+                  <td>{row.experience}</td>
+                  <td>{row.combatFeats.join(' / ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

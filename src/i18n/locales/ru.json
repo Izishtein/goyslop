@@ -413,7 +413,8 @@
       "equipment": "Снаряжение",
       "mounts": "Маунты",
       "workSkills": "Проф. навыки",
-      "treasureDrop": "Treasure Drop"
+      "treasureDrop": "Treasure Drop",
+      "vagrant": "Vagrant"
     },
     "classDescription": {
       "fighter": "Тяжёлое вооружение и броня — передняя линия и основной источник урона.",
@@ -517,6 +518,29 @@
     "treasurePointsShort": "очк.",
     "treasureEnhancementAbilities": "Список способностей усиления сокровищ",
     "treasureDropTable": "Таблица добычи (Treasure Drop Table)",
-    "category": "Категория/классификация"
+    "category": "Категория/классификация",
+    "vagrantNote": "Альтернативная система создания персонажа для не-авантюриста (Outlaw Profile Book, Часть 1). Вместо свободного выбора класса — Категория и Тип, вместо расовых костей коррекции — броски по таблицам Childhood и Adolescent Experience для своей расы. Ничего отсюда не встроено в создание персонажа — цифры смотрятся здесь и вписываются в лист вручную, так же как Work Skills и Treasure Drop только справочные.",
+    "vagrantTypes": "Категория / Тип",
+    "vagrantCategoryHeader": "Категория",
+    "vagrantCourses": "Курсы",
+    "vagrantPrimaryClass": "Основной класс",
+    "vagrantSubclass": "Подкласс",
+    "vagrantRemainingXp": "Остаток опыта",
+    "vagrantLanguages": "Дополнительные языки",
+    "vagrantSpecialNotes": "Особые заметки",
+    "vagrantCategory": {
+      "warrior": "Warrior",
+      "spy": "Spy",
+      "remoteSupport": "Remote Support",
+      "magicWarrior": "Magic Warrior"
+    },
+    "vagrantSelectableRaces": "Доступные расы по Типу",
+    "vagrantChildhood": "Childhood Experience",
+    "vagrantChildhoodNote": "Заменяет расовые кости коррекции A-F: выбираете расу и Категорию, бросаете 1d66 (1d6 для пяти таблиц с пометкой D6) и берёте напечатанную коррекцию характеристик как есть.",
+    "vagrantRoll": "Бросок",
+    "vagrantDeprecated": "Недоступно для",
+    "vagrantExperienceFocus": "Опыт (фокус)",
+    "vagrantAdolescent": "Adolescent Experience",
+    "vagrantCombatFeat": "Боевая черта"
   }
 }
