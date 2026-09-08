@@ -9,13 +9,27 @@ import {
   MountsReference,
   ItemsReference,
   SpellsReference,
+  TreasureDropReference,
   WorkSkillsReference,
 } from './CatalogReference';
 import { ClassesReference } from './ClassesReference';
 import { RacesReference } from './RacesReference';
 import styles from './ReferenceView.module.css';
 
-const TABS = ['races', 'classes', 'backgrounds', 'spells', 'feats', 'arts', 'evocations', 'equipment', 'mounts', 'items', 'workSkills'] as const;
+const TABS = [
+  'races',
+  'classes',
+  'backgrounds',
+  'spells',
+  'feats',
+  'arts',
+  'evocations',
+  'equipment',
+  'mounts',
+  'items',
+  'workSkills',
+  'treasureDrop',
+] as const;
 type ReferenceTab = (typeof TABS)[number];
 
 const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
@@ -30,6 +44,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   mounts: MountsReference,
   items: ItemsReference,
   workSkills: WorkSkillsReference,
+  treasureDrop: TreasureDropReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

@@ -412,7 +412,8 @@
       "evocations": "Evocations",
       "equipment": "Снаряжение",
       "mounts": "Маунты",
-      "workSkills": "Проф. навыки"
+      "workSkills": "Проф. навыки",
+      "treasureDrop": "Treasure Drop"
     },
     "classDescription": {
       "fighter": "Тяжёлое вооружение и броня — передняя линия и основной источник урона.",
@@ -508,6 +509,14 @@
       "regeneration": "Восстановление"
     },
     "workSkillsNote": "Все 81 профессиональный навык из Raxia Life по шести категориям книги. В каталоге только название, профессия и страница книги — проверки и бонусы по уровню остаются в самой книге.",
-    "workSkillProfession": "Профессия"
+    "workSkillProfession": "Профессия",
+    "treasureDropNote": "Инструмент мастера (Epic Treasury, стр. 69-75), а не особенность персонажа: очки сокровищ тратятся на боевые способности монстра, а за его убийство PC бросают по соответствующей таблице добычи. Полученный предмет игрок вписывает в свой инвентарь вручную — как любую покупку в лавке.",
+    "treasurePointsEstimate": "Таблица оценки очков сокровищ",
+    "adventurerLevelTotal": "Сумма уровней авантюристов PC",
+    "treasurePoints": "Очки сокровищ",
+    "treasurePointsShort": "очк.",
+    "treasureEnhancementAbilities": "Список способностей усиления сокровищ",
+    "treasureDropTable": "Таблица добычи (Treasure Drop Table)",
+    "category": "Категория/классификация"
   }
 }

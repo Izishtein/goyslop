@@ -411,7 +411,8 @@
       "evocations": "Evocations",
       "equipment": "Equipment",
       "mounts": "Mounts",
-      "workSkills": "Work Skills"
+      "workSkills": "Work Skills",
+      "treasureDrop": "Treasure Drop"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -507,6 +508,14 @@
       "regeneration": "Regeneration items"
     },
     "workSkillsNote": "All 81 work skills Raxia Life lists, by the book's own six categories. Only the name, profession and book page are catalogued — the checks and level bonuses stay in the book.",
-    "workSkillProfession": "Profession"
+    "workSkillProfession": "Profession",
+    "treasureDropNote": "A GM tool (Epic Treasury pp. 69-75), not a character feature: spend Treasure Points to give a monster combat abilities, then roll the matching table for the loot it drops. An item a player actually gets goes into their Inventory by hand, like anything bought at a shop.",
+    "treasurePointsEstimate": "Treasure Points Estimate Chart",
+    "adventurerLevelTotal": "Total of the PCs' Adventurer Levels",
+    "treasurePoints": "Treasure Points",
+    "treasurePointsShort": "pts",
+    "treasureEnhancementAbilities": "Treasure Enhancement Abilities List",
+    "treasureDropTable": "Treasure Drop Table",
+    "category": "Category/Classification"
   }
 }

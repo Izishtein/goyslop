@@ -24,6 +24,12 @@ import {
   listMountsByCategory,
 } from '../../data/mounts';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
+import {
+  getTreasureDropTable,
+  TREASURE_DROP_TABLES,
+  TREASURE_ENHANCEMENT_ABILITIES,
+  TREASURE_POINTS_ESTIMATE,
+} from '../../data/treasure-drop';
 import { listWorkSkillsByCategory, WORK_SKILL_CATEGORIES } from '../../data/work-skills';
 import { COMBAT_FEAT_CATEGORIES } from '../../types/character';
 import styles from './ReferenceView.module.css';
@@ -639,6 +645,124 @@ export function WorkSkillsReference() {
           </div>
         </div>
       ))}
+    </section>
+  );
+}
+
+export function TreasureDropReference() {
+  const { t } = useTranslation();
+  const [tableId, setTableId] = useState(TREASURE_DROP_TABLES[0].id);
+  const table = getTreasureDropTable(tableId) ?? TREASURE_DROP_TABLES[0];
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-treasure-drop">
+      <div className={styles.panelHead}>
+        <h3 id="reference-treasure-drop">{t('reference.tab.treasureDrop')}</h3>
+        <p className={styles.note}>{t('reference.treasureDropNote')}</p>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.treasurePointsEstimate')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.adventurerLevelTotal')}</th>
+                <th>{t('reference.treasurePoints')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {TREASURE_POINTS_ESTIMATE.map((estimate) => (
+                <tr key={estimate.levelRange}>
+                  <th scope="row" className={styles.rowName}>
+                    {estimate.levelRange}
+                  </th>
+                  <td className={styles.numeric}>{estimate.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.treasureEnhancementAbilities')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <th key={index} className={styles.numeric}>
+                    {index + 1}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {TREASURE_ENHANCEMENT_ABILITIES.map((ability) => (
+                <tr key={ability.name}>
+                  <th scope="row" className={styles.rowName}>
+                    {ability.name}
+                  </th>
+                  {ability.costs.map((cost, index) => (
+                    <td key={index} className={styles.numeric}>
+                      {cost ?? '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          {TREASURE_ENHANCEMENT_ABILITIES.map((ability) => (
+            <li key={ability.name}>
+              <strong>{ability.name}.</strong> {ability.description}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className={styles.group}>
+        <div className={styles.controlRow}>
+          <label htmlFor="reference-treasure-table">{t('reference.treasureDropTable')}</label>
+          <select id="reference-treasure-table" value={tableId} onChange={(event) => setTableId(event.target.value)}>
+            {TREASURE_DROP_TABLES.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.table} ({entry.points} {t('reference.treasurePointsShort')})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {table.groups.map((group) => (
+          <div key={group.group} className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>1d {group.group}</th>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('reference.category')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {group.rows.map((item, index) => (
+                  <tr key={`${group.group}-${index}`}>
+                    <th scope="row" className={styles.numeric}>
+                      {index + 1}
+                    </th>
+                    <td>{item.name}</td>
+                    <td>{item.category}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+
+        {table.footnotes && table.footnotes.length > 0 && <p className={styles.note}>{table.footnotes.join(' ')}</p>}
+      </div>
     </section>
   );
 }
