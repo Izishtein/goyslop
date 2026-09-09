@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackgroundsReference } from './BackgroundsReference';
 import {
+  AdvancedCombatReference,
   ArtsReference,
   CombatFeatsReference,
   EquipmentReference,
@@ -31,6 +32,7 @@ const TABS = [
   'workSkills',
   'treasureDrop',
   'vagrant',
+  'advancedCombat',
 ] as const;
 type ReferenceTab = (typeof TABS)[number];
 
@@ -48,6 +50,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   workSkills: WorkSkillsReference,
   treasureDrop: TreasureDropReference,
   vagrant: VagrantReference,
+  advancedCombat: AdvancedCombatReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

@@ -414,7 +414,8 @@
       "mounts": "Маунты",
       "workSkills": "Проф. навыки",
       "treasureDrop": "Treasure Drop",
-      "vagrant": "Vagrant"
+      "vagrant": "Vagrant",
+      "advancedCombat": "Advanced Combat"
     },
     "classDescription": {
       "fighter": "Тяжёлое вооружение и броня — передняя линия и основной источник урона.",
@@ -541,6 +542,19 @@
     "vagrantDeprecated": "Недоступно для",
     "vagrantExperienceFocus": "Опыт (фокус)",
     "vagrantAdolescent": "Adolescent Experience",
-    "vagrantCombatFeat": "Боевая черта"
+    "vagrantCombatFeat": "Боевая черта",
+    "advancedCombatNote": "Правила мастера для боя на настоящем 2D-поле (Epic Treasury, стр. 78-91) вместо абстрактного учёта «в бою / независим» из упрощённого и стандартного боя. Здесь нет ничего о персонаже — только то, как мастер ведёт позиции, движение и дистанцию в метрах. На весь раздел — всего четыре небольшие справочные таблицы, остальное — процедура для стола.",
+    "combatOpeningDistances": "Рекомендуемые дистанции начала боя",
+    "situation": "Ситуация",
+    "distance": "Дистанция",
+    "movementDistances": "Тип движения и дистанция",
+    "movementType": "Тип движения",
+    "skirmishRange": "Skirmish Range Table (размер стычки)",
+    "participants": "Участников",
+    "outdoorRadius": "Радиус на улице",
+    "indoorSize": "Размер в помещении",
+    "surpriseModifiers": "Бонусы и штрафы к внезапности",
+    "condition": "Условие",
+    "modification": "Модификатор"
   }
 }

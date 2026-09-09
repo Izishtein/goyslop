@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ABYSS_CURSES, enhancementsFor, type AbyssTarget } from '../../data/abyss';
+import {
+  COMBAT_OPENING_DISTANCES,
+  MOVEMENT_DISTANCES,
+  SKIRMISH_RANGE,
+  SURPRISE_MODIFIERS,
+} from '../../data/advanced-combat';
 import { listArtsByKind, type ArtKind } from '../../data/arts';
 import { COMBAT_FEATS } from '../../data/combat-feats';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
@@ -985,6 +991,117 @@ export function VagrantReference() {
                   </th>
                   <td>{row.experience}</td>
                   <td>{row.combatFeats.join(' / ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function AdvancedCombatReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-advanced-combat">
+      <div className={styles.panelHead}>
+        <h3 id="reference-advanced-combat">{t('reference.tab.advancedCombat')}</h3>
+        <p className={styles.note}>{t('reference.advancedCombatNote')}</p>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.combatOpeningDistances')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.situation')}</th>
+                <th>{t('reference.distance')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMBAT_OPENING_DISTANCES.map((row) => (
+                <tr key={row.situation}>
+                  <th scope="row" className={styles.rowName}>
+                    {row.situation}
+                  </th>
+                  <td>{row.distance}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.movementDistances')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.movementType')}</th>
+                <th>{t('reference.distance')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MOVEMENT_DISTANCES.map((row) => (
+                <tr key={row.type}>
+                  <th scope="row" className={styles.rowName}>
+                    {row.type}
+                  </th>
+                  <td>{row.distance}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.skirmishRange')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.participants')}</th>
+                <th>{t('reference.outdoorRadius')}</th>
+                <th>{t('reference.indoorSize')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SKIRMISH_RANGE.map((row) => (
+                <tr key={row.participants}>
+                  <th scope="row" className={styles.rowName}>
+                    {row.participants}
+                  </th>
+                  <td>{row.outdoorRadius}</td>
+                  <td>{row.indoorSize}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.surpriseModifiers')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.condition')}</th>
+                <th>{t('reference.modification')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SURPRISE_MODIFIERS.map((row) => (
+                <tr key={row.condition}>
+                  <th scope="row" className={styles.rowName}>
+                    {row.condition}
+                  </th>
+                  <td>{row.modification}</td>
                 </tr>
               ))}
             </tbody>

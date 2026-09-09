@@ -413,7 +413,8 @@
       "mounts": "Mounts",
       "workSkills": "Work Skills",
       "treasureDrop": "Treasure Drop",
-      "vagrant": "Vagrant"
+      "vagrant": "Vagrant",
+      "advancedCombat": "Advanced Combat"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -540,6 +541,19 @@
     "vagrantDeprecated": "Deprecated for",
     "vagrantExperienceFocus": "Experience (Focus)",
     "vagrantAdolescent": "Adolescent Experience",
-    "vagrantCombatFeat": "Combat Feat"
+    "vagrantCombatFeat": "Combat Feat",
+    "advancedCombatNote": "A GM ruleset for running combat on a real 2D battlefield (Epic Treasury pp. 78-91) instead of the abstract melee/independent bookkeeping of Simplified and Standard Combat. Nothing here describes a character — only how the GM manages positions, movement and range in meters. Four small lookup tables exist in the whole section; everything else is procedure to run at the table.",
+    "combatOpeningDistances": "Combat Opening Recommended Distances",
+    "situation": "Situation",
+    "distance": "Distance",
+    "movementDistances": "Movement Type and Distance",
+    "movementType": "Movement type",
+    "skirmishRange": "Skirmish Range Table",
+    "participants": "Participants",
+    "outdoorRadius": "Outdoor radius",
+    "indoorSize": "Indoor size",
+    "surpriseModifiers": "Bonuses and Penalties for Surprises",
+    "condition": "Condition",
+    "modification": "Modification"
   }
 }
