@@ -14,11 +14,15 @@ describe('spell catalog', () => {
       // Core I: 20 basic + 16 specialized. Core II: 12 basic, 2 more for each of the eight
       // Core I deities and 4 each for the five new ones. Core III circles 11-15: 14 base
       // (see docs/sheet-content/24-divine-magic-11-15.md) + one circle-13 specialization
-      // per deity (13).
-      'Divine Magic': 36 + 12 + 16 + 20 + 14 + 13,
+      // per deity (13). Magus Arts: 3 base "‡" alternates + full 2/4/7/10/13 ladders for 14
+      // more deities (6 First/Third Sword, 8 Second Sword) — see
+      // docs/sheet-content/28-divine-first-third-sword.md and 29-divine-second-sword-and-magitech-delta.md.
+      'Divine Magic': 36 + 12 + 16 + 20 + 14 + 13 + 3 + 14 * 5,
       // Core I + Core II circles 7-10, Core III circles 11-15 (16) plus Automobile II, a
       // circle 7 gap the same page range turned up — see docs/sheet-content/25-magitech-11-15.md.
-      Magitech: 23 + 14 + 16 + 1,
+      // Magus Arts adds 19 more, the book's own stated count — see
+      // docs/sheet-content/29-divine-second-sword-and-magitech-delta.md.
+      Magitech: 23 + 14 + 16 + 1 + 19,
       // Six elemental types of ten (Core II) + five more each from Core III (30), the Basic
       // type across all 15 circles (15), and Special Fairy Magic (5) — see
       // docs/sheet-content/26-fairy-magic-complete.md.
@@ -33,7 +37,7 @@ describe('spell catalog', () => {
       // Magus Arts pp. 95-100, no owning class — see docs/sheet-content/27-deep-magic.md.
       'Deep Magic': 31,
     });
-    expect(SPELLS).toHaveLength(398 + 28 + 29 + 27 + 17 + 50 + 31);
+    expect(SPELLS).toHaveLength(398 + 28 + 29 + 27 + 17 + 50 + 31 + 3 + 14 * 5 + 19);
   });
 
   it('has unique ids', () => {
@@ -79,7 +83,10 @@ describe('spell catalog', () => {
     // and Core III adds one circle-13 specialization per deity for all thirteen alike — the
     // specialization ladder stops there (2 -> 4 -> 7 -> 10 -> 13), confirmed by both Russian
     // digests (see docs/sheet-content/24-divine-magic-11-15.md).
-    expect(byDeity.size).toBe(13);
+    // Magus Arts adds 14 more deities (6 First/Third Sword, 8 Second Sword) with the same
+    // five-circle ladder — see docs/sheet-content/28-divine-first-third-sword.md and
+    // 29-divine-second-sword-and-magitech-delta.md.
+    expect(byDeity.size).toBe(13 + 14);
     for (const [deity, circles] of byDeity) {
       expect({ deity, circles: [...circles].sort((a, b) => a - b) }).toEqual({ deity, circles: [2, 4, 7, 10, 13] });
     }

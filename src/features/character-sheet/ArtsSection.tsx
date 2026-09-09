@@ -361,7 +361,6 @@ export function ArtsSection({ character }: { character: Character }) {
         <label htmlFor="add-art">{t('sheet.addArt')}</label>
         <select id="add-art" value={artId} onChange={(e) => setArtId(e.target.value)}>
           <option value="">{t('creation.selectPlaceholder')}</option>
-          {/* Everything printed so far unlocks at class level 1 or 5. */}
           {[...new Set(options.map((art) => art.requiredLevel))].map((level) => (
             <optgroup
               key={level}

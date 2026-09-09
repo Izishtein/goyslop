@@ -1,6 +1,8 @@
 /**
- * Techniques, Spellsongs and Finales — Core Rulebook II pp. 182–197, transcribed in
- * docs/sheet-content/12-techniques-spellsongs.md.
+ * Techniques, Spellsongs and Finales. Core Rulebook II pp. 182–197 (docs/sheet-content/12-
+ * techniques-spellsongs.md) supplies the 1st/5th level rows; the 10th level Spellsongs and
+ * Finales come from Core Rulebook III pp. 176–179 (docs/sheet-content/30-spellsongs-finales-
+ * additional.md).
  *
  * Three systems belonging to two Minor classes: the Enhancer's Techniques and the Bard's
  * Spellsongs and Finales. They do not fit the spell table — no circle, no MP, and a
@@ -142,6 +144,21 @@ const SPELLSONGS: ArtDefinition[] = [
   spellsong('Break', 5, false, 'Frog, Insect', '♩2', 18, '♩1', 'Neg', 'Psychic'),
   spellsong('Love Song', 5, true, '—', '♡2', 18, '♩1', 'Neg', 'Psychic (Weak)', '♩6♡6'),
   spellsong('Lullaby', 5, true, '—', '♡2', 18, '♡1', 'Neg', 'Psychic (Weak)', '♩4♡4'),
+
+  /**
+   * Core Rulebook III pp. 176-178 (Magus Arts pp. 167-169 is a verified word-for-word
+   * reprint) — docs/sheet-content/30-spellsongs-finales-additional.md. The book draws two
+   * visually distinct note glyphs (flag up/down) that the existing rows above already
+   * collapse into a single ♩ (compare Early Bird and Ambience, drawn with opposite flags in
+   * the source but both stored as ♩1 here) — kept that same convention for consistency.
+   */
+  spellsong('Clap', 10, false, 'Bird', '♡2', 24, '♩2', 'Neg', 'Psychic', '♩4♡2'),
+  spellsong('Chorus', 10, true, '—', '♡2', 24, '♡2', 'Neg', 'Psychic', '♡6'),
+  spellsong('Dare', 10, false, 'Frog', '♩2', 24, '♩2', 'Neg', 'Psychic'),
+  spellsong('Dance', 10, false, '—', '♡2', 24, '♩2', 'Neg', 'Psychic', '♩4♡2'),
+  spellsong('Fall', 10, false, 'Insect', '♩2', 24, '♩2', 'Neg', 'Psychic', '♩6'),
+  spellsong('Reduction', 10, false, 'Bird, Frog, Insect', '♡2', 24, '♩2', "Can't", 'Psychic', '♩2♡4'),
+  spellsong('Lazy', 10, false, 'Bird, Frog, Insect', '♡2', 24, '♩2', 'Neg', 'Psychic', '♩4♡2'),
 ];
 
 /** Core II pp. 195–197. */
@@ -154,6 +171,12 @@ const FINALES: ArtDefinition[] = [
   finale('Breath of the Meadows', 5, '♩2♡2', 'Optional', '—'),
   finale('Banquet of Flowers', 5, '♩2♡2', 'Optional', '—'),
   finale('Screaming Snake-pit Symphony', 5, '♩4', 'Half', 'Curse'),
+
+  /** Core Rulebook III pp. 178-179 (Magus Arts pp. 170-171 reprint) — same doc as above. */
+  finale('Dance of the Fire Dragon', 10, '♩6', 'Half', 'Fire and Wind'),
+  finale('Roar of the Water Dragon', 10, '♩6', 'Half', 'Water/Ice and Lightning'),
+  finale('Blue Moon Light', 10, '♩3♡3', 'Optional', '—'),
+  finale('Bright Sunshine', 10, '♩3♡3', 'Optional', '—'),
 ];
 
 export const ARTS: ArtDefinition[] = [...TECHNIQUES, ...SPELLSONGS, ...FINALES];

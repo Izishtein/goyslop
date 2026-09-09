@@ -151,7 +151,7 @@ Core I: 20 заклинаний (круги 1–6). Core II добавляет: 
 | **Lyphos** (Divine Ancestor) | 7 | Peace | 8 | Зона 6m: провалившие — нейтральны и не участвуют в бою; Instant/1 Hour; Type Psychic; Neg |
 | Lyphos | 10 | Grace of Lumiere | 10 | Цель получает одну из Sword's Grace (Change Fate / Gentle Water / Body of Flame / Wings of Wind); нельзя выбрать уже имеющуюся; на уровне 1 вне зависимости от кастера; Neg |
 | **Tidan** (God of the Sun) | 7 | Fine Weather | 8 | Все зоны в радиусе 1km: ясное небо 3 часа (без дождя, снега, ветра); Can't |
-| Tidan | 10 | Daybreak | — | (данные не подтверждены — страница обрезана) |
+| Tidan | 10 | Daybreak | 10 | MP подтверждена по Magus Arts p. 110 (см. `28-divine-first-third-sword.md`) — исходная страница Core II была обрезана |
 | **Kilhia** (God of Wisdom) | 7 | Inspiration | 4 | — |
 | Kilhia | 10 | Precognition | 6 | — |
 | **Sien** (Goddess of the Moon) | 7 | Shatter Symbol | 1 | — |

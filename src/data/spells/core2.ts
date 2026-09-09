@@ -63,7 +63,9 @@ export const CORE2_SPELLS: SpellDefinition[] = [
   spell(DIVINE, 7, 'Peace', 8, { deity: 'Lyphos' }),
   spell(DIVINE, 10, 'Grace of Lumiere', 10, { deity: 'Lyphos' }),
   spell(DIVINE, 7, 'Fine Weather', 8, { deity: 'Tidan' }),
-  spell(DIVINE, 10, 'Daybreak', undefined, { deity: 'Tidan' }),
+  // MP confirmed by Magus Arts p. 110, which reprints the spell unambiguously (the Core II
+  // page this was originally read from was cut off) — see docs/sheet-content/28-divine-first-third-sword.md.
+  spell(DIVINE, 10, 'Daybreak', 10, { deity: 'Tidan' }),
   spell(DIVINE, 7, 'Inspiration', 4, { deity: 'Kilhia' }),
   spell(DIVINE, 10, 'Precognition', 6, { deity: 'Kilhia' }),
   spell(DIVINE, 7, 'Shatter Symbol', 1, { deity: 'Sien' }),
