@@ -149,6 +149,37 @@ describe('SpellsSection', () => {
     });
   });
 
+  it('grants Deep Magic only when the character holds both Sorcerer and Conjurer', async () => {
+    const user = userEvent.setup();
+    // Sorcerer 5 / Conjurer 3: Deep Magic's circle cap is the LOWER of the two (3), not the
+    // higher, the opposite of every other school — see data/spells/deep.ts.
+    const store = renderSection(
+      makeCharacter({ classes: [{ classId: 'sorcerer', level: 5 }, { classId: 'conjurer', level: 3 }] }),
+    );
+
+    const select = screen.getByLabelText('School');
+    const schoolNames = within(select).getAllByRole('option').map((option) => option.textContent);
+    expect(schoolNames).toContain('Deep Magic');
+
+    await user.selectOptions(select, 'Deep Magic');
+    const groups = [...screen.getByLabelText('Add from catalog').querySelectorAll('optgroup')].map((g) => g.label);
+    expect(groups).toContain('Circle 3');
+    expect(groups.find((label) => label.startsWith('Circle 4'))).toContain('above class level');
+
+    await user.selectOptions(screen.getByLabelText('Add from catalog'), 'minor-illusion');
+    await user.click(screen.getByRole('button', { name: 'Add spell' }));
+    expect(store.get(charactersAtom)[0].spells[0]).toMatchObject({ name: 'Minor Illusion', school: 'Deep Magic' });
+  });
+
+  it('does not offer Deep Magic with only one of the two classes', () => {
+    // Sorcerer + Priest (Divine Magic) gives two pickable schools, so the School select
+    // renders — but neither of them should be Deep Magic without a Conjurer level too.
+    renderSection(makeCharacter({ classes: [{ classId: 'sorcerer', level: 5 }, { classId: 'priest', level: 1 }] }));
+    const select = screen.getByLabelText('School');
+    const schoolNames = within(select).getAllByRole('option').map((option) => option.textContent);
+    expect(schoolNames).not.toContain('Deep Magic');
+  });
+
   it('says so when the character has no Wizard-type class at all', () => {
     renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 1 }] }));
 

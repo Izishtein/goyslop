@@ -11,12 +11,18 @@ describe('spell catalog', () => {
       // The +1 is Possession, a circle 9 spell missing from our Core I/II transcription
       // and found by the cross-check — see data/spells/core3.ts.
       'Spiritualism Magic': 21 + 16 + 13 + 1,
-      // Core I: 20 basic + 16 specialized. Core II: 12 basic, 2 more for each of the
-      // eight Core I deities and 4 each for the five new ones.
-      'Divine Magic': 36 + 12 + 16 + 20,
-      Magitech: 23 + 14,
-      // Six elemental types of ten; the Basic type is unverified in the source doc.
-      'Fairy Magic': 60,
+      // Core I: 20 basic + 16 specialized. Core II: 12 basic, 2 more for each of the eight
+      // Core I deities and 4 each for the five new ones. Core III circles 11-15: 14 base
+      // (see docs/sheet-content/24-divine-magic-11-15.md) + one circle-13 specialization
+      // per deity (13).
+      'Divine Magic': 36 + 12 + 16 + 20 + 14 + 13,
+      // Core I + Core II circles 7-10, Core III circles 11-15 (16) plus Automobile II, a
+      // circle 7 gap the same page range turned up — see docs/sheet-content/25-magitech-11-15.md.
+      Magitech: 23 + 14 + 16 + 1,
+      // Six elemental types of ten (Core II) + five more each from Core III (30), the Basic
+      // type across all 15 circles (15), and Special Fairy Magic (5) — see
+      // docs/sheet-content/26-fairy-magic-complete.md.
+      'Fairy Magic': 60 + 30 + 15 + 5,
       // Monstrous Lore and Abyss Breaker run to level 15: four Nature spells per level,
       // three Summoning Arts per level (four at level 2), two or three Abyssal per level.
       'Nature Magic': 60,
@@ -24,8 +30,10 @@ describe('spell catalog', () => {
       'Abyssal Magic': 35,
       // Bibliomancer, five ranks — see docs/sheet-content/17-arcane-magic.md.
       'Arcane Magic': 28,
+      // Magus Arts pp. 95-100, no owning class — see docs/sheet-content/27-deep-magic.md.
+      'Deep Magic': 31,
     });
-    expect(SPELLS).toHaveLength(398 + 28 + 29);
+    expect(SPELLS).toHaveLength(398 + 28 + 29 + 27 + 17 + 50 + 31);
   });
 
   it('has unique ids', () => {
@@ -33,22 +41,14 @@ describe('spell catalog', () => {
   });
 
   it('keeps every spell inside the printed circles', () => {
-    // Divine, Magitech and Fairy Magic still stop at circle 10 here — their circles 11-15
-    // sit in Core III Part 3 and are not transcribed yet (roadmap § 1.0). Truespeech and
-    // Spiritualism already reach 15, as do the three supplement schools. Arcane Magic's five
-    // ranks unlock as late as level 13, stored as a pseudo-circle (see data/spells/arcane.ts).
-    const toFifteen = [
-      'Truespeech Magic',
-      'Spiritualism Magic',
-      'Nature Magic',
-      'Summoning Arts',
-      'Abyssal Magic',
-      'Arcane Magic',
-    ];
-    const topCircle = (school: string) => (toFifteen.includes(school) ? 15 : 10);
+    // Every catalogued school now reaches circle 15 (§ 1.0 closed the last four holdouts —
+    // Divine, Magitech and Fairy Magic — and added Deep Magic, itself capped at 15). Arcane
+    // Magic's five ranks unlock as late as level 13, stored as a pseudo-circle (see
+    // data/spells/arcane.ts); Fairy Magic's Special list stores its own Rank 1-5 the same way
+    // (see data/spells/fairy.ts) — both comfortably inside the 15 ceiling.
     for (const spell of SPELLS) {
       expect(spell.circle).toBeGreaterThanOrEqual(1);
-      expect(spell.circle).toBeLessThanOrEqual(topCircle(spell.school));
+      expect(spell.circle).toBeLessThanOrEqual(15);
       if (spell.mp !== undefined) expect(spell.mp).toBeGreaterThanOrEqual(0);
     }
   });
@@ -74,19 +74,35 @@ describe('spell catalog', () => {
       if (!spell.deity) continue;
       byDeity.set(spell.deity, [...(byDeity.get(spell.deity) ?? []), spell.circle]);
     }
-    // Every deity ends up with the same four: the eight Core I gods have circles 2 and 4
-    // from Core I plus 7 and 10 from Core II, and the five Core II gods arrive with all four.
+    // Every deity ends up with the same five: the eight Core I gods have circles 2 and 4 from
+    // Core I plus 7 and 10 from Core II, the five Core II gods arrive with 2/4/7/10 outright,
+    // and Core III adds one circle-13 specialization per deity for all thirteen alike — the
+    // specialization ladder stops there (2 -> 4 -> 7 -> 10 -> 13), confirmed by both Russian
+    // digests (see docs/sheet-content/24-divine-magic-11-15.md).
     expect(byDeity.size).toBe(13);
     for (const [deity, circles] of byDeity) {
-      expect({ deity, circles: [...circles].sort((a, b) => a - b) }).toEqual({ deity, circles: [2, 4, 7, 10] });
+      expect({ deity, circles: [...circles].sort((a, b) => a - b) }).toEqual({ deity, circles: [2, 4, 7, 10, 13] });
     }
   });
 
   it('names schools exactly as the class catalog does, so the sheet can match them up', () => {
     const classSchools = new Set(CLASSES.map((classDef) => classDef.magicSchool).filter(Boolean));
+    // Deep Magic is the one deliberate exception: no class's magicSchool names it, since a
+    // character gains it from holding both Sorcerer and Conjurer at once rather than from a
+    // single class — SpellsSection special-cases that pairing instead of doing a lookup here.
     for (const school of CATALOGUED_SCHOOLS) {
+      if (school === 'Deep Magic') continue;
       expect(classSchools).toContain(school);
     }
+    expect(classSchools).not.toContain('Deep Magic');
+  });
+
+  it('gives Deep Magic every circle 1-15 and no owning class', () => {
+    const deepSpells = listSpellsBySchool('Deep Magic');
+    expect(deepSpells).toHaveLength(31);
+    expect(deepSpells.every((spell) => spell.sourceBook === 'Magus Arts')).toBe(true);
+    const circles = [...new Set(deepSpells.map((spell) => spell.circle))].sort((a, b) => a - b);
+    expect(circles).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
   });
 
   it('sorts a school by circle', () => {

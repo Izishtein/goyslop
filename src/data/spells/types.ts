@@ -37,6 +37,8 @@ export const NATURE = 'Nature Magic';
 export const SUMMONING = 'Summoning Arts';
 export const ABYSSAL = 'Abyssal Magic';
 export const ARCANE = 'Arcane Magic';
+/** Not owned by any single class — automatically gained by mastering both Sorcerer and Conjurer. See `deep.ts`. */
+export const DEEP_MAGIC = 'Deep Magic';
 
 export function spellId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

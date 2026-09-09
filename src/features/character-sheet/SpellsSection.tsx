@@ -1,19 +1,31 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
-import { CATALOGUED_SCHOOLS, getSpell, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
+import { CATALOGUED_SCHOOLS, DEEP_MAGIC, getSpell, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
 
+/** Highest level the character has in a given class id — 0 if they don't have it at all. */
+function classLevel(character: Character, classId: string): number {
+  return character.classes
+    .filter((entry) => entry.classId === classId)
+    .reduce((max, entry) => Math.max(max, entry.level), 0);
+}
+
 /** The schools this character casts from, in class order — Wizard-type classes only. */
 function magicSchoolsOf(character: Character): string[] {
   const schools = character.classes
-    .map((classLevel) => getClass(classLevel.classId))
+    .map((entry) => getClass(entry.classId))
     .filter((classDef) => classDef?.type === 'wizard')
     .map((classDef) => classDef?.magicSchool)
     .filter((school): school is string => Boolean(school));
+  // Deep Magic has no owning class (see data/spells/deep.ts) — it's automatically gained by
+  // mastering both Sorcerer and Conjurer instead of coming from a single class's magicSchool.
+  if (classLevel(character, 'sorcerer') > 0 && classLevel(character, 'conjurer') > 0) {
+    schools.push(DEEP_MAGIC);
+  }
   return [...new Set(schools)];
 }
 
@@ -24,9 +36,14 @@ function circlesIn(spells: SpellDefinition[]): number[] {
 
 /** Highest level among the classes that cast from this school — the circle they know up to. */
 function schoolLevel(character: Character, school: string): number {
+  if (school === DEEP_MAGIC) {
+    // Available circle = the LOWER of the two class levels, not the higher — the opposite of
+    // every other school, since Deep Magic requires both classes at once rather than one.
+    return Math.min(classLevel(character, 'sorcerer'), classLevel(character, 'conjurer'));
+  }
   return character.classes
-    .filter((classLevel) => getClass(classLevel.classId)?.magicSchool === school)
-    .reduce((max, classLevel) => Math.max(max, classLevel.level), 0);
+    .filter((entry) => getClass(entry.classId)?.magicSchool === school)
+    .reduce((max, entry) => Math.max(max, entry.level), 0);
 }
 
 export function SpellsSection({ character }: { character: Character }) {
