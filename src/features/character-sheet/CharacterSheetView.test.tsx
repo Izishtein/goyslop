@@ -60,6 +60,9 @@ function makeCharacter(): Character {
     stunts: [],
     aspects: [],
     geomancerQi: EMPTY_GEOMANCER_QI,
+    stratagems: [],
+    maneuvers: [],
+    tacticianEdge: 0,
   };
 }
 

@@ -340,6 +340,30 @@ export type GeomancerQi = z.infer<typeof GeomancerQiSchema>;
 
 export const EMPTY_GEOMANCER_QI: GeomancerQi = { heavenly: 0, earthly: 0, spirit: 0 };
 
+/** Tactician Stratagems and Maneuvers (Magus Arts pp. 29-41) — see data/tactician.ts. One
+ *  shared slot pool per Tactician class level: "the total number of Stratagems and
+ *  Maneuvers acquired is equal to the Tactician class level" (p. 29), a Maneuver slot is not
+ *  a separate pool from a Stratagem slot. */
+export const STRATAGEM_TYPES = ['attack', 'evasion', 'defense', 'resistance', 'inspirational'] as const;
+export const StratagemTypeSchema = z.enum(STRATAGEM_TYPES);
+export type StratagemType = z.infer<typeof StratagemTypeSchema>;
+
+export const KnownStratagemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: StratagemTypeSchema,
+  rank: z.number().int().min(1).max(5),
+  notes: z.string().default(''),
+});
+export type KnownStratagem = z.infer<typeof KnownStratagemSchema>;
+
+export const KnownManeuverSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  notes: z.string().default(''),
+});
+export type KnownManeuver = z.infer<typeof KnownManeuverSchema>;
+
 export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
 export const ArtKindSchema = z.enum(ART_KINDS);
 
@@ -508,6 +532,13 @@ export const CharacterSchema = z.object({
   /** Geomancer Domain Aspects — see KnownAspectSchema. One slot per Geomancer class level. */
   aspects: z.array(KnownAspectSchema).default(() => []),
   geomancerQi: GeomancerQiSchema.default(() => EMPTY_GEOMANCER_QI),
+  /** Tactician Stratagems and Maneuvers — see KnownStratagemSchema/KnownManeuverSchema.
+   *  One shared slot pool per Tactician class level (stratagems.length + maneuvers.length). */
+  stratagems: z.array(KnownStratagemSchema).default(() => []),
+  maneuvers: z.array(KnownManeuverSchema).default(() => []),
+  /** Edge (Magus Arts p. 31): accumulates only during combat, like Qi Points for the
+   *  Geomancer — the sheet tracks the current value, not the round-by-round rules. */
+  tacticianEdge: z.number().int().min(0).default(0),
   performance: PerformanceSchema.default(() => EMPTY_PERFORMANCE),
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */

@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { combatFeatSlots, combatFeatsSpendingSlots, meetsStrength, requiredStrength, stuntSlots } from './requirements';
+import {
+  aspectSlots,
+  combatFeatSlots,
+  combatFeatsSpendingSlots,
+  meetsStrength,
+  requiredStrength,
+  stuntSlots,
+  tacticianSlots,
+} from './requirements';
 import type { CombatFeat } from '../../types/character';
 
 describe('requiredStrength', () => {
@@ -61,5 +69,25 @@ describe('stuntSlots', () => {
 
   it('never goes negative', () => {
     expect(stuntSlots(-3)).toBe(0);
+  });
+});
+
+describe('aspectSlots', () => {
+  it('gives one slot per Geomancer level, including the first', () => {
+    expect([0, 1, 5, 10, 15].map(aspectSlots)).toEqual([0, 1, 5, 10, 15]);
+  });
+
+  it('never goes negative', () => {
+    expect(aspectSlots(-3)).toBe(0);
+  });
+});
+
+describe('tacticianSlots', () => {
+  it('gives one shared slot per Tactician level, including the first', () => {
+    expect([0, 1, 5, 10, 15].map(tacticianSlots)).toEqual([0, 1, 5, 10, 15]);
+  });
+
+  it('never goes negative', () => {
+    expect(tacticianSlots(-3)).toBe(0);
   });
 });

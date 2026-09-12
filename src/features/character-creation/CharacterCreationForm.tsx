@@ -159,6 +159,9 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       stunts: [],
       aspects: [],
       geomancerQi: EMPTY_GEOMANCER_QI,
+      stratagems: [],
+      maneuvers: [],
+      tacticianEdge: 0,
     };
 
     const parsed = CharacterSchema.parse(character);

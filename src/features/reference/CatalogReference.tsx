@@ -32,6 +32,7 @@ import {
 } from '../../data/mounts';
 import { getRace } from '../../data/races';
 import { STUNTS } from '../../data/stunts';
+import { listManeuversByLevel, listStratagemsByLevel } from '../../data/tactician';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
 import {
   getTreasureDropTable,
@@ -778,6 +779,82 @@ export function GeomancerReference() {
           </table>
         </div>
       </div>
+    </section>
+  );
+}
+
+const STRATAGEM_LEVELS = [1, 5, 10] as const;
+const MANEUVER_LEVELS = [1, 5] as const;
+
+export function TacticianReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-tactician">
+      <div className={styles.panelHead}>
+        <h3 id="reference-tactician">{t('reference.tab.tactician')}</h3>
+        <p className={styles.note}>{t('reference.tacticianNote')}</p>
+      </div>
+
+      <h4>{t('sheet.stratagems')}</h4>
+      {STRATAGEM_LEVELS.map((level) => (
+        <div key={level} className={styles.group}>
+          <h4>{t('sheet.levelRequired', { level })}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('sheet.stratagemType')}</th>
+                  <th>{t('sheet.stratagemRank')}</th>
+                  <th>{t('sheet.edge')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listStratagemsByLevel(level).map((entry) => (
+                  <tr key={entry.id}>
+                    <th scope="row" className={styles.rowName}>
+                      {entry.name}
+                    </th>
+                    <td>{t(`sheet.stratagemTypeName.${entry.type}`)}</td>
+                    <td className={styles.numeric}>{entry.rank}</td>
+                    <td>{entry.edgeCost > 0 ? `-${entry.edgeCost}` : `+${entry.edgeAccumulation}`}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      <h4>{t('sheet.maneuvers')}</h4>
+      {MANEUVER_LEVELS.map((level) => (
+        <div key={level} className={styles.group}>
+          <h4>{t('sheet.levelRequired', { level })}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('sheet.edge')}</th>
+                  <th>{t('sheet.stuntPrerequisite')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listManeuversByLevel(level).map((entry) => (
+                  <tr key={entry.id}>
+                    <th scope="row" className={styles.rowName}>
+                      {entry.name}
+                    </th>
+                    <td className={styles.numeric}>{entry.edgeCost > 0 ? `-${entry.edgeCost}` : '—'}</td>
+                    <td>{entry.prerequisite ?? entry.condition ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
     </section>
   );
 }

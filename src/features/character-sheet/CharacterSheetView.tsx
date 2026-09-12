@@ -21,6 +21,7 @@ import { FellowSection } from './FellowSection';
 import { WorkSkillsSection } from './WorkSkillsSection';
 import { MountsSection } from './MountsSection';
 import { GeomancerSection } from './GeomancerSection';
+import { TacticianSection } from './TacticianSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
 import styles from './CharacterSheetView.module.css';
@@ -205,6 +206,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <MountsSection character={character} />
 
       <GeomancerSection character={character} />
+
+      <TacticianSection character={character} />
 
       <CombatFeatsSection character={character} />
 

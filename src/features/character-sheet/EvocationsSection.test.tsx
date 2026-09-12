@@ -53,6 +53,9 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     stunts: [],
     aspects: [],
     geomancerQi: EMPTY_GEOMANCER_QI,
+    stratagems: [],
+    maneuvers: [],
+    tacticianEdge: 0,
     ...overrides,
   };
 }

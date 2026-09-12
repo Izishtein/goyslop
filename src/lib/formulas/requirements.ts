@@ -42,3 +42,10 @@ export function stuntSlots(riderLevel: number): number {
 export function aspectSlots(geomancerLevel: number): number {
   return Math.max(0, geomancerLevel);
 }
+
+/** Tactician Stratagem/Maneuver slots: "the total number of Stratagems and Maneuvers
+ *  acquired is equal to the Tactician class level" (Magus Arts p. 29) — one shared pool,
+ *  not one slot count per kind. */
+export function tacticianSlots(tacticianLevel: number): number {
+  return Math.max(0, tacticianLevel);
+}
