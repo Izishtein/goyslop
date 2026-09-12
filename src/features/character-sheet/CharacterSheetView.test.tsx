@@ -4,7 +4,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { CharacterSheetView } from './CharacterSheetView';
 
 /** Mirrors how App.tsx re-derives the live character from the atom, so edits made via
@@ -58,6 +58,8 @@ function makeCharacter(): Character {
     fellow: EMPTY_FELLOW,
     workSkills: [],
     stunts: [],
+    aspects: [],
+    geomancerQi: EMPTY_GEOMANCER_QI,
   };
 }
 

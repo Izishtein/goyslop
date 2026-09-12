@@ -21,6 +21,7 @@ import type { EquipmentRank } from '../types/character';
 
 const CORE3 = 'Core Rulebook III';
 const AGE_OF_GRIMOIRE = 'Age of Grimoire (SW 2.0)';
+const MAGUS_ARTS = 'Magus Arts';
 
 /** Slug of the printed name. The "+" is spelled out rather than dropped: Mana Coat and
  *  Mana Coat+ are two different pieces of armor at two different prices, and stripping the
@@ -394,6 +395,19 @@ export const GENERAL_ITEMS: GeneralItemDefinition[] = [
   item('classItem', 'Grimoire of Truth', '22,000', 'Age of Grimoire (SW 2.0): Rank S, Min STR 15 — usable as a melee weapon: Accuracy +2, Power 30, Crit 12', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
   item('classItem', 'Grimoire of Divine Wisdom', '90,000', 'Age of Grimoire (SW 2.0): Rank SS, Min STR 10 — Fortitude/Willpower +4 against Arcane Magic', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
   item('classItem', 'Grimoire of Fundamental Truths', '120,000', 'Age of Grimoire (SW 2.0): Rank SS, Min STR 20 — Arcane Magic damage/recovery on the Power Table +3', { stance: '1H', sourceBook: AGE_OF_GRIMOIRE }),
+
+  // Geographs — Magus Arts p. 22, required to use a Geomancer's Aspects. Class-Specific
+  // Items treated as "Accessory: Any". Domain Range and the three Qi Limits are folded into
+  // notes since GeneralItemDefinition has no columns for them.
+  item('classItem', 'Novice Geograph', '200', 'Domain Range 2-3 areas (10m radius); Qi Limit Heavenly 2 / Earthly 2 / Spirit 2', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Celestial Geograph', '500', 'Domain Range all areas (20m radius); Qi Limit Heavenly 3 / Earthly 2 / Spirit 2', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Tectonic Geograph', '500', 'Domain Range all areas (20m radius); Qi Limit Heavenly 2 / Earthly 3 / Spirit 2', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Spiritual Geograph', '500', 'Domain Range all areas (20m radius); Qi Limit Heavenly 2 / Earthly 2 / Spirit 3', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Master Geograph', '2,000', 'Geomancer class level 5+; Domain Range all areas (20m radius); Qi Limit Heavenly 3 / Earthly 3 / Spirit 3', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Sky Breaker Geograph', '3,000', 'Geomancer class level 5+; Domain Range all areas (30m radius); Qi Limit Heavenly 2 / Earthly 4 / Spirit 4', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Earth Shaker Geograph', '3,000', 'Geomancer class level 5+; Domain Range all areas (30m radius); Qi Limit Heavenly 4 / Earthly 2 / Spirit 4', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Soul Render Geograph', '3,000', 'Geomancer class level 5+; Domain Range all areas (30m radius); Qi Limit Heavenly 4 / Earthly 4 / Spirit 2', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
+  item('classItem', 'Supreme Geograph', '10,000', 'Geomancer class level 10+, also called "Taiji Geograph"; Domain Range all areas (50m radius); Qi Limit Heavenly 4 / Earthly 4 / Spirit 4', { slot: 'Accessory: Any', sourceBook: MAGUS_ARTS }),
 
   // Adventure tools — p. 223
   item('adventure', 'Chalk of the Lost', '1,200', 'Lights up when you pass the mark again', { stance: '1H' }),

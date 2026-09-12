@@ -4,7 +4,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import { CharacterSchema, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, type Character, type ClassLevel } from '../../types/character';
+import { CharacterSchema, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI, type Character, type ClassLevel } from '../../types/character';
 import { ArtsSection } from './ArtsSection';
 
 function Harness({ id }: { id: string }) {
@@ -51,6 +51,8 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     fellow: EMPTY_FELLOW,
     workSkills: [],
     stunts: [],
+    aspects: [],
+    geomancerQi: EMPTY_GEOMANCER_QI,
     ...overrides,
   };
 }

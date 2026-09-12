@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ABYSS_CURSES, ADDITIONAL_ABYSS_CURSES, abyssSkillsFor, enhancementsFor, type AbyssTarget } from '../../data/abyss';
+import { listAspectsByLevel } from '../../data/aspects';
 import {
   COMBAT_OPENING_DISTANCES,
   MOVEMENT_DISTANCES,
@@ -697,6 +698,80 @@ export function MountsReference() {
                   <td>{entry.prerequisite ?? '—'}</td>
                   <td>{entry.compatible.map((category) => t(`sheet.mountCategory.${category}`)).join(', ')}</td>
                   <td>{entry.area}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const ASPECT_LEVELS = [1, 5, 10] as const;
+
+export function GeomancerReference() {
+  const { t } = useTranslation();
+  const geographs = GENERAL_ITEMS.filter((item) => item.sourceBook === 'Magus Arts');
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-geomancer">
+      <div className={styles.panelHead}>
+        <h3 id="reference-geomancer">{t('reference.tab.geomancer')}</h3>
+        <p className={styles.note}>{t('reference.geomancerNote')}</p>
+      </div>
+
+      {ASPECT_LEVELS.map((level) => (
+        <div key={level} className={styles.group}>
+          <h4>{t('sheet.levelRequired', { level })}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('sheet.aspectDomain')}</th>
+                  <th>{t('sheet.duration')}</th>
+                  <th>{t('sheet.damageType')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listAspectsByLevel(level).map((entry) => (
+                  <tr key={entry.id}>
+                    <th scope="row" className={styles.rowName}>
+                      {entry.name}
+                    </th>
+                    <td>
+                      {t(`sheet.qiDomain.${entry.domain}`)} {entry.cost}
+                    </td>
+                    <td>{t(`sheet.duration_${entry.duration === '10s' ? '10s' : 'instant'}`)}</td>
+                    <td>{entry.damageType ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      <div className={styles.group}>
+        <h4>{t('reference.tab.equipment')}: Geographs</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('reference.price')}</th>
+                <th>{t('sheet.itemNote')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {geographs.map((entry) => (
+                <tr key={entry.id}>
+                  <th scope="row" className={styles.rowName}>
+                    {entry.name}
+                  </th>
+                  <td className={styles.numeric}>{entry.price}</td>
+                  <td>{entry.notes}</td>
                 </tr>
               ))}
             </tbody>

@@ -4,7 +4,7 @@ import { Provider, createStore } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
-import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW } from '../../types/character';
+import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { ImportCharacterButton } from './ImportCharacterButton';
 
 beforeEach(() => {
@@ -49,6 +49,8 @@ function makeCharacter(): Character {
     fellow: EMPTY_FELLOW,
     workSkills: [],
     stunts: [],
+    aspects: [],
+    geomancerQi: EMPTY_GEOMANCER_QI,
   };
 }
 

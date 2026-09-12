@@ -13,7 +13,15 @@ import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import { abilityPointCost, startingAbilityPointCost } from '../../lib/formulas/point-buy';
 import { RACES, getRace } from '../../data/races';
 import { getClass } from '../../data/classes';
-import { CharacterSchema, CURRENT_SCHEMA_VERSION, type Character, EMPTY_FELLOW, EMPTY_INVENTORY, EMPTY_PERFORMANCE } from '../../types/character';
+import {
+  CharacterSchema,
+  CURRENT_SCHEMA_VERSION,
+  type Character,
+  EMPTY_FELLOW,
+  EMPTY_GEOMANCER_QI,
+  EMPTY_INVENTORY,
+  EMPTY_PERFORMANCE,
+} from '../../types/character';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { listBackgroundOptions } from '../../lib/backgrounds';
 import { RaceFactsCard } from '../reference/RaceFactsCard';
@@ -149,6 +157,8 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       fellow: EMPTY_FELLOW,
       workSkills: [],
       stunts: [],
+      aspects: [],
+      geomancerQi: EMPTY_GEOMANCER_QI,
     };
 
     const parsed = CharacterSchema.parse(character);

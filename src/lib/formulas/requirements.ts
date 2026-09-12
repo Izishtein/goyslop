@@ -36,3 +36,9 @@ export function combatFeatsSpendingSlots(feats: CombatFeat[]): number {
 export function stuntSlots(riderLevel: number): number {
   return Math.max(0, riderLevel);
 }
+
+/** Geomancer Aspect slots: "Geomancer level = you may open one Aspect of a matching level"
+ *  (Magus Arts p. 19) — one slot per Geomancer level, the same shape as Rider Stunts. */
+export function aspectSlots(geomancerLevel: number): number {
+  return Math.max(0, geomancerLevel);
+}

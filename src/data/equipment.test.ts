@@ -52,12 +52,13 @@ describe('Core III equipment catalog', () => {
       potion: 3,
       repair: 3,
       // +9 Bibliomancer grimoires (Age of Grimoire, SW 2.0 — see 17-arcane-magic.md).
-      classItem: 7 + 9,
+      // +9 Geomancer Geographs (Magus Arts p. 22 — see 33-geomancer-aspects.md).
+      classItem: 7 + 9 + 9,
       adventure: 5,
       accessory: 19,
       ammunition: 2,
     });
-    expect(GENERAL_ITEMS).toHaveLength(45 + 9);
+    expect(GENERAL_ITEMS).toHaveLength(45 + 9 + 9);
   });
 
   it('has unique ids inside every list', () => {

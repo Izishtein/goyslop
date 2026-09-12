@@ -314,6 +314,32 @@ export const StuntSchema = z.object({
 });
 export type Stunt = z.infer<typeof StuntSchema>;
 
+/** Geomancer Domain Aspects (Magus Arts pp. 24-27) — see data/aspects.ts. One slot per
+ *  Geomancer class level, the same shape as Rider Stunts. */
+export const ASPECT_DOMAINS = ['heavenly', 'earthly', 'spirit'] as const;
+export const AspectDomainSchema = z.enum(ASPECT_DOMAINS);
+export type AspectDomain = z.infer<typeof AspectDomainSchema>;
+
+export const KnownAspectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  domain: AspectDomainSchema,
+  notes: z.string().default(''),
+});
+export type KnownAspect = z.infer<typeof KnownAspectSchema>;
+
+/** The Geomancer's Qi Points (Magus Arts p. 19-20): three counters, one per Aspect domain,
+ *  that auto-accumulate at the table during combat — like Edge for the Tactician, this is a
+ *  live round-by-round resource the sheet tracks rather than computes. */
+export const GeomancerQiSchema = z.object({
+  heavenly: z.number().int().min(0).default(0),
+  earthly: z.number().int().min(0).default(0),
+  spirit: z.number().int().min(0).default(0),
+});
+export type GeomancerQi = z.infer<typeof GeomancerQiSchema>;
+
+export const EMPTY_GEOMANCER_QI: GeomancerQi = { heavenly: 0, earthly: 0, spirit: 0 };
+
 export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
 export const ArtKindSchema = z.enum(ART_KINDS);
 
@@ -479,6 +505,9 @@ export const CharacterSchema = z.object({
   mounts: z.array(KnownMountSchema).default(() => []),
   /** Rider Stunts — see StuntSchema. One slot per Rider class level, same shape as SCA. */
   stunts: z.array(StuntSchema).default(() => []),
+  /** Geomancer Domain Aspects — see KnownAspectSchema. One slot per Geomancer class level. */
+  aspects: z.array(KnownAspectSchema).default(() => []),
+  geomancerQi: GeomancerQiSchema.default(() => EMPTY_GEOMANCER_QI),
   performance: PerformanceSchema.default(() => EMPTY_PERFORMANCE),
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */
