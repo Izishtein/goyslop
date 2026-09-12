@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { charactersAtom, activeCharacterIdAtom } from '../../state/characters';
-import { parseImportedCharacter } from './characterIo';
+import { parseImportedCharacters } from './characterIo';
 
 export function ImportCharacterButton() {
   const { t } = useTranslation();
@@ -17,18 +17,16 @@ export function ImportCharacterButton() {
     if (!file) return;
 
     const text = await file.text();
-    const result = parseImportedCharacter(text);
+    const result = parseImportedCharacters(text);
     if (!result.success) {
       setError(t(`io.error.${result.error}`));
       return;
     }
 
     setError(null);
-    setCharacters((prev) => {
-      const withoutDuplicate = prev.filter((c) => c.id !== result.character.id);
-      return [...withoutDuplicate, result.character];
-    });
-    setActiveId(result.character.id);
+    const importedIds = new Set(result.characters.map((c) => c.id));
+    setCharacters((prev) => [...prev.filter((c) => !importedIds.has(c.id)), ...result.characters]);
+    setActiveId(result.characters[0].id);
   }
 
   return (

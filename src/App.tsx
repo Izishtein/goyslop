@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { charactersAtom, activeCharacterIdAtom, STORAGE_ERROR_EVENT } from './state/characters';
+import { charactersAtom, activeCharacterIdAtom, duplicateCharacter, STORAGE_ERROR_EVENT } from './state/characters';
 import { CharacterCreationForm } from './features/character-creation/CharacterCreationForm';
 import { CharacterSheetView } from './features/character-sheet/CharacterSheetView';
 import { downloadCharacter } from './features/character-io/downloadCharacter';
+import { downloadRoster } from './features/character-io/downloadRoster';
 import { ImportCharacterButton } from './features/character-io/ImportCharacterButton';
 import { ReferenceView } from './features/reference/ReferenceView';
+import type { Character } from './types/character';
 import styles from './App.module.css';
 
 function App() {
@@ -40,6 +42,19 @@ function App() {
     window.addEventListener(STORAGE_ERROR_EVENT, onError);
     return () => window.removeEventListener(STORAGE_ERROR_EVENT, onError);
   }, []);
+
+  /** Copies land right after the original and become active, ready for the "what if" edits
+   *  they exist for (spending experience, swapping a class) without touching the source. */
+  function handleDuplicate(character: Character) {
+    const copy = duplicateCharacter(character, t('app.copySuffix'));
+    setCharacters((prev) => {
+      const index = prev.findIndex((c) => c.id === character.id);
+      const next = [...prev];
+      next.splice(index + 1, 0, copy);
+      return next;
+    });
+    openCharacter(copy.id);
+  }
 
   function deleteCharacter(id: string) {
     const remaining = characters.filter((character) => character.id !== id);
@@ -103,6 +118,14 @@ function App() {
                 >
                   {t('io.exportShort')}
                 </button>
+                <button
+                  type="button"
+                  className={styles.rosterAction}
+                  onClick={() => handleDuplicate(character)}
+                  title={t('app.duplicate')}
+                >
+                  {t('app.duplicateShort')}
+                </button>
                 {pendingDeleteId === character.id ? (
                   <>
                     <button
@@ -132,6 +155,9 @@ function App() {
           <div className={styles.rosterTools}>
             <button type="button" onClick={() => openCharacter(null)}>
               {t('app.newCharacter')}
+            </button>
+            <button type="button" onClick={() => downloadRoster(characters)} title={t('io.exportRoster')}>
+              {t('io.exportRoster')}
             </button>
             <ImportCharacterButton />
           </div>

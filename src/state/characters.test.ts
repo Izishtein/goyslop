@@ -1,7 +1,13 @@
 import { createStore } from 'jotai';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { EMPTY_INVENTORY } from '../types/character';
-import { charactersAtom } from './characters';
+import {
+  EMPTY_FELLOW,
+  EMPTY_GEOMANCER_QI,
+  EMPTY_INVENTORY,
+  EMPTY_PERFORMANCE,
+  type Character,
+} from '../types/character';
+import { charactersAtom, duplicateCharacter } from './characters';
 
 beforeEach(() => {
   localStorage.clear();
@@ -36,6 +42,65 @@ function mountAndGet(store: ReturnType<typeof createStore>) {
   unsub();
   return value;
 }
+
+function makeCharacter(): Character {
+  const zero = { base: 8, correction: 0, growth: 0, itemBonus: 0 };
+  return {
+    schemaVersion: 1,
+    id: 'char-1',
+    name: 'Legacy Hero',
+    raceId: 'human',
+    background: 'Artificer',
+    abilities: { DEX: zero, AGI: zero, STR: zero, VIT: zero, INT: zero, SPR: zero },
+    classes: [{ classId: 'artificer', level: 1 }],
+    hp: { current: 7 },
+    mp: { current: 12 },
+    statusEffects: [],
+    abyssCorruptionLevel: 0,
+    equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+    currency: { cash: 0, savings: 0, debt: 0, spendingLog: '' },
+    combatFeats: [],
+    experience: { total: 0, spent: 0 },
+    spells: [],
+    arts: [],
+    evocations: [],
+    materialCards: {},
+    mounts: [],
+    performance: EMPTY_PERFORMANCE,
+    growthLog: [],
+    reputation: 0,
+    profile: { gender: '', age: '', avatar: '' },
+    notes: { story: '', goals: '', gm: '' },
+    connections: [],
+    fellow: EMPTY_FELLOW,
+    workSkills: [],
+    stunts: [],
+    aspects: [],
+    geomancerQi: EMPTY_GEOMANCER_QI,
+    stratagems: [],
+    maneuvers: [],
+    tacticianEdge: 0,
+  };
+}
+
+describe('duplicateCharacter', () => {
+  it('gives the copy a fresh id and appends the suffix to the name', () => {
+    const original = makeCharacter();
+    const copy = duplicateCharacter(original, '(copy)');
+
+    expect(copy.id).not.toBe(original.id);
+    expect(copy.name).toBe('Legacy Hero (copy)');
+  });
+
+  it('leaves every other field untouched', () => {
+    const original = makeCharacter();
+    const copy = duplicateCharacter(original, '(copy)');
+
+    expect(copy.raceId).toBe(original.raceId);
+    expect(copy.classes).toEqual(original.classes);
+    expect(copy.hp).toEqual(original.hp);
+  });
+});
 
 describe('charactersAtom storage migration', () => {
   it('backfills equipment/currency/combatFeats for characters saved before those fields existed', () => {

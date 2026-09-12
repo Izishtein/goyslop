@@ -84,6 +84,19 @@ describe('ImportCharacterButton', () => {
     expect(store.get(activeCharacterIdAtom)).toBe('imported-1');
   });
 
+  it('imports a whole-roster array file, adding every character it can parse', async () => {
+    const user = userEvent.setup();
+    const store = renderImport();
+    const first = makeCharacter();
+    const second = { ...makeCharacter(), id: 'imported-2', name: 'Second Hero' };
+
+    const input = screen.getByLabelText('Import JSON', { selector: 'input' });
+    await user.upload(input, jsonFile(JSON.stringify([first, second])));
+
+    expect(store.get(charactersAtom)).toEqual([first, second]);
+    expect(store.get(activeCharacterIdAtom)).toBe('imported-1');
+  });
+
   it('shows an error and does not touch the store for invalid JSON', async () => {
     const user = userEvent.setup();
     const store = renderImport();

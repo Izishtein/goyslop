@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { characterFileName, characterToJson, parseImportedCharacter } from './characterIo';
+import { characterFileName, charactersToJson, characterToJson, parseImportedCharacters, rosterFileName } from './characterIo';
 import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 
 function makeCharacter(overrides: Partial<Character> = {}): Character {
@@ -59,30 +59,54 @@ describe('characterFileName', () => {
   });
 });
 
-describe('characterToJson + parseImportedCharacter round-trip', () => {
-  it('re-parses an exported character back to an equal object', () => {
+describe('characterToJson + parseImportedCharacters round-trip', () => {
+  it('re-parses a single exported character back to an equal object', () => {
     const character = makeCharacter();
-    const result = parseImportedCharacter(characterToJson(character));
-    expect(result).toEqual({ success: true, character });
+    const result = parseImportedCharacters(characterToJson(character));
+    expect(result).toEqual({ success: true, characters: [character] });
   });
 
   it('backfills equipment/currency/combatFeats when importing an old-shaped export', () => {
     const character = makeCharacter();
     const { equipment: _equipment, currency: _currency, combatFeats: _combatFeats, ...legacyShape } = character;
-    const result = parseImportedCharacter(JSON.stringify(legacyShape));
+    const result = parseImportedCharacters(JSON.stringify(legacyShape));
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.character.equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY });
+      expect(result.characters[0].equipment).toEqual({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY });
     }
   });
 });
 
-describe('parseImportedCharacter error handling', () => {
+describe('charactersToJson + parseImportedCharacters round-trip (whole roster)', () => {
+  it('re-parses an exported roster back to an equal array', () => {
+    const characters = [makeCharacter({ id: 'char-1' }), makeCharacter({ id: 'char-2', name: 'Second Hero' })];
+    const result = parseImportedCharacters(charactersToJson(characters));
+    expect(result).toEqual({ success: true, characters });
+  });
+
+  it('keeps the entries that parse when one entry in the array is unreadable', () => {
+    const good = makeCharacter();
+    const result = parseImportedCharacters(JSON.stringify([good, { not: 'a character' }]));
+    expect(result).toEqual({ success: true, characters: [good] });
+  });
+});
+
+describe('rosterFileName', () => {
+  it('names the whole-roster export distinctly from a single character export', () => {
+    expect(rosterFileName()).toBe('roster.sw25.json');
+  });
+});
+
+describe('parseImportedCharacters error handling', () => {
   it('reports invalidJson for unparseable text', () => {
-    expect(parseImportedCharacter('not json{')).toEqual({ success: false, error: 'invalidJson' });
+    expect(parseImportedCharacters('not json{')).toEqual({ success: false, error: 'invalidJson' });
   });
 
   it('reports invalidCharacter for well-formed JSON that fails the schema', () => {
-    expect(parseImportedCharacter(JSON.stringify({ hello: 'world' }))).toEqual({ success: false, error: 'invalidCharacter' });
+    expect(parseImportedCharacters(JSON.stringify({ hello: 'world' }))).toEqual({ success: false, error: 'invalidCharacter' });
+  });
+
+  it('reports invalidCharacter for an array with no readable entries', () => {
+    expect(parseImportedCharacters(JSON.stringify([{ not: 'a character' }]))).toEqual({ success: false, error: 'invalidCharacter' });
   });
 });

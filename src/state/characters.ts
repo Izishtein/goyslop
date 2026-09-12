@@ -64,6 +64,12 @@ const activeIdStorage = {
 export const charactersAtom = atomWithStorage<Character[]>('sw25.characters', [], charactersStorage);
 export const activeCharacterIdAtom = atomWithStorage<string | null>('sw25.activeCharacterId', null, activeIdStorage);
 
+/** Copies a character with a fresh id and a "(copy)" name, for trying "what if" builds
+ *  before spending experience or changing a class — the original stays untouched. */
+export function duplicateCharacter(character: Character, copySuffix: string): Character {
+  return { ...character, id: crypto.randomUUID(), name: `${character.name} ${copySuffix}` };
+}
+
 /** Returns a function that immutably applies `updater` to the character with the given id. */
 export function useUpdateCharacter(characterId: string) {
   const setCharacters = useSetAtom(charactersAtom);
