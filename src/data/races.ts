@@ -36,8 +36,6 @@ export interface RaceDefinition {
   backgroundTables: { primary: BackgroundEntry[]; additional?: BackgroundEntry[] } | null;
   /** True for Outlaw Profile Book races, which use the separate Vagrant creation system. */
   usesVagrantSystem?: boolean;
-  /** True when correction dice are known to be missing pending an unacquired sourcebook. */
-  missingDiceData?: boolean;
 }
 
 function dice(A: string, B: string, C: string, D: string, E: string, F: string): AbilityDiceByAbility {
@@ -347,12 +345,228 @@ export const RACES: RaceDefinition[] = [
       ],
     },
   },
-  { id: 'alv', name: 'Alv', sourceBook: 'Outlaw Profile Book', abilityDice: null, restrictedClasses: [], backgroundTables: null, usesVagrantSystem: true },
-  { id: 'shadow', name: 'Shadow', sourceBook: 'Outlaw Profile Book', abilityDice: null, restrictedClasses: [], backgroundTables: null, usesVagrantSystem: true },
-  { id: 'soleil', name: 'Soleil', sourceBook: 'Outlaw Profile Book', abilityDice: null, restrictedClasses: [], backgroundTables: null, usesVagrantSystem: true },
-  { id: 'weakling', name: 'Weakling', sourceBook: 'Outlaw Profile Book', abilityDice: null, restrictedClasses: [], backgroundTables: null, usesVagrantSystem: true },
-  { id: 'abyssborn', name: 'Abyssborn', sourceBook: 'Arcane Relic (via Raxia Life reprint)', abilityDice: null, restrictedClasses: [], backgroundTables: null, missingDiceData: true },
-  { id: 'newman', name: 'Newman', sourceBook: 'Arcane Relic (via Raxia Life reprint)', abilityDice: null, restrictedClasses: [], backgroundTables: null, missingDiceData: true },
+  // Alv/Shadow/Soleil/Weakling are Outlaw Profile Book races whose only creation path was
+  // the separate Vagrant system (usesVagrantSystem stays true — it is still a valid
+  // alternative). Arcane Relic pp. 26-33 republishes all four with standard PC correction
+  // dice and background tables, which is where the data below comes from.
+  {
+    id: 'alv',
+    name: 'Alv',
+    sourceBook: 'Arcane Relic (republished from Outlaw Profile Book)',
+    abilityDice: dice('1d', '1d+3', '2d+3', '2d', '1d+6', '1d'),
+    restrictedClasses: [],
+    usesVagrantSystem: true,
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Scout', ['scout'], [12, 5, 8], 2500),
+        bg('5-6', 'Agile Warrior', ['fencer'], [12, 6, 7], 2500),
+        bg('7', 'Sorcerer', ['sorcerer'], [9, 5, 11], 2000),
+        bg('8-9', 'Priest', ['priest'], [10, 6, 9], 2000),
+        bg('10-12', 'Scholar', ['sage'], [10, 5, 10], 2500),
+      ],
+      additional: [
+        // The book prints "Archer" mapping to Ranger here, unlike every other race's Archer
+        // row (Marksman) — transcribed as printed, not normalized to the usual pattern.
+        bg('2-4', 'Archer', ['ranger'], [13, 4, 8], 2500),
+        bg('5-6', 'Boxer', ['grappler'], [11, 7, 7], 2000),
+        bg('7', 'Conjurer', ['conjurer'], [9, 4, 12], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [9, 6, 10], 2000),
+        bg('10-12', 'Artificer', ['artificer'], [9, 7, 9], 2000),
+      ],
+    },
+  },
+  {
+    id: 'shadow',
+    name: 'Shadow',
+    sourceBook: 'Arcane Relic (republished from Outlaw Profile Book)',
+    abilityDice: dice('1d', '1d', '2d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    usesVagrantSystem: true,
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Hunter', ['ranger'], [15, 6, 6], 2500),
+        bg('5-6', 'Sworder', ['fencer'], [17, 7, 3], 2500),
+        bg('7', 'Scout', ['scout'], [16, 7, 4], 2500),
+        bg('8-9', 'Boxer', ['grappler'], [14, 8, 5], 2000),
+        bg('10-12', 'Warrior', ['fighter'], [15, 9, 3], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Artificer', ['artificer'], [17, 5, 5], 2000),
+        bg('5-6', 'Archer', ['marksman'], [18, 6, 3], 2500),
+        bg('7', 'Bodybuilder', ['enhancer'], [16, 6, 5], 2500),
+        bg('8-9', 'Alchemist', ['alchemist'], [14, 8, 5], 2500),
+        bg('10-12', 'Rider', ['rider'], [13, 7, 7], 2500),
+      ],
+    },
+  },
+  {
+    id: 'soleil',
+    name: 'Soleil',
+    sourceBook: 'Arcane Relic (republished from Outlaw Profile Book)',
+    abilityDice: dice('1d', '2d', '1d+6', '2d', '1d', '2d'),
+    restrictedClasses: [],
+    usesVagrantSystem: true,
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Priest', ['priest'], [9, 13, 4], 2000),
+        bg('5-6', 'Agile Warrior', ['fencer'], [12, 12, 2], 2500),
+        bg('7', 'Warrior', ['fighter'], [10, 15, 1], 2000),
+        bg('8-9', 'Boxer', ['grappler'], [12, 14, 0], 2000),
+        bg('10-12', 'Hunter', ['ranger'], [10, 13, 3], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Archer', ['marksman'], [11, 14, 1], 2500),
+        bg('5-6', 'Rider', ['rider'], [11, 13, 2], 2500),
+        bg('7', 'Alchemist', ['alchemist'], [10, 11, 5], 2500),
+        bg('8-9', 'Hobbyist', ['bard'], [11, 11, 4], 2500),
+        bg('10-12', 'Scout', ['scout'], [12, 11, 3], 2500),
+      ],
+    },
+  },
+  {
+    id: 'weakling',
+    name: 'Weakling',
+    sourceBook: 'Arcane Relic (republished from Outlaw Profile Book)',
+    abilityDice: dice('2d', '2d', '2d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    usesVagrantSystem: true,
+    backgroundTables: {
+      // Two generic tables shared by all four Weakling origins (Garuda/Tannoz/Basilisk/
+      // Minotaur) — the origin only changes which racial ability and +3 score the book
+      // grants, not the background table.
+      primary: [
+        bg('2-4', 'Scout', ['scout'], [10, 7, 6], 2500),
+        bg('5-6', 'Agile Warrior', ['fencer'], [9, 8, 6], 2500),
+        bg('7', 'Warrior', ['fighter'], [8, 10, 5], 2000),
+        bg('8-9', 'Priest', ['priest'], [7, 9, 7], 2000),
+        bg('10-12', 'Sorcerer', ['sorcerer'], [7, 8, 8], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [8, 8, 7], 2500),
+        bg('5-6', 'Archer', ['marksman'], [10, 8, 5], 2500),
+        bg('7', 'Boxer', ['grappler'], [9, 9, 5], 2000),
+        bg('8-9', 'Druid', ['druid'], [7, 7, 9], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [7, 8, 8], 2000),
+      ],
+    },
+  },
+  {
+    id: 'abyssborn',
+    name: 'Abyssborn',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '1d+6', '2d', '2d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Hunter', ['ranger'], [8, 10, 9], 2500),
+        bg('5-6', 'Scout', ['scout'], [11, 7, 9], 2500),
+        bg('7', 'Mercenary', ['fighter', 'grappler'], [8, 11, 8], 2000, 'or'),
+        bg('8-9', 'Magician', ['sorcerer', 'conjurer'], [6, 8, 13], 2000, 'or'),
+        bg('10-12', 'Artificer', ['artificer'], [9, 9, 9], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Scholar', ['sage'], [6, 10, 11], 2500),
+        bg('5-6', 'Agile Warrior', ['fencer'], [11, 6, 10], 2500),
+        bg('7', 'Warrior Dancer', ['battle-dancer'], [10, 8, 9], 2000),
+        bg('8-9', 'Druid', ['druid'], [7, 8, 12], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [8, 6, 13], 2000),
+      ],
+    },
+  },
+  {
+    id: 'newman',
+    name: 'Newman',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '1d', '1d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Feytouched', ['fairy-tamer'], [7, 6, 14], 2000),
+        bg('5-6', 'Scholar', ['sage'], [7, 5, 15], 2500),
+        bg('7', 'Wizard', ['sorcerer'], [6, 7, 14], 2000),
+        bg('8-9', 'Manipulator', ['conjurer'], [7, 7, 13], 2000),
+        bg('10-12', 'Cleric', ['priest'], [6, 8, 13], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 7, 11], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [8, 7, 12], 2500),
+        bg('7', 'Druid', ['druid'], [6, 6, 15], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [8, 6, 13], 2000),
+        bg('10-12', 'Minstrel', ['sage', 'bard'], [5, 7, 15], 2000, 'and'),
+      ],
+    },
+  },
+  // Spriggan, Fluorite and Dark Dwarf are first published in Arcane Relic (pp. 16-25) —
+  // no prior partial entry, no Vagrant alternative.
+  {
+    id: 'spriggan',
+    name: 'Spriggan',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '2d', '1d', '1d', '2d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Scout', ['scout'], [11, 9, 8], 2500),
+        bg('5-6', 'Agile Warrior', ['fencer'], [12, 9, 7], 2500),
+        bg('7', 'Warrior', ['fighter'], [10, 12, 6], 2000),
+        bg('8-9', 'Boxer', ['grappler'], [11, 12, 5], 2000),
+        bg('10-12', 'Hunter', ['ranger'], [11, 11, 6], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Archer', ['marksman'], [13, 9, 6], 2500),
+        bg('5-6', 'Jockey', ['rider'], [9, 11, 8], 2500),
+        bg('7', 'Battle Dancer', ['battle-dancer'], [12, 10, 6], 2000),
+        bg('8-9', 'Bodybuilder', ['enhancer'], [11, 10, 7], 2500),
+        bg('10-12', 'Priest', ['priest'], [10, 9, 9], 2000),
+      ],
+    },
+  },
+  {
+    id: 'fluorite',
+    name: 'Fluorite',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '2d+6', '2d', '1d', '2d+6'),
+    restrictedClasses: ['enhancer'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Warrior', ['fighter'], [7, 3, 9], 2000),
+        bg('5-6', 'Sorcerer', ['sorcerer'], [7, 0, 12], 2000),
+        bg('7', 'Wizard', ['sorcerer', 'conjurer'], [6, 0, 13], 1000),
+        bg('8-9', 'Conjurer', ['conjurer'], [5, 1, 13], 2000),
+        bg('10-12', 'Scholar', ['sage'], [7, 1, 11], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Magic Warrior', ['fighter', 'sorcerer'], [7, 2, 10], 1000),
+        bg('5-6', 'Priest', ['priest'], [6, 3, 10], 2000),
+        bg('7', 'Fairy Tamer', ['fairy-tamer'], [5, 1, 13], 2000),
+        bg('8-9', 'Druid', ['druid'], [5, 2, 12], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [6, 1, 12], 2000),
+      ],
+    },
+  },
+  {
+    id: 'dark-dwarf',
+    name: 'Dark Dwarf',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '1d', '1d', '2d+6'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Priest', ['priest'], [6, 10, 10], 2000),
+        bg('5-6', 'Boxer', ['grappler'], [8, 12, 6], 2000),
+        bg('7', 'Warrior', ['fighter'], [7, 11, 8], 2000),
+        bg('8-9', 'Artificer', ['artificer'], [8, 10, 8], 2000),
+        bg('10-12', 'Hunter', ['ranger'], [9, 10, 7], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Jockey', ['rider'], [8, 11, 7], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [9, 9, 8], 2500),
+        bg('7', 'Battle Dancer', ['battle-dancer'], [9, 11, 6], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [8, 9, 9], 2500),
+        bg('10-12', 'Warlock', ['daemonologist'], [8, 8, 10], 2000),
+      ],
+    },
+  },
 ];
 
 export function getRace(id: string): RaceDefinition | undefined {
@@ -441,25 +655,63 @@ const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
   alv: [
     { name: 'Darkvision', fromLevel: 0 },
     { name: 'Spirit Drain', fromLevel: 0 },
+    { name: 'Spirit Drain', fromLevel: 6 },
+    { name: 'Spirit Drain', fromLevel: 11 },
   ],
   shadow: [
     { name: 'Darkvision', fromLevel: 0 },
     { name: "Moonlight's Protection", fromLevel: 0 },
+    { name: "Moonlight's Protection", fromLevel: 6 },
+    { name: "Moonlight's Protection", fromLevel: 11 },
   ],
   soleil: [
     { name: 'Radiant Physique', fromLevel: 0 },
     { name: 'Photosynthesis', fromLevel: 0 },
     { name: 'Child of the Sun', fromLevel: 0 },
+    { name: 'Radiant Physique', fromLevel: 6 },
+    { name: 'Radiant Physique', fromLevel: 11 },
   ],
+  // The four Weakling origins (Garuda/Tannoz/Basilisk/Minotaur) each enhance a different
+  // racial ability of their own — Wind-Edge Blade, Carapace Hand, Petrifying Gaze/Poisonous
+  // Blood, Herculean Strength — chosen once at creation. The schema has no field for which
+  // origin a Weakling character picked, so only the shared [Barbarous Body] is listed here;
+  // the origin-specific abilities and their Lv6/11 enhancements are not tracked yet.
   weakling: [{ name: 'Barbarous Body', fromLevel: 0 }],
   abyssborn: [
     { name: 'Abyssal Bastard', fromLevel: 0 },
+    // One of these three is chosen at creation; all three progressions are listed since
+    // the schema does not track which branch a character picked (same reasoning as Weakling).
+    { name: 'Abyssal Bastard/Abyssal Body', fromLevel: 6 },
+    { name: 'Abyssal Bastard/Abyssal Body', fromLevel: 11 },
+    { name: 'Abyssal Bastard/Abyssal Arm', fromLevel: 6 },
+    { name: 'Abyssal Bastard/Abyssal Arm', fromLevel: 11 },
     { name: 'Abyssal Bastard/Abyssal Eye', fromLevel: 6 },
+    { name: 'Abyssal Bastard/Abyssal Eye', fromLevel: 11 },
   ],
   newman: [
     { name: 'Child of Magic', fromLevel: 0 },
     { name: 'Déjà Vu', fromLevel: 0 },
     { name: 'Child of Magic', fromLevel: 6 },
+    { name: 'Child of Magic', fromLevel: 11 },
+  ],
+  spriggan: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Giantization', fromLevel: 0 },
+    { name: 'Giantization', fromLevel: 6 },
+    { name: 'Giantization', fromLevel: 11 },
+  ],
+  fluorite: [
+    { name: 'Soul Glow', fromLevel: 0 },
+    { name: 'Ore of Life', fromLevel: 0 },
+    { name: 'Crystal Body', fromLevel: 0 },
+    { name: 'Crystal Body', fromLevel: 6 },
+    { name: 'Crystal Body', fromLevel: 11 },
+  ],
+  'dark-dwarf': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Black Flame Master', fromLevel: 0 },
+    { name: 'Black Flame Master', fromLevel: 6 },
+    { name: 'Black Flame Master', fromLevel: 11 },
   ],
 };
 

@@ -61,7 +61,10 @@ describe('RaceFactsCard', () => {
   });
 
   it('explains a race that has no dice instead of showing an empty row', () => {
-    renderCard('alv');
+    // No race in the catalog lacks dice any more (Arcane Relic closed the last gaps), so
+    // this guards the fallback text itself with a minimal constructed race.
+    const race = { ...getRace('alv')!, abilityDice: null, backgroundTables: null };
+    render(<RaceFactsCard race={race} />);
 
     expect(screen.getByRole('complementary')).toHaveTextContent(/Vagrant/);
   });

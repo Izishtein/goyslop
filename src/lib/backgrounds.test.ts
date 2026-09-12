@@ -14,8 +14,10 @@ describe('listBackgroundOptions', () => {
   });
 
   it('returns nothing for a race with no table at all', () => {
-    // Vagrant-system and pending-sourcebook races have none.
-    expect(listBackgroundOptions(getRace('newman')!)).toEqual([]);
+    // No race in the catalog lacks one any more (Arcane Relic closed the last gaps), so this
+    // guards the function's own null handling with a minimal constructed race instead.
+    const noTables = { ...getRace('human')!, backgroundTables: null };
+    expect(listBackgroundOptions(noTables)).toEqual([]);
   });
 });
 

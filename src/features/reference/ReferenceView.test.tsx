@@ -52,12 +52,14 @@ describe('ReferenceView', () => {
     expect(rowFor('Human')).not.toHaveTextContent('Priest');
   });
 
-  it('says why a race has no dice instead of leaving six cells blank', () => {
+  it('shows real dice for every race, including the ones Arcane Relic unblocked', () => {
     renderReference();
 
-    // Outlaw races are built with the Vagrant system; two more wait on a sourcebook.
-    expect(rowFor('Alv')).toHaveTextContent(/Vagrant/);
-    expect(rowFor('Newman')).toHaveTextContent(/sourcebook/);
+    // Alv and Newman used to fall back to "Vagrant system" / "pending a sourcebook" text —
+    // Arcane Relic gave both real correction dice, closing the last gaps in the catalog.
+    expect(rowFor('Alv')).not.toHaveTextContent(/Vagrant/);
+    expect(rowFor('Newman')).not.toHaveTextContent(/sourcebook/);
+    expect(rowFor('Newman')).toHaveTextContent('2d6');
   });
 
   it('lists racial abilities with the level that unlocks them', () => {
