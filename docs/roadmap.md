@@ -47,11 +47,9 @@
 
 26 Evocations из Core III pp. 190–198, своя секция на листе с запасом Material Cards, вкладка справочника, разбор в `docs/sheet-content/14-evocations.md`. Попутно закрыта половина вопроса про Magus Arts: Evocations там (pp. 181–184) — точная перепечатка Core III. Подробности — в `state.md`.
 
-### 1.2. Abyss Skills и Abyss Corruption · 1 пачка
+### 1.2. ~~Abyss Skills и Abyss Corruption~~ — сделано 2026-09-12
 
-**Что это.** Надстройка над уже сделанным Abyss Enhancement: вместо типового бонуса (+1 Accuracy и т.п.) предмет получает одну именную способность ([Crimson Breath], [Arrow of Darkness] и др.), проклятие берётся из отдельной «Additional Abyss Curse Table», а использование способности триггерит **Abyss Corruption** — счётчик, который на 5 забирает персонажа у игрока. Механика уже разобрана: `06-equipment.md`, строки 388–413 (Abyss Breaker, pp. 44–46).
-
-**Шаги.** Дотранскрибировать полный список именных способностей и Additional Abyss Curse Table (в доке сейчас «и др.») → расширить `src/data/abyss.ts` вторым набором → в `AbyssEnhancementSchema` признак «типовое усиление или Abyss Skill» → в UI переключатель внутри существующей строки Бездны → счётчик Abyss Corruption Level на листе (с пометкой, что 5 = конец персонажа).
+12 именных способностей (6 оружейных, 3 бронёвых, 3 щитовых — Crimson Breath, Arrow of Darkness, Afterimage Flash, Free Flying Tentacles, Extending Tail, Poisonous Blade; Daemonic Shell, Translucent Armor, Mobile Form; Daemonic Stare, Daemonic Droplets, Phantom of a Lovely Figure) и Additional Abyss Curse Table (36 записей) — Abyss Breaker pp. 38–46, разбор `docs/sheet-content/31-abyss-skills.md`. `AbyssEnhancementSchema.kind` (`'typical'|'skill'`) переключает пару каталогов (усиление+базовые проклятия / способность+Additional-проклятия) в существующей строке Бездны; `Character.abyssCorruptionLevel` — персонажный счётчик со предупреждением при ≥5 (Daemonization). Обе новые таблицы — во вкладке «Предметы и Бездна» справочника. Заодно заведён `src/data/abyss.test.ts` — у этого каталога раньше не было теста на счётчики/уникальность вообще.
 
 ### 1.3. Мелочи продукта, которые давно обсуждались · 1 пачка на все
 

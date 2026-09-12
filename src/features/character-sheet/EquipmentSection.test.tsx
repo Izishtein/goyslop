@@ -31,6 +31,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     hp: { current: 8 },
     mp: { current: 0 },
     statusEffects: [],
+    abyssCorruptionLevel: 0,
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
@@ -206,7 +207,7 @@ describe('EquipmentSection Abyss Enhancement', () => {
     await user.click(screen.getByRole('button', { name: 'Add enhancement' }));
 
     expect(store.get(charactersAtom)[0].equipment.weapons[0].abyss).toEqual([
-      { id: expect.any(String), type: '', notes: '', curseRoll: '', curseName: '' },
+      { id: expect.any(String), kind: 'typical', type: '', notes: '', curseRoll: '', curseName: '' },
     ]);
     // The enhancement row names its item as plain text, so it wraps on paper.
     const row = screen.getByLabelText('Enhancement').closest('tr');
@@ -220,8 +221,8 @@ describe('EquipmentSection Abyss Enhancement', () => {
       ...base,
       equipment: {
         ...base.equipment,
-        weapons: [weapon({ abyss: [{ id: 'e1', type: '', notes: '', curseRoll: '', curseName: '' }] })],
-        shield: { id: 's1', name: 'Buckler', defenseBonus: 1, evasionBonus: 0, minStr: 8, notes: '', rank: 'B' as const, abyss: [{ id: 'e2', type: '', notes: '', curseRoll: '', curseName: '' }] },
+        weapons: [weapon({ abyss: [{ id: 'e1', kind: 'typical' as const, type: '', notes: '', curseRoll: '', curseName: '' }] })],
+        shield: { id: 's1', name: 'Buckler', defenseBonus: 1, evasionBonus: 0, minStr: 8, notes: '', rank: 'B' as const, abyss: [{ id: 'e2', kind: 'typical' as const, type: '', notes: '', curseRoll: '', curseName: '' }] },
       },
     });
 
@@ -237,7 +238,7 @@ describe('EquipmentSection Abyss Enhancement', () => {
 
   it('stores the curse name alongside the roll that produced it', async () => {
     const user = userEvent.setup();
-    const store = renderSection(withWeapon(weapon({ abyss: [{ id: 'e1', type: 'Accuracy +1', notes: '', curseRoll: '', curseName: '' }] })));
+    const store = renderSection(withWeapon(weapon({ abyss: [{ id: 'e1', kind: 'typical' as const, type: 'Accuracy +1', notes: '', curseRoll: '', curseName: '' }] })));
 
     await user.selectOptions(screen.getByLabelText('Abyss Curse'), '3-4');
 
@@ -262,8 +263,8 @@ describe('EquipmentSection Abyss Enhancement', () => {
       withWeapon(
         weapon({
           abyss: [
-            { id: 'e1', type: 'Accuracy +1', notes: '', curseRoll: '1-1', curseName: 'Of Self-Harm' },
-            { id: 'e2', type: 'Extra Damage +1', notes: '', curseRoll: '2-2', curseName: 'Difficult' },
+            { id: 'e1', kind: 'typical' as const, type: 'Accuracy +1', notes: '', curseRoll: '1-1', curseName: 'Of Self-Harm' },
+            { id: 'e2', kind: 'typical' as const, type: 'Extra Damage +1', notes: '', curseRoll: '2-2', curseName: 'Difficult' },
           ],
         }),
       ),
@@ -277,6 +278,48 @@ describe('EquipmentSection Abyss Enhancement', () => {
     expect(remaining.abyss.map((enhancement) => enhancement.type)).toEqual(['Extra Damage +1']);
   });
 
+  it('swaps the enhancement/curse catalogs when the kind switches to Abyss Skill, clearing the old picks', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(
+      withWeapon(weapon({ abyss: [{ id: 'e1', kind: 'typical' as const, type: 'Accuracy +1', notes: '', curseRoll: '1-1', curseName: 'Of Self-Harm' }] })),
+    );
+
+    const typeSelect = screen.getByLabelText('Enhancement');
+    const optionsOf = (select: HTMLElement) => [...select.querySelectorAll('option')].map((option) => option.value);
+    expect(optionsOf(typeSelect)).toContain('Accuracy +1');
+    expect(optionsOf(typeSelect)).not.toContain('Crimson Breath');
+
+    await user.selectOptions(screen.getByLabelText('Kind'), 'skill');
+
+    expect(store.get(charactersAtom)[0].equipment.weapons[0].abyss[0]).toMatchObject({
+      kind: 'skill',
+      type: '',
+      curseRoll: '',
+      curseName: '',
+    });
+    // A weapon-only Abyss Skill replaces the typical enhancement list entirely.
+    expect(optionsOf(screen.getByLabelText('Enhancement'))).toContain('Crimson Breath');
+    expect(optionsOf(screen.getByLabelText('Enhancement'))).not.toContain('Accuracy +1');
+
+    // Same roll, different table: '1-1' is "Of Self-Harm" in the base table and "Of Decay" here.
+    await user.selectOptions(screen.getByLabelText('Abyss Curse'), '1-1');
+    expect(store.get(charactersAtom)[0].equipment.weapons[0].abyss[0]).toMatchObject({ curseRoll: '1-1', curseName: 'Of Decay' });
+  });
+
+  it('tracks Abyss Corruption Level and warns once it reaches the Daemonization threshold', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(withWeapon(weapon()));
+
+    expect(screen.getByLabelText('Abyss Corruption Level')).toHaveValue(0);
+    expect(screen.queryByText(/Daemonizes/)).toBeNull();
+
+    await user.clear(screen.getByLabelText('Abyss Corruption Level'));
+    await user.type(screen.getByLabelText('Abyss Corruption Level'), '5');
+
+    expect(store.get(charactersAtom)[0].abyssCorruptionLevel).toBe(5);
+    expect(screen.getByText(/Daemonizes/)).toBeInTheDocument();
+  });
+
   it('backfills the enhancement list for equipment saved before it existed', () => {
     const character = withWeapon(weapon());
     const { abyss: _abyss, ...oldWeapon } = character.equipment.weapons[0];
@@ -284,6 +327,20 @@ describe('EquipmentSection Abyss Enhancement', () => {
     const parsed = CharacterSchema.parse({ ...character, equipment: { ...character.equipment, weapons: [oldWeapon] } });
 
     expect(parsed.equipment.weapons[0].abyss).toEqual([]);
+  });
+
+  it('backfills abyssCorruptionLevel and an enhancement row\'s kind for characters saved before either existed', () => {
+    const character = withWeapon(weapon({ abyss: [{ id: 'e1', kind: 'typical' as const, type: 'Accuracy +1', notes: '', curseRoll: '', curseName: '' }] }));
+    const { kind: _kind, ...oldEnhancement } = character.equipment.weapons[0].abyss[0];
+    const { abyssCorruptionLevel: _level, ...oldCharacter } = character;
+
+    const parsed = CharacterSchema.parse({
+      ...oldCharacter,
+      equipment: { ...character.equipment, weapons: [{ ...character.equipment.weapons[0], abyss: [oldEnhancement] }] },
+    });
+
+    expect(parsed.abyssCorruptionLevel).toBe(0);
+    expect(parsed.equipment.weapons[0].abyss[0].kind).toBe('typical');
   });
 });
 

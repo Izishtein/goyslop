@@ -102,3 +102,84 @@ export function getAbyssCurse(roll: string): AbyssCurseDefinition | undefined {
 
 /** Two per item is the hard limit; past that the guild can only re-roll the curses. */
 export const MAX_ABYSS_ENHANCEMENTS = 2;
+
+/**
+ * Abyss Skills and their Additional Abyss Curse table — Abyss Breaker pp. 38-46, transcribed
+ * in docs/sheet-content/31-abyss-skills.md. A named Abyss Skill replaces a typical
+ * enhancement one-for-one (same procedure, same Gamel/Shard cost) but must draw its curse
+ * from this second table instead of the base one above — see `AbyssEnhancementSchema.kind`.
+ */
+export const WEAPON_ABYSS_SKILLS = [
+  'Crimson Breath',
+  'Arrow of Darkness',
+  'Afterimage Flash',
+  'Free Flying Tentacles',
+  'Extending Tail',
+  'Poisonous Blade',
+] as const;
+
+export const ARMOR_ABYSS_SKILLS = ['Daemonic Shell', 'Translucent Armor', 'Mobile Form'] as const;
+
+export const SHIELD_ABYSS_SKILLS = ['Daemonic Stare', 'Daemonic Droplets', 'Phantom of a Lovely Figure'] as const;
+
+export function abyssSkillsFor(target: AbyssTarget): readonly string[] {
+  if (target === 'weapon') return WEAPON_ABYSS_SKILLS;
+  if (target === 'armor') return ARMOR_ABYSS_SKILLS;
+  return SHIELD_ABYSS_SKILLS;
+}
+
+/**
+ * The Additional Abyss Curse table (Abyss Breaker p. 43), used only when the enhancement is
+ * an Abyss Skill. "Choking" appears twice (1-4 and 3-5) with two different effects — the book
+ * reuses the name, not a transcription error (kept as two separate rows, same as the base
+ * table's own duplicate-safe shape: rows are addressed by `roll`, never by `name`).
+ */
+export const ADDITIONAL_ABYSS_CURSES: AbyssCurseDefinition[] = [
+  { roll: '1-1', name: 'Of Decay' },
+  { roll: '1-2', name: 'Slothful' },
+  { roll: '1-3', name: 'Panicked' },
+  { roll: '1-4', name: 'Choking' },
+  { roll: '1-5', name: 'Wasteful' },
+  { roll: '1-6', name: 'Hungry' },
+  { roll: '2-1', name: 'Persistent Fatigue' },
+  { roll: '2-2', name: 'Resistant to Medicines' },
+  { roll: '2-3', name: "Scavenger's" },
+  // Only meaningful with Magus Arts' Stratagems in play — the book itself says to reroll
+  // this (and 3-5, 3-6 below) if Magus Arts isn't in use. Transcribed as printed regardless;
+  // the sheet doesn't know which supplements a table is using.
+  { roll: '2-4', name: 'Of Disobey' },
+  { roll: '2-5', name: 'Take a Break' },
+  { roll: '2-6', name: 'Show Composure' },
+  { roll: '3-1', name: 'Short of Breath' },
+  { roll: '3-2', name: 'Tone-deaf' },
+  { roll: '3-3', name: 'Not Fully Trustworthy' },
+  { roll: '3-4', name: 'Slipping Through Fingers' },
+  { roll: '3-5', name: 'Choking' },
+  { roll: '3-6', name: 'Heaven and Earth in Turmoil' },
+  { roll: '4-1', name: 'Mocking' },
+  { roll: '4-2', name: 'Not learning' },
+  { roll: '4-3', name: 'Perfectionist' },
+  { roll: '4-4', name: 'Dislikes Ostentation' },
+  { roll: '4-5', name: 'Comatose' },
+  { roll: '4-6', name: 'Branded' },
+  { roll: '5-1', name: 'Distracted' },
+  { roll: '5-2', name: 'Life Drain' },
+  { roll: '5-3', name: 'Mana Drain' },
+  { roll: '5-4', name: 'Show Off' },
+  { roll: '5-5', name: 'Unable to Hold Ground' },
+  { roll: '5-6', name: 'Exposing' },
+  { roll: '6-1', name: 'Torment' },
+  { roll: '6-2', name: 'Affection' },
+  { roll: '6-3', name: 'Mana Leakage' },
+  { roll: '6-4', name: 'Eager to Retreat' },
+  { roll: '6-5', name: 'Go Easy' },
+  { roll: '6-6', name: 'In Bad Shape' },
+];
+
+export function getAdditionalAbyssCurse(roll: string): AbyssCurseDefinition | undefined {
+  return ADDITIONAL_ABYSS_CURSES.find((curse) => curse.roll === roll);
+}
+
+/** Daemonization threshold for `Character.abyssCorruptionLevel` (Abyss Breaker p. 44): at 5
+ *  the book takes the character away from the player entirely, GM treats them as an NPC. */
+export const ABYSS_CORRUPTION_DAEMONIZATION_LEVEL = 5;

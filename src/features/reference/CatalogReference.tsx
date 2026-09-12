@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ABYSS_CURSES, enhancementsFor, type AbyssTarget } from '../../data/abyss';
+import { ABYSS_CURSES, ADDITIONAL_ABYSS_CURSES, abyssSkillsFor, enhancementsFor, type AbyssTarget } from '../../data/abyss';
 import {
   COMBAT_OPENING_DISTANCES,
   MOVEMENT_DISTANCES,
@@ -298,6 +298,55 @@ export function ItemsReference() {
             </thead>
             <tbody>
               {ABYSS_CURSES.map((curse) => (
+                <tr key={curse.roll}>
+                  <th scope="row" className={styles.numeric}>
+                    {curse.roll}
+                  </th>
+                  <td>{curse.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('sheet.abyssKindSkill')}</h4>
+        <p className={styles.note}>{t('reference.abyssSkillsNote')}</p>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.enhancementTarget')}</th>
+                <th>{t('sheet.abyssType')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ABYSS_TARGETS.map((target) => (
+                <tr key={target}>
+                  <th scope="row" className={styles.rowName}>
+                    {t(`reference.target_${target}`)}
+                  </th>
+                  <td>{abyssSkillsFor(target).join(' · ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.additionalAbyssCurse')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('reference.roll2d')}</th>
+                <th>{t('sheet.name')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ADDITIONAL_ABYSS_CURSES.map((curse) => (
                 <tr key={curse.roll}>
                   <th scope="row" className={styles.numeric}>
                     {curse.roll}

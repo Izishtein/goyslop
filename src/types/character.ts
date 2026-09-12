@@ -78,9 +78,16 @@ export type EquipmentRank = z.infer<typeof EquipmentRankSchema>;
 /** One Abyss Enhancement burned into a piece of equipment, with the Abyss Curse it drags
  *  along (Core II). Deliberately *not* capped at two here even though the book allows no
  *  more: a length cap in the schema would make an over-filled import fail validation, and
- *  a failed parse drops the whole character. The sheet enforces the limit instead. */
+ *  a failed parse drops the whole character. The sheet enforces the limit instead.
+ *
+ *  `kind` picks which pair of catalogs `type`/`curseRoll` are drawn from (Abyss Breaker
+ *  pp. 38-46, see data/abyss.ts): 'typical' is the original Core II enhancement list paired
+ *  with the base Abyss Curse table, 'skill' is a named Abyss Skill paired with the
+ *  Additional Abyss Curse table instead — the book never lets a skill draw from the base
+ *  table or a typical enhancement from the additional one. */
 export const AbyssEnhancementSchema = z.object({
   id: z.string(),
+  kind: z.enum(['typical', 'skill']).default('typical'),
   type: z.string().default(''),
   /** Where the rolled category or damage type gets written for the "vs …" enhancements. */
   notes: z.string().default(''),
@@ -441,6 +448,10 @@ export const CharacterSchema = z.object({
   // .default(...) lets parse() backfill characters saved before these fields existed,
   // instead of throwing when loading old data from localStorage.
   equipment: EquipmentSchema.default(() => ({ weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY })),
+  /** Character-wide, not per-item: accumulates from using Abyss Skills or the Abyss
+   *  Corruption Table (Abyss Breaker pp. 44-46). At 5 the book Daemonizes the character —
+   *  the sheet only tracks and flags the count, the GM/player decide what happens at 5. */
+  abyssCorruptionLevel: z.number().int().min(0).default(0),
   currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0, spendingLog: '' })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),

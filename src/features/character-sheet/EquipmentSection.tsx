@@ -6,7 +6,17 @@ import { evasion as baseEvasionFormula } from '../../lib/formulas/derived-stats'
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { meetsStrength, requiredStrength } from '../../lib/formulas/requirements';
 import { totalDefense, totalEvasion, weaponTotalAccuracy, weaponTotalExtraDamage } from '../../lib/formulas/weapon-stats';
-import { ABYSS_CURSES, MAX_ABYSS_ENHANCEMENTS, enhancementsFor, getAbyssCurse, type AbyssTarget } from '../../data/abyss';
+import {
+  ABYSS_CORRUPTION_DAEMONIZATION_LEVEL,
+  ABYSS_CURSES,
+  ADDITIONAL_ABYSS_CURSES,
+  MAX_ABYSS_ENHANCEMENTS,
+  abyssSkillsFor,
+  enhancementsFor,
+  getAbyssCurse,
+  getAdditionalAbyssCurse,
+  type AbyssTarget,
+} from '../../data/abyss';
 import { getClass } from '../../data/classes';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import {
@@ -273,13 +283,25 @@ export function EquipmentSection({ character }: { character: Character }) {
   }
   function addEnhancement() {
     if (!activeAbyssTarget) return;
-    updateAbyss(activeAbyssTarget.id, (list) => [...list, { id: crypto.randomUUID(), type: '', notes: '', curseRoll: '', curseName: '' }]);
+    updateAbyss(activeAbyssTarget.id, (list) => [
+      ...list,
+      { id: crypto.randomUUID(), kind: 'typical', type: '', notes: '', curseRoll: '', curseName: '' },
+    ]);
   }
   function updateEnhancement(holderId: string, enhancementId: string, patch: Partial<AbyssEnhancement>) {
     updateAbyss(holderId, (list) => list.map((enhancement) => (enhancement.id === enhancementId ? { ...enhancement, ...patch } : enhancement)));
   }
+  /** Switching between a typical enhancement and an Abyss Skill also clears whatever was
+   *  picked from the other pair of catalogs — a typical enhancement name is meaningless as a
+   *  skill and the two curse tables never share a roll's contents. */
+  function setEnhancementKind(holderId: string, enhancementId: string, kind: AbyssEnhancement['kind']) {
+    updateEnhancement(holderId, enhancementId, { kind, type: '', curseRoll: '', curseName: '' });
+  }
   function removeEnhancement(holderId: string, enhancementId: string) {
     updateAbyss(holderId, (list) => list.filter((enhancement) => enhancement.id !== enhancementId));
+  }
+  function setAbyssCorruptionLevel(value: number) {
+    update((c) => ({ ...c, abyssCorruptionLevel: Math.max(0, value) }));
   }
 
   function setCurrency(field: 'cash' | 'savings' | 'debt', value: number) {
@@ -625,6 +647,7 @@ export function EquipmentSection({ character }: { character: Character }) {
               <thead>
                 <tr>
                   <th>{t('sheet.abyssItem')}</th>
+                  <th>{t('sheet.abyssKind')}</th>
                   <th>{t('sheet.abyssType')}</th>
                   <th>{t('sheet.itemNote')}</th>
                   <th>{t('sheet.abyssCurse')}</th>
@@ -632,60 +655,78 @@ export function EquipmentSection({ character }: { character: Character }) {
                 </tr>
               </thead>
               <tbody>
-                {abyssRows.map(({ holder, enhancement }) => (
-                  <tr key={enhancement.id}>
-                    {/* Plain text, not an input: the name belongs to the item's own row, and
-                        text wraps on paper where an input would clip it. */}
-                    <td>{holder.name || t('sheet.unnamedItem')}</td>
-                    <td>
-                      <select
-                        value={enhancement.type}
-                        onChange={(e) => updateEnhancement(holder.id, enhancement.id, { type: e.target.value })}
-                        aria-label={t('sheet.abyssType')}
-                      >
-                        <option value=""></option>
-                        {enhancementsFor(holder.target).map((name) => (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <PrintableField
-                        value={enhancement.notes}
-                        onChange={(e) => updateEnhancement(holder.id, enhancement.id, { notes: e.target.value })}
-                        aria-label={t('sheet.itemNote')}
-                      />
-                    </td>
-                    <td>
-                      {/* One select for both fields: the roll indexes the book's 6×6 table
-                          and the name is stored alongside so the sheet prints it. */}
-                      <select
-                        value={enhancement.curseRoll}
-                        onChange={(e) =>
-                          updateEnhancement(holder.id, enhancement.id, {
-                            curseRoll: e.target.value,
-                            curseName: getAbyssCurse(e.target.value)?.name ?? '',
-                          })
-                        }
-                        aria-label={t('sheet.abyssCurse')}
-                      >
-                        <option value=""></option>
-                        {ABYSS_CURSES.map((curse) => (
-                          <option key={curse.roll} value={curse.roll}>
-                            {curse.roll} — {curse.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => removeEnhancement(holder.id, enhancement.id)}>
-                        {t('sheet.remove')}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {abyssRows.map(({ holder, enhancement }) => {
+                  const isSkill = enhancement.kind === 'skill';
+                  const typeOptions = isSkill ? abyssSkillsFor(holder.target) : enhancementsFor(holder.target);
+                  const curseTable = isSkill ? ADDITIONAL_ABYSS_CURSES : ABYSS_CURSES;
+                  const lookupCurse = isSkill ? getAdditionalAbyssCurse : getAbyssCurse;
+                  return (
+                    <tr key={enhancement.id}>
+                      {/* Plain text, not an input: the name belongs to the item's own row, and
+                          text wraps on paper where an input would clip it. */}
+                      <td>{holder.name || t('sheet.unnamedItem')}</td>
+                      <td>
+                        <select
+                          value={enhancement.kind}
+                          onChange={(e) => setEnhancementKind(holder.id, enhancement.id, e.target.value as AbyssEnhancement['kind'])}
+                          aria-label={t('sheet.abyssKind')}
+                        >
+                          <option value="typical">{t('sheet.abyssKindTypical')}</option>
+                          <option value="skill">{t('sheet.abyssKindSkill')}</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          value={enhancement.type}
+                          onChange={(e) => updateEnhancement(holder.id, enhancement.id, { type: e.target.value })}
+                          aria-label={t('sheet.abyssType')}
+                        >
+                          <option value=""></option>
+                          {typeOptions.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <PrintableField
+                          value={enhancement.notes}
+                          onChange={(e) => updateEnhancement(holder.id, enhancement.id, { notes: e.target.value })}
+                          aria-label={t('sheet.itemNote')}
+                        />
+                      </td>
+                      <td>
+                        {/* One select for both fields: the roll indexes the book's 6×6 table
+                            and the name is stored alongside so the sheet prints it. Which
+                            table depends on `kind` — a skill's curse always comes from the
+                            Additional table, never the base one. */}
+                        <select
+                          value={enhancement.curseRoll}
+                          onChange={(e) =>
+                            updateEnhancement(holder.id, enhancement.id, {
+                              curseRoll: e.target.value,
+                              curseName: lookupCurse(e.target.value)?.name ?? '',
+                            })
+                          }
+                          aria-label={t('sheet.abyssCurse')}
+                        >
+                          <option value=""></option>
+                          {curseTable.map((curse) => (
+                            <option key={curse.roll} value={curse.roll}>
+                              {curse.roll} — {curse.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => removeEnhancement(holder.id, enhancement.id)}>
+                          {t('sheet.remove')}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -712,6 +753,20 @@ export function EquipmentSection({ character }: { character: Character }) {
             </>
           )}
         </div>
+
+        <label className={styles.moneyField}>
+          <span>{t('sheet.abyssCorruptionLevel')}</span>
+          <input
+            type="number"
+            min={0}
+            value={character.abyssCorruptionLevel}
+            onChange={(e) => setAbyssCorruptionLevel(Number(e.target.value))}
+            aria-label={t('sheet.abyssCorruptionLevel')}
+          />
+        </label>
+        {character.abyssCorruptionLevel >= ABYSS_CORRUPTION_DAEMONIZATION_LEVEL && (
+          <p className={styles.overspent}>{t('sheet.abyssCorruptionWarning')}</p>
+        )}
       </div>
 
       <div className={styles.subsection} data-print-empty={inventoryEmpty || undefined}>

@@ -21,6 +21,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     hp: { current: 7 },
     mp: { current: 12 },
     statusEffects: [],
+    abyssCorruptionLevel: 0,
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],

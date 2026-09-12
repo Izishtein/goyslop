@@ -129,6 +129,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       hp: { current: previewHp },
       mp: { current: previewMp },
       statusEffects: [],
+      abyssCorruptionLevel: 0,
       equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
       currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
       combatFeats: [],
