@@ -377,6 +377,28 @@ export const KnownEssenceWeavingSchema = z.object({
 });
 export type KnownEssenceWeaving = z.infer<typeof KnownEssenceWeavingSchema>;
 
+/** Battle Mastery Schools (pp. 44-77) — see data/schools.ts. Not tied to any class level:
+ *  entry and every Secret are bought with Reputation alone, so unlike Stunts/Aspects there is
+ *  no slot count to track, only a free list (the same shape as Combat Feats). */
+export const KnownSchoolSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type KnownSchool = z.infer<typeof KnownSchoolSchema>;
+
+/** A learned School Secret. The book classifies Secrets exactly like Combat Feats
+ *  ("very similar to the Combat Feat classification... the only difference is 'Declared type'
+ *  is further split into two types", p. 45) — reusing `CombatFeatCategory` rather than a new
+ *  enum for this one, `'auto'` simply never appears on a Secret. */
+export const KnownSchoolSecretSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  schoolId: z.string(),
+  type: CombatFeatCategorySchema,
+  notes: z.string().default(''),
+});
+export type KnownSchoolSecret = z.infer<typeof KnownSchoolSecretSchema>;
+
 export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
 export const ArtKindSchema = z.enum(ART_KINDS);
 
@@ -552,6 +574,10 @@ export const CharacterSchema = z.object({
   /** Dark Hunter Essence Weavings — see KnownEssenceWeavingSchema. One slot per Dark Hunter
    *  class level, same shape as Rider Stunts. */
   essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
+  /** Battle Mastery School membership and Secrets — see KnownSchoolSchema/KnownSchoolSecretSchema.
+   *  No slot count: both are bought with Reputation alone, like Combat Feats. */
+  schools: z.array(KnownSchoolSchema).default(() => []),
+  schoolSecrets: z.array(KnownSchoolSecretSchema).default(() => []),
   /** Edge (Magus Arts p. 31): accumulates only during combat, like Qi Points for the
    *  Geomancer — the sheet tracks the current value, not the round-by-round rules. */
   tacticianEdge: z.number().int().min(0).default(0),

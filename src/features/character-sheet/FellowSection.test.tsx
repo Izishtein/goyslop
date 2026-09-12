@@ -59,6 +59,8 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     maneuvers: [],
     tacticianEdge: 0,
     essenceWeavings: [],
+    schools: [],
+    schoolSecrets: [],
     ...overrides,
   };
 }

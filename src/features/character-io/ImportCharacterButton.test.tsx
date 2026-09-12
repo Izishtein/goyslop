@@ -55,6 +55,8 @@ function makeCharacter(): Character {
     maneuvers: [],
     tacticianEdge: 0,
     essenceWeavings: [],
+    schools: [],
+    schoolSecrets: [],
   };
 }
 

@@ -163,6 +163,8 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       maneuvers: [],
       tacticianEdge: 0,
       essenceWeavings: [],
+      schools: [],
+      schoolSecrets: [],
     };
 
     const parsed = CharacterSchema.parse(character);

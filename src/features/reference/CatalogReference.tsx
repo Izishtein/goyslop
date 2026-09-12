@@ -32,6 +32,7 @@ import {
   listMountsByCategory,
 } from '../../data/mounts';
 import { getRace } from '../../data/races';
+import { SCHOOLS, listSecretsBySchool } from '../../data/schools';
 import { STUNTS } from '../../data/stunts';
 import { listManeuversByLevel, listStratagemsByLevel } from '../../data/tactician';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
@@ -900,6 +901,85 @@ export function EssenceWeavingReference() {
               </tbody>
             </table>
           </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+export function SchoolsReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-schools">
+      <div className={styles.panelHead}>
+        <h3 id="reference-schools">{t('reference.tab.schools')}</h3>
+        <p className={styles.note}>{t('reference.schoolsNote')}</p>
+      </div>
+
+      {SCHOOLS.map((sch) => (
+        <div key={sch.id} className={styles.group}>
+          <h4>
+            {sch.name}{' '}
+            <span className={styles.numeric}>
+              ({t('sheet.schoolInitiationReputation')} {sch.initiationReputation}
+              {sch.initiationNotes ? `, ${sch.initiationNotes}` : ''})
+            </span>
+          </h4>
+
+          {sch.equipment && sch.equipment.length > 0 && (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>{t('sheet.name')}</th>
+                    <th>{t('reference.price')}</th>
+                    <th>{t('sheet.itemNote')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sch.equipment.map((item) => (
+                    <tr key={item.name}>
+                      <th scope="row" className={styles.rowName}>
+                        {item.name}
+                      </th>
+                      <td className={styles.numeric}>{item.price}</td>
+                      <td>{item.notes ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {sch.secretsNote ? (
+            <p className={styles.note}>{sch.secretsNote}</p>
+          ) : (
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>{t('sheet.name')}</th>
+                    <th>{t('sheet.secretType')}</th>
+                    <th>{t('sheet.essenceWeavingCost')}</th>
+                    <th>{t('sheet.stuntPrerequisite')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listSecretsBySchool(sch.id).map((entry) => (
+                    <tr key={entry.id}>
+                      <th scope="row" className={styles.rowName}>
+                        {entry.name}
+                      </th>
+                      <td>{t(`sheet.combatFeatCategory.${entry.type}`)}</td>
+                      <td className={styles.numeric}>{entry.requiredReputation}</td>
+                      <td>{entry.prerequisite && entry.prerequisite !== 'None' ? entry.prerequisite : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       ))}
     </section>

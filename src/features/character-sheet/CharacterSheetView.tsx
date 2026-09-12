@@ -23,6 +23,7 @@ import { MountsSection } from './MountsSection';
 import { GeomancerSection } from './GeomancerSection';
 import { TacticianSection } from './TacticianSection';
 import { EssenceWeavingSection } from './EssenceWeavingSection';
+import { SchoolsSection } from './SchoolsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
 import styles from './CharacterSheetView.module.css';
@@ -211,6 +212,8 @@ export function CharacterSheetView({ character }: { character: Character }) {
       <TacticianSection character={character} />
 
       <EssenceWeavingSection character={character} />
+
+      <SchoolsSection character={character} />
 
       <CombatFeatsSection character={character} />
 
