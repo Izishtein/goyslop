@@ -337,6 +337,18 @@
     },
     "mountVariantsNote": "Покупаются за репутацию ради +5 к движению, аренде не подлежат: {{names}}.",
     "mountCatalogNote": "{{count}} маунтов из Core Rulebook III. Маунт из другой книги вводится вручную.",
+    "stunts": "Трюки Всадника",
+    "stuntType": "Тип",
+    "stuntTypeName": {
+      "passive": "Постоянная",
+      "majorAction": "Основное действие",
+      "minorAction": "Малое действие"
+    },
+    "stuntPrerequisite": "Условие",
+    "stuntCompatible": "Совместимость",
+    "stuntArea": "Область",
+    "addStuntFromCatalog": "Трюк из каталога",
+    "addStunt": "Добавить трюк вручную",
     "mountFortShort": "Стойк.",
     "mountWillShort": "Воля",
     "mountWeaponShort": "Оружие",

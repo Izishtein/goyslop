@@ -337,6 +337,18 @@
     },
     "mountVariantsNote": "Bought with reputation for +5 movement, no rental: {{names}}.",
     "mountCatalogNote": "{{count}} mounts from Core Rulebook III. A mount from another book is typed in by hand.",
+    "stunts": "Rider Stunts",
+    "stuntType": "Type",
+    "stuntTypeName": {
+      "passive": "Passive",
+      "majorAction": "Major Action",
+      "minorAction": "Minor Action"
+    },
+    "stuntPrerequisite": "Prerequisite",
+    "stuntCompatible": "Compatible",
+    "stuntArea": "Area",
+    "addStuntFromCatalog": "Stunt from catalog",
+    "addStunt": "Add a Stunt by hand",
     "mountFortShort": "Fort",
     "mountWillShort": "Will",
     "mountWeaponShort": "Weapon",

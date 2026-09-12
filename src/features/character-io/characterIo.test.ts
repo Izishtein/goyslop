@@ -39,6 +39,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     connections: [],
     fellow: EMPTY_FELLOW,
     workSkills: [],
+    stunts: [],
     ...overrides,
   };
 }

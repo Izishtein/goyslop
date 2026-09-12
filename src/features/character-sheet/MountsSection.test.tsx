@@ -4,7 +4,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
-import { EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, type Character } from '../../types/character';
+import { CharacterSchema, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, type Character } from '../../types/character';
 import { MountsSection } from './MountsSection';
 
 function Harness({ id }: { id: string }) {
@@ -49,6 +49,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     connections: [],
     fellow: EMPTY_FELLOW,
     workSkills: [],
+    stunts: [],
     ...overrides,
   };
 }
@@ -144,5 +145,75 @@ describe('MountsSection', () => {
     const [mount] = store.get(charactersAtom)[0].mounts;
     expect(mount).toMatchObject({ mountId: '', name: '' });
     expect(mount.sections).toHaveLength(1);
+  });
+});
+
+describe('MountsSection Stunts', () => {
+  it('adds a Stunt from the catalog with the type the book prints', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter());
+
+    await user.selectOptions(screen.getByLabelText('Stunt from catalog'), 'charge');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    const [stunt] = store.get(charactersAtom)[0].stunts;
+    expect(stunt).toMatchObject({ name: 'Charge', type: 'majorAction' });
+  });
+
+  it('marks Stunts above the Rider level without hiding them', () => {
+    // Rider 5 (the fixture's level) can't yet reach 10th Level Stunts.
+    renderSection(makeCharacter());
+
+    const options = [...screen.getByLabelText('Stunt from catalog').querySelectorAll('option')];
+    const balance = options.find((option) => option.value === 'balance');
+    expect(balance).toBeTruthy();
+    expect(balance?.disabled).toBe(false);
+    expect(balance?.closest('optgroup')?.label).toContain('above class level');
+  });
+
+  it('disables a Stunt already known, so it cannot be taken twice', () => {
+    renderSection(makeCharacter({ stunts: [{ id: 's1', name: 'Charge', type: 'majorAction' }] }));
+
+    const options = [...screen.getByLabelText('Stunt from catalog').querySelectorAll('option')];
+    expect(options.find((option) => option.value === 'charge')?.disabled).toBe(true);
+  });
+
+  it('counts Stunts against one slot per Rider level and flags overspend', async () => {
+    const user = userEvent.setup();
+    // Rider 5 fixture: 5 slots. Six hand-added Stunts should read 6 / 5 and flag red.
+    const store = renderSection(makeCharacter());
+
+    for (let i = 0; i < 6; i++) {
+      await user.click(screen.getByRole('button', { name: 'Add a Stunt by hand' }));
+    }
+
+    expect(store.get(charactersAtom)[0].stunts).toHaveLength(6);
+    const counter = screen.getByText('(6 / 5)');
+    expect(counter.className).toMatch(/overspent/);
+  });
+
+  it('removes a Stunt without touching the others', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(
+      makeCharacter({
+        stunts: [
+          { id: 's1', name: 'Charge', type: 'majorAction' },
+          { id: 's2', name: 'Tandem', type: 'passive' },
+        ],
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Charge Remove' }));
+
+    expect(store.get(charactersAtom)[0].stunts.map((s) => s.name)).toEqual(['Tandem']);
+  });
+
+  it('backfills stunts for characters saved before the field existed', () => {
+    const character = makeCharacter();
+    const { stunts: _stunts, ...oldCharacter } = character;
+
+    const parsed = CharacterSchema.parse(oldCharacter);
+
+    expect(parsed.stunts).toEqual([]);
   });
 });

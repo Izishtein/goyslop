@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
+import { stuntSlots } from '../../lib/formulas/requirements';
 import {
   MOUNTS,
   MOUNT_CATEGORIES,
@@ -12,10 +13,20 @@ import {
   rowsAtLevel,
   type MountDefinition,
 } from '../../data/mounts';
+import { getStunt, listStuntsByLevel, STUNTS } from '../../data/stunts';
 import { useUpdateCharacter } from '../../state/characters';
-import { MOUNT_CONTRACTS, type Character, type KnownMount, type MountSection } from '../../types/character';
+import { MOUNT_CONTRACTS, STUNT_TYPES, type Character, type KnownMount, type MountSection, type Stunt } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+
+const STUNT_LEVELS = [1, 5, 10] as const;
+
+function newStunt(): Stunt {
+  return { id: crypto.randomUUID(), name: '', type: 'passive' };
+}
+
+/** Suggestion list shared by every Stunt row; a page only ever shows one sheet. */
+const STUNTS_LIST_ID = 'rider-stunt-names';
 
 function riderLevel(character: Character): number {
   return character.classes.filter((entry) => entry.classId === 'rider').reduce((max, entry) => Math.max(max, entry.level), 0);
@@ -109,14 +120,17 @@ export function MountsSection({ character }: { character: Character }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
   const [pick, setPick] = useState('');
+  const [stuntPick, setStuntPick] = useState('');
 
   const rider = riderLevel(character);
   const advLevel = adventurerLevel(character.classes);
+  const slots = stuntSlots(rider);
+  const known = new Set(character.stunts.map((s) => s.name));
 
   /* Without Rider levels a character may still ride a Horse, War Horse, Mini Manabike or
      Manabike (Core III p. 88) — so the section is not for the class alone. It stays hidden
      for everyone else, and a mount already recorded keeps it reachable after a class change. */
-  const show = rider > 0 || character.mounts.length > 0;
+  const show = rider > 0 || character.mounts.length > 0 || character.stunts.length > 0;
   if (!show) return null;
 
   function setMounts(next: (mounts: KnownMount[]) => KnownMount[]) {
@@ -163,6 +177,25 @@ export function MountsSection({ character }: { character: Character }) {
 
   function removeMount(id: string) {
     setMounts((mounts) => mounts.filter((mount) => mount.id !== id));
+  }
+
+  function setStunts(next: (stunts: Stunt[]) => Stunt[]) {
+    update((c) => ({ ...c, stunts: next(c.stunts) }));
+  }
+  function updateStunt(id: string, patch: Partial<Stunt>) {
+    setStunts((stunts) => stunts.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+  }
+  function addStuntFromCatalog() {
+    const found = getStunt(stuntPick);
+    if (!found) return;
+    setStunts((stunts) => [...stunts, { id: crypto.randomUUID(), name: found.name, type: found.type }]);
+    setStuntPick('');
+  }
+  function addCustomStunt() {
+    setStunts((stunts) => [...stunts, newStunt()]);
+  }
+  function removeStunt(id: string) {
+    setStunts((stunts) => stunts.filter((s) => s.id !== id));
   }
 
   const weapons = listMountGear('weapon');
@@ -443,6 +476,91 @@ export function MountsSection({ character }: { character: Character }) {
       </p>
       {/* Referencing the full catalog keeps the count honest if a book adds mounts later. */}
       <p className={styles.sectionNote}>{t('sheet.mountCatalogNote', { count: MOUNTS.length })}</p>
+
+      <div className={styles.subsection} data-print-empty={character.stunts.length === 0 || undefined}>
+        <h4 className={styles.subHead}>
+          {t('sheet.stunts')}{' '}
+          <span className={`${styles.numeric} ${character.stunts.length > slots ? styles.overspent : ''}`}>
+            ({character.stunts.length} / {slots})
+          </span>
+        </h4>
+
+        {character.stunts.length > 0 && (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('sheet.stuntType')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {character.stunts.map((s) => (
+                  <tr key={s.id}>
+                    <td>
+                      {/* Supplements past Core III may add Stunts the catalog does not cover
+                          yet, so this suggests a name but never forces it. */}
+                      <PrintableField list={STUNTS_LIST_ID} value={s.name} onChange={(e) => updateStunt(s.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                    </td>
+                    <td>
+                      <select value={s.type} onChange={(e) => updateStunt(s.id, { type: e.target.value as Stunt['type'] })} aria-label={t('sheet.stuntType')}>
+                        {STUNT_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {t(`sheet.stuntTypeName.${type}`)}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => removeStunt(s.id)} aria-label={`${s.name} ${t('sheet.remove')}`}>
+                        {t('sheet.remove')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <datalist id={STUNTS_LIST_ID}>
+          {STUNTS.map((entry) => (
+            <option key={entry.id} value={entry.name} />
+          ))}
+        </datalist>
+
+        <div className={`${styles.inlineRow} ${styles.controlRow}`}>
+          <label htmlFor="add-stunt">{t('sheet.addStuntFromCatalog')}</label>
+          <select id="add-stunt" value={stuntPick} onChange={(e) => setStuntPick(e.target.value)}>
+            <option value="">{t('creation.selectPlaceholder')}</option>
+            {STUNT_LEVELS.map((level) => (
+              <optgroup
+                key={level}
+                label={`${t('sheet.levelRequired', { level })}${level > rider ? ` — ${t('sheet.aboveClassLevel')}` : ''}`}
+              >
+                {listStuntsByLevel(level).map((entry) => (
+                  <option
+                    key={entry.id}
+                    value={entry.id}
+                    disabled={known.has(entry.name)}
+                    title={entry.prerequisite ? `${t('sheet.stuntPrerequisite')}: ${entry.prerequisite}` : undefined}
+                  >
+                    {entry.name}
+                    {entry.prerequisite ? ` (${t('sheet.stuntPrerequisite')}: ${entry.prerequisite})` : ''}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <button type="button" onClick={addStuntFromCatalog} disabled={!stuntPick}>
+            {t('sheet.addFromCatalog')}
+          </button>
+          <button type="button" onClick={addCustomStunt}>
+            {t('sheet.addStunt')}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

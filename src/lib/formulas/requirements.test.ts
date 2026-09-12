@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { combatFeatSlots, combatFeatsSpendingSlots, meetsStrength, requiredStrength } from './requirements';
+import { combatFeatSlots, combatFeatsSpendingSlots, meetsStrength, requiredStrength, stuntSlots } from './requirements';
 import type { CombatFeat } from '../../types/character';
 
 describe('requiredStrength', () => {
@@ -51,5 +51,15 @@ describe('combatFeatsSpendingSlots', () => {
     ];
 
     expect(combatFeatsSpendingSlots(feats)).toBe(2);
+  });
+});
+
+describe('stuntSlots', () => {
+  it('gives one slot per Rider level, including the first', () => {
+    expect([0, 1, 5, 10, 15].map(stuntSlots)).toEqual([0, 1, 5, 10, 15]);
+  });
+
+  it('never goes negative', () => {
+    expect(stuntSlots(-3)).toBe(0);
   });
 });

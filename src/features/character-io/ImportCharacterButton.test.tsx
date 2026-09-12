@@ -48,6 +48,7 @@ function makeCharacter(): Character {
     connections: [],
     fellow: EMPTY_FELLOW,
     workSkills: [],
+    stunts: [],
   };
 }
 

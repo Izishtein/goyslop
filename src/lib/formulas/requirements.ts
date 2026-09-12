@@ -30,3 +30,9 @@ export function combatFeatSlots(adventurerLevel: number): number {
 export function combatFeatsSpendingSlots(feats: CombatFeat[]): number {
   return feats.filter((feat) => feat.category !== 'auto').length;
 }
+
+/** Rider Stunt slots: "When taking a level of the Rider class, including the first, you can
+ *  choose a Stunt" (Core III p. 86) — one slot per Rider level, no odd/even split like SCA. */
+export function stuntSlots(riderLevel: number): number {
+  return Math.max(0, riderLevel);
+}

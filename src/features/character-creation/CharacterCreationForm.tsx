@@ -148,6 +148,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       connections: [],
       fellow: EMPTY_FELLOW,
       workSkills: [],
+      stunts: [],
     };
 
     const parsed = CharacterSchema.parse(character);

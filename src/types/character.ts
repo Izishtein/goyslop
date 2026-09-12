@@ -300,6 +300,20 @@ export const CombatFeatSchema = z.object({
 });
 export type CombatFeat = z.infer<typeof CombatFeatSchema>;
 
+/** Rider Stunts (Core Rulebook III pp. 180-189) mark their name with one of three icons: a
+ *  circle for always-in-effect, or the Major/Minor Action glyph the same way a combat feat's
+ *  "declaration"/"majorAction" categories do. */
+export const STUNT_TYPES = ['passive', 'majorAction', 'minorAction'] as const;
+export const StuntTypeSchema = z.enum(STUNT_TYPES);
+export type StuntType = z.infer<typeof StuntTypeSchema>;
+
+export const StuntSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: StuntTypeSchema,
+});
+export type Stunt = z.infer<typeof StuntSchema>;
+
 export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
 export const ArtKindSchema = z.enum(ART_KINDS);
 
@@ -463,6 +477,8 @@ export const CharacterSchema = z.object({
   materialCards: MaterialCardsSchema.default(() => ({})),
   /** The Rider's mounts — see KnownMountSchema. */
   mounts: z.array(KnownMountSchema).default(() => []),
+  /** Rider Stunts — see StuntSchema. One slot per Rider class level, same shape as SCA. */
+  stunts: z.array(StuntSchema).default(() => []),
   performance: PerformanceSchema.default(() => EMPTY_PERFORMANCE),
   growthLog: z.array(GrowthEntrySchema).default(() => []),
   /** Guild reputation points; the Adventurer Rank is derived from them, never stored. */

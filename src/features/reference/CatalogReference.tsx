@@ -30,6 +30,7 @@ import {
   listMountsByCategory,
 } from '../../data/mounts';
 import { getRace } from '../../data/races';
+import { STUNTS } from '../../data/stunts';
 import { CATALOGUED_SCHOOLS, listSpellsBySchool } from '../../data/spells';
 import {
   getTreasureDropTable,
@@ -670,6 +671,38 @@ export function MountsReference() {
           </div>
         </div>
       ))}
+
+      <div className={styles.group}>
+        <h4>{t('sheet.stunts')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.requiredLevel')}</th>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.stuntType')}</th>
+                <th>{t('sheet.stuntPrerequisite')}</th>
+                <th>{t('sheet.stuntCompatible')}</th>
+                <th>{t('sheet.stuntArea')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {STUNTS.map((entry) => (
+                <tr key={entry.id}>
+                  <td className={styles.numeric}>{entry.requiredLevel}</td>
+                  <th scope="row" className={styles.rowName}>
+                    {entry.name}
+                  </th>
+                  <td>{t(`sheet.stuntTypeName.${entry.type}`)}</td>
+                  <td>{entry.prerequisite ?? '—'}</td>
+                  <td>{entry.compatible.map((category) => t(`sheet.mountCategory.${category}`)).join(', ')}</td>
+                  <td>{entry.area}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   );
 }
