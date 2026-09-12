@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { getRace, RACES } from './races';
+import { getRace, racialAbilitiesFor, RACES } from './races';
+
+const RARE_SPECIES_CATEGORIES: [string, string][] = [
+  ['snow-elf', 'mist-elf'],
+  ['pico-tabbit', 'lupus-tabbit'],
+  ['guardian-runefolk', 'combat-runefolk'],
+  ['shadowborn-nightmare', 'soleilborn-nightmare'],
+  ['large-herbivore-lykant', 'small-herbivore-lykant'],
+  ['small-winged-lildraken', 'hairy-lildraken'],
+  ['alisha-grassrunner', 'crimenos-grassrunner'],
+  ['carnivorous-meria', 'fungi-meria'],
+  ['tech-tiens', 'daemonic-tiens'],
+  ['leprechaun-nomad', 'leprechaun-explorer'],
+];
 
 describe('races catalog', () => {
   it('parses plain dice notation', () => {
@@ -19,9 +32,9 @@ describe('races catalog', () => {
     expect(alv?.usesVagrantSystem).toBe(true);
   });
 
-  it('has 21 races with unique ids', () => {
-    expect(RACES).toHaveLength(21);
-    expect(new Set(RACES.map((race) => race.id)).size).toBe(21);
+  it('has 41 races with unique ids', () => {
+    expect(RACES).toHaveLength(41);
+    expect(new Set(RACES.map((race) => race.id)).size).toBe(41);
   });
 
   it('races with ability dice also have background tables, and vice versa', () => {
@@ -78,6 +91,104 @@ describe('races catalog', () => {
       expect(race?.abilityDice, `${id} should have dice`).not.toBeNull();
       expect(race?.backgroundTables, `${id} should have background tables`).not.toBeNull();
       expect(race?.sourceBook).toBe('Arcane Relic');
+    }
+  });
+
+  it('parses dice notation with a negative flat bonus (Rare Tabbit Species post-roll adjustments)', () => {
+    expect(getRace('pico-tabbit')?.abilityDice?.STR).toEqual({ count: 1, bonus: -3 });
+    expect(getRace('lupus-tabbit')?.abilityDice?.SPR).toEqual({ count: 2, bonus: -3 });
+  });
+
+  it('adds the 20 rare species subspecies (Arcane Relic pp. 34-53), two per parent race', () => {
+    for (const [a, b] of RARE_SPECIES_CATEGORIES) {
+      for (const id of [a, b]) {
+        const race = getRace(id);
+        expect(race?.abilityDice, `${id} should have dice`).not.toBeNull();
+        expect(race?.backgroundTables, `${id} should have a background table`).not.toBeNull();
+        expect(race?.backgroundTables?.additional, `${id} should have no additional table`).toBeUndefined();
+        expect(race?.sourceBook).toBe('Arcane Relic');
+      }
+    }
+    expect(RARE_SPECIES_CATEGORIES).toHaveLength(10);
+  });
+
+  it('each rare species pair shares one background table with its sibling', () => {
+    for (const [a, b] of RARE_SPECIES_CATEGORIES) {
+      const raceA = getRace(a);
+      const raceB = getRace(b);
+      expect(raceA?.backgroundTables?.primary, `${a}/${b}`).toEqual(raceB?.backgroundTables?.primary);
+    }
+  });
+
+  it('each rare species pair shares one A-F die block, except the two Tabbit variants which each layer their own flat correction on top', () => {
+    for (const [a, b] of RARE_SPECIES_CATEGORIES) {
+      if (a === 'pico-tabbit') continue;
+      expect(getRace(a)?.abilityDice, `${a}/${b}`).toEqual(getRace(b)?.abilityDice);
+    }
+    expect(getRace('pico-tabbit')?.abilityDice).not.toEqual(getRace('lupus-tabbit')?.abilityDice);
+  });
+
+  it('rare species dice mostly match their parent race, with two book-printed exceptions (Tiens Spirit, Leprechaun Vitality)', () => {
+    const parentByRareId: Record<string, string> = {
+      'snow-elf': 'elf',
+      'guardian-runefolk': 'runefolk',
+      'shadowborn-nightmare': 'nightmare',
+      'large-herbivore-lykant': 'lykant',
+      'small-winged-lildraken': 'lildraken',
+      'alisha-grassrunner': 'grassrunner',
+      'carnivorous-meria': 'meria',
+    };
+    for (const [rareId, parentId] of Object.entries(parentByRareId)) {
+      expect(getRace(rareId)?.abilityDice, rareId).toEqual(getRace(parentId)?.abilityDice);
+    }
+    // Arcane Relic p. 50/52 prints these two stats one step lower than the Tiens/Leprechaun
+    // entries already in the catalog (Core Rulebook III) — book value kept as printed, per
+    // the project's "book wins on conflict" rule, not silently matched to the parent.
+    expect(getRace('tech-tiens')?.abilityDice?.SPR).toEqual({ count: 2, bonus: 3 });
+    expect(getRace('tiens')?.abilityDice?.SPR).toEqual({ count: 2, bonus: 6 });
+    expect(getRace('leprechaun-nomad')?.abilityDice?.VIT).toEqual({ count: 1, bonus: 0 });
+    expect(getRace('leprechaun')?.abilityDice?.VIT).toEqual({ count: 2, bonus: 0 });
+  });
+
+  it('Pico and Lupus Tabbit inherit the Priest restriction, matching their shared table never granting it', () => {
+    for (const id of ['pico-tabbit', 'lupus-tabbit']) {
+      const race = getRace(id);
+      expect(race?.restrictedClasses).toContain('priest');
+      const grantsPriest = (race?.backgroundTables?.primary ?? []).some((entry) => entry.startingClasses?.classIds.includes('priest'));
+      expect(grantsPriest).toBe(false);
+    }
+  });
+
+  it('Guardian and Combat Type Runefolk inherit the Priest restriction, matching their shared table never granting it', () => {
+    for (const id of ['guardian-runefolk', 'combat-runefolk']) {
+      const race = getRace(id);
+      expect(race?.restrictedClasses).toContain('priest');
+      const grantsPriest = (race?.backgroundTables?.primary ?? []).some((entry) => entry.startingClasses?.classIds.includes('priest'));
+      expect(grantsPriest).toBe(false);
+    }
+  });
+
+  it('each rare species replaces its named parent ability rather than keeping it alongside the new one', () => {
+    const replacedAwayFrom: [string, string][] = [
+      ['snow-elf', "Sword's Grace/Gentle Water"],
+      ['mist-elf', "Sword's Grace/Gentle Water"],
+      ['guardian-runefolk', 'HP Conversion'],
+      ['combat-runefolk', 'HP Conversion'],
+      ['large-herbivore-lykant', 'Beast Form'],
+      ['small-herbivore-lykant', 'Beast Form'],
+      ['small-winged-lildraken', "Sword's Grace/Wings of the Wind"],
+      ['hairy-lildraken', 'Tail Whip'],
+      ['hairy-lildraken', 'Scaly Hide'],
+      ['carnivorous-meria', 'Thriving Life'],
+      ['fungi-meria', 'Thriving Life'],
+      ['tech-tiens', 'Intercommunication'],
+      ['daemonic-tiens', 'Intercommunication'],
+      ['leprechaun-nomad', 'Unseen Artisan'],
+      ['leprechaun-explorer', 'Unseen Artisan'],
+    ];
+    for (const [id, oldName] of replacedAwayFrom) {
+      const names = racialAbilitiesFor(id).map((a) => a.name);
+      expect(names, `${id} should no longer list [${oldName}]`).not.toContain(oldName);
     }
   });
 });

@@ -22,7 +22,9 @@ export function abilityBaseFromSplit(split: SkillBodyMind, ability: AbilityId): 
 }
 
 export function formatDiceNotation(dice: AbilityDice): string {
-  return dice.bonus > 0 ? `${dice.count}d6+${dice.bonus}` : `${dice.count}d6`;
+  if (dice.bonus > 0) return `${dice.count}d6+${dice.bonus}`;
+  if (dice.bonus < 0) return `${dice.count}d6${dice.bonus}`;
+  return `${dice.count}d6`;
 }
 
 /** Correction is a roll of the racial die, so it can only land between all-ones and

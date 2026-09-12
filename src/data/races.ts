@@ -1,6 +1,7 @@
 import type { AbilityId } from '../lib/formulas/abilities';
 
-/** Racial correction die: roll `count`d6 and add `bonus`. */
+/** Racial correction die: roll `count`d6 and add `bonus` (negative for a flat penalty, as with
+ *  the Rare Tabbit Species' post-roll ability score adjustments, Arcane Relic pp. 36-37). */
 export interface AbilityDice {
   count: number;
   bonus: number;
@@ -40,7 +41,7 @@ export interface RaceDefinition {
 
 function dice(A: string, B: string, C: string, D: string, E: string, F: string): AbilityDiceByAbility {
   const parse = (notation: string): AbilityDice => {
-    const match = notation.match(/^(\d+)d(?:\+(\d+))?$/);
+    const match = notation.match(/^(\d+)d(?:([+-]\d+))?$/);
     if (!match) throw new Error(`Invalid dice notation: ${notation}`);
     return { count: Number(match[1]), bonus: Number(match[2] ?? 0) };
   };
@@ -567,6 +568,337 @@ export const RACES: RaceDefinition[] = [
       ],
     },
   },
+  // Rare species (Arcane Relic pp. 34-53): each category prints one shared A-F correction
+  // die block and one shared 5-row background table for its pair of subspecies (not one per
+  // subspecies), so the two RaceDefinition entries below intentionally repeat the same dice
+  // and table literals rather than one per race, matching every other entry in this file.
+  {
+    id: 'snow-elf',
+    name: 'Snow Elf',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [10, 6, 10], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [10, 5, 11], 2500),
+        bg('7', 'Wizard', ['sorcerer', 'conjurer'], [9, 3, 14], 1000),
+        bg('8-9', 'Druid', ['druid'], [9, 4, 13], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [9, 5, 12], 2000),
+      ],
+    },
+  },
+  {
+    id: 'mist-elf',
+    name: 'Mist Elf',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [10, 6, 10], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [10, 5, 11], 2500),
+        bg('7', 'Wizard', ['sorcerer', 'conjurer'], [9, 3, 14], 1000),
+        bg('8-9', 'Druid', ['druid'], [9, 4, 13], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [9, 5, 12], 2000),
+      ],
+    },
+  },
+  {
+    id: 'pico-tabbit',
+    name: 'Pico Tabbit',
+    sourceBook: 'Arcane Relic',
+    // Book gives the Rare Tabbit dice (1d/1d/1d/2d/2d+6/2d) plus a flat post-roll correction
+    // "Dexterity +3 Agility +3 Strength -3 Vitality -3" — folded straight into `dice.bonus`
+    // (a roll shifted by a constant has the same distribution as the roll plus that constant,
+    // and `abilityPointCost` already subtracts `dice.bonus` before the table lookup, so Point
+    // Buy needs no changes either).
+    abilityDice: dice('1d+3', '1d+3', '1d-3', '2d-3', '2d+6', '2d'),
+    restrictedClasses: ['priest'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [8, 6, 8], 2500),
+        bg('5-6', 'Warlock', ['daemonologist'], [6, 7, 9], 2000),
+        bg('7', 'Druid', ['druid'], [7, 5, 10], 2000),
+        bg('8-9', 'Alchemist', ['alchemist'], [7, 7, 8], 2500),
+        bg('10-12', 'Hobbyist', ['sage', 'bard'], [6, 8, 8], 2000),
+      ],
+    },
+  },
+  {
+    id: 'lupus-tabbit',
+    name: 'Lupus Tabbit',
+    sourceBook: 'Arcane Relic',
+    // Flat correction "Agility +3 Strength +3 Intelligence -3 Spirit -3" over the same Rare
+    // Tabbit dice, folded into `dice.bonus` as for Pico Tabbit above.
+    abilityDice: dice('1d', '1d+3', '1d+3', '2d', '2d+3', '2d-3'),
+    restrictedClasses: ['priest'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [8, 6, 8], 2500),
+        bg('5-6', 'Warlock', ['daemonologist'], [6, 7, 9], 2000),
+        bg('7', 'Druid', ['druid'], [7, 5, 10], 2000),
+        bg('8-9', 'Alchemist', ['alchemist'], [7, 7, 8], 2500),
+        bg('10-12', 'Hobbyist', ['sage', 'bard'], [6, 8, 8], 2000),
+      ],
+    },
+  },
+  {
+    id: 'guardian-runefolk',
+    name: 'Guardian Type Runefolk',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '2d', '2d', '1d'),
+    restrictedClasses: ['priest'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Alchemist', ['alchemist'], [11, 7, 8], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [11, 7, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 11, 5], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [8, 11, 7], 2500),
+        bg('10-12', 'Warlock', ['daemonologist'], [9, 9, 8], 2000),
+      ],
+    },
+  },
+  {
+    id: 'combat-runefolk',
+    name: 'Combat Type Runefolk',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '2d', '2d', '1d'),
+    restrictedClasses: ['priest'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Alchemist', ['alchemist'], [11, 7, 8], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [11, 7, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 11, 5], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [8, 11, 7], 2500),
+        bg('10-12', 'Warlock', ['daemonologist'], [9, 9, 8], 2000),
+      ],
+    },
+  },
+  {
+    id: 'shadowborn-nightmare',
+    name: 'Shadow-born Nightmare',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '1d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 12, 9], 2500),
+        bg('5-6', 'Dancer', ['battle-dancer'], [11, 11, 8], 2000),
+        bg('7', 'Warlock', ['daemonologist'], [11, 7, 12], 2000),
+        bg('8-9', 'Druid', ['druid'], [7, 10, 13], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [10, 10, 10], 2500),
+      ],
+    },
+  },
+  {
+    id: 'soleilborn-nightmare',
+    name: 'Soleil-born Nightmare',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '1d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 12, 9], 2500),
+        bg('5-6', 'Dancer', ['battle-dancer'], [11, 11, 8], 2000),
+        bg('7', 'Warlock', ['daemonologist'], [11, 7, 12], 2000),
+        bg('8-9', 'Druid', ['druid'], [7, 10, 13], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [10, 10, 10], 2500),
+      ],
+    },
+  },
+  {
+    id: 'large-herbivore-lykant',
+    name: 'Large Herbivore Lykant',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '1d+3', '2d', '2d', '1d+6', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 9, 7], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [10, 8, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [12, 7, 6], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [10, 7, 8], 2000),
+        bg('10-12', 'Jockey', ['rider'], [11, 8, 6], 2500),
+      ],
+    },
+  },
+  {
+    id: 'small-herbivore-lykant',
+    name: 'Small Herbivore Lykant',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '1d+3', '2d', '2d', '1d+6', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 9, 7], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [10, 8, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [12, 7, 6], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [10, 7, 8], 2000),
+        bg('10-12', 'Jockey', ['rider'], [11, 8, 6], 2500),
+      ],
+    },
+  },
+  {
+    id: 'small-winged-lildraken',
+    name: 'Small-Winged Lildraken',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '2d', '2d', '2d+6', '1d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Alchemist', ['alchemist'], [6, 12, 7], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [5, 12, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [7, 13, 5], 2000),
+        bg('8-9', 'Druid', ['druid'], [6, 10, 9], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [6, 11, 8], 2500),
+      ],
+    },
+  },
+  {
+    id: 'hairy-lildraken',
+    name: 'Hairy Lildraken',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '2d', '2d', '2d+6', '1d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Alchemist', ['alchemist'], [6, 12, 7], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [5, 12, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [7, 13, 5], 2000),
+        bg('8-9', 'Druid', ['druid'], [6, 10, 9], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [6, 11, 8], 2500),
+      ],
+    },
+  },
+  {
+    id: 'alisha-grassrunner',
+    name: 'Alisha Grassrunner',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '2d+6', '1d', '2d+6'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Apothecary', ['sage', 'ranger'], [13, 1, 11], 2000),
+        bg('5-6', 'Tactician', ['tactician'], [12, 2, 11], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 2, 10], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [11, 0, 14], 2500),
+        bg('10-12', 'Alchemist', ['alchemist'], [13, 1, 11], 2500),
+      ],
+    },
+  },
+  {
+    id: 'crimenos-grassrunner',
+    name: 'Crimenos Grassrunner',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '2d+6', '1d', '2d+6'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Apothecary', ['sage', 'ranger'], [13, 1, 11], 2000),
+        bg('5-6', 'Tactician', ['tactician'], [12, 2, 11], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 2, 10], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [11, 0, 14], 2500),
+        bg('10-12', 'Alchemist', ['alchemist'], [13, 1, 11], 2500),
+      ],
+    },
+  },
+  {
+    id: 'carnivorous-meria',
+    name: 'Carnivorous Meria',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '1d', '1d', '2d+6', '1d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Dancer', ['battle-dancer'], [9, 8, 12], 2000),
+        bg('5-6', 'Tactician', ['tactician'], [7, 9, 13], 2500),
+        bg('7', 'Druid', ['druid'], [6, 7, 16], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [9, 6, 14], 2500),
+        bg('10-12', 'Warlock', ['daemonologist'], [7, 7, 15], 2000),
+      ],
+    },
+  },
+  {
+    id: 'fungi-meria',
+    name: 'Fungi Meria',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('1d', '1d', '1d', '2d+6', '1d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Dancer', ['battle-dancer'], [9, 8, 12], 2000),
+        bg('5-6', 'Tactician', ['tactician'], [7, 9, 13], 2500),
+        bg('7', 'Druid', ['druid'], [6, 7, 16], 2000),
+        bg('8-9', 'Geomancer', ['geomancer'], [9, 6, 14], 2500),
+        bg('10-12', 'Warlock', ['daemonologist'], [7, 7, 15], 2000),
+      ],
+    },
+  },
+  {
+    id: 'tech-tiens',
+    name: 'Tech Tiens',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '1d+3', '2d', '2d+3'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Geomancer', ['geomancer'], [10, 8, 10], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [9, 12, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 12, 6], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [9, 10, 9], 2000),
+        bg('10-12', 'Druid', ['druid'], [8, 10, 10], 2000),
+      ],
+    },
+  },
+  {
+    id: 'daemonic-tiens',
+    name: 'Daemonic Tiens',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '2d', '1d', '1d+3', '2d', '2d+3'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Geomancer', ['geomancer'], [10, 8, 10], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [9, 12, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 12, 6], 2000),
+        bg('8-9', 'Warlock', ['daemonologist'], [9, 10, 9], 2000),
+        bg('10-12', 'Druid', ['druid'], [8, 10, 10], 2000),
+      ],
+    },
+  },
+  {
+    id: 'leprechaun-nomad',
+    name: 'Leprechaun Nomad',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '1d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [13, 5, 5], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [12, 5, 6], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [14, 5, 4], 2000),
+        bg('8-9', 'Druid', ['druid'], [11, 4, 8], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [12, 6, 5], 2000),
+      ],
+    },
+  },
+  {
+    id: 'leprechaun-explorer',
+    name: 'Leprechaun Explorer',
+    sourceBook: 'Arcane Relic',
+    abilityDice: dice('2d', '1d', '2d', '1d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Tactician', ['tactician'], [13, 5, 5], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [12, 5, 6], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [14, 5, 4], 2000),
+        bg('8-9', 'Druid', ['druid'], [11, 4, 8], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [12, 6, 5], 2000),
+      ],
+    },
+  },
 ];
 
 export function getRace(id: string): RaceDefinition | undefined {
@@ -712,6 +1044,141 @@ const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
     { name: 'Black Flame Master', fromLevel: 0 },
     { name: 'Black Flame Master', fromLevel: 6 },
     { name: 'Black Flame Master', fromLevel: 11 },
+  ],
+  // Rare species (Arcane Relic pp. 34-53): each replaces one named ability of its parent race
+  // with a new one of its own, keeping the parent's other abilities untouched.
+  'snow-elf': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Sword's Grace/Solemn Ice", fromLevel: 0 },
+    { name: "Sword's Grace/Solemn Ice", fromLevel: 6 },
+    { name: "Sword's Grace/Solemn Ice", fromLevel: 11 },
+  ],
+  'mist-elf': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Sword's Grace/Beguiling Mist", fromLevel: 0 },
+    { name: "Sword's Grace/Beguiling Mist", fromLevel: 6 },
+    { name: "Sword's Grace/Beguiling Mist", fromLevel: 11 },
+  ],
+  // [Whistle] is additive to [Sixth Sense], not a replacement, and is never enhanced itself
+  // ("Same as regular Tabbits with [Sixth Sense] being enhanced").
+  'pico-tabbit': [
+    { name: 'Sixth Sense', fromLevel: 0 },
+    { name: 'Sixth Sense', fromLevel: 6 },
+    { name: 'Sixth Sense', fromLevel: 11 },
+    { name: 'Whistle', fromLevel: 0 },
+  ],
+  'lupus-tabbit': [
+    { name: 'Sixth Sense', fromLevel: 0 },
+    { name: 'Sixth Sense', fromLevel: 6 },
+    { name: 'Sixth Sense', fromLevel: 11 },
+    { name: 'Darkvision', fromLevel: 0 },
+  ],
+  'guardian-runefolk': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Fellowship', fromLevel: 0 },
+    { name: 'Fellowship', fromLevel: 6 },
+    { name: 'Fellowship', fromLevel: 11 },
+  ],
+  'combat-runefolk': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Will to Perform', fromLevel: 0 },
+    { name: 'Will to Perform', fromLevel: 6 },
+    { name: 'Will to Perform', fromLevel: 11 },
+  ],
+  // Both origins keep the base Nightmare abilities unchanged by name ("the same racial
+  // ability, but the type of weak point is different for each") — Shadow-born trades the
+  // weak-point damage for a Fortitude/Willpower penalty vs. psychic effects, Soleil-born
+  // gets +2 energy-type damage. Neither numeric nuance is tracked; only book-bracketed names
+  // and levels are (see the module doc comment above).
+  'shadowborn-nightmare': [
+    { name: 'Alternate Form', fromLevel: 0 },
+    { name: 'Weakness', fromLevel: 0 },
+    { name: 'Alternate Form', fromLevel: 11 },
+  ],
+  'soleilborn-nightmare': [
+    { name: 'Alternate Form', fromLevel: 0 },
+    { name: 'Weakness', fromLevel: 0 },
+    { name: 'Alternate Form', fromLevel: 11 },
+  ],
+  'large-herbivore-lykant': [
+    { name: 'Darkvision (Beast Form)', fromLevel: 0 },
+    { name: 'Beast Form (Large Herbivore)', fromLevel: 0 },
+    { name: 'Beast Form (Large Herbivore)', fromLevel: 6 },
+    { name: 'Beast Form (Large Herbivore)', fromLevel: 11 },
+  ],
+  'small-herbivore-lykant': [
+    { name: 'Darkvision (Beast Form)', fromLevel: 0 },
+    { name: 'Beast Form (Small Herbivore)', fromLevel: 0 },
+    { name: 'Beast Form (Small Herbivore)', fromLevel: 6 },
+    { name: 'Beast Form (Small Herbivore)', fromLevel: 11 },
+  ],
+  // Small-Winged only replaces the flight ability; Scaly Hide/Tail Whip are untouched.
+  'small-winged-lildraken': [
+    { name: 'Scaly Hide', fromLevel: 0 },
+    { name: 'Tail Whip', fromLevel: 0 },
+    { name: "Sword's Grace/Dragon's Roar", fromLevel: 0 },
+    { name: "Sword's Grace/Dragon's Roar", fromLevel: 6 },
+    { name: "Sword's Grace/Dragon's Roar", fromLevel: 11 },
+  ],
+  // Hairy replaces both Tail Whip and Scaly Hide with a single ability; Wings of the Wind is
+  // untouched (and keeps the base race's own 0/11 progression — no Level 6 step is printed).
+  'hairy-lildraken': [
+    { name: "Sword's Grace/Wings of the Wind", fromLevel: 0 },
+    { name: "Sword's Grace/Wings of the Wind", fromLevel: 11 },
+    { name: 'Warm Breeze', fromLevel: 0 },
+    { name: 'Warm Breeze', fromLevel: 6 },
+    { name: 'Warm Breeze', fromLevel: 11 },
+  ],
+  // Both say "No change in racial abilities" — Mana Interference keeps its name, but its
+  // enhancement text is replaced (and gains a Level 6 step the base Grassrunner lacks).
+  'alisha-grassrunner': [
+    { name: 'Mana Interference', fromLevel: 0 },
+    { name: 'Natural Communication', fromLevel: 0 },
+    { name: 'Mana Interference', fromLevel: 6 },
+    { name: 'Mana Interference', fromLevel: 11 },
+  ],
+  'crimenos-grassrunner': [
+    { name: 'Mana Interference', fromLevel: 0 },
+    { name: 'Natural Communication', fromLevel: 0 },
+    { name: 'Mana Interference', fromLevel: 6 },
+    { name: 'Mana Interference', fromLevel: 11 },
+  ],
+  'carnivorous-meria': [
+    { name: 'Predatory Life', fromLevel: 0 },
+    { name: 'Predatory Life', fromLevel: 6 },
+    { name: 'Predatory Life', fromLevel: 11 },
+  ],
+  'fungi-meria': [
+    { name: 'Sporulation', fromLevel: 0 },
+    { name: 'Sporulation', fromLevel: 6 },
+    { name: 'Sporulation', fromLevel: 11 },
+  ],
+  'tech-tiens': [
+    { name: 'Tech-Link', fromLevel: 0 },
+    { name: 'Tech-Link', fromLevel: 6 },
+    { name: 'Tech-Link', fromLevel: 11 },
+  ],
+  'daemonic-tiens': [
+    { name: 'Daemonic Communion', fromLevel: 0 },
+    { name: 'Daemonic Communion', fromLevel: 6 },
+    { name: 'Daemonic Communion', fromLevel: 11 },
+  ],
+  // Both replace [Unseen Artisan] with their own ability (Level 0 only, no enhancement
+  // printed); [Invisible Hand] is untouched ("the enhancements are the same" as base
+  // Leprechaun's own 0/6/11 progression).
+  'leprechaun-nomad': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 6 },
+    { name: 'Invisible Hand', fromLevel: 11 },
+    { name: 'Invisible Artisan', fromLevel: 0 },
+  ],
+  'leprechaun-explorer': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 0 },
+    { name: 'Invisible Hand', fromLevel: 6 },
+    { name: 'Invisible Hand', fromLevel: 11 },
+    { name: "Artisan's Partner", fromLevel: 0 },
   ],
 };
 
