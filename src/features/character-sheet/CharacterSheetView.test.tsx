@@ -63,6 +63,7 @@ function makeCharacter(): Character {
     stratagems: [],
     maneuvers: [],
     tacticianEdge: 0,
+    essenceWeavings: [],
   };
 }
 

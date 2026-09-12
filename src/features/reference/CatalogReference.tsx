@@ -11,6 +11,7 @@ import {
 import { listArtsByKind, type ArtKind } from '../../data/arts';
 import { COMBAT_FEATS } from '../../data/combat-feats';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
+import { listEssenceWeavingsByLevel } from '../../data/essence-weavings';
 import {
   ARMORS,
   GENERAL_ITEMS,
@@ -848,6 +849,52 @@ export function TacticianReference() {
                     </th>
                     <td className={styles.numeric}>{entry.edgeCost > 0 ? `-${entry.edgeCost}` : '—'}</td>
                     <td>{entry.prerequisite ?? entry.condition ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+const ESSENCE_WEAVING_LEVELS = [1, 5, 10] as const;
+
+export function EssenceWeavingReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-essence-weavings">
+      <div className={styles.panelHead}>
+        <h3 id="reference-essence-weavings">{t('reference.tab.essenceWeavings')}</h3>
+        <p className={styles.note}>{t('reference.essenceWeavingsNote')}</p>
+      </div>
+
+      {ESSENCE_WEAVING_LEVELS.map((level) => (
+        <div key={level} className={styles.group}>
+          <h4>{t('sheet.levelRequired', { level })}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('sheet.stuntType')}</th>
+                  <th>{t('sheet.essenceWeavingCost')}</th>
+                  <th>{t('sheet.stuntPrerequisite')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listEssenceWeavingsByLevel(level).map((entry) => (
+                  <tr key={entry.id}>
+                    <th scope="row" className={styles.rowName}>
+                      {entry.name}
+                      {entry.usableInPreparation ? ` (${t('sheet.essenceWeavingPreparation')})` : ''}
+                    </th>
+                    <td>{t(`sheet.stuntTypeName.${entry.type}`)}</td>
+                    <td className={styles.numeric}>{entry.cost}</td>
+                    <td>{entry.prerequisite ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -364,6 +364,19 @@ export const KnownManeuverSchema = z.object({
 });
 export type KnownManeuver = z.infer<typeof KnownManeuverSchema>;
 
+/** Dark Hunter Essence Weavings (Abyss Breaker pp. 29-35) — see data/essence-weavings.ts. One
+ *  slot per Dark Hunter class level, the same shape as Rider Stunts. */
+export const ESSENCE_WEAVING_TYPES = ['passive', 'minorAction', 'majorAction'] as const;
+export const EssenceWeavingTypeSchema = z.enum(ESSENCE_WEAVING_TYPES);
+export type EssenceWeavingType = z.infer<typeof EssenceWeavingTypeSchema>;
+
+export const KnownEssenceWeavingSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: EssenceWeavingTypeSchema,
+});
+export type KnownEssenceWeaving = z.infer<typeof KnownEssenceWeavingSchema>;
+
 export const ART_KINDS = ['technique', 'spellsong', 'finale'] as const;
 export const ArtKindSchema = z.enum(ART_KINDS);
 
@@ -536,6 +549,9 @@ export const CharacterSchema = z.object({
    *  One shared slot pool per Tactician class level (stratagems.length + maneuvers.length). */
   stratagems: z.array(KnownStratagemSchema).default(() => []),
   maneuvers: z.array(KnownManeuverSchema).default(() => []),
+  /** Dark Hunter Essence Weavings — see KnownEssenceWeavingSchema. One slot per Dark Hunter
+   *  class level, same shape as Rider Stunts. */
+  essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
   /** Edge (Magus Arts p. 31): accumulates only during combat, like Qi Points for the
    *  Geomancer — the sheet tracks the current value, not the round-by-round rules. */
   tacticianEdge: z.number().int().min(0).default(0),

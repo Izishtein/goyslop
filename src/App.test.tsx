@@ -54,6 +54,7 @@ function makeCharacter(id: string, name: string): Character {
     stratagems: [],
     maneuvers: [],
     tacticianEdge: 0,
+    essenceWeavings: [],
   };
 }
 

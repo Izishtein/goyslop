@@ -49,3 +49,10 @@ export function aspectSlots(geomancerLevel: number): number {
 export function tacticianSlots(tacticianLevel: number): number {
   return Math.max(0, tacticianLevel);
 }
+
+/** Dark Hunter Essence Weaving slots: "For each level gained in the Dark Hunter class, the
+ *  character chooses and acquires one Essence Weaving" (Abyss Breaker p. 28) — one slot per
+ *  Dark Hunter level, the same shape as Rider Stunts. */
+export function essenceWeavingSlots(darkHunterLevel: number): number {
+  return Math.max(0, darkHunterLevel);
+}

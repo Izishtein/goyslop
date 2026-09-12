@@ -45,6 +45,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     stratagems: [],
     maneuvers: [],
     tacticianEdge: 0,
+    essenceWeavings: [],
     ...overrides,
   };
 }
