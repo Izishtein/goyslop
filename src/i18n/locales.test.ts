@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { ARTS } from '../data/arts';
 import { CLASSES } from '../data/classes';
+import { COMBAT_FEATS } from '../data/combat-feats';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 
@@ -56,6 +58,14 @@ describe('locale files', () => {
     expect(Object.keys(en.reference.classDescription).filter((id) => !ids.has(id))).toEqual([]);
   });
 
+  it('describes no combat feat that does not exist', () => {
+    // combatFeatEffect is filled in feat by feat (see docs/roadmap.md § 5.1), so unlike
+    // classDescription it is not expected to cover every entry — only to never carry a
+    // typoed id that silently never renders.
+    const ids = new Set(COMBAT_FEATS.map((feat) => feat.id));
+    expect(Object.keys(en.reference.combatFeatEffect).filter((id) => !ids.has(id))).toEqual([]);
+  });
+
   it('does not leave a description identical in both languages', () => {
     // A copy-paste of the English column into ru.json would pass every check above while
     // shipping English text to Russian readers.
@@ -65,5 +75,17 @@ describe('locale files', () => {
         ru.reference.classDescription[id as keyof typeof ru.reference.classDescription],
     );
     expect(identical).toEqual([]);
+  });
+
+  it('describes every Technique/Spellsong/Finale in both languages', () => {
+    for (const art of ARTS) {
+      expect(en.reference.artEffect, `en ${art.id}`).toHaveProperty(art.id);
+      expect(ru.reference.artEffect, `ru ${art.id}`).toHaveProperty(art.id);
+    }
+  });
+
+  it('describes no art that does not exist', () => {
+    const ids = new Set(ARTS.map((art) => art.id));
+    expect(Object.keys(en.reference.artEffect).filter((id) => !ids.has(id))).toEqual([]);
   });
 });

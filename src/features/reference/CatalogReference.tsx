@@ -121,40 +121,55 @@ export function SpellsReference() {
 }
 
 export function CombatFeatsReference() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <section className={styles.panel} aria-labelledby="reference-feats">
       <div className={styles.panelHead}>
         <h3 id="reference-feats">{t('reference.tab.feats')}</h3>
         <p className={styles.note}>{t('reference.featsNote')}</p>
+        <p className={styles.note}>{t('reference.featEffectsNote')}</p>
       </div>
 
-      {COMBAT_FEAT_CATEGORIES.map((category) => (
-        <div key={category} className={styles.group}>
-          <h4>{t(`sheet.combatFeatCategory.${category}`)}</h4>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>{t('sheet.name')}</th>
-                  <th>{t('reference.book')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMBAT_FEATS.filter((feat) => feat.category === category).map((feat) => (
-                  <tr key={feat.id}>
-                    <th scope="row" className={styles.rowName}>
-                      {feat.name}
-                    </th>
-                    <td>{feat.sourceBook}</td>
+      {COMBAT_FEAT_CATEGORIES.map((category) => {
+        const feats = COMBAT_FEATS.filter((feat) => feat.category === category);
+        const withEffect = feats.filter((feat) => i18n.exists(`reference.combatFeatEffect.${feat.id}`));
+
+        return (
+          <div key={category} className={styles.group}>
+            <h4>{t(`sheet.combatFeatCategory.${category}`)}</h4>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>{t('sheet.name')}</th>
+                    <th>{t('reference.book')}</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {feats.map((feat) => (
+                    <tr key={feat.id}>
+                      <th scope="row" className={styles.rowName}>
+                        {feat.name}
+                      </th>
+                      <td>{feat.sourceBook}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {withEffect.length > 0 && (
+              <ul>
+                {withEffect.map((feat) => (
+                  <li key={feat.id}>
+                    <strong>{feat.name}.</strong> {t(`reference.combatFeatEffect.${feat.id}`)}
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
@@ -203,7 +218,7 @@ export function EvocationsReference() {
 }
 
 export function ArtsReference() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <section className={styles.panel} aria-labelledby="reference-arts">
@@ -212,45 +227,59 @@ export function ArtsReference() {
         <p className={styles.note}>{t('reference.artsNote')}</p>
       </div>
 
-      {ART_KINDS.map((kind) => (
-        <div key={kind} className={styles.group}>
-          <h4>{t(`sheet.${kind}s`)}</h4>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>{t('sheet.name')}</th>
-                  <th>{t('sheet.requiredLevel')}</th>
-                  {kind === 'technique' && <th>{t('sheet.preparation')}</th>}
-                  {kind === 'technique' && <th>{t('sheet.duration')}</th>}
-                  {kind !== 'technique' && <th>{kind === 'finale' ? t('sheet.rhythmCost') : t('sheet.rhythm')}</th>}
-                  {kind === 'spellsong' && <th>{t('sheet.flourish')}</th>}
-                  {kind === 'spellsong' && <th>{t('sheet.pets')}</th>}
-                  {kind !== 'technique' && <th>{t('sheet.resistance')}</th>}
-                  {kind !== 'technique' && <th>{t('sheet.damageType')}</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {listArtsByKind(kind).map((art) => (
-                  <tr key={art.id}>
-                    <th scope="row" className={styles.rowName}>
-                      {art.name}
-                    </th>
-                    <td className={styles.numeric}>{art.requiredLevel}</td>
-                    {kind === 'technique' && <td>{art.preparation ? '△' : '—'}</td>}
-                    {kind === 'technique' && <td>{art.duration ? t(`sheet.duration_${art.duration}`) : '—'}</td>}
-                    {kind !== 'technique' && <td>{art.rhythm}</td>}
-                    {kind === 'spellsong' && <td className={styles.numeric}>{art.flourish}</td>}
-                    {kind === 'spellsong' && <td>{art.pets}</td>}
-                    {kind !== 'technique' && <td>{art.resistance}</td>}
-                    {kind !== 'technique' && <td>{art.damageType}</td>}
+      {ART_KINDS.map((kind) => {
+        const arts = listArtsByKind(kind);
+        const withEffect = arts.filter((art) => i18n.exists(`reference.artEffect.${art.id}`));
+
+        return (
+          <div key={kind} className={styles.group}>
+            <h4>{t(`sheet.${kind}s`)}</h4>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>{t('sheet.name')}</th>
+                    <th>{t('sheet.requiredLevel')}</th>
+                    {kind === 'technique' && <th>{t('sheet.preparation')}</th>}
+                    {kind === 'technique' && <th>{t('sheet.duration')}</th>}
+                    {kind !== 'technique' && <th>{kind === 'finale' ? t('sheet.rhythmCost') : t('sheet.rhythm')}</th>}
+                    {kind === 'spellsong' && <th>{t('sheet.flourish')}</th>}
+                    {kind === 'spellsong' && <th>{t('sheet.pets')}</th>}
+                    {kind !== 'technique' && <th>{t('sheet.resistance')}</th>}
+                    {kind !== 'technique' && <th>{t('sheet.damageType')}</th>}
                   </tr>
+                </thead>
+                <tbody>
+                  {arts.map((art) => (
+                    <tr key={art.id}>
+                      <th scope="row" className={styles.rowName}>
+                        {art.name}
+                      </th>
+                      <td className={styles.numeric}>{art.requiredLevel}</td>
+                      {kind === 'technique' && <td>{art.preparation ? '△' : '—'}</td>}
+                      {kind === 'technique' && <td>{art.duration ? t(`sheet.duration_${art.duration}`) : '—'}</td>}
+                      {kind !== 'technique' && <td>{art.rhythm}</td>}
+                      {kind === 'spellsong' && <td className={styles.numeric}>{art.flourish}</td>}
+                      {kind === 'spellsong' && <td>{art.pets}</td>}
+                      {kind !== 'technique' && <td>{art.resistance}</td>}
+                      {kind !== 'technique' && <td>{art.damageType}</td>}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {withEffect.length > 0 && (
+              <ul>
+                {withEffect.map((art) => (
+                  <li key={art.id}>
+                    <strong>{art.name}.</strong> {t(`reference.artEffect.${art.id}`)}
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
