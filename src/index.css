@@ -16,7 +16,7 @@
   /* Text */
   --text: #1b1b21;
   --text-muted: #6a6a78;
-  --text-faint: #94949f;
+  --text-faint: #6f6f7c;
 
   /* Accent + semantic */
   --accent: #6d4aff;
@@ -70,7 +70,7 @@
 
     --text: #e9e9ef;
     --text-muted: #9b9bab;
-    --text-faint: #6e6e7d;
+    --text-faint: #828291;
 
     --accent: #a78bfa;
     --accent-soft: rgba(167, 139, 250, 0.14);
@@ -99,7 +99,7 @@
 
   --text: #e9e9ef;
   --text-muted: #9b9bab;
-  --text-faint: #6e6e7d;
+  --text-faint: #828291;
 
   --accent: #a78bfa;
   --accent-soft: rgba(167, 139, 250, 0.14);
