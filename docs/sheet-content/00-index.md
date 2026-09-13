@@ -69,9 +69,9 @@ Truespeech | Spiritualism | Divine | Magitech | Fairy | Nature | Daemon/Summonin
 + Spellsongs (Bard), Techniques (Enhancer), Essence Weavings (Dark Hunter)
 
 ### Power Table
-- 100 строк (Power 1–100+)
-- Dice explosion при ≥ Critical Value
-- Максимум ~30 урона (Power 100, бросок 12)
+- **Оцифрована целиком 2026-09-13** — 101 строка (Power 0–100), не формула, `src/lib/formulas/power-table.ts`. Источник — Core Rulebook III pp. 461–464 (identical reprint Core Rulebook II pp. 428–431 для Power 0–80, III продолжает до 100); обе книги извлечены и сверены байт в байт, плюс оба книжных примера Core Rulebook I p. 137 (Power 20 бросок 5→3, Power 27 бросок 10→9) совпали
+- Dice explosion при ≥ Critical Value (переброс и сложение, пока новый бросок не ниже порога); двойная 1 — 0 урона и конец цепочки, без специальной проверки (Critical Value книгой никогда не бывает ниже 8, поэтому «2» естественно не проходит условие цикла)
+- Максимум 30 урона (Power 100, бросок 12)
 
 ---
 

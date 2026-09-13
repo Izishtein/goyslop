@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
 import { CharacterSchema, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
@@ -118,5 +118,24 @@ describe('AbilitySection growth log', () => {
     delete legacy.growthLog;
 
     expect(CharacterSchema.parse(legacy).growthLog).toEqual([]);
+  });
+});
+
+describe('AbilitySection universal check roll', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('rolls 2d6 + Adventurer Level + ability modifier, not the modifier alone', async () => {
+    // Fighter Lv3 (only class) -> Adventurer Level 3; base 8 -> modifier +1 -> Standard
+    // Value 4 (03-ability-scores-and-formulas.md: universal checks use Adv. Level, not
+    // class level, since there is no class tied to e.g. an STR check).
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(2 / 6).mockReturnValueOnce(3 / 6);
+    renderSection(makeCharacter());
+
+    await user.click(screen.getByRole('button', { name: 'Roll 2d6 + STR' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('3 + 4 + 4 = 11');
   });
 });

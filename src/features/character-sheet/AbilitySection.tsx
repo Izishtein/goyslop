@@ -4,6 +4,7 @@ import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character } from '../../types/character';
+import { DiceRoll } from './DiceRoll';
 import styles from './CharacterSheetView.module.css';
 
 const EDITABLE_PARTS = [
@@ -15,6 +16,7 @@ const EDITABLE_PARTS = [
 export function AbilitySection({ character }: { character: Character }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
+  const advLevel = adventurerLevel(character.classes);
 
   function setField(id: AbilityId, field: 'correction' | 'growth' | 'itemBonus', value: number) {
     update((c) => ({
@@ -81,6 +83,10 @@ export function AbilitySection({ character }: { character: Character }) {
                 <span className={styles.abilityMod} aria-label={`${id} ${t('creation.modifier')}`}>
                   {modifier >= 0 ? `+${modifier}` : modifier}
                 </span>
+                {/* Universal check, no class needed: Adventurer Level + Ability Modifier
+                    (03-ability-scores-and-formulas.md) — everything from Open Locks to a
+                    GM-called STR check the catalog never named. */}
+                <DiceRoll modifier={advLevel + modifier} label={id} />
               </div>
 
               <div className={styles.abilityParts}>

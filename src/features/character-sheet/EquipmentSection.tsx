@@ -35,6 +35,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
+import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
 
 function primaryWarriorLevel(character: Character): number {
@@ -396,7 +397,15 @@ export function EquipmentSection({ character }: { character: Character }) {
                       aria-label={t('sheet.extraDamageBonus')}
                     />
                   </td>
-                  <td className={styles.numeric}>{weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}</td>
+                  <td className={styles.numeric}>
+                    {weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}{' '}
+                    <WeaponDamageRoll
+                      power={weapon.power}
+                      criticalValue={weapon.criticalValue}
+                      extraDamage={weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}
+                      label={weapon.name || t('sheet.unnamedItem')}
+                    />
+                  </td>
                   <td>
                     <select value={weapon.rank} onChange={(e) => updateWeapon(weapon.id, { rank: e.target.value as Weapon['rank'] })} aria-label={t('sheet.rank')}>
                       {EQUIPMENT_RANKS.map((rank) => (
