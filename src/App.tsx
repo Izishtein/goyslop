@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { charactersAtom, activeCharacterIdAtom, duplicateCharacter, STORAGE_ERROR_EVENT } from './state/characters';
+import { themeAtom, type ThemePreference } from './state/theme';
 import { CharacterCreationForm } from './features/character-creation/CharacterCreationForm';
 import { CharacterSheetView } from './features/character-sheet/CharacterSheetView';
 import { downloadCharacter } from './features/character-io/downloadCharacter';
@@ -16,6 +17,18 @@ function App() {
   const [characters, setCharacters] = useAtom(charactersAtom);
   const [activeId, setActiveId] = useAtom(activeCharacterIdAtom);
   const activeCharacter = characters.find((character) => character.id === activeId);
+
+  const [theme, setTheme] = useAtom(themeAtom);
+  /* 'system' means no override: clearing the attribute lets index.css's prefers-color-scheme
+     media query decide, the same as before this switch existed. index.html applies the
+     stored choice before first paint already, so this effect only handles later changes. */
+  useEffect(() => {
+    if (theme === 'system') {
+      delete document.documentElement.dataset.theme;
+    } else {
+      document.documentElement.dataset.theme = theme;
+    }
+  }, [theme]);
 
   /* Deleting is irreversible (localStorage only), so it takes two clicks. Inline rather
      than a modal: the roster row is where the mistake happens, and it keeps the sheet
@@ -78,6 +91,18 @@ function App() {
         <button type="button" onClick={() => setShowReference((open) => !open)} aria-pressed={showReference}>
           {t('reference.open')}
         </button>
+        <div className={styles.langSwitch}>
+          <label htmlFor="theme-switch">{t('app.theme')}</label>
+          <select
+            id="theme-switch"
+            value={theme}
+            onChange={(event) => setTheme(event.target.value as ThemePreference)}
+          >
+            <option value="system">{t('app.themeSystem')}</option>
+            <option value="light">{t('app.themeLight')}</option>
+            <option value="dark">{t('app.themeDark')}</option>
+          </select>
+        </div>
         <div className={styles.langSwitch}>
           <label htmlFor="lang-switch">{t('app.language')}</label>
           {/* resolvedLanguage, not language: a detected "ru-RU" resolves to the "ru"

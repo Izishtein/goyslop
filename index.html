@@ -5,6 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SW 2.5 Character Sheet</title>
+    <script>
+      // Applies the saved manual theme before first paint, so an override opposite the
+      // system preference doesn't flash the wrong theme. Mirrors state/theme.ts's storage
+      // key and jotai's atomWithStorage JSON encoding — kept in sync manually since this
+      // has to run before any module (including jotai) loads.
+      (function () {
+        try {
+          var stored = JSON.parse(localStorage.getItem('sw25.theme') || '"system"');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch (e) {
+          /* Corrupt or blocked storage: fall back to the system theme. */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

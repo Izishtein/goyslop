@@ -23,7 +23,7 @@
   --accent-soft: rgba(109, 74, 255, 0.1);
   --accent-text: #ffffff;
   --ok: #1f9d63;
-  --warn: #c98a12;
+  --warn: #98680e;
   --danger: #d4394b;
   --mp: #3b71f0;
 
@@ -56,8 +56,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The manual switch (App.tsx, `sw25.theme`) sets `data-theme` on <html> for 'light'/'dark'
+   and clears it for 'system'. `:not([data-theme="light"])` lets an explicit light choice
+   win over a dark system preference; `[data-theme="dark"]` below wins the other direction
+   without needing the media query at all. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #101116;
     --surface: #191b21;
     --surface-2: #21232b;
@@ -79,6 +83,34 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
   }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #101116;
+  --surface: #191b21;
+  --surface-2: #21232b;
+  --border: #2c2f39;
+  --border-strong: #3a3e4a;
+
+  --text: #e9e9ef;
+  --text-muted: #9b9bab;
+  --text-faint: #6e6e7d;
+
+  --accent: #a78bfa;
+  --accent-soft: rgba(167, 139, 250, 0.14);
+  --accent-text: #16121f;
+  --ok: #45c78a;
+  --warn: #e0aa3e;
+  --danger: #f0616f;
+  --mp: #7aa2f7;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 * {

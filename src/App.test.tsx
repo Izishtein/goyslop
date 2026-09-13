@@ -9,6 +9,7 @@ import { EMPTY_INVENTORY, type Character, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY
 
 beforeEach(() => {
   localStorage.clear();
+  delete document.documentElement.dataset.theme;
 });
 
 function makeCharacter(id: string, name: string): Character {
@@ -149,6 +150,29 @@ describe('storage failures', () => {
     } finally {
       Storage.prototype.setItem = setItem;
     }
+  });
+});
+
+describe('theme switch', () => {
+  it('defaults to system and applies no override attribute', () => {
+    renderApp([makeCharacter('char-1', 'Test Hero')]);
+
+    expect(screen.getByRole('combobox', { name: 'Theme' })).toHaveValue('system');
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+  });
+
+  it('sets data-theme on <html> when overridden, and clears it back to system', async () => {
+    const user = userEvent.setup();
+    renderApp([makeCharacter('char-1', 'Test Hero')]);
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), 'Dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), 'Light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Theme' }), 'System');
+    expect(document.documentElement.dataset.theme).toBeUndefined();
   });
 });
 

@@ -8,6 +8,10 @@
     "cancel": "Cancel",
     "saveFailed": "Changes could not be saved — the browser's storage for this site is full or blocked. Export the character to a file before closing the page.",
     "language": "Language",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
     "duplicate": "Duplicate character",
     "duplicateShort": "Duplicate",
     "copySuffix": "(copy)"
