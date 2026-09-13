@@ -73,10 +73,12 @@ function renderSection(character: Character) {
   return store;
 }
 
-/** The Standard Value cell of the check package row with this label. */
+/** The Standard Value cell of the check package row with this label. The cell also carries
+ *  a DiceRoll button ("2d6"), so pull out the leading number rather than the full text. */
 function valueOf(label: RegExp): string {
   const row = screen.getByRole('row', { name: label });
-  return within(row).getAllByRole('cell')[1].textContent ?? '';
+  const cellText = within(row).getAllByRole('cell')[1].textContent ?? '';
+  return cellText.match(/^-?\d+/)?.[0] ?? '';
 }
 
 describe('CombatStatsSection check packages', () => {

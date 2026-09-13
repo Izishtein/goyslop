@@ -1,0 +1,35 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 1px 6px;
+  font-size: 0.72rem;
+}
+
+.result {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fumble {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.critical {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* The button is already dropped by the global `button { display: none }` rule
+   (src/print.css); a past roll shown at the moment of printing is not sheet data. */
+@media print {
+  .result {
+    display: none;
+  }
+}

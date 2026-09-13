@@ -11,6 +11,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import { AbilitySection } from './AbilitySection';
 import { AvatarField } from './AvatarField';
 import { ClassesSection } from './ClassesSection';
+import { DiceRoll } from './DiceRoll';
 import { CombatStatsSection } from './CombatStatsSection';
 import { EquipmentSection } from './EquipmentSection';
 import { CombatFeatsSection } from './CombatFeatsSection';
@@ -180,12 +181,20 @@ export function CharacterSheetView({ character }: { character: Character }) {
             <span className={styles.statValue} aria-label={t('sheet.fortitude')}>
               {fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
             </span>
+            <DiceRoll
+              modifier={fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
+              label={t('sheet.fortitude')}
+            />
           </div>
           <div className={styles.stat}>
             <span className={styles.statLabel}>{t('sheet.willpower')}</span>
             <span className={styles.statValue} aria-label={t('sheet.willpower')}>
               {willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
             </span>
+            <DiceRoll
+              modifier={willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
+              label={t('sheet.willpower')}
+            />
           </div>
         </div>
       </div>

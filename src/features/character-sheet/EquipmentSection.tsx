@@ -33,6 +33,7 @@ import {
 } from '../../data/equipment';
 import { useUpdateCharacter } from '../../state/characters';
 import { autoGrow } from './autoGrow';
+import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
 
@@ -369,7 +370,13 @@ export function EquipmentSection({ character }: { character: Character }) {
                       aria-label={t('sheet.accuracyBonus')}
                     />
                   </td>
-                  <td className={styles.numeric}>{weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}</td>
+                  <td className={styles.numeric}>
+                    {weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}{' '}
+                    <DiceRoll
+                      modifier={weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}
+                      label={`${weapon.name || t('sheet.unnamedItem')} ${t('sheet.totalAccuracy')}`}
+                    />
+                  </td>
                   <td>
                     <input type="number" value={weapon.power} onChange={(e) => updateWeapon(weapon.id, { power: Number(e.target.value) })} aria-label={t('sheet.power')} />
                   </td>

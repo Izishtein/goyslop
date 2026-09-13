@@ -15,6 +15,7 @@ import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
 import type { Character } from '../../types/character';
+import { DiceRoll } from './DiceRoll';
 import styles from './CharacterSheetView.module.css';
 
 export function CombatStatsSection({ character }: { character: Character }) {
@@ -93,8 +94,12 @@ export function CombatStatsSection({ character }: { character: Character }) {
               {warriorRows.map((row) => (
                 <tr key={row.name}>
                   <td>{row.name}</td>
-                  <td className={styles.numeric}>{row.accuracy}</td>
-                  <td className={styles.numeric}>{row.evasion}</td>
+                  <td className={styles.numeric}>
+                    {row.accuracy} <DiceRoll modifier={row.accuracy} label={`${row.name} ${t('sheet.accuracy')}`} />
+                  </td>
+                  <td className={styles.numeric}>
+                    {row.evasion} <DiceRoll modifier={row.evasion} label={`${row.name} ${t('sheet.evasion')}`} />
+                  </td>
                   <td className={styles.numeric}>{row.extraDamage}</td>
                 </tr>
               ))}
@@ -116,7 +121,9 @@ export function CombatStatsSection({ character }: { character: Character }) {
               {wizardRows.map((row) => (
                 <tr key={row.name}>
                   <td>{row.name}</td>
-                  <td className={styles.numeric}>{row.magicPower}</td>
+                  <td className={styles.numeric}>
+                    {row.magicPower} <DiceRoll modifier={row.magicPower} label={`${row.name} ${t('sheet.magicPower')}`} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -138,7 +145,9 @@ export function CombatStatsSection({ character }: { character: Character }) {
               {checkRows.map((row) => (
                 <tr key={row.key}>
                   <td>{t(`sheet.check_${row.key}`)}</td>
-                  <td className={styles.numeric}>{row.value}</td>
+                  <td className={styles.numeric}>
+                    {row.value} <DiceRoll modifier={row.value} label={t(`sheet.check_${row.key}`)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
