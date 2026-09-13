@@ -4,12 +4,12 @@ import { RACES, getRace } from '../data/races';
 import { indexBackgroundsByName, indexBackgroundsByStartingClass, listBackgroundOptions } from './backgrounds';
 
 describe('listBackgroundOptions', () => {
-  it('returns the primary table followed by the additional one, each key unique', () => {
+  it('returns the primary table, then additional, then supplemental, each key unique', () => {
     const human = getRace('human');
     const options = listBackgroundOptions(human!);
 
     expect(options[0].table).toBe('primary');
-    expect(options.at(-1)?.table).toBe('additional');
+    expect(options.at(-1)?.table).toBe('supplemental');
     expect(new Set(options.map((option) => option.key)).size).toBe(options.length);
   });
 

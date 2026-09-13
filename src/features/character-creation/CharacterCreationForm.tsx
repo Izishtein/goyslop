@@ -218,7 +218,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
               </option>
               {/* Grouped by source table: the player rolls on one of them, and without the
                   grouping both tables' "2-4" rows sit in the list looking interchangeable. */}
-              {(['primary', 'additional'] as const).map((table) => {
+              {(['primary', 'additional', 'supplemental'] as const).map((table) => {
                 const options = backgroundOptions.filter((option) => option.table === table);
                 if (options.length === 0) return null;
                 return (

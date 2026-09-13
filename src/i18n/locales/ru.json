@@ -41,7 +41,8 @@
     "submit": "Создать персонажа",
     "backgroundTable": {
       "primary": "Основная таблица",
-      "additional": "Дополнительная таблица (Core II)"
+      "additional": "Дополнительная таблица (Core II)",
+      "supplemental": "Таблица новых классов (Battle Mastery)"
     },
     "gmOnly": "с разрешения GM",
     "rollsOwnSplit": "Эта предыстория не даёт фиксированных Skill/Body/Mind — их бросают костями. Внесите то, что выпало.",

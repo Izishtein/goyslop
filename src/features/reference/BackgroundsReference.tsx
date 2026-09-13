@@ -67,7 +67,7 @@ export function BackgroundsReference() {
             </select>
           </div>
 
-          {(['primary', 'additional'] as const).map((table) => {
+          {(['primary', 'additional', 'supplemental'] as const).map((table) => {
             const rows = listBackgroundOptions(race!).filter((option) => option.table === table);
             if (rows.length === 0) return null;
             return (

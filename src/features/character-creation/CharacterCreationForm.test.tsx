@@ -140,7 +140,11 @@ describe('CharacterCreationForm', () => {
     await user.selectOptions(screen.getByLabelText(/^Race$/i), 'human');
 
     const groups = screen.getByLabelText(/^Background$/i).querySelectorAll('optgroup');
-    expect([...groups].map((group) => group.label)).toEqual(['Primary table', 'Additional table (Core II)']);
+    expect([...groups].map((group) => group.label)).toEqual([
+      'Primary table',
+      'Additional table (Core II)',
+      'Supplemental table (Battle Mastery)',
+    ]);
     // Both tables have a "2-4" row, so the grouping is what tells them apart.
     expect(screen.getByRole('option', { name: 'Artificer (2-4, 2000 XP)' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Archer (2-4, 2500 XP)' })).toBeInTheDocument();

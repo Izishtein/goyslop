@@ -170,4 +170,11 @@ describe('CombatFeatsSection slots', () => {
     const count = screen.getByText('3 / 2');
     expect(count.className).toMatch(/overspent/);
   });
+
+  it('gives a Battle Dancer one extra slot from level 1 (Bonus Active Combat Feat, Battle Mastery p. 12)', () => {
+    // Adventurer Level 1 alone grants one slot; Battle Dancer adds a second on top of that.
+    renderSection(makeCharacter({ classes: [{ classId: 'battle-dancer', level: 1 }] }));
+
+    expect(screen.getByText('Feats taken:').parentElement).toHaveTextContent('0 / 2');
+  });
 });

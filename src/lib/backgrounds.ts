@@ -1,8 +1,10 @@
 import { RACES, type BackgroundEntry, type RaceDefinition } from '../data/races';
 
+export type BackgroundTableName = 'primary' | 'additional' | 'supplemental';
+
 export interface BackgroundOption {
   key: string;
-  table: 'primary' | 'additional';
+  table: BackgroundTableName;
   entry: BackgroundEntry;
 }
 
@@ -18,14 +20,19 @@ export function listBackgroundOptions(race: RaceDefinition): BackgroundOption[] 
     table: 'additional' as const,
     entry,
   }));
-  return [...primary, ...additional];
+  const supplemental = (race.backgroundTables.supplemental ?? []).map((entry, index) => ({
+    key: `supplemental:${index}`,
+    table: 'supplemental' as const,
+    entry,
+  }));
+  return [...primary, ...additional, ...supplemental];
 }
 
 /** One background row, remembering which race's table it came from. */
 export interface BackgroundOccurrence {
   raceId: string;
   raceName: string;
-  table: 'primary' | 'additional';
+  table: BackgroundTableName;
   entry: BackgroundEntry;
 }
 

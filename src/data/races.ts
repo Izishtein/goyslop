@@ -33,8 +33,12 @@ export interface RaceDefinition {
   /** null when the book gives no standard A-F correction dice for this race. */
   abilityDice: AbilityDiceByAbility | null;
   restrictedClasses: string[];
-  /** null when no background table is available (Vagrant-system or missing-sourcebook races). */
-  backgroundTables: { primary: BackgroundEntry[]; additional?: BackgroundEntry[] } | null;
+  /** null when no background table is available (Vagrant-system or missing-sourcebook races).
+   *  `supplemental` is Battle Mastery pp. 13-14's "Additional Background Tables" — a third,
+   *  later table (one per race that existed by that book's release) opening access to the
+   *  classes added since Core Rulebooks I-III: Warlock, Geomancer, Alchemist, Battle Dancer,
+   *  Rider, Tactician, Druid. Not every race gets every one of those seven rows. */
+  backgroundTables: { primary: BackgroundEntry[]; additional?: BackgroundEntry[]; supplemental?: BackgroundEntry[] } | null;
   /** True for Outlaw Profile Book races, which use the separate Vagrant creation system. */
   usesVagrantSystem?: boolean;
 }
@@ -92,6 +96,19 @@ export const RACES: RaceDefinition[] = [
         bg('9', 'Poet', ['bard'], [5, 7, 9], 2500),
         bg('10-12', 'Feytouched', ['fairy-tamer'], [5, 6, 10], 2000),
       ],
+      // Battle Mastery pp. 13-14's "Additional Background Tables" — a third table opening
+      // access to classes added since Core Rulebooks I-III (Warlock, Geomancer, Alchemist,
+      // Battle Dancer, Rider, Tactician, Druid). Not every race gets every one of these
+      // seven rows; Human is the only one that does.
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [3, 8, 10], 2000),
+        bg('5', 'Diviner', ['geomancer'], [5, 9, 7], 2500),
+        bg('6', 'Alchemist', ['alchemist'], [8, 5, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 6, 5], 2000),
+        bg('8', 'Jockey', ['rider'], [6, 8, 7], 2500),
+        bg('9', 'Tactician', ['tactician'], [8, 6, 7], 2500),
+        bg('10-12', 'Druid', ['druid'], [4, 7, 10], 2000),
+      ],
     },
   },
   {
@@ -116,6 +133,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Brawler', ['grappler'], [11, 4, 11], 2000),
         bg('10-12', 'Bard', ['bard'], [9, 3, 14], 2500),
       ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [9, 4, 13], 2000),
+        bg('5-6', 'Diviner', ['geomancer'], [10, 4, 12], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 5, 8], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [11, 4, 11], 2500),
+        bg('10-12', 'Druid', ['druid'], [10, 3, 13], 2000),
+      ],
     },
   },
   {
@@ -139,6 +163,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Bard', ['bard'], [4, 8, 8], 2500),
         bg('10-12', 'Feytouched', ['fairy-tamer'], [5, 6, 9], 2000),
       ],
+      supplemental: [
+        bg('2-4', 'Diviner', ['geomancer'], [6, 6, 8], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [6, 7, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [6, 10, 4], 2000),
+        bg('8-9', 'Jockey', ['rider'], [5, 9, 6], 2500),
+        bg('10-12', 'Tactician', ['tactician'], [5, 8, 7], 2500),
+      ],
     },
   },
   {
@@ -159,6 +190,13 @@ export const RACES: RaceDefinition[] = [
         bg('6-7', 'Feytouched', ['fairy-tamer'], [7, 5, 10], 2000),
         bg('8-9', 'Bard', ['bard'], [6, 7, 9], 2500),
         bg('10-12', 'Apothecary', ['ranger'], [7, 6, 9], 2500),
+      ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [5, 6, 11], 2000),
+        bg('5-6', 'Geomancer', ['geomancer'], [5, 8, 9], 2500),
+        bg('7', 'Druid', ['druid'], [7, 5, 10], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [8, 6, 8], 2500),
+        bg('10-12', 'Alchemist', ['alchemist'], [7, 7, 8], 2500),
       ],
     },
   },
@@ -183,6 +221,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Bard', ['bard'], [8, 9, 9], 2500),
         bg('10-12', 'Conjurer', ['conjurer'], [7, 9, 10], 2000),
       ],
+      supplemental: [
+        bg('2-4', 'Geomancer', ['geomancer'], [10, 10, 6], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [11, 8, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [12, 9, 5], 2000),
+        bg('8-9', 'Jockey', ['rider'], [9, 9, 8], 2500),
+        bg('10-12', 'Tactician', ['tactician'], [10, 8, 8], 2500),
+      ],
     },
   },
   {
@@ -205,6 +250,13 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Archer', ['marksman'], [10, 10, 10], 2500),
         bg('8-9', 'Wanderer', ['ranger'], [9, 12, 9], 2500),
         bg('10-12', 'Conjurer', ['conjurer'], [6, 11, 13], 2000),
+      ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [7, 10, 13], 2000),
+        bg('5-6', 'Jockey', ['rider'], [10, 12, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [11, 12, 7], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [9, 13, 8], 2500),
+        bg('10-12', 'Druid', ['druid'], [8, 10, 12], 2000),
       ],
     },
   },
@@ -229,6 +281,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Scholar', ['sage'], [10, 7, 8], 2500),
         bg('10-12', 'Cleric', ['priest'], [9, 7, 9], 2000),
       ],
+      supplemental: [
+        bg('2-4', 'Geomancer', ['geomancer'], [10, 7, 8], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [12, 7, 6], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 6, 6], 2000),
+        bg('8-9', 'Jockey', ['rider'], [10, 8, 7], 2500),
+        bg('10-12', 'Tactician', ['tactician'], [9, 9, 7], 2500),
+      ],
     },
   },
   {
@@ -251,6 +310,13 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Bodybuilder', ['enhancer'], [5, 12, 8], 2500),
         bg('8-9', 'Magician', ['sorcerer', 'conjurer'], [4, 12, 9], 2000, 'or'),
         bg('10-12', 'Feytouched', ['fairy-tamer'], [3, 12, 10], 2000),
+      ],
+      supplemental: [
+        bg('2-4', 'Geomancer', ['geomancer'], [4, 13, 8], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [5, 13, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [6, 14, 5], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [5, 12, 8], 2500),
+        bg('10-12', 'Druid', ['druid'], [5, 11, 9], 2000),
       ],
     },
   },
@@ -275,6 +341,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Scout', ['fencer', 'scout'], [15, 0, 10], 2000),
         bg('10-12', 'Bard', ['bard'], [12, 0, 13], 2500),
       ],
+      supplemental: [
+        bg('2-4', 'Geomancer', ['geomancer'], [11, 1, 13], 2500),
+        bg('5-6', 'Alchemist', ['alchemist'], [12, 1, 12], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 1, 11], 2000),
+        bg('8-9', 'Jockey', ['rider'], [12, 0, 13], 2500),
+        bg('10-12', 'Tactician', ['tactician'], [11, 1, 13], 2500),
+      ],
     },
   },
   {
@@ -297,6 +370,13 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Magician', ['sorcerer', 'conjurer'], [8, 5, 16], 1000),
         bg('8-9', 'Bard', ['bard'], [7, 7, 15], 2500),
         bg('10-12', 'Bodybuilder', ['enhancer'], [9, 9, 11], 2500),
+      ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [7, 8, 14], 2000),
+        bg('5-6', 'Geomancer', ['geomancer'], [8, 9, 12], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [9, 8, 12], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [8, 8, 13], 2500),
+        bg('10-12', 'Druid', ['druid'], [7, 7, 15], 2000),
       ],
     },
   },
@@ -321,6 +401,17 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Feytouched', ['fairy-tamer'], [7, 11, 10], 2000),
         bg('10-12', 'Scholar', ['sage'], [8, 11, 9], 2500),
       ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [7, 11, 10], 2000),
+        bg('5-6', 'Geomancer', ['geomancer'], [8, 11, 9], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 13, 5], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [9, 11, 8], 2500),
+        // Book prints this row's range as "2-4" again (a duplicate of the first row) — every
+        // other row in every other race's version of this table forms a clean 2-12 partition,
+        // and the Skill+Body+Mind total (28) matches all four other Tiens rows exactly, so
+        // "10-12" is the only range consistent with both the pattern and this race's own data.
+        bg('10-12', 'Druid', ['druid'], [6, 12, 10], 2000),
+      ],
     },
   },
   {
@@ -343,6 +434,13 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Artificer', ['artificer'], [12, 4, 7], 2000),
         bg('8-9', 'Cleric', ['priest'], [10, 5, 8], 2000),
         bg('10-12', 'Magician', ['sorcerer', 'conjurer'], [11, 3, 9], 2000, 'or'),
+      ],
+      supplemental: [
+        bg('2-4', 'Daemon Tamer', ['daemonologist'], [11, 3, 9], 2000),
+        bg('5-6', 'Geomancer', ['geomancer'], [10, 6, 7], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 5, 5], 2000),
+        bg('8-9', 'Alchemist', ['alchemist'], [14, 4, 5], 2500),
+        bg('10-12', 'Druid', ['druid'], [12, 3, 8], 2000),
       ],
     },
   },
@@ -374,6 +472,13 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Warlock', ['daemonologist'], [9, 6, 10], 2000),
         bg('10-12', 'Artificer', ['artificer'], [9, 7, 9], 2000),
       ],
+      // The four OPB races get a shorter, 3-row version of this table (Battle Mastery p. 14) —
+      // only Geomancer/Battle Dancer/Tactician, not the full seven-class spread above.
+      supplemental: [
+        bg('2-5', 'Geomancer', ['geomancer'], [11, 6, 8], 2500),
+        bg('6-8', 'Dancer', ['battle-dancer'], [13, 5, 7], 2000),
+        bg('9-12', 'Tactician', ['tactician'], [10, 6, 9], 2500),
+      ],
     },
   },
   {
@@ -398,6 +503,11 @@ export const RACES: RaceDefinition[] = [
         bg('8-9', 'Alchemist', ['alchemist'], [14, 8, 5], 2500),
         bg('10-12', 'Rider', ['rider'], [13, 7, 7], 2500),
       ],
+      supplemental: [
+        bg('2-5', 'Geomancer', ['geomancer'], [14, 6, 7], 2500),
+        bg('6-8', 'Dancer', ['battle-dancer'], [17, 7, 3], 2000),
+        bg('9-12', 'Tactician', ['tactician'], [15, 8, 4], 2500),
+      ],
     },
   },
   {
@@ -421,6 +531,12 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Alchemist', ['alchemist'], [10, 11, 5], 2500),
         bg('8-9', 'Hobbyist', ['bard'], [11, 11, 4], 2500),
         bg('10-12', 'Scout', ['scout'], [12, 11, 3], 2500),
+      ],
+      // Printed as "Soliel Background Table" (the book's own typo for this table's heading).
+      supplemental: [
+        bg('2-5', 'Geomancer', ['geomancer'], [10, 12, 4], 2500),
+        bg('6-8', 'Dancer', ['battle-dancer'], [12, 13, 1], 2000),
+        bg('9-12', 'Tactician', ['tactician'], [11, 12, 3], 2500),
       ],
     },
   },
@@ -448,6 +564,11 @@ export const RACES: RaceDefinition[] = [
         bg('7', 'Boxer', ['grappler'], [9, 9, 5], 2000),
         bg('8-9', 'Druid', ['druid'], [7, 7, 9], 2000),
         bg('10-12', 'Warlock', ['daemonologist'], [7, 8, 8], 2000),
+      ],
+      supplemental: [
+        bg('2-5', 'Geomancer', ['geomancer'], [7, 8, 8], 2500),
+        bg('6-8', 'Dancer', ['battle-dancer'], [10, 8, 5], 2000),
+        bg('9-12', 'Tactician', ['tactician'], [9, 7, 7], 2500),
       ],
     },
   },

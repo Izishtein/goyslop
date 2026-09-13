@@ -56,3 +56,16 @@ export function tacticianSlots(tacticianLevel: number): number {
 export function essenceWeavingSlots(darkHunterLevel: number): number {
   return Math.max(0, darkHunterLevel);
 }
+
+/** Battle Dancer Bonus Active Combat Feat: "Upon reaching the first level of the Battle
+ *  Dancer class, you gain one Combat Feat through the 'Bonus Active Combat Feat' class
+ *  feature. As a result, a newly created character can learn two Combat Feats" (Battle
+ *  Mastery p. 12) — a flat +1 on top of the ordinary `combatFeatSlots` count, not an
+ *  independent pool like Rider Stunts/Aspects/Stratagems/Essence Weavings above. The book
+ *  also restricts what can fill this specific slot (Decoy Attack I, Repeated Strike I,
+ *  Aimed Attack I, Power Strike I, Taunting Strike I, Lethal Strike I, Mana Strike, plus
+ *  four Vagrant-only options) — not enforced here, the same trust the rest of the Combat
+ *  Feats section already extends to every other pick. */
+export function battleDancerBonusFeatSlot(battleDancerLevel: number): number {
+  return battleDancerLevel > 0 ? 1 : 0;
+}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   aspectSlots,
+  battleDancerBonusFeatSlot,
   combatFeatSlots,
   combatFeatsSpendingSlots,
   meetsStrength,
@@ -89,5 +90,12 @@ describe('tacticianSlots', () => {
 
   it('never goes negative', () => {
     expect(tacticianSlots(-3)).toBe(0);
+  });
+});
+
+describe('battleDancerBonusFeatSlot', () => {
+  it('adds exactly one slot from level 1, not one per level (Battle Mastery p. 12)', () => {
+    expect(battleDancerBonusFeatSlot(0)).toBe(0);
+    expect([1, 5, 10, 15].map(battleDancerBonusFeatSlot)).toEqual([1, 1, 1, 1]);
   });
 });

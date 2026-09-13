@@ -41,7 +41,8 @@
     "submit": "Create character",
     "backgroundTable": {
       "primary": "Primary table",
-      "additional": "Additional table (Core II)"
+      "additional": "Additional table (Core II)",
+      "supplemental": "Supplemental table (Battle Mastery)"
     },
     "gmOnly": "GM permission",
     "rollsOwnSplit": "This background rolls its own Skill/Body/Mind instead of listing fixed values — enter what you rolled.",

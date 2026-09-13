@@ -191,4 +191,66 @@ describe('races catalog', () => {
       expect(names, `${id} should no longer list [${oldName}]`).not.toContain(oldName);
     }
   });
+
+  describe('Battle Mastery supplemental background tables (pp. 13-14)', () => {
+    // Every race that existed by Battle Mastery's release gets a third table opening access
+    // to Warlock/Geomancer/Alchemist/Battle Dancer/Rider/Tactician/Druid. The four Outlaw
+    // Profile Book races (Alv/Weakling/Shadow/Soleil) get a shorter 3-row version — only
+    // Geomancer/Battle Dancer/Tactician — per the book's own note pointing to OPB for them.
+    const FULL_TABLE_RACES = [
+      'human',
+      'elf',
+      'dwarf',
+      'tabbit',
+      'runefolk',
+      'nightmare',
+      'lykant',
+      'lildraken',
+      'grassrunner',
+      'meria',
+      'tiens',
+      'leprechaun',
+    ];
+    const SHORT_TABLE_RACES = ['alv', 'weakling', 'shadow', 'soleil'];
+
+    it('gives each Core-era race five or more rows (Human alone gets all seven), and each OPB race the shorter three', () => {
+      // Human is the only race whose table covers all seven classes; the other eleven each
+      // cover five of them (which five varies by race — see the comments in races.ts).
+      expect(getRace('human')?.backgroundTables?.supplemental).toHaveLength(7);
+      for (const id of FULL_TABLE_RACES.filter((r) => r !== 'human')) {
+        expect(getRace(id)?.backgroundTables?.supplemental, id).toHaveLength(5);
+      }
+      for (const id of SHORT_TABLE_RACES) {
+        expect(getRace(id)?.backgroundTables?.supplemental, id).toHaveLength(3);
+      }
+    });
+
+    it('never touches a race published after Battle Mastery (no supplemental table at all)', () => {
+      for (const id of ['abyssborn', 'newman', 'spriggan', 'fluorite', 'dark-dwarf', 'snow-elf', 'pico-tabbit']) {
+        expect(getRace(id)?.backgroundTables?.supplemental, id).toBeUndefined();
+      }
+    });
+
+    it("sums every row's Skill+Body+Mind to the same total within a race's own table", () => {
+      // A real internal-consistency check, not a tautology: it is what caught Tiens printing
+      // "2-4" a second time for what has to be its "10-12" row (see the comment in races.ts) —
+      // every other row of that same table sums to 28, and only the corrected range fits.
+      for (const id of [...FULL_TABLE_RACES, ...SHORT_TABLE_RACES]) {
+        const rows = getRace(id)?.backgroundTables?.supplemental ?? [];
+        const sums = rows.map((row) => (row.stats ? row.stats[0] + row.stats[1] + row.stats[2] : null));
+        expect(new Set(sums).size, `${id}: ${JSON.stringify(sums)}`).toBe(1);
+      }
+    });
+
+    it('covers the full 2-12 roll range exactly once per race, with no gaps or overlaps', () => {
+      for (const id of [...FULL_TABLE_RACES, ...SHORT_TABLE_RACES]) {
+        const covered = new Set<number>();
+        for (const row of getRace(id)?.backgroundTables?.supplemental ?? []) {
+          const [lo, hi] = row.rollRange.includes('-') ? row.rollRange.split('-').map(Number) : [Number(row.rollRange), Number(row.rollRange)];
+          for (let n = lo; n <= hi; n++) covered.add(n);
+        }
+        expect([...covered].sort((a, b) => a - b), id).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+      }
+    });
+  });
 });

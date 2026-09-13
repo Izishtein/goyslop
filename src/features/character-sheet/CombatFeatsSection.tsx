@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { COMBAT_FEATS, getCombatFeat } from '../../data/combat-feats';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
-import { combatFeatSlots, combatFeatsSpendingSlots } from '../../lib/formulas/requirements';
+import { battleDancerBonusFeatSlot, combatFeatSlots, combatFeatsSpendingSlots } from '../../lib/formulas/requirements';
 import { COMBAT_FEAT_CATEGORIES, type CombatFeat, type CombatFeatCategory, type Character } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import { PrintableField } from './PrintableField';
@@ -10,6 +10,10 @@ import styles from './CharacterSheetView.module.css';
 
 function newFeat(): CombatFeat {
   return { id: crypto.randomUUID(), name: '', category: 'passive' };
+}
+
+function battleDancerLevel(character: Character): number {
+  return character.classes.filter((entry) => entry.classId === 'battle-dancer').reduce((max, entry) => Math.max(max, entry.level), 0);
 }
 
 /** Suggestion list shared by every feat row; a page only ever shows one sheet. */
@@ -25,7 +29,10 @@ export function CombatFeatsSection({ character }: { character: Character }) {
   // Auto-acquired feats come with a class level and cost nothing, so the count is of the
   // ones actually chosen. Over the limit is a bookkeeping error worth seeing, not a block:
   // a sheet is often filled in a level ahead of the session that grants the slot.
-  const slots = combatFeatSlots(adventurerLevel(character.classes));
+  // Battle Dancer level 1 adds one more slot on top of the ordinary count (Battle Mastery
+  // p. 12, "Bonus Active Combat Feat") — see requirements.ts for the restriction the book
+  // puts on what can fill it, which this section does not enforce.
+  const slots = combatFeatSlots(adventurerLevel(character.classes)) + battleDancerBonusFeatSlot(battleDancerLevel(character));
   const chosen = combatFeatsSpendingSlots(character.combatFeats);
 
   function updateFeat(id: string, patch: Partial<CombatFeat>) {
