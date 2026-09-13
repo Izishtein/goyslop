@@ -54,11 +54,13 @@ describe('Core III equipment catalog', () => {
       // +9 Bibliomancer grimoires (Age of Grimoire, SW 2.0 — see 17-arcane-magic.md).
       // +9 Geomancer Geographs (Magus Arts p. 22 — see 33-geomancer-aspects.md).
       classItem: 7 + 9 + 9,
-      adventure: 5,
+      // +1 Sword Crystal (Barbarous Saga p. 4, Broken Drake's [Limited Dragonification] —
+      // see 40-barbarous-saga-races-and-gods.md).
+      adventure: 5 + 1,
       accessory: 19,
       ammunition: 2,
     });
-    expect(GENERAL_ITEMS).toHaveLength(45 + 9 + 9);
+    expect(GENERAL_ITEMS).toHaveLength(45 + 9 + 9 + 1);
   });
 
   it('has unique ids inside every list', () => {

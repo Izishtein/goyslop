@@ -17,7 +17,10 @@ describe('spell catalog', () => {
       // per deity (13). Magus Arts: 3 base "‡" alternates + full 2/4/7/10/13 ladders for 14
       // more deities (6 First/Third Sword, 8 Second Sword) — see
       // docs/sheet-content/28-divine-first-third-sword.md and 29-divine-second-sword-and-magitech-delta.md.
-      'Divine Magic': 36 + 12 + 16 + 20 + 14 + 13 + 3 + 14 * 5,
+      // Barbarous Saga adds 3 more (Kaggu/Dreven First Sword, Dovruk Second Sword) — the
+      // latter is the deity that pass flagged as "material from some other book" — see
+      // docs/sheet-content/40-barbarous-saga-races-and-gods.md.
+      'Divine Magic': 36 + 12 + 16 + 20 + 14 + 13 + 3 + 17 * 5,
       // Core I + Core II circles 7-10, Core III circles 11-15 (16) plus Automobile II, a
       // circle 7 gap the same page range turned up — see docs/sheet-content/25-magitech-11-15.md.
       // Magus Arts adds 19 more, the book's own stated count — see
@@ -37,7 +40,7 @@ describe('spell catalog', () => {
       // Magus Arts pp. 95-100, no owning class — see docs/sheet-content/27-deep-magic.md.
       'Deep Magic': 31,
     });
-    expect(SPELLS).toHaveLength(398 + 28 + 29 + 27 + 17 + 50 + 31 + 3 + 14 * 5 + 19);
+    expect(SPELLS).toHaveLength(398 + 28 + 29 + 27 + 17 + 50 + 31 + 3 + 17 * 5 + 19);
   });
 
   it('has unique ids', () => {
@@ -85,8 +88,9 @@ describe('spell catalog', () => {
     // digests (see docs/sheet-content/24-divine-magic-11-15.md).
     // Magus Arts adds 14 more deities (6 First/Third Sword, 8 Second Sword) with the same
     // five-circle ladder — see docs/sheet-content/28-divine-first-third-sword.md and
-    // 29-divine-second-sword-and-magitech-delta.md.
-    expect(byDeity.size).toBe(13 + 14);
+    // 29-divine-second-sword-and-magitech-delta.md. Barbarous Saga adds 3 more (Kaggu,
+    // Dreven, Dovruk) — see docs/sheet-content/40-barbarous-saga-races-and-gods.md.
+    expect(byDeity.size).toBe(13 + 14 + 3);
     for (const [deity, circles] of byDeity) {
       expect({ deity, circles: [...circles].sort((a, b) => a - b) }).toEqual({ deity, circles: [2, 4, 7, 10, 13] });
     }

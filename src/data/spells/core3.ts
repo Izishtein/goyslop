@@ -2,6 +2,7 @@ import { DIVINE, MAGITECH, makeSpell, SPIRITUALISM, TRUESPEECH, type SpellDefini
 
 const CORE3 = 'Core Rulebook III';
 const MAGUS_ARTS = 'Magus Arts';
+const BARBAROUS_SAGA = 'Barbarous Saga';
 
 const spell = (school: string, circle: number, name: string, mp: number) =>
   makeSpell(CORE3, school, circle, name, mp);
@@ -152,6 +153,25 @@ export const CORE3_SPELLS: SpellDefinition[] = [
   makeSpell(MAGUS_ARTS, DIVINE, 13, 'Life Insurance', 7, { deity: 'Gamel' }),
 
   /**
+   * Two more First Sword deities, found while chasing an unrelated lead: Barbarous Saga
+   * (Races & Gods Only) pp. 9-11 (docs/sheet-content/40-barbarous-saga-races-and-gods.md).
+   * Neither god's banner names a book, and the circle badges aren't in the text layer any
+   * more than the ones above were, so pp. 9-12 were rendered to PNG the same way as
+   * docs/sheet-content/28-divine-first-third-sword.md and read directly off the image.
+   */
+  makeSpell(BARBAROUS_SAGA, DIVINE, 2, 'Elemental Fist', 3, { deity: 'Kaggu' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 4, 'Wind Foot', 4, { deity: 'Kaggu' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 7, 'Rock Impact', 6, { deity: 'Kaggu' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 10, 'Icicle Piercer', 7, { deity: 'Kaggu' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 13, 'Dancing Flame', 20, { deity: 'Kaggu' }),
+
+  makeSpell(BARBAROUS_SAGA, DIVINE, 2, 'Abyss Ranger', 2, { deity: 'Dreven' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 4, 'Abyss Slayer', 2, { deity: 'Dreven' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 7, 'Respite from Shallow Abyss', 15, { deity: 'Dreven' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 10, 'Escape from Shallow Abyss', 1, { deity: 'Dreven' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 13, 'Judgment of the Abyss', 5, { deity: 'Dreven' }),
+
+  /**
    * Second Sword pantheon — deliberately excluded from the pass above ("out of scope"), now
    * closed by docs/sheet-content/29-divine-second-sword-and-magitech-delta.md. Three basic
    * spells a Second Sword priest casts instead of their First/Third Sword equivalent (Core
@@ -221,6 +241,19 @@ export const CORE3_SPELLS: SpellDefinition[] = [
   makeSpell(MAGUS_ARTS, DIVINE, 7, 'Gain Trust', 8, { deity: 'Meigal' }),
   makeSpell(MAGUS_ARTS, DIVINE, 10, 'Money Distraction', 8, { deity: 'Meigal' }),
   makeSpell(MAGUS_ARTS, DIVINE, 13, 'Fake Gamel', 10, { deity: 'Meigal' }),
+
+  /**
+   * A ninth Second Sword deity, from the same unrelated-lead find as Kaggu/Dreven above:
+   * Barbarous Saga (Races & Gods Only) p. 11 (docs/sheet-content/40-barbarous-saga-races-and-gods.md).
+   * This is the very deity 29-divine-second-sword-and-magitech-delta.md flagged as "in the
+   * Russian digest, physically absent from every English book in files/, likely material
+   * from some other book" — that other book turned out to be this one.
+   */
+  makeSpell(BARBAROUS_SAGA, DIVINE, 2, 'Strong Drink', 1, { deity: 'Dovruk' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 4, 'Drunk', 4, { deity: 'Dovruk' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 7, 'Lightweight', 6, { deity: 'Dovruk' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 10, 'Blackout', 15, { deity: 'Dovruk' }),
+  makeSpell(BARBAROUS_SAGA, DIVINE, 13, 'Spirit Swamp', 15, { deity: 'Dovruk' }),
 
   /**
    * Magitech (Artificer), pp. 155-160 — docs/sheet-content/25-magitech-11-15.md. Circle here

@@ -1020,6 +1020,83 @@ export const RACES: RaceDefinition[] = [
       ],
     },
   },
+  // Barbarous Saga (Races & Gods Only) pp. 3-8 — three Barbarous races with full dice,
+  // backgrounds and abilities, found while chasing an unrelated lead for § 1.9 (which this
+  // book does not unblock: no Diablos/Drakes/Basilisks/Scissorscorpions here). The book
+  // states "Restricted Classes: None" outright for all three, so this is confirmed rather
+  // than inferred as it is for every other race in this file. "Soulscars" (a Barbarous
+  // lineage-depth stat mentioned in flavor text throughout the catalog, e.g. Weakling/
+  // Abyssborn) has no dedicated schema field anywhere else either, so it stays undocumented
+  // here too — see docs/sheet-content/40-barbarous-saga-races-and-gods.md.
+  {
+    id: 'broken-drake',
+    name: 'Broken Drake',
+    sourceBook: 'Barbarous Saga',
+    abilityDice: dice('1d', '1d', '2d', '2d', '2d+6', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Scout', ['scout', 'ranger'], [14, 11, 5], 2500, 'or'),
+        bg('5-6', 'Conjurer', ['conjurer'], [10, 12, 8], 2000),
+        bg('7', 'Warrior', ['fighter'], [12, 14, 4], 2000),
+        bg('8-9', 'Sorcerer', ['sorcerer'], [11, 12, 7], 2000),
+        bg('10-12', 'Sage', ['sage'], [11, 13, 6], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Tactician', ['tactician'], [12, 13, 5], 2500),
+        bg('5-6', 'Agile Warrior', ['fencer'], [14, 10, 6], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 11, 6], 2000),
+        bg('8-9', 'Priest', ['priest'], [11, 11, 8], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [10, 13, 7], 2000),
+      ],
+    },
+  },
+  {
+    id: 'lamia',
+    name: 'Lamia',
+    sourceBook: 'Barbarous Saga',
+    abilityDice: dice('1d', '2d', '1d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Scholar', ['sage'], [9, 9, 13], 2500),
+        bg('5-6', 'Conjurer', ['conjurer'], [8, 7, 16], 2000),
+        bg('7', 'Sorcerer', ['sorcerer'], [8, 8, 15], 2000),
+        bg('8-9', 'Warrior', ['fighter', 'grappler'], [10, 9, 12], 2000, 'or'),
+        bg('10-12', 'Cleric', ['priest'], [9, 8, 14], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Tactician', ['tactician'], [8, 9, 14], 2500),
+        bg('5-6', 'Brigand', ['ranger'], [11, 7, 13], 2500),
+        bg('7', 'Spy', ['scout'], [10, 8, 13], 2500),
+        bg('8-9', 'Druid', ['druid'], [9, 7, 15], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [7, 8, 16], 2000),
+      ],
+    },
+  },
+  {
+    id: 'dhampir',
+    name: 'Dhampir',
+    sourceBook: 'Barbarous Saga',
+    abilityDice: dice('1d', '2d', '2d+6', '1d', '2d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Magician', ['sorcerer', 'conjurer'], [10, 6, 15], 2000, 'or'),
+        bg('5-6', 'Priest', ['priest'], [10, 8, 13], 2000),
+        bg('7', 'Warrior', ['fighter'], [13, 8, 10], 2000),
+        bg('8-9', 'Boxer', ['grappler'], [11, 9, 11], 2000),
+        bg('10-12', 'Agile Warrior', ['fencer'], [14, 7, 10], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Hermit', ['sage'], [10, 9, 12], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [11, 9, 11], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [13, 7, 11], 2000),
+        bg('8-9', 'Druid', ['druid'], [12, 6, 13], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [10, 7, 14], 2000),
+      ],
+    },
+  },
 ];
 
 export function getRace(id: string): RaceDefinition | undefined {
@@ -1300,6 +1377,31 @@ const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
     { name: 'Invisible Hand', fromLevel: 6 },
     { name: 'Invisible Hand', fromLevel: 11 },
     { name: "Artisan's Partner", fromLevel: 0 },
+  ],
+  // Barbarous Saga (Races & Gods Only) pp. 3-8. "Weak Point" (a passive vulnerability, not a
+  // usable ability) is never book-bracketed for these three either, so — same as every other
+  // race in this file — it stays out of this list.
+  'broken-drake': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Limited Dragonification', fromLevel: 0 },
+    { name: 'Limited Dragonification', fromLevel: 6 },
+    { name: 'Limited Dragonification', fromLevel: 11 },
+  ],
+  lamia: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: "Lamia's Physique", fromLevel: 0 },
+    { name: 'Drain Blood', fromLevel: 0 },
+    { name: 'Drain Blood', fromLevel: 6 },
+    { name: 'Drain Blood', fromLevel: 11 },
+    { name: 'Transformation', fromLevel: 0 },
+  ],
+  dhampir: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Bloodsucking Blessing', fromLevel: 0 },
+    { name: 'Abominable Blood', fromLevel: 0 },
+    { name: 'Abominable Blood', fromLevel: 6 },
+    { name: 'Abominable Blood', fromLevel: 11 },
+    { name: 'Weakening', fromLevel: 0 },
   ],
 };
 

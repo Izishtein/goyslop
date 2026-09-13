@@ -22,6 +22,7 @@ import type { EquipmentRank } from '../types/character';
 const CORE3 = 'Core Rulebook III';
 const AGE_OF_GRIMOIRE = 'Age of Grimoire (SW 2.0)';
 const MAGUS_ARTS = 'Magus Arts';
+const BARBAROUS_SAGA = 'Barbarous Saga';
 
 /** Slug of the printed name. The "+" is spelled out rather than dropped: Mana Coat and
  *  Mana Coat+ are two different pieces of armor at two different prices, and stripping the
@@ -415,6 +416,14 @@ export const GENERAL_ITEMS: GeneralItemDefinition[] = [
   item('adventure', 'Mana Cartridge', '5,200/17,200 (+50 reputation)', 'Adds MP to magitech'),
   item('adventure', "Great Daemon's Crystallized Blood Plate", '6,400', 'Determines the threat level of a Shallow Abyss', { stance: '1H' }),
   item('adventure', 'Fairy Lantern', '10,000', 'Its light is invisible to those who have soulscars', { stance: '1H' }),
+
+  // Broken Drake's [Limited Dragonification] consumes these — Barbarous Saga (Races & Gods
+  // Only) p. 4. Free from Reputation once Adventurer Rank Broad Sword+ or Barbarous Glory
+  // Rank Blue Steel+; a 1-in-(uses so far) roll breaks it after each use.
+  item('adventure', 'Sword Crystal', '10 reputation (not for sale)', 'Broken Drake only — required for [Limited Dragonification]', {
+    stance: '-',
+    sourceBook: BARBAROUS_SAGA,
+  }),
 
   // Accessories — pp. 223–225
   item('accessory', 'Cattleya Garland', '20,000', 'Extends the range of Fairy Magic', { slot: 'Head' }),

@@ -32,9 +32,9 @@ describe('races catalog', () => {
     expect(alv?.usesVagrantSystem).toBe(true);
   });
 
-  it('has 41 races with unique ids', () => {
-    expect(RACES).toHaveLength(41);
-    expect(new Set(RACES.map((race) => race.id)).size).toBe(41);
+  it('has 44 races with unique ids', () => {
+    expect(RACES).toHaveLength(44);
+    expect(new Set(RACES.map((race) => race.id)).size).toBe(44);
   });
 
   it('races with ability dice also have background tables, and vice versa', () => {
@@ -251,6 +251,58 @@ describe('races catalog', () => {
         }
         expect([...covered].sort((a, b) => a - b), id).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
       }
+    });
+  });
+
+  describe('Barbarous Saga races (Broken Drake, Lamia, Dhampir)', () => {
+    const IDS = ['broken-drake', 'lamia', 'dhampir'];
+
+    it('have full dice, two background tables, and an explicit (not inferred) lack of class restrictions', () => {
+      for (const id of IDS) {
+        const race = getRace(id);
+        expect(race?.abilityDice, id).not.toBeNull();
+        expect(race?.backgroundTables?.primary, id).toHaveLength(5);
+        expect(race?.backgroundTables?.additional, id).toHaveLength(5);
+        expect(race?.restrictedClasses, id).toEqual([]);
+        expect(race?.sourceBook, id).toBe('Barbarous Saga');
+      }
+    });
+
+    it("sums every row's Skill+Body+Mind to the same total across both of a race's tables", () => {
+      // The book gives Broken Drake 30, Lamia and Dhampir 31 — different from each other,
+      // consistent within each race, same internal-consistency check as the supplemental
+      // tables above.
+      for (const id of IDS) {
+        const race = getRace(id);
+        const rows = [...(race?.backgroundTables?.primary ?? []), ...(race?.backgroundTables?.additional ?? [])];
+        const sums = rows.map((row) => (row.stats ? row.stats[0] + row.stats[1] + row.stats[2] : null));
+        expect(new Set(sums).size, id).toBe(1);
+      }
+    });
+
+    it('gives each its printed racial abilities, with the enhancement progression named in the book', () => {
+      expect(racialAbilitiesFor('broken-drake').map((a) => a.name)).toEqual([
+        'Darkvision',
+        'Limited Dragonification',
+        'Limited Dragonification',
+        'Limited Dragonification',
+      ]);
+      expect(racialAbilitiesFor('lamia').map((a) => a.name)).toEqual([
+        'Darkvision',
+        "Lamia's Physique",
+        'Drain Blood',
+        'Drain Blood',
+        'Drain Blood',
+        'Transformation',
+      ]);
+      expect(racialAbilitiesFor('dhampir').map((a) => a.name)).toEqual([
+        'Darkvision',
+        'Bloodsucking Blessing',
+        'Abominable Blood',
+        'Abominable Blood',
+        'Abominable Blood',
+        'Weakening',
+      ]);
     });
   });
 });
