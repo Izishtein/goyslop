@@ -1,0 +1,371 @@
+{
+  "school": "Fairy Magic",
+  "fairyTypes": [
+    "Basic",
+    "Earth",
+    "Water/Ice"
+  ],
+  "count": 45,
+  "spells": [
+    {
+      "id": "fairy-wish",
+      "name": "Fairy Wish",
+      "circle": 1,
+      "mp": 1,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "summon-fairy",
+      "name": "Summon Fairy",
+      "circle": 2,
+      "mp": 6,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "handle-fairy",
+      "name": "Handle Fairy",
+      "circle": 3,
+      "mp": 3,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "summon-fairy-ii",
+      "name": "Summon Fairy II",
+      "circle": 4,
+      "mp": 10,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "fairy-support",
+      "name": "Fairy Support",
+      "circle": 5,
+      "mp": 4,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "summon-fairy-iii",
+      "name": "Summon Fairy III",
+      "circle": 6,
+      "mp": 14,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "fairy-wish-ii",
+      "name": "Fairy Wish II",
+      "circle": 7,
+      "mp": 2,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "summon-fairy-iv",
+      "name": "Summon Fairy IV",
+      "circle": 8,
+      "mp": 18,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "mitigate-fairy",
+      "name": "Mitigate Fairy",
+      "circle": 9,
+      "mp": 1,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "summon-fairy-v",
+      "name": "Summon Fairy V",
+      "circle": 10,
+      "mp": 22,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "avoid-fairy",
+      "name": "Avoid Fairy",
+      "circle": 11,
+      "mp": 1,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "summon-fairy-vi",
+      "name": "Summon Fairy VI",
+      "circle": 12,
+      "mp": 26,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "neutralize",
+      "name": "Neutralize",
+      "circle": 13,
+      "mp": 44,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "summon-fairy-vii",
+      "name": "Summon Fairy VII",
+      "circle": 14,
+      "mp": 30,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "fairy-lord",
+      "name": "Fairy Lord",
+      "circle": 15,
+      "mp": 51,
+      "fairyType": "Basic",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "snare",
+      "name": "Snare",
+      "circle": 1,
+      "mp": 3,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "stone-guard",
+      "name": "Stone Guard",
+      "circle": 2,
+      "mp": 4,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "earth-hammer",
+      "name": "Earth Hammer",
+      "circle": 3,
+      "mp": 3,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "pebble-shot",
+      "name": "Pebble Shot",
+      "circle": 4,
+      "mp": 4,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "entrapment",
+      "name": "Entrapment",
+      "circle": 5,
+      "mp": 5,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "stone-blast",
+      "name": "Stone Blast",
+      "circle": 6,
+      "mp": 6,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "great-snare",
+      "name": "Great Snare",
+      "circle": 7,
+      "mp": 7,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "stone-wall",
+      "name": "Stone Wall",
+      "circle": 8,
+      "mp": 6,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "gold-bridge",
+      "name": "Gold Bridge",
+      "circle": 9,
+      "mp": 4,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "tunnel",
+      "name": "Tunnel",
+      "circle": 10,
+      "mp": 8,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "ring-protection",
+      "name": "Ring Protection",
+      "circle": 11,
+      "mp": 12,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "crack",
+      "name": "Crack",
+      "circle": 12,
+      "mp": 9,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "giant-kick",
+      "name": "Giant Kick",
+      "circle": 13,
+      "mp": 16,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "great-capture",
+      "name": "Great Capture",
+      "circle": 14,
+      "mp": 9,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "earthquake",
+      "name": "Earthquake",
+      "circle": 15,
+      "mp": 28,
+      "fairyType": "Earth",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "purification",
+      "name": "Purification",
+      "circle": 1,
+      "mp": 2,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "water-screen",
+      "name": "Water Screen",
+      "circle": 2,
+      "mp": 3,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "ice-bolt",
+      "name": "Ice Bolt",
+      "circle": 3,
+      "mp": 4,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "seabed-walk",
+      "name": "Seabed Walk",
+      "circle": 4,
+      "mp": 4,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "hard-water",
+      "name": "Hard Water",
+      "circle": 5,
+      "mp": 5,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "mist-hide",
+      "name": "Mist Hide",
+      "circle": 6,
+      "mp": 4,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "chill-rain",
+      "name": "Chill Rain",
+      "circle": 7,
+      "mp": 8,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "sink",
+      "name": "Sink",
+      "circle": 8,
+      "mp": 6,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "ice-wall",
+      "name": "Ice Wall",
+      "circle": 9,
+      "mp": 9,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "ice-coffin",
+      "name": "Ice Coffin",
+      "circle": 10,
+      "mp": 8,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "water-edge",
+      "name": "Water Edge",
+      "circle": 11,
+      "mp": 8,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "current",
+      "name": "Current",
+      "circle": 12,
+      "mp": 24,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "ice-storm",
+      "name": "Ice Storm",
+      "circle": 13,
+      "mp": 12,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "freeze",
+      "name": "Freeze",
+      "circle": 14,
+      "mp": 12,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "maelstrom",
+      "name": "Maelstrom",
+      "circle": 15,
+      "mp": 15,
+      "fairyType": "Water/Ice",
+      "sourceBook": "Core Rulebook III"
+    }
+  ]
+}
