@@ -1,0 +1,377 @@
+{
+  "school": "Divine Magic",
+  "deities": [
+    "Dalkhrem",
+    "Dovruk",
+    "Eiryak",
+    "Gurvazo",
+    "Laris",
+    "Nivaceps",
+    "Zeides",
+    "Zoras-Valles",
+    "Meigal"
+  ],
+  "count": 45,
+  "spells": [
+    {
+      "id": "war-cry",
+      "name": "War Cry",
+      "circle": 2,
+      "mp": 6,
+      "deity": "Dalkhrem",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "frenzy",
+      "name": "Frenzy",
+      "circle": 4,
+      "mp": 8,
+      "deity": "Dalkhrem",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "berserk",
+      "name": "Berserk",
+      "circle": 7,
+      "mp": 8,
+      "deity": "Dalkhrem",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "troops-of-ignis",
+      "name": "Troops of Ignis",
+      "circle": 10,
+      "mp": 20,
+      "deity": "Dalkhrem",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "fatal-explosion",
+      "name": "Fatal Explosion",
+      "circle": 13,
+      "mp": 22,
+      "deity": "Dalkhrem",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "strong-drink",
+      "name": "Strong Drink",
+      "circle": 2,
+      "mp": 1,
+      "deity": "Dovruk",
+      "sourceBook": "Barbarous Saga"
+    },
+    {
+      "id": "drunk",
+      "name": "Drunk",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Dovruk",
+      "sourceBook": "Barbarous Saga"
+    },
+    {
+      "id": "lightweight",
+      "name": "Lightweight",
+      "circle": 7,
+      "mp": 6,
+      "deity": "Dovruk",
+      "sourceBook": "Barbarous Saga"
+    },
+    {
+      "id": "blackout",
+      "name": "Blackout",
+      "circle": 10,
+      "mp": 15,
+      "deity": "Dovruk",
+      "sourceBook": "Barbarous Saga"
+    },
+    {
+      "id": "spirit-swamp",
+      "name": "Spirit Swamp",
+      "circle": 13,
+      "mp": 15,
+      "deity": "Dovruk",
+      "sourceBook": "Barbarous Saga"
+    },
+    {
+      "id": "wave-riding",
+      "name": "Wave Riding",
+      "circle": 2,
+      "mp": 2,
+      "deity": "Eiryak",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "deep-block",
+      "name": "Deep Block",
+      "circle": 4,
+      "mp": 5,
+      "deity": "Eiryak",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "water-hammer",
+      "name": "Water Hammer",
+      "circle": 7,
+      "mp": 8,
+      "deity": "Eiryak",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "water-binding",
+      "name": "Water Binding",
+      "circle": 10,
+      "mp": 10,
+      "deity": "Eiryak",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "water-bridge",
+      "name": "Water Bridge",
+      "circle": 13,
+      "mp": 25,
+      "deity": "Eiryak",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "technical-trap",
+      "name": "Technical Trap",
+      "circle": 2,
+      "mp": 4,
+      "deity": "Gurvazo",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "completed-trap",
+      "name": "Completed Trap",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Gurvazo",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "goof-adventurer",
+      "name": "Goof Adventurer",
+      "circle": 7,
+      "mp": 15,
+      "deity": "Gurvazo",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "revenge-trigger",
+      "name": "Revenge Trigger",
+      "circle": 10,
+      "mp": 8,
+      "deity": "Gurvazo",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "critical-preparation",
+      "name": "Critical Preparation",
+      "circle": 13,
+      "mp": 20,
+      "deity": "Gurvazo",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "mana-sink",
+      "name": "Mana Sink",
+      "circle": 2,
+      "mp": 5,
+      "deity": "Laris",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "deafness",
+      "name": "Deafness",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Laris",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "summon-aetherbeast",
+      "name": "Summon Aetherbeast",
+      "circle": 7,
+      "mp": 6,
+      "deity": "Laris",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "summon-insects",
+      "name": "Summon Insects",
+      "circle": 10,
+      "mp": 10,
+      "deity": "Laris",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "call-daemon",
+      "name": "Call Daemon",
+      "circle": 13,
+      "mp": 20,
+      "deity": "Laris",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "accurate-hits",
+      "name": "Accurate Hits",
+      "circle": 2,
+      "mp": 4,
+      "deity": "Nivaceps",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "vampiric-weapon-nivaceps",
+      "name": "Vampiric Weapon",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Nivaceps",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "discriminate",
+      "name": "Discriminate",
+      "circle": 7,
+      "mp": 7,
+      "deity": "Nivaceps",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "blood-bath",
+      "name": "Blood Bath",
+      "circle": 10,
+      "mp": 15,
+      "deity": "Nivaceps",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "dominating-might",
+      "name": "Dominating Might",
+      "circle": 13,
+      "mp": 10,
+      "deity": "Nivaceps",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "hide-in-a-shadow",
+      "name": "Hide in a Shadow",
+      "circle": 2,
+      "mp": 4,
+      "deity": "Zeides",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "vampiric-weapon",
+      "name": "Vampiric Weapon",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Zeides",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "sunshade",
+      "name": "Sunshade",
+      "circle": 7,
+      "mp": 6,
+      "deity": "Zeides",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "spirit-domination",
+      "name": "Spirit Domination",
+      "circle": 10,
+      "mp": 10,
+      "deity": "Zeides",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "ultimate-being",
+      "name": "Ultimate Being",
+      "circle": 13,
+      "mp": 13,
+      "deity": "Zeides",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "weather-forecast",
+      "name": "Weather Forecast",
+      "circle": 2,
+      "mp": 3,
+      "deity": "Zoras-Valles",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "fall-lightning",
+      "name": "Fall Lightning",
+      "circle": 4,
+      "mp": 4,
+      "deity": "Zoras-Valles",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "presage-disaster",
+      "name": "Presage Disaster",
+      "circle": 7,
+      "mp": 4,
+      "deity": "Zoras-Valles",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "confusing-fog",
+      "name": "Confusing Fog",
+      "circle": 10,
+      "mp": 8,
+      "deity": "Zoras-Valles",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "phantom-flood",
+      "name": "Phantom Flood",
+      "circle": 13,
+      "mp": 22,
+      "deity": "Zoras-Valles",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "change-fraud",
+      "name": "Change Fraud",
+      "circle": 2,
+      "mp": 3,
+      "deity": "Meigal",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "hide-value",
+      "name": "Hide Value",
+      "circle": 4,
+      "mp": 3,
+      "deity": "Meigal",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "gain-trust",
+      "name": "Gain Trust",
+      "circle": 7,
+      "mp": 8,
+      "deity": "Meigal",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "money-distraction",
+      "name": "Money Distraction",
+      "circle": 10,
+      "mp": 8,
+      "deity": "Meigal",
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "fake-gamel",
+      "name": "Fake Gamel",
+      "circle": 13,
+      "mp": 10,
+      "deity": "Meigal",
+      "sourceBook": "Magus Arts"
+    }
+  ]
+}
