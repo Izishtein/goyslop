@@ -149,6 +149,14 @@
   max-width: 52ch;
 }
 
+/* A named sub-entry inside a .group (e.g. one Work Skill's own breakdown within its
+   category) — one level below .group h4, not uppercase since it quotes a proper name. */
+.subheading {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 @media print {
   .reference {
     gap: 3mm;

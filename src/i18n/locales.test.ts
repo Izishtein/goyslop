@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { ARTS } from '../data/arts';
 import { CLASSES } from '../data/classes';
 import { COMBAT_FEATS } from '../data/combat-feats';
+import { SCHOOL_SECRETS } from '../data/schools';
+import { WORK_SKILLS } from '../data/work-skills';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
 
@@ -87,5 +89,61 @@ describe('locale files', () => {
   it('describes no art that does not exist', () => {
     const ids = new Set(ARTS.map((art) => art.id));
     expect(Object.keys(en.reference.artEffect).filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it('describes every School Secret in both languages', () => {
+    for (const secret of SCHOOL_SECRETS) {
+      expect(en.reference.schoolSecretEffect, `en ${secret.id}`).toHaveProperty(secret.id);
+      expect(ru.reference.schoolSecretEffect, `ru ${secret.id}`).toHaveProperty(secret.id);
+    }
+  });
+
+  it('describes no School Secret that does not exist', () => {
+    const ids = new Set(SCHOOL_SECRETS.map((secret) => secret.id));
+    expect(Object.keys(en.reference.schoolSecretEffect).filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it('describes every Work Skill in both languages', () => {
+    for (const skill of WORK_SKILLS) {
+      expect(en.reference.workSkillDescription, `en ${skill.id}`).toHaveProperty(skill.id);
+      expect(ru.reference.workSkillDescription, `ru ${skill.id}`).toHaveProperty(skill.id);
+    }
+  });
+
+  it('describes no Work Skill that does not exist', () => {
+    const ids = new Set(WORK_SKILLS.map((s) => s.id));
+    expect(Object.keys(en.reference.workSkillDescription).filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it('gives no Work Skill check effect for a check that does not take one, or that does not exist', () => {
+    const skillsById = new Map(WORK_SKILLS.map((s) => [s.id, s]));
+    for (const [skillId, checkEffects] of Object.entries(en.reference.workSkillCheckEffect)) {
+      const skillDef = skillsById.get(skillId);
+      expect(skillDef, `unknown work skill ${skillId}`).toBeDefined();
+      const checksById = new Map(skillDef!.checks.map((c) => [c.id, c]));
+      for (const checkId of Object.keys(checkEffects)) {
+        const checkDef = checksById.get(checkId);
+        expect(checkDef, `${skillId}.${checkId} is not a check of that skill`).toBeDefined();
+        expect(checkDef!.timeRequired, `${skillId}.${checkId} is a reference check, not a unique one`).toBeDefined();
+      }
+    }
+    expect(Object.keys(en.reference.workSkillCheckEffect).sort()).toEqual(Object.keys(ru.reference.workSkillCheckEffect).sort());
+  });
+
+  it('gives every Work Skill bonuses for level 5/10/15, in both languages', () => {
+    for (const skill of WORK_SKILLS) {
+      expect(en.reference.workSkillBonus, `en ${skill.id}`).toHaveProperty(skill.id);
+      expect(ru.reference.workSkillBonus, `ru ${skill.id}`).toHaveProperty(skill.id);
+      expect(Object.keys(en.reference.workSkillBonus[skill.id as keyof typeof en.reference.workSkillBonus]).sort()).toEqual([
+        'level10',
+        'level15',
+        'level5',
+      ]);
+    }
+  });
+
+  it('gives Work Skill bonuses to no skill that does not exist', () => {
+    const ids = new Set(WORK_SKILLS.map((s) => s.id));
+    expect(Object.keys(en.reference.workSkillBonus).filter((id) => !ids.has(id))).toEqual([]);
   });
 });

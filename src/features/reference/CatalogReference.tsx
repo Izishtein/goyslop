@@ -937,7 +937,7 @@ export function EssenceWeavingReference() {
 }
 
 export function SchoolsReference() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <section className={styles.panel} aria-labelledby="reference-schools">
@@ -946,77 +946,93 @@ export function SchoolsReference() {
         <p className={styles.note}>{t('reference.schoolsNote')}</p>
       </div>
 
-      {SCHOOLS.map((sch) => (
-        <div key={sch.id} className={styles.group}>
-          <h4>
-            {sch.name}{' '}
-            <span className={styles.numeric}>
-              ({t('sheet.schoolInitiationReputation')} {sch.initiationReputation}
-              {sch.initiationNotes ? `, ${sch.initiationNotes}` : ''})
-            </span>
-          </h4>
+      {SCHOOLS.map((sch) => {
+        const secrets = listSecretsBySchool(sch.id);
+        const withEffect = secrets.filter((entry) => i18n.exists(`reference.schoolSecretEffect.${entry.id}`));
 
-          {sch.equipment && sch.equipment.length > 0 && (
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>{t('sheet.name')}</th>
-                    <th>{t('reference.price')}</th>
-                    <th>{t('sheet.itemNote')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sch.equipment.map((item) => (
-                    <tr key={item.name}>
-                      <th scope="row" className={styles.rowName}>
-                        {item.name}
-                      </th>
-                      <td className={styles.numeric}>{item.price}</td>
-                      <td>{item.notes ?? '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+        return (
+          <div key={sch.id} className={styles.group}>
+            <h4>
+              {sch.name}{' '}
+              <span className={styles.numeric}>
+                ({t('sheet.schoolInitiationReputation')} {sch.initiationReputation}
+                {sch.initiationNotes ? `, ${sch.initiationNotes}` : ''})
+              </span>
+            </h4>
 
-          {sch.secretsNote ? (
-            <p className={styles.note}>{sch.secretsNote}</p>
-          ) : (
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>{t('sheet.name')}</th>
-                    <th>{t('sheet.secretType')}</th>
-                    <th>{t('sheet.essenceWeavingCost')}</th>
-                    <th>{t('sheet.stuntPrerequisite')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {listSecretsBySchool(sch.id).map((entry) => (
-                    <tr key={entry.id}>
-                      <th scope="row" className={styles.rowName}>
-                        {entry.name}
-                      </th>
-                      <td>{t(`sheet.combatFeatCategory.${entry.type}`)}</td>
-                      <td className={styles.numeric}>{entry.requiredReputation}</td>
-                      <td>{entry.prerequisite && entry.prerequisite !== 'None' ? entry.prerequisite : '—'}</td>
+            {sch.equipment && sch.equipment.length > 0 && (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>{t('sheet.name')}</th>
+                      <th>{t('reference.price')}</th>
+                      <th>{t('sheet.itemNote')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      ))}
+                  </thead>
+                  <tbody>
+                    {sch.equipment.map((item) => (
+                      <tr key={item.name}>
+                        <th scope="row" className={styles.rowName}>
+                          {item.name}
+                        </th>
+                        <td className={styles.numeric}>{item.price}</td>
+                        <td>{item.notes ?? '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {sch.secretsNote ? (
+              <p className={styles.note}>{sch.secretsNote}</p>
+            ) : (
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>{t('sheet.name')}</th>
+                      <th>{t('sheet.secretType')}</th>
+                      <th>{t('sheet.essenceWeavingCost')}</th>
+                      <th>{t('sheet.stuntPrerequisite')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {secrets.map((entry) => (
+                      <tr key={entry.id}>
+                        <th scope="row" className={styles.rowName}>
+                          {entry.name}
+                        </th>
+                        <td>{t(`sheet.combatFeatCategory.${entry.type}`)}</td>
+                        <td className={styles.numeric}>{entry.requiredReputation}</td>
+                        <td>{entry.prerequisite && entry.prerequisite !== 'None' ? entry.prerequisite : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {withEffect.length > 0 && (
+              <ul>
+                {withEffect.map((entry) => (
+                  <li key={entry.id}>
+                    <strong>{entry.name}.</strong> {t(`reference.schoolSecretEffect.${entry.id}`)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 }
 
+const WORK_SKILL_BONUS_LEVELS = ['level5', 'level10', 'level15'] as const;
+
 export function WorkSkillsReference() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <section className={styles.panel} aria-labelledby="reference-work-skills">
@@ -1050,6 +1066,82 @@ export function WorkSkillsReference() {
               </tbody>
             </table>
           </div>
+
+          {listWorkSkillsByCategory(category)
+            .filter((entry) => i18n.exists(`reference.workSkillDescription.${entry.id}`))
+            .map((entry) => {
+              const withCheckEffect = entry.checks.filter((c) =>
+                i18n.exists(`reference.workSkillCheckEffect.${entry.id}.${c.id}`),
+              );
+              const hasBonuses = i18n.exists(`reference.workSkillBonus.${entry.id}.level5`);
+
+              return (
+                <div key={entry.id} className={styles.group}>
+                  <p className={styles.subheading}>
+                    {entry.name} — {entry.profession}
+                  </p>
+                  <p>{t(`reference.workSkillDescription.${entry.id}`)}</p>
+
+                  {entry.checks.length > 0 && (
+                    <div className={styles.tableWrap}>
+                      <table className={styles.table}>
+                        <thead>
+                          <tr>
+                            <th>{t('sheet.name')}</th>
+                            <th>{t('reference.workSkillAbility')}</th>
+                            <th>{t('reference.workSkillTimeRequired')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {entry.checks.map((c) => (
+                            <tr key={c.id}>
+                              <th scope="row" className={styles.rowName}>
+                                {c.name}
+                              </th>
+                              <td>{c.ability}</td>
+                              <td>{c.reference ? `${t('reference.workSkillSeePrefix')} ${c.reference}` : c.timeRequired}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {withCheckEffect.length > 0 && (
+                    <ul>
+                      {withCheckEffect.map((c) => (
+                        <li key={c.id}>
+                          <strong>{c.name}.</strong> {t(`reference.workSkillCheckEffect.${entry.id}.${c.id}`)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {hasBonuses && (
+                    <div className={styles.tableWrap}>
+                      <table className={styles.table}>
+                        <thead>
+                          <tr>
+                            <th>{t('sheet.requiredLevel')}</th>
+                            <th>{t('reference.workSkillBonusLabel')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {WORK_SKILL_BONUS_LEVELS.map((level) => (
+                            <tr key={level}>
+                              <th scope="row" className={styles.numeric}>
+                                {level.replace('level', '')}
+                              </th>
+                              <td>{t(`reference.workSkillBonus.${entry.id}.${level}`)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
         </div>
       ))}
     </section>
