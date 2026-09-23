@@ -57,19 +57,21 @@ import { COMBAT_FEAT_CATEGORIES } from '../../types/character';
 import styles from './ReferenceView.module.css';
 
 export function SpellsReference() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [school, setSchool] = useState(CATALOGUED_SCHOOLS[0]);
   const [search, setSearch] = useState('');
 
   const query = search.trim().toLowerCase();
   const all = listSpellsBySchool(school);
   const spells = query ? all.filter((spell) => spell.name.toLowerCase().includes(query)) : all;
+  const withEffect = spells.filter((spell) => i18n.exists(`reference.spellEffect.${spell.id}`));
 
   return (
     <section className={styles.panel} aria-labelledby="reference-spells">
       <div className={styles.panelHead}>
         <h3 id="reference-spells">{t('reference.tab.spells')}</h3>
         <p className={styles.note}>{t('reference.spellsNote')}</p>
+        <p className={styles.note}>{t('reference.spellEffectsNote')}</p>
       </div>
 
       <div className={styles.controlRow}>
@@ -115,6 +117,15 @@ export function SpellsReference() {
             </tbody>
           </table>
         </div>
+      )}
+      {withEffect.length > 0 && (
+        <ul>
+          {withEffect.map((spell) => (
+            <li key={spell.id}>
+              <strong>{spell.name}.</strong> {t(`reference.spellEffect.${spell.id}`)}
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

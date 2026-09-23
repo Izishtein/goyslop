@@ -1,0 +1,318 @@
+{
+  "school": "Nature Magic",
+  "circleRange": [
+    9,
+    15
+  ],
+  "count": 28,
+  "spells": [
+    {
+      "id": "boar-rush",
+      "name": "Boar Rush",
+      "circle": 9,
+      "mp": 12,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "light-trapper",
+      "name": "Light Trapper",
+      "circle": 9,
+      "mp": 9,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "noisy-disturbance",
+      "name": "Noisy Disturbance",
+      "circle": 9,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "wing-flyer-ii",
+      "name": "Wing Flyer II",
+      "circle": 9,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "chilling-breath",
+      "name": "Chilling Breath",
+      "circle": 10,
+      "mp": 11,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "marsavra-smash",
+      "name": "Marsavra Smash",
+      "circle": 10,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "plant-regrowth",
+      "name": "Plant Regrowth",
+      "circle": 10,
+      "mp": 25,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "reproducer-living-tree",
+      "name": "Reproducer/Living Tree",
+      "circle": 10,
+      "mp": 9,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "big-defender-hydra",
+      "name": "Big Defender/Hydra",
+      "circle": 11,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "hallucinogenic-spores",
+      "name": "Hallucinogenic Spores",
+      "circle": 11,
+      "mp": 17,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "hollow-tree-gate",
+      "name": "Hollow Tree Gate",
+      "circle": 11,
+      "mp": 11,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "poisonous-attacker",
+      "name": "Poisonous Attacker",
+      "circle": 11,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "cryo-bolt",
+      "name": "Cryo Bolt",
+      "circle": 12,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "exhaustive-sucking",
+      "name": "Exhaustive Sucking",
+      "circle": 12,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "mind-protector",
+      "name": "Mind Protector",
+      "circle": 12,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "natural-power-ii",
+      "name": "Natural Power II",
+      "circle": 12,
+      "mp": 0,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "beam-strike",
+      "name": "Beam Strike",
+      "circle": 13,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "lunar-attack",
+      "name": "Lunar Attack",
+      "circle": 13,
+      "mp": 18,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "nature-s-reprisal",
+      "name": "Nature's Reprisal",
+      "circle": 13,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "plants-gift",
+      "name": "Plants Gift",
+      "circle": 13,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "big-defender-roc",
+      "name": "Big Defender/Roc",
+      "circle": 14,
+      "mp": 12,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "big-flight",
+      "name": "Big Flight",
+      "circle": 14,
+      "mp": 15,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "suppressing-gaze",
+      "name": "Suppressing Gaze",
+      "circle": 14,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "violent-storm",
+      "name": "Violent Storm",
+      "circle": 14,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "blaze-shower",
+      "name": "Blaze Shower",
+      "circle": 15,
+      "mp": 16,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "double-stomp",
+      "name": "Double Stomp",
+      "circle": 15,
+      "mp": 24,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "natural-haven",
+      "name": "Natural Haven",
+      "circle": 15,
+      "mp": 30,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    },
+    {
+      "id": "purification-wave",
+      "name": "Purification Wave",
+      "circle": 15,
+      "mp": 15,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Monstrous Lore"
+    }
+  ]
+}

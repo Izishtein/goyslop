@@ -1,0 +1,318 @@
+{
+  "school": "Arcane Magic",
+  "circleRange": [
+    1,
+    15
+  ],
+  "count": 28,
+  "spells": [
+    {
+      "id": "acus-malitiae",
+      "name": "Acus Malitiae",
+      "circle": 1,
+      "mp": 3,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "corpus-reparare",
+      "name": "Corpus Reparare",
+      "circle": 1,
+      "mp": 5,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "lancare-ruinas",
+      "name": "Lancare Ruinas",
+      "circle": 1,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "nebra-venedamus",
+      "name": "Nebra Venedamus",
+      "circle": 1,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "spatium-oculus",
+      "name": "Spatium Oculus",
+      "circle": 1,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "welm-rejectus",
+      "name": "Welm Rejectus",
+      "circle": 1,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "adicio-elementum",
+      "name": "Adicio Elementum",
+      "circle": 4,
+      "mp": 5,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "aktio-exokisumus",
+      "name": "Aktio Exokisumus",
+      "circle": 4,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "lux-trikience",
+      "name": "Lux Trikience",
+      "circle": 4,
+      "mp": 9,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "magica-auguetas",
+      "name": "Magica Auguetas",
+      "circle": 4,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "parare-absconditus",
+      "name": "Parare Absconditus",
+      "circle": 4,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "pulkeritoud",
+      "name": "Pulkeritoud",
+      "circle": 4,
+      "mp": 4,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "atmos-iraptio",
+      "name": "Atmos Iraptio",
+      "circle": 7,
+      "mp": 12,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "lancair-damnatorius",
+      "name": "Lancair Damnatorius",
+      "circle": 7,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "magna-perceptio",
+      "name": "Magna Perceptio",
+      "circle": 7,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "magna-saltous",
+      "name": "Magna Saltous",
+      "circle": 7,
+      "mp": 5,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "momento-reparare",
+      "name": "Momento Reparare",
+      "circle": 7,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "renato-inceptum",
+      "name": "Renato Inceptum",
+      "circle": 7,
+      "mp": 10,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "conglare-rapidus",
+      "name": "Conglare Rapidus",
+      "circle": 10,
+      "mp": 18,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "defensio-perfectus",
+      "name": "Defensio Perfectus",
+      "circle": 10,
+      "mp": 20,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "denebras-cayence-luminous",
+      "name": "Denebras Cayence Luminous",
+      "circle": 10,
+      "mp": 14,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "kerelitas-walatous",
+      "name": "Kerelitas Walatous",
+      "circle": 10,
+      "mp": 20,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "mors-excessus",
+      "name": "Mors Excessus",
+      "circle": 10,
+      "mp": 20,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "ensis-variabilis",
+      "name": "Ensis Variabilis",
+      "circle": 13,
+      "mp": 1,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "lancare-ferriodeus",
+      "name": "Lancare Ferriodeus",
+      "circle": 13,
+      "mp": 18,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "lux-sanctum-adventus",
+      "name": "Lux Sanctum Adventus",
+      "circle": 13,
+      "mp": 30,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "mors-tempestus",
+      "name": "Mors Tempestus",
+      "circle": 13,
+      "mp": 30,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    },
+    {
+      "id": "spatium-teleportus",
+      "name": "Spatium Teleportus",
+      "circle": 13,
+      "mp": 25,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Tyrants Crypts (fan wiki)"
+    }
+  ]
+}

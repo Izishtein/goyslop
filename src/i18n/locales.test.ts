@@ -3,6 +3,7 @@ import { ARTS } from '../data/arts';
 import { CLASSES } from '../data/classes';
 import { COMBAT_FEATS } from '../data/combat-feats';
 import { SCHOOL_SECRETS } from '../data/schools';
+import { SPELLS } from '../data/spells';
 import { WORK_SKILLS } from '../data/work-skills';
 import en from './locales/en.json';
 import ru from './locales/ru.json';
@@ -66,6 +67,15 @@ describe('locale files', () => {
     // typoed id that silently never renders.
     const ids = new Set(COMBAT_FEATS.map((feat) => feat.id));
     expect(Object.keys(en.reference.combatFeatEffect).filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it('describes no spell that does not exist', () => {
+    // spellEffect is filled in chunk by chunk (see docs/roadmap.md § 5.1), so like
+    // combatFeatEffect it is not expected to cover every entry yet — only to never carry a
+    // typoed id that silently never renders.
+    const ids = new Set(SPELLS.map((spell) => spell.id));
+    expect(Object.keys(en.reference.spellEffect).filter((id) => !ids.has(id))).toEqual([]);
+    expect(Object.keys(ru.reference.spellEffect).filter((id) => !ids.has(id))).toEqual([]);
   });
 
   it('does not leave a description identical in both languages', () => {

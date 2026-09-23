@@ -1,0 +1,241 @@
+{
+  "school": "Spiritualism Magic",
+  "circleRange": [
+    9,
+    15
+  ],
+  "count": 21,
+  "spells": [
+    {
+      "id": "bind-operation",
+      "name": "Bind Operation",
+      "circle": 9,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "cursed-doll",
+      "name": "Cursed Doll",
+      "circle": 9,
+      "mp": 6,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "possession",
+      "name": "Possession",
+      "circle": 9,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Magus Arts"
+    },
+    {
+      "id": "protection-ii",
+      "name": "Protection II",
+      "circle": 9,
+      "mp": 3,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "command",
+      "name": "Command",
+      "circle": 10,
+      "mp": 10,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "petri-cloud",
+      "name": "Petri-Cloud",
+      "circle": 10,
+      "mp": 9,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "physical-gimmick",
+      "name": "Physical Gimmick",
+      "circle": 10,
+      "mp": 12,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "scape-doll",
+      "name": "Scape Doll",
+      "circle": 10,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook II"
+    },
+    {
+      "id": "earth-heal-ii",
+      "name": "Earth Heal II",
+      "circle": 11,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "haste",
+      "name": "Haste",
+      "circle": 11,
+      "mp": 18,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "sneak",
+      "name": "Sneak",
+      "circle": 11,
+      "mp": 7,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "change-position",
+      "name": "Change Position",
+      "circle": 12,
+      "mp": 12,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "mana-seal",
+      "name": "Mana Seal",
+      "circle": 12,
+      "mp": 16,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "sonic-weapon",
+      "name": "Sonic Weapon",
+      "circle": 12,
+      "mp": 8,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "raging-earth-ii",
+      "name": "Raging Earth II",
+      "circle": 13,
+      "mp": 18,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "wraith-form",
+      "name": "Wraith Form",
+      "circle": 13,
+      "mp": 20,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "copy-doll",
+      "name": "Copy Doll",
+      "circle": 14,
+      "mp": 20,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "steal-memory",
+      "name": "Steal Memory",
+      "circle": 14,
+      "mp": 19,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "death-cloud",
+      "name": "Death Cloud",
+      "circle": 15,
+      "mp": 26,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "quick-resurrection",
+      "name": "Quick Resurrection",
+      "circle": 15,
+      "mp": 30,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    },
+    {
+      "id": "revenant-curse",
+      "name": "Revenant Curse",
+      "circle": 15,
+      "mp": 30,
+      "mpVariable": false,
+      "deity": null,
+      "magisphere": null,
+      "fairyType": null,
+      "sourceBook": "Core Rulebook III"
+    }
+  ]
+}
