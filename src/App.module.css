@@ -134,6 +134,22 @@
   gap: var(--sp-2);
 }
 
+.guidePrompt {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.guidePromptLink {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  font: inherit;
+  cursor: pointer;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: var(--sp-4) var(--sp-3) var(--sp-5);

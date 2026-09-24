@@ -9,6 +9,7 @@ import { downloadCharacter } from './features/character-io/downloadCharacter';
 import { downloadRoster } from './features/character-io/downloadRoster';
 import { ImportCharacterButton } from './features/character-io/ImportCharacterButton';
 import { ReferenceView } from './features/reference/ReferenceView';
+import { GuideView } from './features/guide/GuideView';
 import type { Character } from './types/character';
 import styles from './App.module.css';
 
@@ -39,11 +40,13 @@ function App() {
      reaches localStorage: persisted, the app would reopen on a catalog with the roster's
      character hidden behind it. */
   const [showReference, setShowReference] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   /** Picking a character — or starting a new one — always lands on that character. */
   function openCharacter(id: string | null) {
     setActiveId(id);
     setShowReference(false);
+    setShowGuide(false);
   }
 
   /* The storage layer cannot render anything, so it shouts and the shell listens. Not
@@ -88,8 +91,25 @@ function App() {
         {/* Label beside the select, not around it: wrapping it made the accessible name
             "Language" + every option's text ("LanguageENRU"), the same trap the creation
             form fell into. */}
-        <button type="button" onClick={() => setShowReference((open) => !open)} aria-pressed={showReference}>
+        <button
+          type="button"
+          onClick={() => {
+            setShowReference((open) => !open);
+            setShowGuide(false);
+          }}
+          aria-pressed={showReference}
+        >
           {t('reference.open')}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowGuide((open) => !open);
+            setShowReference(false);
+          }}
+          aria-pressed={showGuide}
+        >
+          {t('guide.open')}
         </button>
         <div className={styles.langSwitch}>
           <label htmlFor="theme-switch">{t('app.theme')}</label>
@@ -195,10 +215,20 @@ function App() {
 
       {showReference ? (
         <ReferenceView onClose={() => setShowReference(false)} />
+      ) : showGuide ? (
+        <GuideView onClose={() => setShowGuide(false)} />
       ) : activeCharacter ? (
         <CharacterSheetView character={activeCharacter} />
       ) : (
-        <CharacterCreationForm onCreated={(id) => openCharacter(id)} />
+        <>
+          <p className={styles.guidePrompt}>
+            {t('guide.creationPrompt')}{' '}
+            <button type="button" className={styles.guidePromptLink} onClick={() => setShowGuide(true)}>
+              {t('guide.creationPromptLink')}
+            </button>
+          </p>
+          <CharacterCreationForm onCreated={(id) => openCharacter(id)} />
+        </>
       )}
     </main>
   );
