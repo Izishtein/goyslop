@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "id": "2153f450-9f4d-4578-90ad-4b76813a1e23",
+  "name": "Мираль Дух Ветра",
+  "raceId": "human",
+  "background": "Conjurer",
+  "abilities": {
+    "DEX": {
+      "base": 7,
+      "correction": 2,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 7,
+      "correction": 7,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 4,
+      "correction": 2,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 4,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 10,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 10,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "conjurer",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 16
+  },
+  "mp": {
+    "current": 23
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "6fa4fec0-b917-4f20-8903-793c712394cd",
+        "name": "Магический посох",
+        "stance": "2H",
+        "minStr": 1,
+        "accuracyBonus": 1,
+        "power": 11,
+        "criticalValue": 12,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "d00ae60f-d03c-47b3-8d74-75dd2c29babe",
+        "name": "Тканевый доспех",
+        "defense": 2,
+        "evasionModifier": 0,
+        "minStr": 1,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": null,
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "75f7251f-5881-4745-830c-8a656ece8fd0",
+          "name": "Амулет духа-компаньона",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "c2661db6-5535-4780-a590-1d9d692dcdbb",
+          "name": "Мешочек с благовониями",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "",
+      "ammoCount": 0
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 300,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Магический посох :: 110G\nТканевый доспех :: 15G"
+  },
+  "combatFeats": [
+    {
+      "id": "metamagic-targets",
+      "name": "Metamagic/Targets",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2000,
+    "spent": 1000
+  },
+  "spells": [
+    {
+      "id": "38589333-453b-4e19-a258-b0963a1e902a",
+      "name": "Enchant Weapon",
+      "school": "Spiritualism Magic",
+      "circle": 1,
+      "mp": 2
+    },
+    {
+      "id": "9188fd30-518f-4722-8081-be9d48088b44",
+      "name": "Spark",
+      "school": "Spiritualism Magic",
+      "circle": 1,
+      "mp": 6
+    },
+    {
+      "id": "4970eebf-27c9-43c8-ba35-ffab22970f71",
+      "name": "Dark Mist",
+      "school": "Spiritualism Magic",
+      "circle": 1,
+      "mp": 2
+    },
+    {
+      "id": "412130a0-4206-4571-8d7b-d84f9c33a9d6",
+      "name": "Protection",
+      "school": "Spiritualism Magic",
+      "circle": 1,
+      "mp": 1
+    }
+  ],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "муж",
+    "age": "31",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Странствующий медиум, заключивший союз с духами природы. Задумчив, говорит редко, но по делу.",
+    "goals": "Отыскать место силы, где духи говорят громче всего.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "id": "d2064ebb-b403-43dc-935b-897b25f254d7",
+  "name": "Нибл Тихолап",
+  "raceId": "tabbit",
+  "background": "Sorcerer",
+  "abilities": {
+    "DEX": {
+      "base": 5,
+      "correction": 1,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 5,
+      "correction": 1,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 7,
+      "correction": 1,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 7,
+      "correction": 8,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 10,
+      "correction": 16,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 10,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "sorcerer",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 18
+  },
+  "mp": {
+    "current": 23
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "b7ec7f2d-ef75-4771-945a-ee094fccb25d",
+        "name": "Магический посох",
+        "stance": "2H",
+        "minStr": 1,
+        "accuracyBonus": 1,
+        "power": 11,
+        "criticalValue": 12,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "dbb39a9f-d05c-469e-9a5e-a1e64b75f8f1",
+        "name": "Тканевый доспех",
+        "defense": 2,
+        "evasionModifier": 0,
+        "minStr": 1,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": null,
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "153d8a8f-aa0b-4554-8a52-415ac6674610",
+          "name": "Чернильница и перья",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "3771c8c8-ae86-4bdb-97ce-835ec8d2bff4",
+          "name": "Дорожный плащ",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "",
+      "ammoCount": 0
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 300,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Магический посох :: 110G\nТканевый доспех :: 15G"
+  },
+  "combatFeats": [
+    {
+      "id": "metamagic-power-assurance",
+      "name": "Metamagic/Power Assurance",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2000,
+    "spent": 1000
+  },
+  "spells": [
+    {
+      "id": "cba9d5ed-f979-4700-9e67-b3ced72c141f",
+      "name": "Energy Bolt",
+      "school": "Truespeech Magic",
+      "circle": 1,
+      "mp": 5
+    },
+    {
+      "id": "f75bf340-43f6-41f1-b370-be3527c7284e",
+      "name": "Dull Weapon",
+      "school": "Truespeech Magic",
+      "circle": 1,
+      "mp": 2
+    },
+    {
+      "id": "173820f9-74f2-4108-9728-a4faf217a965",
+      "name": "Light",
+      "school": "Truespeech Magic",
+      "circle": 1,
+      "mp": 1
+    },
+    {
+      "id": "838fe077-c8d6-4bf3-99a8-b5becdbbb013",
+      "name": "Lock",
+      "school": "Truespeech Magic",
+      "circle": 1,
+      "mp": 1
+    }
+  ],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "жен",
+    "age": "17",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Таббит-книжник, сбежавшая из деревни ради Истинной Речи и большого мира. Любопытна и болтлива.",
+    "goals": "Найти утраченный свиток заклинаний своей наставницы.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}

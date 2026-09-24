@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "id": "8aa30c38-3dbd-4a28-a363-76ce3d43f186",
+  "name": "Торин Каменный Кулак",
+  "raceId": "dwarf",
+  "background": "Warrior",
+  "abilities": {
+    "DEX": {
+      "base": 4,
+      "correction": 2,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 4,
+      "correction": 1,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 11,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 11,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 5,
+      "correction": 3,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 5,
+      "correction": 14,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "fighter",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 24
+  },
+  "mp": {
+    "current": 19
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "d5984c9e-c1f4-4d9a-9539-5b912f292374",
+        "name": "Боевая секира",
+        "stance": "1H",
+        "minStr": 16,
+        "accuracyBonus": 0,
+        "power": 21,
+        "criticalValue": 11,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "b7e012ff-b09c-4d50-998c-ab02a177d5f4",
+        "name": "Шинный доспех (Splint Armor)",
+        "defense": 5,
+        "evasionModifier": 0,
+        "minStr": 15,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": {
+      "id": "46fc949b-dc77-442e-abed-1ac9af8fdfeb",
+      "name": "Круглый щит",
+      "defenseBonus": 1,
+      "evasionBonus": 0,
+      "minStr": 8,
+      "notes": "",
+      "rank": "B",
+      "abyss": []
+    },
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "684dc750-6280-45c2-b48f-2e88b22a708f",
+          "name": "Факел",
+          "quantity": 3,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "769e6c2b-a333-4a5a-839e-537d24082a51",
+          "name": "Верёвка, 10м",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "287154a2-8e6c-4c5a-b5b7-94a2633c331e",
+          "name": "Ремонтный набор для доспеха",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "",
+      "ammoCount": 0
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 1200,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Боевая секира :: 360G\nШинный доспех :: 520G\nКруглый щит :: 100G"
+  },
+  "combatFeats": [
+    {
+      "id": "power-strike-i",
+      "name": "Power Strike I",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2000,
+    "spent": 1000
+  },
+  "spells": [],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "муж",
+    "age": "58",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Дварф-наёмник, оставивший горное дело ради жизни авантюриста. Прямолинеен, надёжен, держит слово.",
+    "goals": "Скопить на фамильную кузницу и вернуться в клан с честью.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}

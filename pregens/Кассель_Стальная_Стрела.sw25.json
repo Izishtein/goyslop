@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "id": "5558b74a-4028-4a05-8865-03aa7242bb28",
+  "name": "Кассель Стальная Стрела",
+  "raceId": "runefolk",
+  "background": "Archer",
+  "abilities": {
+    "DEX": {
+      "base": 12,
+      "correction": 7,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 12,
+      "correction": 1,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 8,
+      "correction": 6,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 8,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 6,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 6,
+      "correction": 3,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "marksman",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 20
+  },
+  "mp": {
+    "current": 9
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "ea8d26b5-334b-46ff-a377-31554c2586b4",
+        "name": "Длинный лук",
+        "stance": "2H",
+        "minStr": 12,
+        "accuracyBonus": 0,
+        "power": 22,
+        "criticalValue": 10,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "notes": "Дальность 2 (20м)",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "7e3bb678-7a31-4175-9520-1e91240f81da",
+        "name": "Твёрдая кожа",
+        "defense": 4,
+        "evasionModifier": 0,
+        "minStr": 13,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": null,
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "a51d039b-96b2-4f89-9879-c185ebb1ef8b",
+          "name": "Точильный камень",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "40f33d6a-73f9-4b4d-9b92-756997e4a229",
+          "name": "Полевые бинты",
+          "quantity": 2,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "Стрелы",
+      "ammoCount": 40
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 700,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Длинный лук :: 170G\nТвёрдая кожа :: 340G\nСтрелы x40 :: 40G"
+  },
+  "combatFeats": [
+    {
+      "id": "aimed-attack-i",
+      "name": "Aimed Attack I",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2500,
+    "spent": 500
+  },
+  "spells": [],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "муж",
+    "age": "—",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Рунический голем-механизм, обученный меткой стрельбе бывшим хозяином-изобретателем. Методичен и невозмутим.",
+    "goals": "Понять, что случилось с создателем, пропавшим много лет назад.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}

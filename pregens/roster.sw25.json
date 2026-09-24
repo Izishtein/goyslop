@@ -1,0 +1,1303 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "8aa30c38-3dbd-4a28-a363-76ce3d43f186",
+    "name": "Торин Каменный Кулак",
+    "raceId": "dwarf",
+    "background": "Warrior",
+    "abilities": {
+      "DEX": {
+        "base": 4,
+        "correction": 2,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 4,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 11,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 11,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 5,
+        "correction": 3,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 5,
+        "correction": 14,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "fighter",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 24
+    },
+    "mp": {
+      "current": 19
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "d5984c9e-c1f4-4d9a-9539-5b912f292374",
+          "name": "Боевая секира",
+          "stance": "1H",
+          "minStr": 16,
+          "accuracyBonus": 0,
+          "power": 21,
+          "criticalValue": 11,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "b7e012ff-b09c-4d50-998c-ab02a177d5f4",
+          "name": "Шинный доспех (Splint Armor)",
+          "defense": 5,
+          "evasionModifier": 0,
+          "minStr": 15,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": {
+        "id": "46fc949b-dc77-442e-abed-1ac9af8fdfeb",
+        "name": "Круглый щит",
+        "defenseBonus": 1,
+        "evasionBonus": 0,
+        "minStr": 8,
+        "notes": "",
+        "rank": "B",
+        "abyss": []
+      },
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "684dc750-6280-45c2-b48f-2e88b22a708f",
+            "name": "Факел",
+            "quantity": 3,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "769e6c2b-a333-4a5a-839e-537d24082a51",
+            "name": "Верёвка, 10м",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "287154a2-8e6c-4c5a-b5b7-94a2633c331e",
+            "name": "Ремонтный набор для доспеха",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 1200,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Боевая секира :: 360G\nШинный доспех :: 520G\nКруглый щит :: 100G"
+    },
+    "combatFeats": [
+      {
+        "id": "power-strike-i",
+        "name": "Power Strike I",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2000,
+      "spent": 1000
+    },
+    "spells": [],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "муж",
+      "age": "58",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Дварф-наёмник, оставивший горное дело ради жизни авантюриста. Прямолинеен, надёжен, держит слово.",
+      "goals": "Скопить на фамильную кузницу и вернуться в клан с честью.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "d2064ebb-b403-43dc-935b-897b25f254d7",
+    "name": "Нибл Тихолап",
+    "raceId": "tabbit",
+    "background": "Sorcerer",
+    "abilities": {
+      "DEX": {
+        "base": 5,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 5,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 7,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 7,
+        "correction": 8,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 10,
+        "correction": 16,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 10,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "sorcerer",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 18
+    },
+    "mp": {
+      "current": 23
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "b7ec7f2d-ef75-4771-945a-ee094fccb25d",
+          "name": "Магический посох",
+          "stance": "2H",
+          "minStr": 1,
+          "accuracyBonus": 1,
+          "power": 11,
+          "criticalValue": 12,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "dbb39a9f-d05c-469e-9a5e-a1e64b75f8f1",
+          "name": "Тканевый доспех",
+          "defense": 2,
+          "evasionModifier": 0,
+          "minStr": 1,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": null,
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "153d8a8f-aa0b-4554-8a52-415ac6674610",
+            "name": "Чернильница и перья",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "3771c8c8-ae86-4bdb-97ce-835ec8d2bff4",
+            "name": "Дорожный плащ",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 300,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Магический посох :: 110G\nТканевый доспех :: 15G"
+    },
+    "combatFeats": [
+      {
+        "id": "metamagic-power-assurance",
+        "name": "Metamagic/Power Assurance",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2000,
+      "spent": 1000
+    },
+    "spells": [
+      {
+        "id": "cba9d5ed-f979-4700-9e67-b3ced72c141f",
+        "name": "Energy Bolt",
+        "school": "Truespeech Magic",
+        "circle": 1,
+        "mp": 5
+      },
+      {
+        "id": "f75bf340-43f6-41f1-b370-be3527c7284e",
+        "name": "Dull Weapon",
+        "school": "Truespeech Magic",
+        "circle": 1,
+        "mp": 2
+      },
+      {
+        "id": "173820f9-74f2-4108-9728-a4faf217a965",
+        "name": "Light",
+        "school": "Truespeech Magic",
+        "circle": 1,
+        "mp": 1
+      },
+      {
+        "id": "838fe077-c8d6-4bf3-99a8-b5becdbbb013",
+        "name": "Lock",
+        "school": "Truespeech Magic",
+        "circle": 1,
+        "mp": 1
+      }
+    ],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "жен",
+      "age": "17",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Таббит-книжник, сбежавшая из деревни ради Истинной Речи и большого мира. Любопытна и болтлива.",
+      "goals": "Найти утраченный свиток заклинаний своей наставницы.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "bbc57f0f-fea9-4329-ba2f-abe074a89630",
+    "name": "Сестра Иллара",
+    "raceId": "human",
+    "background": "Cleric",
+    "abilities": {
+      "DEX": {
+        "base": 4,
+        "correction": 2,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 4,
+        "correction": 7,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 8,
+        "correction": 2,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 8,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 9,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 9,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "priest",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 20
+    },
+    "mp": {
+      "current": 22
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "8699d2cd-0686-44da-bd79-942e52de13dd",
+          "name": "Лёгкая булава",
+          "stance": "1H",
+          "minStr": 5,
+          "accuracyBonus": 1,
+          "power": 10,
+          "criticalValue": 12,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "a3ad20c3-777c-4a45-8fe6-2412821f44d6",
+          "name": "Мягкая кожа",
+          "defense": 3,
+          "evasionModifier": 0,
+          "minStr": 7,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": {
+        "id": "2df001f1-29b6-4f44-873f-7cb2b3476a86",
+        "name": "Баклер",
+        "defenseBonus": 0,
+        "evasionBonus": 1,
+        "minStr": 1,
+        "notes": "",
+        "rank": "B",
+        "abyss": []
+      },
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "154db0b3-f646-47c2-8f5a-708c5b895175",
+            "name": "Священный символ",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "a4eedcf5-abc7-496f-8896-eca60ab19c43",
+            "name": "Целебные травы",
+            "quantity": 2,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 500,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Лёгкая булава :: 120G\nМягкая кожа :: 150G\nБаклер :: 60G"
+    },
+    "combatFeats": [
+      {
+        "id": "cover-i",
+        "name": "Cover I",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2000,
+      "spent": 1000
+    },
+    "spells": [
+      {
+        "id": "9c8565f6-a1ee-439f-bda1-1c565e6ff395",
+        "name": "Sanity",
+        "school": "Divine Magic",
+        "circle": 1,
+        "mp": 3
+      },
+      {
+        "id": "8342b2bf-8898-4b05-88fb-97777b98b739",
+        "name": "Banish",
+        "school": "Divine Magic",
+        "circle": 1,
+        "mp": 3
+      },
+      {
+        "id": "2e95eaec-f855-4cc9-a851-d20f87473a28",
+        "name": "Field Protection",
+        "school": "Divine Magic",
+        "circle": 1,
+        "mp": 2
+      }
+    ],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "жен",
+      "age": "29",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Бывшая храмовая служительница, ушедшая в странствия по велению своего бога. Спокойна и участлива к спутникам.",
+      "goals": "Основать со временем свой приют для сирот войны.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "712d4124-d660-44ef-8f13-81a7b4961cc0",
+    "name": "Сильвана Быстрый Шаг",
+    "raceId": "elf",
+    "background": "Scout",
+    "abilities": {
+      "DEX": {
+        "base": 12,
+        "correction": 5,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 12,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 4,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 4,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 10,
+        "correction": 6,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 10,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "scout",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 16
+    },
+    "mp": {
+      "current": 19
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "ea7b9a4e-100d-4041-9ee3-c15d59a6c768",
+          "name": "Кинжал",
+          "stance": "1H",
+          "minStr": 3,
+          "accuracyBonus": 0,
+          "power": 3,
+          "criticalValue": 10,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "e76508ac-e8a8-43c4-b6a1-1b77e916198e",
+          "name": "Тканевый доспех",
+          "defense": 2,
+          "evasionModifier": 0,
+          "minStr": 1,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": null,
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "54326f2c-4670-4057-b149-83a6cbbf13cf",
+            "name": "Отмычки",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "a27dbde3-d3cc-4be1-aaf2-ab804bd38a6b",
+            "name": "Тёмный плащ с капюшоном",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 200,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Кинжал :: 50G\nТканевый доспех :: 15G"
+    },
+    "combatFeats": [
+      {
+        "id": "dodge",
+        "name": "Dodge",
+        "category": "passive"
+      }
+    ],
+    "experience": {
+      "total": 2500,
+      "spent": 500
+    },
+    "spells": [],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "жен",
+      "age": "112",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Эльфийка-разведчица, покинувшая лесное поселение ради жизни авантюристки. Осторожна, наблюдательна, не любит шум.",
+      "goals": "Составить полную карту приграничных земель — никто до неё этого не сделал.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "5558b74a-4028-4a05-8865-03aa7242bb28",
+    "name": "Кассель Стальная Стрела",
+    "raceId": "runefolk",
+    "background": "Archer",
+    "abilities": {
+      "DEX": {
+        "base": 12,
+        "correction": 7,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 12,
+        "correction": 1,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 8,
+        "correction": 6,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 8,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 6,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 6,
+        "correction": 3,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "marksman",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 20
+    },
+    "mp": {
+      "current": 9
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "ea8d26b5-334b-46ff-a377-31554c2586b4",
+          "name": "Длинный лук",
+          "stance": "2H",
+          "minStr": 12,
+          "accuracyBonus": 0,
+          "power": 22,
+          "criticalValue": 10,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "notes": "Дальность 2 (20м)",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "7e3bb678-7a31-4175-9520-1e91240f81da",
+          "name": "Твёрдая кожа",
+          "defense": 4,
+          "evasionModifier": 0,
+          "minStr": 13,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": null,
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "a51d039b-96b2-4f89-9879-c185ebb1ef8b",
+            "name": "Точильный камень",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "40f33d6a-73f9-4b4d-9b92-756997e4a229",
+            "name": "Полевые бинты",
+            "quantity": 2,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "Стрелы",
+        "ammoCount": 40
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 700,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Длинный лук :: 170G\nТвёрдая кожа :: 340G\nСтрелы x40 :: 40G"
+    },
+    "combatFeats": [
+      {
+        "id": "aimed-attack-i",
+        "name": "Aimed Attack I",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2500,
+      "spent": 500
+    },
+    "spells": [],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "муж",
+      "age": "—",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Рунический голем-механизм, обученный меткой стрельбе бывшим хозяином-изобретателем. Методичен и невозмутим.",
+      "goals": "Понять, что случилось с создателем, пропавшим много лет назад.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "c3f79f66-24ab-4567-9c43-20d2ba4a8861",
+    "name": "Рика Алый Веер",
+    "raceId": "human",
+    "background": "Dancer",
+    "abilities": {
+      "DEX": {
+        "base": 10,
+        "correction": 5,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 10,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 6,
+        "correction": 4,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 6,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 5,
+        "correction": 6,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 5,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "battle-dancer",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 18
+    },
+    "mp": {
+      "current": 14
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "5de48753-e39b-4b32-bcdc-126dee3c02fe",
+          "name": "Рапира",
+          "stance": "1H",
+          "minStr": 10,
+          "accuracyBonus": 0,
+          "power": 10,
+          "criticalValue": 10,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "2e9989dd-bf1f-4bff-9365-c1feaa0e778c",
+          "name": "Мягкая кожа",
+          "defense": 3,
+          "evasionModifier": 0,
+          "minStr": 7,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": null,
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "49cc5c8f-9a38-47f8-a2ab-3a904ff5d5d5",
+            "name": "Боевой веер",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "b9e5202b-0eed-4fbe-be27-450b22e08f7c",
+            "name": "Расшитая лента-пояс",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 500,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Рапира :: 190G\nМягкая кожа :: 150G"
+    },
+    "combatFeats": [
+      {
+        "id": "twin-strike",
+        "name": "Twin Strike",
+        "category": "passive"
+      },
+      {
+        "id": "repeated-strike-i",
+        "name": "Repeated Strike I",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2000,
+      "spent": 1000
+    },
+    "spells": [],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "жен",
+      "age": "23",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Бывшая танцовщица бродячей труппы, превратившая сценический танец с клинком в боевое искусство. Артистична и дерзка.",
+      "goals": "Основать собственную школу боевого танца.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "2153f450-9f4d-4578-90ad-4b76813a1e23",
+    "name": "Мираль Дух Ветра",
+    "raceId": "human",
+    "background": "Conjurer",
+    "abilities": {
+      "DEX": {
+        "base": 7,
+        "correction": 2,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "AGI": {
+        "base": 7,
+        "correction": 7,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "STR": {
+        "base": 4,
+        "correction": 2,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "VIT": {
+        "base": 4,
+        "correction": 9,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "INT": {
+        "base": 10,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      },
+      "SPR": {
+        "base": 10,
+        "correction": 10,
+        "growth": 0,
+        "itemBonus": 0
+      }
+    },
+    "classes": [
+      {
+        "classId": "conjurer",
+        "level": 1
+      }
+    ],
+    "hp": {
+      "current": 16
+    },
+    "mp": {
+      "current": 23
+    },
+    "statusEffects": [],
+    "equipment": {
+      "weapons": [
+        {
+          "id": "6fa4fec0-b917-4f20-8903-793c712394cd",
+          "name": "Магический посох",
+          "stance": "2H",
+          "minStr": 1,
+          "accuracyBonus": 1,
+          "power": 11,
+          "criticalValue": 12,
+          "extraDamageBonus": 0,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "armor": [
+        {
+          "id": "d00ae60f-d03c-47b3-8d74-75dd2c29babe",
+          "name": "Тканевый доспех",
+          "defense": 2,
+          "evasionModifier": 0,
+          "minStr": 1,
+          "rank": "B",
+          "abyss": []
+        }
+      ],
+      "shield": null,
+      "accessories": [],
+      "inventory": {
+        "adventurersSet": "Комплект авантюриста",
+        "items": [
+          {
+            "id": "75f7251f-5881-4745-830c-8a656ece8fd0",
+            "name": "Амулет духа-компаньона",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          },
+          {
+            "id": "c2661db6-5535-4780-a590-1d9d692dcdbb",
+            "name": "Мешочек с благовониями",
+            "quantity": 1,
+            "weight": "",
+            "notes": ""
+          }
+        ],
+        "ammoType": "",
+        "ammoCount": 0
+      }
+    },
+    "abyssCorruptionLevel": 0,
+    "currency": {
+      "cash": 300,
+      "savings": 0,
+      "debt": 0,
+      "spendingLog": "Магический посох :: 110G\nТканевый доспех :: 15G"
+    },
+    "combatFeats": [
+      {
+        "id": "metamagic-targets",
+        "name": "Metamagic/Targets",
+        "category": "declaration"
+      }
+    ],
+    "experience": {
+      "total": 2000,
+      "spent": 1000
+    },
+    "spells": [
+      {
+        "id": "38589333-453b-4e19-a258-b0963a1e902a",
+        "name": "Enchant Weapon",
+        "school": "Spiritualism Magic",
+        "circle": 1,
+        "mp": 2
+      },
+      {
+        "id": "9188fd30-518f-4722-8081-be9d48088b44",
+        "name": "Spark",
+        "school": "Spiritualism Magic",
+        "circle": 1,
+        "mp": 6
+      },
+      {
+        "id": "4970eebf-27c9-43c8-ba35-ffab22970f71",
+        "name": "Dark Mist",
+        "school": "Spiritualism Magic",
+        "circle": 1,
+        "mp": 2
+      },
+      {
+        "id": "412130a0-4206-4571-8d7b-d84f9c33a9d6",
+        "name": "Protection",
+        "school": "Spiritualism Magic",
+        "circle": 1,
+        "mp": 1
+      }
+    ],
+    "arts": [],
+    "evocations": [],
+    "materialCards": {},
+    "mounts": [],
+    "stunts": [],
+    "aspects": [],
+    "geomancerQi": {
+      "heavenly": 0,
+      "earthly": 0,
+      "spirit": 0
+    },
+    "stratagems": [],
+    "maneuvers": [],
+    "essenceWeavings": [],
+    "schools": [],
+    "schoolSecrets": [],
+    "tacticianEdge": 0,
+    "performance": {
+      "rhythmNote": 0,
+      "rhythmHeart": 0,
+      "pet": ""
+    },
+    "growthLog": [],
+    "reputation": 0,
+    "profile": {
+      "gender": "муж",
+      "age": "31",
+      "avatar": ""
+    },
+    "notes": {
+      "story": "Странствующий медиум, заключивший союз с духами природы. Задумчив, говорит редко, но по делу.",
+      "goals": "Отыскать место силы, где духи говорят громче всего.",
+      "gm": ""
+    },
+    "connections": [],
+    "fellow": {
+      "selfIntroduction": "",
+      "languages": "",
+      "wantsExperience": false,
+      "wantsReward": false,
+      "actions": []
+    },
+    "workSkills": []
+  }
+]

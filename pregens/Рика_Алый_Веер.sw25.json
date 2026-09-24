@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "id": "c3f79f66-24ab-4567-9c43-20d2ba4a8861",
+  "name": "Рика Алый Веер",
+  "raceId": "human",
+  "background": "Dancer",
+  "abilities": {
+    "DEX": {
+      "base": 10,
+      "correction": 5,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 10,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 6,
+      "correction": 4,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 6,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 5,
+      "correction": 6,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 5,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "battle-dancer",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 18
+  },
+  "mp": {
+    "current": 14
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "5de48753-e39b-4b32-bcdc-126dee3c02fe",
+        "name": "Рапира",
+        "stance": "1H",
+        "minStr": 10,
+        "accuracyBonus": 0,
+        "power": 10,
+        "criticalValue": 10,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "2e9989dd-bf1f-4bff-9365-c1feaa0e778c",
+        "name": "Мягкая кожа",
+        "defense": 3,
+        "evasionModifier": 0,
+        "minStr": 7,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": null,
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "49cc5c8f-9a38-47f8-a2ab-3a904ff5d5d5",
+          "name": "Боевой веер",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "b9e5202b-0eed-4fbe-be27-450b22e08f7c",
+          "name": "Расшитая лента-пояс",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "",
+      "ammoCount": 0
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 500,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Рапира :: 190G\nМягкая кожа :: 150G"
+  },
+  "combatFeats": [
+    {
+      "id": "twin-strike",
+      "name": "Twin Strike",
+      "category": "passive"
+    },
+    {
+      "id": "repeated-strike-i",
+      "name": "Repeated Strike I",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2000,
+    "spent": 1000
+  },
+  "spells": [],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "жен",
+    "age": "23",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Бывшая танцовщица бродячей труппы, превратившая сценический танец с клинком в боевое искусство. Артистична и дерзка.",
+    "goals": "Основать собственную школу боевого танца.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}

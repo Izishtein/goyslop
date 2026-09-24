@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "id": "bbc57f0f-fea9-4329-ba2f-abe074a89630",
+  "name": "Сестра Иллара",
+  "raceId": "human",
+  "background": "Cleric",
+  "abilities": {
+    "DEX": {
+      "base": 4,
+      "correction": 2,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "AGI": {
+      "base": 4,
+      "correction": 7,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "STR": {
+      "base": 8,
+      "correction": 2,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "VIT": {
+      "base": 8,
+      "correction": 9,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "INT": {
+      "base": 9,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    },
+    "SPR": {
+      "base": 9,
+      "correction": 10,
+      "growth": 0,
+      "itemBonus": 0
+    }
+  },
+  "classes": [
+    {
+      "classId": "priest",
+      "level": 1
+    }
+  ],
+  "hp": {
+    "current": 20
+  },
+  "mp": {
+    "current": 22
+  },
+  "statusEffects": [],
+  "equipment": {
+    "weapons": [
+      {
+        "id": "8699d2cd-0686-44da-bd79-942e52de13dd",
+        "name": "Лёгкая булава",
+        "stance": "1H",
+        "minStr": 5,
+        "accuracyBonus": 1,
+        "power": 10,
+        "criticalValue": 12,
+        "extraDamageBonus": 0,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "armor": [
+      {
+        "id": "a3ad20c3-777c-4a45-8fe6-2412821f44d6",
+        "name": "Мягкая кожа",
+        "defense": 3,
+        "evasionModifier": 0,
+        "minStr": 7,
+        "rank": "B",
+        "abyss": []
+      }
+    ],
+    "shield": {
+      "id": "2df001f1-29b6-4f44-873f-7cb2b3476a86",
+      "name": "Баклер",
+      "defenseBonus": 0,
+      "evasionBonus": 1,
+      "minStr": 1,
+      "notes": "",
+      "rank": "B",
+      "abyss": []
+    },
+    "accessories": [],
+    "inventory": {
+      "adventurersSet": "Комплект авантюриста",
+      "items": [
+        {
+          "id": "154db0b3-f646-47c2-8f5a-708c5b895175",
+          "name": "Священный символ",
+          "quantity": 1,
+          "weight": "",
+          "notes": ""
+        },
+        {
+          "id": "a4eedcf5-abc7-496f-8896-eca60ab19c43",
+          "name": "Целебные травы",
+          "quantity": 2,
+          "weight": "",
+          "notes": ""
+        }
+      ],
+      "ammoType": "",
+      "ammoCount": 0
+    }
+  },
+  "abyssCorruptionLevel": 0,
+  "currency": {
+    "cash": 500,
+    "savings": 0,
+    "debt": 0,
+    "spendingLog": "Лёгкая булава :: 120G\nМягкая кожа :: 150G\nБаклер :: 60G"
+  },
+  "combatFeats": [
+    {
+      "id": "cover-i",
+      "name": "Cover I",
+      "category": "declaration"
+    }
+  ],
+  "experience": {
+    "total": 2000,
+    "spent": 1000
+  },
+  "spells": [
+    {
+      "id": "9c8565f6-a1ee-439f-bda1-1c565e6ff395",
+      "name": "Sanity",
+      "school": "Divine Magic",
+      "circle": 1,
+      "mp": 3
+    },
+    {
+      "id": "8342b2bf-8898-4b05-88fb-97777b98b739",
+      "name": "Banish",
+      "school": "Divine Magic",
+      "circle": 1,
+      "mp": 3
+    },
+    {
+      "id": "2e95eaec-f855-4cc9-a851-d20f87473a28",
+      "name": "Field Protection",
+      "school": "Divine Magic",
+      "circle": 1,
+      "mp": 2
+    }
+  ],
+  "arts": [],
+  "evocations": [],
+  "materialCards": {},
+  "mounts": [],
+  "stunts": [],
+  "aspects": [],
+  "geomancerQi": {
+    "heavenly": 0,
+    "earthly": 0,
+    "spirit": 0
+  },
+  "stratagems": [],
+  "maneuvers": [],
+  "essenceWeavings": [],
+  "schools": [],
+  "schoolSecrets": [],
+  "tacticianEdge": 0,
+  "performance": {
+    "rhythmNote": 0,
+    "rhythmHeart": 0,
+    "pet": ""
+  },
+  "growthLog": [],
+  "reputation": 0,
+  "profile": {
+    "gender": "жен",
+    "age": "29",
+    "avatar": ""
+  },
+  "notes": {
+    "story": "Бывшая храмовая служительница, ушедшая в странствия по велению своего бога. Спокойна и участлива к спутникам.",
+    "goals": "Основать со временем свой приют для сирот войны.",
+    "gm": ""
+  },
+  "connections": [],
+  "fellow": {
+    "selfIntroduction": "",
+    "languages": "",
+    "wantsExperience": false,
+    "wantsReward": false,
+    "actions": []
+  },
+  "workSkills": []
+}
