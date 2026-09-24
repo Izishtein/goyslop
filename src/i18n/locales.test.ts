@@ -69,10 +69,14 @@ describe('locale files', () => {
     expect(Object.keys(en.reference.combatFeatEffect).filter((id) => !ids.has(id))).toEqual([]);
   });
 
+  it('describes every spell in both languages', () => {
+    for (const spell of SPELLS) {
+      expect(en.reference.spellEffect, `en ${spell.id}`).toHaveProperty(spell.id);
+      expect(ru.reference.spellEffect, `ru ${spell.id}`).toHaveProperty(spell.id);
+    }
+  });
+
   it('describes no spell that does not exist', () => {
-    // spellEffect is filled in chunk by chunk (see docs/roadmap.md § 5.1), so like
-    // combatFeatEffect it is not expected to cover every entry yet — only to never carry a
-    // typoed id that silently never renders.
     const ids = new Set(SPELLS.map((spell) => spell.id));
     expect(Object.keys(en.reference.spellEffect).filter((id) => !ids.has(id))).toEqual([]);
     expect(Object.keys(ru.reference.spellEffect).filter((id) => !ids.has(id))).toEqual([]);
