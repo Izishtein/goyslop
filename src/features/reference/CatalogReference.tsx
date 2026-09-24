@@ -12,6 +12,7 @@ import { listArtsByKind, type ArtKind } from '../../data/arts';
 import { COMBAT_FEATS } from '../../data/combat-feats';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import { listEssenceWeavingsByLevel } from '../../data/essence-weavings';
+import { POWER_TABLE } from '../../lib/formulas/power-table';
 import {
   ARMORS,
   GENERAL_ITEMS,
@@ -1600,6 +1601,50 @@ export function AdvancedCombatReference() {
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+  );
+}
+
+const POWER_TABLE_SUMS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+export function PowerTableReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-power-table">
+      <div className={styles.panelHead}>
+        <h3 id="reference-power-table">{t('reference.tab.powerTable')}</h3>
+        <p className={styles.note}>{t('reference.powerTableNote')}</p>
+      </div>
+
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{t('sheet.power')}</th>
+              {POWER_TABLE_SUMS.map((sum) => (
+                <th key={sum} className={styles.numeric}>
+                  {sum}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {POWER_TABLE.map((row, power) => (
+              <tr key={power}>
+                <th scope="row" className={styles.rowName}>
+                  {power}
+                </th>
+                {row.map((value, index) => (
+                  <td key={POWER_TABLE_SUMS[index]} className={styles.numeric}>
+                    {value}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );

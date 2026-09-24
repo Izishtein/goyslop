@@ -14,7 +14,7 @@
  * Rulebook I p. 134, it deals zero damage outright (Extra Damage included) and instead
  * grants 50 XP — the caller's job, not this lookup's.
  */
-const POWER_TABLE: readonly (readonly number[])[] = [
+export const POWER_TABLE: readonly (readonly number[])[] = [
   [0, 0, 0, 1, 2, 2, 3, 3, 4, 4], // 0
   [0, 0, 0, 1, 2, 3, 3, 3, 4, 4], // 1
   [0, 0, 0, 1, 2, 3, 4, 4, 4, 4], // 2

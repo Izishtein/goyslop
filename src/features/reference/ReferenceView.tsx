@@ -11,6 +11,7 @@ import {
   GeomancerReference,
   MountsReference,
   ItemsReference,
+  PowerTableReference,
   SchoolsReference,
   SpellsReference,
   TacticianReference,
@@ -41,6 +42,7 @@ const TABS = [
   'treasureDrop',
   'vagrant',
   'advancedCombat',
+  'powerTable',
 ] as const;
 type ReferenceTab = (typeof TABS)[number];
 
@@ -63,6 +65,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   treasureDrop: TreasureDropReference,
   vagrant: VagrantReference,
   advancedCombat: AdvancedCombatReference,
+  powerTable: PowerTableReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

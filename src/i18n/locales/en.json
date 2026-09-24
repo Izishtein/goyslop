@@ -500,7 +500,8 @@
       "workSkills": "Work Skills",
       "treasureDrop": "Treasure Drop",
       "vagrant": "Vagrant",
-      "advancedCombat": "Advanced Combat"
+      "advancedCombat": "Advanced Combat",
+      "powerTable": "Power Table"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -2433,6 +2434,7 @@
     "vagrantAdolescent": "Adolescent Experience",
     "vagrantCombatFeat": "Combat Feat",
     "advancedCombatNote": "A GM ruleset for running combat on a real 2D battlefield (Epic Treasury pp. 78-91) instead of the abstract melee/independent bookkeeping of Simplified and Standard Combat. Nothing here describes a character — only how the GM manages positions, movement and range in meters. Four small lookup tables exist in the whole section; everything else is procedure to run at the table.",
+    "powerTableNote": "Weapon and spell damage (Core Rulebook I p. 137, tables in Core Rulebook II pp. 428-431 and Core Rulebook III pp. 461-464): look up the row for the attack's Power, then the column for the 2d6 roll's sum, to get the damage before Extra Damage. A natural 2 (double 1s) never reaches this table — it deals zero damage outright and grants 50 XP instead. The \"Damage\" button next to a weapon or a Standard Value on the sheet rolls this automatically, including the critical chain for a roll at or above the weapon's Critical Value.",
     "combatOpeningDistances": "Combat Opening Recommended Distances",
     "situation": "Situation",
     "distance": "Distance",
