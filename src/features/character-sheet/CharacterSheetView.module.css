@@ -1,53 +1,220 @@
-/* Block flow rather than flex column: a CSS multi-column layout (below) needs a normal
-   block formatting context to lay its children into columns — flex containers ignore
-   column-count entirely. Spacing between stacked cards comes from margin-bottom on each
-   child instead of flex gap, which behaves the same in a single column and keeps working
-   once a child is flowing inside a column. */
+/* Header band on top, then a two-pane body: a left rail that never changes and a tabbed
+   panel beside it. It replaces the CSS multi-column flow this file carried before — balanced
+   columns shortened the scroll but still put half the sheet below the fold, and a section
+   could land anywhere depending on how tall its neighbours happened to be. */
 .sheet {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
 }
 
-.sheet > * {
-  margin-bottom: var(--sp-4);
+.body {
+  display: grid;
+  gap: var(--sp-3);
+  align-items: start;
 }
 
-.sheet > *:last-child {
-  margin-bottom: 0;
-}
-
-/* Desktop: sections flow into balanced columns instead of one long scroll. Order in the
-   DOM is unchanged — this is presentation only, so print (which forces one column below)
-   and screen readers both still see the sections in their original sequence. Identity and
-   the HP/MP/saves bar stay full-width banners above the columns via column-span. */
+/* One column below this: the rail's contents simply stack above the tabs, which stay
+   useful on a phone for exactly the reason they exist on a desktop. */
 @media (min-width: 1024px) {
-  .sheet {
-    column-count: 2;
-    column-gap: var(--sp-4);
-  }
-
-  .sheet > * {
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-  }
-
-  .identity {
-    column-span: all;
-  }
-
-  /* A handful of sections carry genuinely wide tables (Equipment's 12-column weapon row,
-     Arts' 9-column Spellsong row, Mounts' 13-column section-stats row) — squeezed into one
-     grid column they wrap headers onto two lines and force horizontal scrolling. Those
-     sections opt into full width via this modifier class instead of flowing with the rest;
-     everything else still packs into the balanced columns above. */
-  .sectionWide {
-    column-span: all;
+  .body {
+    grid-template-columns: minmax(330px, 380px) minmax(0, 1fr);
   }
 }
 
 @media (min-width: 1600px) {
-  .sheet {
-    column-count: 3;
+  .body {
+    grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
   }
+}
+
+/* min-width: 0 on both panes — grid items default to min-content width, which lets a wide
+   table inside push its column past its track instead of scrolling within it. */
+.rail,
+.panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+/* Abilities and combat numbers are read on every roll, so they follow the page rather than
+   scrolling away. A rail taller than the viewport scrolls inside itself instead of forcing
+   the whole page down. */
+@media (min-width: 1024px) {
+  .rail {
+    position: sticky;
+    top: var(--sp-3);
+    max-height: calc(100vh - 2 * var(--sp-3));
+    overflow-y: auto;
+  }
+}
+
+/* ---- Rail: the same cards, tightened ------------------------------------
+   The sections in the rail are the ones that have to fit a third of the width, so they run
+   denser than the same markup does inside a panel. Nesting, not a modifier prop: the
+   sections themselves are unchanged and can still be dropped anywhere else on the sheet. */
+.rail .section {
+  padding: var(--sp-3);
+  gap: var(--sp-2);
+}
+
+.rail .abilityGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.rail .abilityCard {
+  padding: var(--sp-2);
+  gap: var(--sp-1);
+}
+
+.rail .abilityTotal {
+  font-size: 1.25rem;
+}
+
+.rail .abilityPart span {
+  font-size: 0.56rem;
+}
+
+.rail .abilityPart input,
+.rail .abilityPartStatic {
+  font-size: 0.78rem;
+  padding: 2px 1px;
+}
+
+.rail .table {
+  font-size: 0.8rem;
+}
+
+.rail .table th,
+.rail .table td {
+  padding: 4px;
+}
+
+/* ---- Tabs --------------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.tab {
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+}
+
+.tab[aria-selected='true'],
+.tabActive {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+/* A panel is narrower than the full-width band the widest tables used to get (the weapons
+   row is thirteen columns), so cells inside one run tighter — a few pixels per column is
+   the difference between the table fitting and scrolling sideways. */
+.panels .table {
+  font-size: 0.83rem;
+}
+
+.panels .table th,
+.panels .table td {
+  padding: 5px 4px;
+}
+
+.panels .table td input[type='number'] {
+  min-width: 2.6em;
+}
+
+/* A data attribute, not the `hidden` attribute: paper shows every panel (see @media print),
+   and `hidden` would win there too. Content stays mounted either way, so a half-filled row
+   survives a trip to another tab. */
+.panel:not([data-active]) {
+  display: none;
+}
+
+/* ---- Drawers (panels opened over the sheet) ----------------------------- */
+
+.drawer {
+  display: none;
+}
+
+.drawer[data-open] {
+  display: block;
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 45%);
+  z-index: 40;
+}
+
+.drawerPanel {
+  position: fixed;
+  z-index: 41;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, calc(100vw - 2 * var(--sp-4)));
+  max-height: calc(100vh - 2 * var(--sp-4));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 35%);
+}
+
+.drawerHead {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* ---- HP/MP panel -------------------------------------------------------- */
+
+.poolRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.stepField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepField span {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.stepField input {
+  width: 6em;
 }
 
 /* ---- Identity card ------------------------------------------------------
@@ -57,30 +224,42 @@
    the old `.identity` row layout; `.vitals` now nests inside the same card as a second row
    instead of paying for its own padding/border/shadow. */
 
+/* Kept deliberately short: this band is the only thing on the sheet that costs vertical
+   space on every tab, so its padding, its gaps and its portrait are all a size down from
+   the section cards below it. */
 .identity {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-4) var(--sp-5);
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
 
+/* flex-start plus an auto margin on the actions, not space-between: with space-between, a
+   character whose name block and buttons could not share one line pushed the name to the
+   far right of the card with the portrait alone on the left. */
 .identityTop {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 
 .identityMain {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-1);
+  flex: 1 1 260px;
   min-width: 0;
+}
+
+.identityMain h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.2;
 }
 
 .meta {
@@ -109,18 +288,65 @@
 
 /* ---- Vitals (HP/MP bars + saves) — second row of .identity, not its own card --------- */
 
+/* Capped rather than 1fr: stretched across a 1400px card, a gauge put its label and its
+   number at opposite ends of the screen with a bar's worth of nothing between them. */
 .vitals {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 300px));
+  justify-content: start;
+  align-items: end;
   gap: var(--sp-2) var(--sp-4);
-  padding-top: var(--sp-3);
+  padding-top: var(--sp-2);
   border-top: 1px solid var(--border);
+}
+
+/* The purse, beside the gauges. Three numbers on one row of the same grid, so it costs the
+   header no height of its own — the fields are narrow because they hold a sum, not a name. */
+.moneyInline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.moneyInline .moneyField input {
+  width: 100%;
+  min-width: 0;
 }
 
 .gauge {
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
+}
+
+/* The header gauges are a button now — the whole bar opens the HP/MP panel — but they must
+   go on looking like the bars they were, not like a form control. */
+.gaugeButton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  width: 100%;
+  padding: 2px 0 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.gaugeButton:hover .track,
+.gaugeButton:focus-visible .track {
+  outline: 1px solid var(--border-strong);
+}
+
+.identityActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: flex-start;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .gaugeHead {
@@ -152,7 +378,10 @@
   color: var(--text-muted);
 }
 
+/* display: block spelled out because the header renders these as <span>s inside the gauge
+   button — a <div> is not allowed there, and an inline span would collapse the bar. */
 .track {
+  display: block;
   height: 6px;
   border-radius: 999px;
   background: var(--surface-2);
@@ -160,6 +389,7 @@
 }
 
 .fill {
+  display: block;
   height: 100%;
   border-radius: inherit;
   transition: width 0.2s ease, background-color 0.2s ease;
@@ -611,14 +841,14 @@ details[open] > summary.sectionHead::before {
 .avatarBlock {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-1);
   align-items: center;
 }
 
 .avatar,
 .avatarEmpty {
-  width: 96px;
-  height: 96px;
+  width: 68px;
+  height: 68px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   object-fit: cover;
@@ -629,12 +859,12 @@ details[open] > summary.sectionHead::before {
   display: flex;
   gap: var(--sp-2);
   align-items: center;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
 }
 
 /* The native file input is unstyleable and shouts its filename, so the label is the button. */
 .avatarPick {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -692,15 +922,80 @@ details[open] > summary.sectionHead::before {
 /* ---- Print ------------------------------------------------------------- */
 
 @media print {
-  /* The desktop multi-column layout is a screen-only convenience: paper goes back to one
-     column top to bottom, in DOM order, same as before the grid layout existed. */
-  .sheet {
-    column-count: 1;
+  /* Tabs and drawers are a screen convenience only. Paper is still one column, top to
+     bottom, with every panel open and every drawer that holds data of its own flowed in
+     place — which is why neither ever unmounts its children. */
+  .sheet,
+  .body,
+  .rail,
+  .panels,
+  .panel,
+  .drawer {
+    display: block;
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 
-  .sheet > * {
+  .panel:not([data-active]) {
+    display: block;
+  }
+
+  /* The HP/MP panel is the one drawer with nothing of its own on it: the header already
+     prints both gauges, so printing it too would be the same numbers twice. */
+  .drawer[data-print='hide'],
+  .drawerBackdrop,
+  .drawerHead,
+  .tabs {
+    display: none;
+  }
+
+  .drawerPanel {
+    position: static;
+    transform: none;
+    width: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .sheet > *,
+  .body > *,
+  .rail > *,
+  .panels > *,
+  .panel > *,
+  .drawerBody > * {
     margin-bottom: 3mm;
-    column-span: none;
+  }
+
+  /* print.css hides every <button> on paper as editing chrome, with !important. The header
+     gauges became buttons when editing moved into a panel, and they are not chrome — they
+     carry the printed sheet's only HP and MP numbers — so they have to say so as loudly. */
+  .gaugeButton {
+    display: flex !important;
+    width: auto;
+    padding: 0;
+  }
+
+
+  /* The rail's screen-only tightening is more specific than the print card reset below, so
+     it has to be undone by name — otherwise paper keeps the on-screen padding and the
+     two-up ability grid meant for a 380px column. */
+  .rail .section {
+    padding: 0;
+    gap: 2mm;
+  }
+
+  .rail .abilityGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2mm;
+  }
+
+  .rail .table {
+    font-size: inherit;
   }
 
   /* Cards become flat blocks: the screen's padding/shadow/rounding just wastes

@@ -14,7 +14,11 @@
     "themeDark": "Dark",
     "duplicate": "Duplicate character",
     "duplicateShort": "Duplicate",
-    "copySuffix": "(copy)"
+    "copySuffix": "(copy)",
+    "roster": "My characters",
+    "rosterIntro": "Pick a character to open, or start a new one. Everything is stored in this browser — export a file to keep a copy.",
+    "rosterClose": "Back to the sheet",
+    "rosterActive": "Open"
   },
   "language": {
     "en": "English",
@@ -118,6 +122,21 @@
     "noStatusEffects": "No active status effects",
     "activeStatusEffects": "active status effects",
     "print": "Print / Save as PDF",
+    "tabsLabel": "Sheet sections",
+    "tab": {
+      "equipment": "Gear",
+      "combat": "Combat",
+      "magic": "Magic",
+      "skills": "Skills",
+      "mounts": "Mounts"
+    },
+    "closePanel": "Close",
+    "profile": "Profile",
+    "vitalsPanel": "HP and MP",
+    "editVitals": "Edit HP and MP",
+    "amount": "Amount",
+    "subtract": "Subtract",
+    "add": "Add",
     "combatStats": "Combat stats",
     "class": "Class",
     "accuracy": "Accuracy",

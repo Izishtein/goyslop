@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { adventurerLevel, wizardLevelSum } from '../../lib/formulas/character-levels';
@@ -28,20 +28,34 @@ import { EssenceWeavingSection } from './EssenceWeavingSection';
 import { SchoolsSection } from './SchoolsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
+import { HpMpPanel } from './HpMpPanel';
+import { SheetDrawer } from './SheetDrawer';
+import { hasMounts } from './sections';
+import { hpFillClass, percent } from './vitals';
 import styles from './CharacterSheetView.module.css';
 
-/** HP bar colour doubles as an at-a-glance danger read. */
-function hpFillClass(current: number, max: number): string {
-  const ratio = max > 0 ? current / max : 0;
-  if (ratio > 0.5) return styles.hpOk;
-  if (ratio > 0.25) return styles.hpWarn;
-  return styles.hpDanger;
-}
+/* The seventeen sections used to stack into one long scroll (latterly balanced into CSS
+   columns), which meant the half of the sheet a player needs mid-turn was usually below the
+   fold. They are grouped into five tabbed panels instead, next to a left rail that never
+   changes — abilities and combat numbers are what every roll reads, so they stay put while
+   the panel beside them switches.
 
-function percent(current: number, max: number): string {
-  if (max <= 0) return '0%';
-  return `${Math.max(0, Math.min(100, (current / max) * 100))}%`;
-}
+   Grouping follows what a turn needs at once rather than the book's chapter order:
+   Equipment carries the weapons (i.e. the attacks), Combat the SCA feats and Battle Mastery
+   schools, Magic every casting system, Skills the non-combat class systems. Mounts is the
+   one tab that can be empty for a character — see `hasMounts` — so it only appears for
+   someone who rides. */
+const TAB_IDS = ['equipment', 'combat', 'magic', 'skills', 'mounts'] as const;
+type TabId = (typeof TAB_IDS)[number];
+
+/** Panels opened over the sheet from the header, one at a time. */
+type DrawerId = 'vitals' | 'status' | 'classes' | 'notes';
+
+const MONEY_FIELDS = [
+  { key: 'cash', label: 'sheet.cash' },
+  { key: 'savings', label: 'sheet.savings' },
+  { key: 'debt', label: 'sheet.debt' },
+] as const;
 
 export function CharacterSheetView({ character }: { character: Character }) {
   const { t } = useTranslation();
@@ -66,6 +80,19 @@ export function CharacterSheetView({ character }: { character: Character }) {
   const hp = { current: Math.min(character.hp.current, hpTotal), max: hpTotal };
   const mp = { current: Math.max(0, Math.min(character.mp.current, mpTotal)), max: mpTotal };
 
+  const tabs = TAB_IDS.filter((id) => id !== 'mounts' || hasMounts(character));
+  const [requestedTab, setRequestedTab] = useState<TabId>('equipment');
+  /* Derived, not stored: the roster switches characters without remounting this component,
+     so the tab that was open can be one the new character has no use for (Mounts, for a
+     character who does not ride). Falling back here rather than in an effect keeps the very
+     first render right instead of flashing an empty panel. */
+  const activeTab = tabs.includes(requestedTab) ? requestedTab : tabs[0];
+
+  const [openDrawer, setOpenDrawer] = useState<DrawerId | null>(null);
+  function toggleDrawer(id: DrawerId) {
+    setOpenDrawer((current) => (current === id ? null : id));
+  }
+
   function updateCurrent(field: 'hp' | 'mp', value: number) {
     const max = field === 'hp' ? hpTotal : mpTotal;
     const clamped = field === 'hp' ? Math.min(value, max) : Math.max(0, Math.min(value, max));
@@ -76,6 +103,14 @@ export function CharacterSheetView({ character }: { character: Character }) {
     update((c) => ({ ...c, profile: { ...c.profile, [field]: value } }));
   }
 
+  /* The purse moved up here from the Equipment section: how much money is left is asked as
+     often as how much HP is, and it was two clicks and a scroll away on the gear tab. The
+     spending log stayed behind with the gear it paid for — a record, not a running total. */
+  function setCurrency(field: 'cash' | 'savings' | 'debt', value: number) {
+    update((c) => ({ ...c, currency: { ...c.currency, [field]: value } }));
+  }
+
+
   /* The class-specific sections below render as <details data-collapsible>, collapsed on
      screen when the character doesn't use that system — most of what made the sheet feel
      bulky was a full empty card for each of the eight or nine a given character never
@@ -83,7 +118,9 @@ export function CharacterSheetView({ character }: { character: Character }) {
      of these blank for the player to fill by hand, so a real print (or Ctrl+P, not just this
      button) forces every one open first and puts whatever the player had collapsed back the
      way it was afterward — a DOM property, not a CSS override, so it doesn't fight the
-     display:contents trick `.subsection` already relies on for the same print pass. */
+     display:contents trick `.subsection` already relies on for the same print pass.
+     The tabs and the drawers need no such pass: both hide with a class the print stylesheet
+     simply overrides, which is why neither unmounts its content. */
   useEffect(() => {
     function openForPrint() {
       for (const details of document.querySelectorAll<HTMLDetailsElement>('details[data-collapsible]')) {
@@ -105,6 +142,10 @@ export function CharacterSheetView({ character }: { character: Character }) {
     };
   }, []);
 
+  const fortitudeValue = fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude');
+  const willpowerValue = willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower');
+  const effectCount = character.statusEffects.length;
+
   return (
     <section className={styles.sheet}>
       <header className={styles.identity}>
@@ -117,24 +158,6 @@ export function CharacterSheetView({ character }: { character: Character }) {
               {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
             </p>
 
-            <div className={styles.profileFields}>
-              <label className={styles.profileField}>
-                <span>{t('sheet.gender')}</span>
-                <input
-                  value={character.profile.gender}
-                  onChange={(event) => updateProfile('gender', event.target.value)}
-                  aria-label={t('sheet.gender')}
-                />
-              </label>
-              <label className={styles.profileField}>
-                <span>{t('sheet.age')}</span>
-                <input
-                  value={character.profile.age}
-                  onChange={(event) => updateProfile('age', event.target.value)}
-                  aria-label={t('sheet.age')}
-                />
-              </label>
-            </div>
             <ul className={styles.classBadges}>
               {character.classes.map((classLevel) => (
                 <li key={classLevel.classId} className={styles.classBadge}>
@@ -158,113 +181,223 @@ export function CharacterSheetView({ character }: { character: Character }) {
               </ul>
             )}
           </div>
-          <button type="button" onClick={() => window.print()}>
-            {t('sheet.print')}
-          </button>
+
+          {/* Four panels' worth of sheet that used to be four more cards to scroll past.
+              They are reachable from every tab because that is when they are needed: a
+              status effect lands while the Equipment tab is open, notes get written while
+              looking at spells. */}
+          <div className={`${styles.identityActions} ${styles.controlRow}`}>
+            <button type="button" onClick={() => toggleDrawer('status')} aria-pressed={openDrawer === 'status'}>
+              {t('statusEffects.title')}
+              {effectCount > 0 ? ` (${effectCount})` : ''}
+            </button>
+            <button type="button" onClick={() => toggleDrawer('classes')} aria-pressed={openDrawer === 'classes'}>
+              {t('sheet.classes')}
+            </button>
+            <button type="button" onClick={() => toggleDrawer('notes')} aria-pressed={openDrawer === 'notes'}>
+              {t('sheet.notes')}
+            </button>
+            <button type="button" onClick={() => window.print()}>
+              {t('sheet.print')}
+            </button>
+          </div>
         </div>
 
         <div className={styles.vitals}>
-          <div className={styles.gauge}>
-            <div className={styles.gaugeHead}>
+          {/* The bars stay in the header — they are read every round — but editing moved
+              into a panel with room for a damage/healing number. */}
+          <button
+            type="button"
+            className={styles.gaugeButton}
+            onClick={() => toggleDrawer('vitals')}
+            aria-pressed={openDrawer === 'vitals'}
+            aria-label={t('sheet.editVitals')}
+          >
+            <span className={styles.gaugeHead}>
               <span className={styles.gaugeLabel}>{t('sheet.hp')}</span>
               <span className={styles.gaugeValue}>
-                <input
-                  type="number"
-                  value={hp.current}
-                  onChange={(event) => updateCurrent('hp', Number(event.target.value))}
-                  aria-label={t('sheet.hp')}
-                />
+                <span className={styles.numeric}>{hp.current}</span>
                 <span className={styles.gaugeMax}>/ {hp.max}</span>
-                <button type="button" onClick={() => updateCurrent('hp', hp.max)} title={t('sheet.resetToMax')}>
-                  {t('sheet.resetToMaxShort')}
-                </button>
               </span>
-            </div>
-            <div className={styles.track}>
-              <div className={`${styles.fill} ${hpFillClass(hp.current, hp.max)}`} style={{ width: percent(hp.current, hp.max) }} />
-            </div>
-          </div>
+            </span>
+            <span className={styles.track}>
+              <span
+                className={`${styles.fill} ${hpFillClass(hp.current, hp.max)}`}
+                style={{ width: percent(hp.current, hp.max) }}
+              />
+            </span>
+          </button>
 
-          <div className={styles.gauge}>
-            <div className={styles.gaugeHead}>
+          <button
+            type="button"
+            className={styles.gaugeButton}
+            onClick={() => toggleDrawer('vitals')}
+            aria-pressed={openDrawer === 'vitals'}
+            aria-label={t('sheet.editVitals')}
+          >
+            <span className={styles.gaugeHead}>
               <span className={styles.gaugeLabel}>{t('sheet.mp')}</span>
               <span className={styles.gaugeValue}>
-                <input
-                  type="number"
-                  value={mp.current}
-                  onChange={(event) => updateCurrent('mp', Number(event.target.value))}
-                  aria-label={t('sheet.mp')}
-                />
+                <span className={styles.numeric}>{mp.current}</span>
                 <span className={styles.gaugeMax}>/ {mp.max}</span>
-                <button type="button" onClick={() => updateCurrent('mp', mp.max)} title={t('sheet.resetToMax')}>
-                  {t('sheet.resetToMaxShort')}
-                </button>
               </span>
-            </div>
-            <div className={styles.track}>
-              <div className={`${styles.fill} ${styles.mpFill}`} style={{ width: percent(mp.current, mp.max) }} />
-            </div>
-          </div>
+            </span>
+            <span className={styles.track}>
+              <span className={`${styles.fill} ${styles.mpFill}`} style={{ width: percent(mp.current, mp.max) }} />
+            </span>
+          </button>
 
           <div className={styles.saves}>
             <div className={styles.stat}>
               <span className={styles.statLabel}>{t('sheet.fortitude')}</span>
               <span className={styles.statValue} aria-label={t('sheet.fortitude')}>
-                {fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
+                {fortitudeValue}
               </span>
-              <DiceRoll
-                modifier={fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
-                label={t('sheet.fortitude')}
-              />
+              <DiceRoll modifier={fortitudeValue} label={t('sheet.fortitude')} />
             </div>
             <div className={styles.stat}>
               <span className={styles.statLabel}>{t('sheet.willpower')}</span>
               <span className={styles.statValue} aria-label={t('sheet.willpower')}>
-                {willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
+                {willpowerValue}
               </span>
-              <DiceRoll
-                modifier={willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
-                label={t('sheet.willpower')}
-              />
+              <DiceRoll modifier={willpowerValue} label={t('sheet.willpower')} />
             </div>
+          </div>
+
+          <div className={styles.moneyInline} role="group" aria-label={t('sheet.currency')}>
+            {MONEY_FIELDS.map((field) => (
+              <label key={field.key} className={styles.moneyField}>
+                <span>{t(field.label)}</span>
+                <input
+                  type="number"
+                  value={character.currency[field.key]}
+                  onChange={(event) => setCurrency(field.key, Number(event.target.value))}
+                  aria-label={t(field.label)}
+                />
+              </label>
+            ))}
           </div>
         </div>
       </header>
 
-      <AbilitySection character={character} />
+      <div className={styles.body}>
+        <div className={styles.rail}>
+          <AbilitySection character={character} />
+          <CombatStatsSection character={character} />
+        </div>
 
-      <ClassesSection character={character} />
+        <div className={styles.panels}>
+          <div className={`${styles.tabs} ${styles.controlRow}`} role="tablist" aria-label={t('sheet.tabsLabel')}>
+            {tabs.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                id={`sheet-tab-${id}`}
+                aria-selected={activeTab === id}
+                aria-controls={`sheet-panel-${id}`}
+                className={`${styles.tab} ${activeTab === id ? styles.tabActive : ''}`}
+                onClick={() => setRequestedTab(id)}
+              >
+                {t(`sheet.tab.${id}`)}
+              </button>
+            ))}
+          </div>
 
-      <CombatStatsSection character={character} />
+          {/* Every panel stays mounted; the inactive ones hide on `data-active`, not with
+              the `hidden` attribute: print shows all five (see the print block in the CSS
+              module) and `hidden` would win there too, while a half-filled row survives a
+              trip to another tab either way. */}
+          <Panel id="equipment" activeTab={activeTab}>
+            <EquipmentSection character={character} />
+          </Panel>
 
-      <EquipmentSection character={character} />
+          <Panel id="combat" activeTab={activeTab}>
+            <CombatFeatsSection character={character} />
+            <SchoolsSection character={character} />
+          </Panel>
 
-      <SpellsSection character={character} />
+          <Panel id="magic" activeTab={activeTab}>
+            <SpellsSection character={character} />
+            <EvocationsSection character={character} />
+            <EssenceWeavingSection character={character} />
+            <GeomancerSection character={character} />
+          </Panel>
 
-      <ArtsSection character={character} />
+          <Panel id="skills" activeTab={activeTab}>
+            <ArtsSection character={character} />
+            <TacticianSection character={character} />
+            <WorkSkillsSection character={character} />
+          </Panel>
 
+          {hasMounts(character) && (
+            <Panel id="mounts" activeTab={activeTab}>
+              <MountsSection character={character} />
+            </Panel>
+          )}
+        </div>
+      </div>
 
-      <EvocationsSection character={character} />
+      <SheetDrawer
+        open={openDrawer === 'vitals'}
+        label={t('sheet.vitalsPanel')}
+        onClose={() => setOpenDrawer(null)}
+        printable={false}
+      >
+        <HpMpPanel hp={hp} mp={mp} onChange={updateCurrent} />
+      </SheetDrawer>
 
-      <MountsSection character={character} />
+      <SheetDrawer open={openDrawer === 'status'} label={t('statusEffects.title')} onClose={() => setOpenDrawer(null)}>
+        <StatusEffectsSection character={character} />
+      </SheetDrawer>
 
-      <GeomancerSection character={character} />
+      <SheetDrawer open={openDrawer === 'classes'} label={t('sheet.classes')} onClose={() => setOpenDrawer(null)}>
+        <ClassesSection character={character} />
+      </SheetDrawer>
 
-      <TacticianSection character={character} />
-
-      <EssenceWeavingSection character={character} />
-
-      <SchoolsSection character={character} />
-
-      <CombatFeatsSection character={character} />
-
-      <StatusEffectsSection character={character} />
-
-      <NotesSection character={character} />
-
-      <FellowSection character={character} />
-
-      <WorkSkillsSection character={character} />
+      <SheetDrawer open={openDrawer === 'notes'} label={t('sheet.notes')} onClose={() => setOpenDrawer(null)}>
+        {/* Gender and age sat in the header and pushed the identity card taller for two
+            fields nobody edits twice; they belong with the rest of who the character is. */}
+        <section className={styles.section} aria-labelledby="section-profile">
+          <div className={styles.sectionHead}>
+            <h3 id="section-profile">{t('sheet.profile')}</h3>
+          </div>
+          <div className={styles.profileFields}>
+            <label className={styles.profileField}>
+              <span>{t('sheet.gender')}</span>
+              <input
+                value={character.profile.gender}
+                onChange={(event) => updateProfile('gender', event.target.value)}
+                aria-label={t('sheet.gender')}
+              />
+            </label>
+            <label className={styles.profileField}>
+              <span>{t('sheet.age')}</span>
+              <input
+                value={character.profile.age}
+                onChange={(event) => updateProfile('age', event.target.value)}
+                aria-label={t('sheet.age')}
+              />
+            </label>
+          </div>
+        </section>
+        <NotesSection character={character} />
+        <FellowSection character={character} />
+      </SheetDrawer>
     </section>
+  );
+}
+
+function Panel({ id, activeTab, children }: { id: TabId; activeTab: TabId; children: ReactNode }) {
+  return (
+    <div
+      role="tabpanel"
+      id={`sheet-panel-${id}`}
+      aria-labelledby={`sheet-tab-${id}`}
+      className={styles.panel}
+      data-active={activeTab === id ? '' : undefined}
+    >
+      {children}
+    </div>
   );
 }

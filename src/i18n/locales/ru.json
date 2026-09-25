@@ -14,7 +14,11 @@
     "themeDark": "Тёмная",
     "duplicate": "Дублировать персонажа",
     "duplicateShort": "Дублировать",
-    "copySuffix": "(копия)"
+    "copySuffix": "(копия)",
+    "roster": "Мои персонажи",
+    "rosterIntro": "Выберите персонажа или создайте нового. Всё хранится в этом браузере — скачайте файл, если нужна копия.",
+    "rosterClose": "Назад к листу",
+    "rosterActive": "Открыт"
   },
   "language": {
     "en": "Английский",
@@ -118,6 +122,21 @@
     "noStatusEffects": "Нет активных статус-эффектов",
     "activeStatusEffects": "активных статус-эффектов",
     "print": "Печать / Сохранить в PDF",
+    "tabsLabel": "Разделы листа",
+    "tab": {
+      "equipment": "Снаряжение",
+      "combat": "Бой",
+      "magic": "Магия",
+      "skills": "Умения",
+      "mounts": "Маунты"
+    },
+    "closePanel": "Закрыть",
+    "profile": "Анкета",
+    "vitalsPanel": "HP и MP",
+    "editVitals": "Изменить HP и MP",
+    "amount": "Сколько",
+    "subtract": "Отнять",
+    "add": "Добавить",
     "combatStats": "Боевые параметры",
     "class": "Класс",
     "accuracy": "Точность (Accuracy)",

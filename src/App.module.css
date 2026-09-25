@@ -53,79 +53,9 @@
   font-size: 0.85rem;
 }
 
-/* ---- Character switcher ------------------------------------------------ */
-
-.roster {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  padding: var(--sp-2);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-}
-
-.rosterList {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  min-width: 0;
-}
-
-.rosterItem {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.rosterItem.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-/* Name button carries the identity; the icon buttons sit flush beside it. */
-.rosterName {
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  font-weight: 500;
-  color: var(--text);
-  max-width: 16ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rosterAction {
-  border: none;
-  border-radius: 0;
-  border-left: 1px solid var(--border);
-  background: transparent;
-  padding: 5px 8px;
-  font-size: 0.8rem;
-}
-
-.rosterAction:hover:not(:disabled) {
-  background: var(--surface-2);
-}
-
-.rosterAction.danger:hover:not(:disabled) {
-  color: var(--danger);
-}
-
-.rosterTools {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
+/* The character switcher used to live here as a strip of per-character buttons under the
+   top bar, on every screen. It is a screen of its own now —
+   src/features/roster/RosterView.module.css. */
 
 /* Saving is broken and the page is the only place that can say so, so it reads as an
    alert rather than a hint. Kept off paper: a printed sheet is already a copy. */

@@ -73,11 +73,17 @@ function renderApp(characters: Character[]) {
   return store;
 }
 
+/** The roster is a screen of its own now, reached from the top bar. */
+async function openRoster(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /^my characters/i }));
+}
+
 describe('character roster', () => {
   it('deletes a character only after the delete is confirmed', async () => {
     const user = userEvent.setup();
     const store = renderApp([makeCharacter('char-1', 'Doomed Hero')]);
 
+    await openRoster(user);
     await user.click(screen.getByRole('button', { name: /^delete$/i }));
 
     // First click only arms the action.
@@ -95,6 +101,7 @@ describe('character roster', () => {
     const user = userEvent.setup();
     const store = renderApp([makeCharacter('char-1', 'Doomed Hero'), makeCharacter('char-2', 'Second Hero')]);
 
+    await openRoster(user);
     await user.click(screen.getAllByRole('button', { name: /^delete$/i })[0]);
     await user.click(screen.getByRole('button', { name: /delete doomed hero\?/i }));
 
@@ -106,12 +113,55 @@ describe('character roster', () => {
     const user = userEvent.setup();
     const store = renderApp([makeCharacter('char-1', 'Safe Hero')]);
 
+    await openRoster(user);
     await user.click(screen.getByRole('button', { name: /^delete$/i }));
     await user.click(screen.getByRole('button', { name: /^cancel$/i }));
 
     expect(screen.queryByRole('button', { name: /delete safe hero\?/i })).not.toBeInTheDocument();
     expect(store.get(charactersAtom)).toHaveLength(1);
     expect(store.get(activeCharacterIdAtom)).toBe('char-1');
+  });
+});
+
+describe('roster screen', () => {
+  it('stays out of the sheet until asked for, and gives the sheet back', async () => {
+    const user = userEvent.setup();
+    renderApp([makeCharacter('char-1', 'First Hero'), makeCharacter('char-2', 'Second Hero')]);
+
+    // The roster used to sit above every screen; now the sheet has the page to itself.
+    expect(screen.queryByRole('button', { name: 'Second Hero' })).toBeNull();
+
+    await openRoster(user);
+    expect(screen.getByRole('heading', { name: /^my characters/i })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Ability scores' })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Back to the sheet' }));
+    expect(screen.getByRole('heading', { name: 'Ability scores' })).toBeInTheDocument();
+  });
+
+  it('opens the creation form from the roster and lands on the new character', async () => {
+    const user = userEvent.setup();
+    const store = renderApp([makeCharacter('char-1', 'First Hero')]);
+
+    await openRoster(user);
+    await user.click(screen.getByRole('button', { name: /new character/i }));
+
+    expect(store.get(activeCharacterIdAtom)).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Create character' })).toBeInTheDocument();
+  });
+
+  it('duplicates from the roster and opens the copy', async () => {
+    const user = userEvent.setup();
+    const store = renderApp([makeCharacter('char-1', 'First Hero')]);
+
+    await openRoster(user);
+    await user.click(screen.getByRole('button', { name: /^duplicate$/i }));
+
+    const characters = store.get(charactersAtom);
+    expect(characters.map((character) => character.name)).toEqual(['First Hero', 'First Hero (copy)']);
+    expect(store.get(activeCharacterIdAtom)).toBe(characters[1].id);
+    // Opening the copy means landing on its sheet, not staying in the list.
+    expect(screen.getByRole('heading', { name: 'Ability scores' })).toBeInTheDocument();
   });
 });
 
@@ -132,6 +182,8 @@ describe('storage failures', () => {
   it('reports a refused write from an ordinary edit, both stores included', async () => {
     const user = userEvent.setup();
     const store = renderApp([makeCharacter('char-1', 'Doomed Hero'), makeCharacter('char-2', 'Second Hero')]);
+
+    await openRoster(user);
 
     // Break storage only after the roster is up, the way a quota is reached mid-session.
     const setItem = Storage.prototype.setItem;
@@ -185,8 +237,10 @@ describe('reference screen', () => {
 
     expect(screen.getByRole('heading', { name: 'Reference' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Ability scores' })).toBeNull();
-    // The roster is the way back to a character, so it stays put.
-    expect(screen.getByRole('button', { name: 'Doomed Hero' })).toBeInTheDocument();
+    // The roster is a screen of its own now, so it is not sitting behind this one — the
+    // top bar is what leads to it, and to another character, from anywhere.
+    expect(screen.queryByRole('button', { name: 'Doomed Hero' })).toBeNull();
+    expect(screen.getByRole('button', { name: /^my characters/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Back to the sheet' }));
 
@@ -194,15 +248,20 @@ describe('reference screen', () => {
     expect(store.get(activeCharacterIdAtom)).toBe('char-1');
   });
 
-  it('closes when a character is picked, so the click is not swallowed', async () => {
+  it('gives way to the roster, and the roster to the picked character', async () => {
     const user = userEvent.setup();
     const store = renderApp([makeCharacter('char-1', 'First Hero'), makeCharacter('char-2', 'Second Hero')]);
 
     await user.click(screen.getByRole('button', { name: 'Reference' }));
+    await openRoster(user);
+
+    // One screen at a time: opening the roster closed the catalog behind it.
+    expect(screen.queryByRole('heading', { name: 'Reference' })).toBeNull();
+
     await user.click(screen.getByRole('button', { name: 'Second Hero' }));
 
     expect(store.get(activeCharacterIdAtom)).toBe('char-2');
-    expect(screen.queryByRole('heading', { name: 'Reference' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Ability scores' })).toBeInTheDocument();
   });
 
   it('hides the creation form and brings it back on an empty roster', async () => {

@@ -187,6 +187,30 @@ describe('CharacterSheetView HP and MP limits', () => {
     expect(store.get(charactersAtom)[0].mp.current).toBe(0);
   });
 
+  it('applies damage typed into the HP panel to the current value', async () => {
+    const user = userEvent.setup();
+    const store = renderSheet(makeCharacter());
+    const before = Number((screen.getByLabelText('HP') as HTMLInputElement).value);
+
+    // Both header gauges open the same panel, hence getAllBy.
+    await user.click(screen.getAllByRole('button', { name: 'Edit HP and MP' })[0]);
+    await user.type(screen.getByLabelText('HP Amount'), '4');
+    await user.click(screen.getByRole('button', { name: 'HP Subtract' }));
+
+    expect(store.get(charactersAtom)[0].hp.current).toBe(before - 4);
+  });
+
+  it('edits the purse from the header, beside HP and MP', async () => {
+    const user = userEvent.setup();
+    const store = renderSheet(makeCharacter());
+
+    const cash = screen.getByLabelText('Cash');
+    await user.clear(cash);
+    await user.type(cash, '340');
+
+    expect(store.get(charactersAtom)[0].currency.cash).toBe(340);
+  });
+
   it('forces every collapsed section open for print and restores it afterward', () => {
     // makeCharacter() is a Fighter with no spells/schools/work skills, so Spells/Schools/
     // Work Skills all default collapsed — exactly the paper-vs-screen gap the beforeprint/
@@ -202,5 +226,79 @@ describe('CharacterSheetView HP and MP limits', () => {
 
     fireEvent(window, new Event('afterprint'));
     expect(collapsible().some((details) => details.open)).toBe(false);
+  });
+});
+
+describe('CharacterSheetView tabs', () => {
+  it('opens on Gear and switches panels without unmounting the others', async () => {
+    const user = userEvent.setup();
+    renderSheet(makeCharacter());
+
+    expect(screen.getByRole('tab', { name: 'Gear' })).toHaveAttribute('aria-selected', 'true');
+    expect(document.getElementById('sheet-panel-equipment')).toHaveAttribute('data-active');
+
+    await user.click(screen.getByRole('tab', { name: 'Combat' }));
+
+    expect(document.getElementById('sheet-panel-combat')).toHaveAttribute('data-active');
+    expect(document.getElementById('sheet-panel-equipment')).not.toHaveAttribute('data-active');
+    /* Hidden, not unmounted: the print stylesheet shows every panel, and a half-filled row
+       has to survive a look at another tab. */
+    expect(screen.getByRole('heading', { name: /^equipment$/i })).toBeInTheDocument();
+  });
+
+  it('offers no Mounts tab to a character who does not ride', () => {
+    renderSheet(makeCharacter());
+
+    expect(screen.queryByRole('tab', { name: 'Mounts' })).not.toBeInTheDocument();
+    expect(document.getElementById('sheet-panel-mounts')).toBeNull();
+  });
+
+  it('offers the Mounts tab to a Rider', () => {
+    renderSheet({ ...makeCharacter(), classes: [{ classId: 'rider', level: 1 }] });
+
+    expect(screen.getByRole('tab', { name: 'Mounts' })).toBeInTheDocument();
+  });
+});
+
+describe('CharacterSheetView drawers', () => {
+  it('opens the status effects panel from the header and closes it with Escape', async () => {
+    const user = userEvent.setup();
+    renderSheet(makeCharacter());
+
+    // The drawer wrapper carries the open flag; the dialog itself is its child, and both
+    // stay mounted so that print (and a half-typed effect) keep their contents.
+    const drawer = screen.getByRole('dialog', { name: 'Status effects' }).parentElement as HTMLElement;
+    expect(drawer).not.toHaveAttribute('data-open');
+
+    await user.click(screen.getByRole('button', { name: 'Status effects' }));
+    expect(drawer).toHaveAttribute('data-open');
+
+    await user.keyboard('{Escape}');
+    expect(drawer).not.toHaveAttribute('data-open');
+  });
+
+  it('shows how many effects are running on the button that opens them', async () => {
+    const user = userEvent.setup();
+    renderSheet(makeCharacter());
+
+    await user.click(screen.getByRole('button', { name: 'Status effects' }));
+    await user.type(screen.getByLabelText('Name', { selector: '#effect-name' }), 'Poison');
+    await user.click(screen.getByRole('button', { name: /^add effect$/i }));
+
+    expect(screen.getByRole('button', { name: 'Status effects (1)' })).toBeInTheDocument();
+  });
+
+  it('keeps only one panel open at a time', async () => {
+    const user = userEvent.setup();
+    renderSheet(makeCharacter());
+
+    const statusDrawer = screen.getByRole('dialog', { name: 'Status effects' }).parentElement as HTMLElement;
+    const notesDrawer = screen.getByRole('dialog', { name: 'Notes & connections' }).parentElement as HTMLElement;
+
+    await user.click(screen.getByRole('button', { name: 'Status effects' }));
+    await user.click(screen.getByRole('button', { name: 'Notes & connections' }));
+
+    expect(notesDrawer).toHaveAttribute('data-open');
+    expect(statusDrawer).not.toHaveAttribute('data-open');
   });
 });

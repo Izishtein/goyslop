@@ -1,0 +1,183 @@
+/*
+ * The roster screen. Layout echoes the Quick Start gallery
+ * (src/features/quick-start/QuickStartView.module.css) deliberately: both are a grid of
+ * character cards, and a player moving between them should not have to re-learn one.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.head h2 {
+  margin: 0;
+}
+
+.count {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.note {
+  margin: var(--sp-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 60ch;
+}
+
+.headActions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sp-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+/* The character currently on the sheet — the one the tab came from. */
+.cardActive {
+  border-color: var(--accent);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.avatar,
+.avatarEmpty {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  object-fit: cover;
+  background: var(--surface);
+}
+
+.cardMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* A link in behaviour, a heading in weight: it is the card's title and its open button. */
+.name {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.name:hover,
+.name:focus-visible {
+  color: var(--accent);
+}
+
+.meta {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.vitals {
+  display: flex;
+  gap: var(--sp-3);
+  margin: 0;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.activeBadge {
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cardActions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.cardActions button {
+  font-size: 0.8rem;
+  padding: 3px 10px;
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.newCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: 120px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.newCard:hover,
+.newCard:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.newPlus {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+/* The roster is navigation, not the character sheet — paper gets neither. */
+@media print {
+  .wrap {
+    display: none;
+  }
+}

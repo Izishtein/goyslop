@@ -17,6 +17,7 @@ import { getStunt, listStuntsByLevel, STUNTS } from '../../data/stunts';
 import { useUpdateCharacter } from '../../state/characters';
 import { MOUNT_CONTRACTS, STUNT_TYPES, type Character, type KnownMount, type MountSection, type Stunt } from '../../types/character';
 import { PrintableField } from './PrintableField';
+import { hasMounts, riderLevel } from './sections';
 import styles from './CharacterSheetView.module.css';
 
 const STUNT_LEVELS = [1, 5, 10] as const;
@@ -27,10 +28,6 @@ function newStunt(): Stunt {
 
 /** Suggestion list shared by every Stunt row; a page only ever shows one sheet. */
 const STUNTS_LIST_ID = 'rider-stunt-names';
-
-function riderLevel(character: Character): number {
-  return character.classes.filter((entry) => entry.classId === 'rider').reduce((max, entry) => Math.max(max, entry.level), 0);
-}
 
 /** A Proprietary Contract adds +10 Max HP to every section (Core III p. 93), which is the
  *  one number on the sheet that depends on how the mount was acquired rather than on its
@@ -127,11 +124,7 @@ export function MountsSection({ character }: { character: Character }) {
   const slots = stuntSlots(rider);
   const known = new Set(character.stunts.map((s) => s.name));
 
-  /* Without Rider levels a character may still ride a Horse, War Horse, Mini Manabike or
-     Manabike (Core III p. 88) — so the section is not for the class alone. It stays hidden
-     for everyone else, and a mount already recorded keeps it reachable after a class change. */
-  const show = rider > 0 || character.mounts.length > 0 || character.stunts.length > 0;
-  if (!show) return null;
+  if (!hasMounts(character)) return null;
 
   function setMounts(next: (mounts: KnownMount[]) => KnownMount[]) {
     update((c) => ({ ...c, mounts: next(c.mounts) }));
@@ -202,7 +195,7 @@ export function MountsSection({ character }: { character: Character }) {
   const armors = listMountGear('armor');
 
   return (
-    <section className={`${styles.section} ${styles.sectionWide}`} aria-labelledby="section-mounts">
+    <section className={styles.section} aria-labelledby="section-mounts">
       <div className={styles.sectionHead}>
         <h3 id="section-mounts">{t('sheet.mounts')}</h3>
         <p className={styles.sectionNote}>

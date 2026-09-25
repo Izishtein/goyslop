@@ -5,12 +5,11 @@ import { charactersAtom, activeCharacterIdAtom, duplicateCharacter, STORAGE_ERRO
 import { themeAtom, type ThemePreference } from './state/theme';
 import { CharacterCreationForm } from './features/character-creation/CharacterCreationForm';
 import { CharacterSheetView } from './features/character-sheet/CharacterSheetView';
-import { downloadCharacter } from './features/character-io/downloadCharacter';
-import { downloadRoster } from './features/character-io/downloadRoster';
 import { ImportCharacterButton } from './features/character-io/ImportCharacterButton';
 import { ReferenceView } from './features/reference/ReferenceView';
 import { GuideView } from './features/guide/GuideView';
 import { QuickStartView } from './features/quick-start/QuickStartView';
+import { RosterView } from './features/roster/RosterView';
 import { FreeDiceRoller } from './features/dice-roller/FreeDiceRoller';
 import type { Character } from './types/character';
 import styles from './App.module.css';
@@ -33,24 +32,27 @@ function App() {
     }
   }, [theme]);
 
-  /* Deleting is irreversible (localStorage only), so it takes two clicks. Inline rather
-     than a modal: the roster row is where the mistake happens, and it keeps the sheet
-     free of dialog machinery. */
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
   /* The reference is a lookup, not a place you live, so this is plain state and never
      reaches localStorage: persisted, the app would reopen on a catalog with the roster's
-     character hidden behind it. */
+     character hidden behind it. The roster is the same kind of screen — somewhere you go
+     between sessions, not something that sits over the sheet all session long. */
   const [showReference, setShowReference] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(false);
+  const [showRoster, setShowRoster] = useState(false);
+
+  /** Opening one screen closes the others — they all stand in the sheet's place. */
+  function openScreen(screen: 'reference' | 'guide' | 'quickStart' | 'roster' | 'sheet') {
+    setShowReference(screen === 'reference');
+    setShowGuide(screen === 'guide');
+    setShowQuickStart(screen === 'quickStart');
+    setShowRoster(screen === 'roster');
+  }
 
   /** Picking a character — or starting a new one — always lands on that character. */
   function openCharacter(id: string | null) {
     setActiveId(id);
-    setShowReference(false);
-    setShowGuide(false);
-    setShowQuickStart(false);
+    openScreen('sheet');
   }
 
   /* The storage layer cannot render anything, so it shouts and the shell listens. Not
@@ -83,7 +85,6 @@ function App() {
        it after a delete dropped the player into that form with a full roster behind them.
        Move to whoever is left instead, and only go to the form when nobody is. */
     if (activeId === id) setActiveId(remaining[0]?.id ?? null);
-    setPendingDeleteId(null);
   }
 
   return (
@@ -95,35 +96,29 @@ function App() {
         {/* Label beside the select, not around it: wrapping it made the accessible name
             "Language" + every option's text ("LanguageENRU"), the same trap the creation
             form fell into. */}
+        {/* The roster used to be a strip of buttons under this bar, on every screen and
+            growing a line taller with every character. It is a screen of its own now, and
+            this is the way in and out of it. */}
         <button
           type="button"
-          onClick={() => {
-            setShowReference((open) => !open);
-            setShowGuide(false);
-            setShowQuickStart(false);
-          }}
+          onClick={() => openScreen(showRoster ? 'sheet' : 'roster')}
+          aria-pressed={showRoster}
+        >
+          {t('app.roster')} ({characters.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => openScreen(showReference ? 'sheet' : 'reference')}
           aria-pressed={showReference}
         >
           {t('reference.open')}
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setShowGuide((open) => !open);
-            setShowReference(false);
-            setShowQuickStart(false);
-          }}
-          aria-pressed={showGuide}
-        >
+        <button type="button" onClick={() => openScreen(showGuide ? 'sheet' : 'guide')} aria-pressed={showGuide}>
           {t('guide.open')}
         </button>
         <button
           type="button"
-          onClick={() => {
-            setShowQuickStart((open) => !open);
-            setShowReference(false);
-            setShowGuide(false);
-          }}
+          onClick={() => openScreen(showQuickStart ? 'sheet' : 'quickStart')}
           aria-pressed={showQuickStart}
         >
           {t('quickStart.open')}
@@ -161,81 +156,29 @@ function App() {
         </p>
       )}
 
-      {characters.length > 0 ? (
-        <nav className={styles.roster}>
-          <ul className={styles.rosterList}>
-            {characters.map((character) => (
-              <li
-                key={character.id}
-                className={`${styles.rosterItem} ${character.id === activeId ? styles.active : ''}`}
-              >
-                <button type="button" className={styles.rosterName} onClick={() => openCharacter(character.id)}>
-                  {character.name}
-                </button>
-                <button
-                  type="button"
-                  className={styles.rosterAction}
-                  onClick={() => downloadCharacter(character)}
-                  title={t('io.export')}
-                >
-                  {t('io.exportShort')}
-                </button>
-                <button
-                  type="button"
-                  className={styles.rosterAction}
-                  onClick={() => handleDuplicate(character)}
-                  title={t('app.duplicate')}
-                >
-                  {t('app.duplicateShort')}
-                </button>
-                {pendingDeleteId === character.id ? (
-                  <>
-                    <button
-                      type="button"
-                      className={`${styles.rosterAction} ${styles.danger}`}
-                      onClick={() => deleteCharacter(character.id)}
-                    >
-                      {t('app.confirmDelete', { name: character.name })}
-                    </button>
-                    <button type="button" className={styles.rosterAction} onClick={() => setPendingDeleteId(null)}>
-                      {t('app.cancel')}
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    className={`${styles.rosterAction} ${styles.danger}`}
-                    onClick={() => setPendingDeleteId(character.id)}
-                    title={t('app.delete')}
-                  >
-                    {t('app.deleteShort')}
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-          <div className={styles.rosterTools}>
-            <button type="button" onClick={() => openCharacter(null)}>
-              {t('app.newCharacter')}
-            </button>
-            <button type="button" onClick={() => downloadRoster(characters)} title={t('io.exportRoster')}>
-              {t('io.exportRoster')}
-            </button>
-            <ImportCharacterButton />
-          </div>
-        </nav>
-      ) : (
+      {/* With nobody in the roster there is no roster screen worth opening, so importing a
+          file has to be reachable straight from the creation form's page. */}
+      {characters.length === 0 && (
         <div className={styles.emptyState}>
           <ImportCharacterButton />
         </div>
       )}
 
-      {showReference ? (
-        <ReferenceView onClose={() => setShowReference(false)} />
+      {showRoster ? (
+        <RosterView
+          activeId={activeId}
+          onOpen={openCharacter}
+          onNew={() => openCharacter(null)}
+          onDuplicate={handleDuplicate}
+          onDelete={deleteCharacter}
+          onClose={() => openScreen('sheet')}
+        />
+      ) : showReference ? (
+        <ReferenceView onClose={() => openScreen('sheet')} />
       ) : showGuide ? (
-        <GuideView onClose={() => setShowGuide(false)} />
+        <GuideView onClose={() => openScreen('sheet')} />
       ) : showQuickStart ? (
-        <QuickStartView onClose={() => setShowQuickStart(false)} />
+        <QuickStartView onClose={() => openScreen('sheet')} />
       ) : activeCharacter ? (
         <CharacterSheetView character={activeCharacter} />
       ) : (

@@ -145,7 +145,9 @@ describe('EquipmentSection inventory', () => {
     expect(inventory).toMatchObject({ ammoType: 'Arrows', ammoCount: 20, items: [] });
   });
 
-  it('keeps the spending log with the money it explains', async () => {
+  // The purse itself (cash/savings/debt) now sits in the sheet header next to HP/MP; the
+  // log of what was bought stayed here, with the gear it paid for.
+  it('keeps the spending log with the gear it paid for', async () => {
     const user = userEvent.setup();
     const store = renderSection(makeCharacter());
 

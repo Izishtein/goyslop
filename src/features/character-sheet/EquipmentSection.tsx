@@ -306,15 +306,12 @@ export function EquipmentSection({ character }: { character: Character }) {
     update((c) => ({ ...c, abyssCorruptionLevel: Math.max(0, value) }));
   }
 
-  function setCurrency(field: 'cash' | 'savings' | 'debt', value: number) {
-    update((c) => ({ ...c, currency: { ...c.currency, [field]: value } }));
-  }
   function setSpendingLog(value: string) {
     update((c) => ({ ...c, currency: { ...c.currency, spendingLog: value } }));
   }
 
   return (
-    <section className={`${styles.section} ${styles.sectionWide}`} aria-labelledby="section-equipment">
+    <section className={styles.section} aria-labelledby="section-equipment">
       <div className={styles.sectionHead}>
         <h3 id="section-equipment">{t('sheet.equipment')}</h3>
         <p className={styles.sectionNote}>
@@ -879,22 +876,10 @@ export function EquipmentSection({ character }: { character: Character }) {
         </div>
       </div>
 
-      <h4 className={styles.subHead}>{t('sheet.currency')}</h4>
-      <div className={styles.money}>
-        <label className={styles.moneyField}>
-          <span>{t('sheet.cash')}</span>
-          <input type="number" value={character.currency.cash} onChange={(e) => setCurrency('cash', Number(e.target.value))} aria-label={t('sheet.cash')} />
-        </label>
-        <label className={styles.moneyField}>
-          <span>{t('sheet.savings')}</span>
-          <input type="number" value={character.currency.savings} onChange={(e) => setCurrency('savings', Number(e.target.value))} aria-label={t('sheet.savings')} />
-        </label>
-        <label className={styles.moneyField}>
-          <span>{t('sheet.debt')}</span>
-          <input type="number" value={character.currency.debt} onChange={(e) => setCurrency('debt', Number(e.target.value))} aria-label={t('sheet.debt')} />
-        </label>
-      </div>
-
+      {/* The purse itself (cash, savings, debt) lives in the sheet header next to HP/MP —
+          it is read as often as they are. The log of what was bought stays here, with the
+          gear it paid for, because it is a record rather than a running total. The field
+          carries its own label, so it needs no heading of its own. */}
       <div className={styles.subsection} data-print-empty={character.currency.spendingLog === '' || undefined}>
         <label className={styles.noteField}>
           <span>{t('sheet.spendingLog')}</span>
