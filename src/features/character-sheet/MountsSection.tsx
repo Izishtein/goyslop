@@ -202,7 +202,7 @@ export function MountsSection({ character }: { character: Character }) {
   const armors = listMountGear('armor');
 
   return (
-    <section className={styles.section} aria-labelledby="section-mounts">
+    <section className={`${styles.section} ${styles.sectionWide}`} aria-labelledby="section-mounts">
       <div className={styles.sectionHead}>
         <h3 id="section-mounts">{t('sheet.mounts')}</h3>
         <p className={styles.sectionNote}>

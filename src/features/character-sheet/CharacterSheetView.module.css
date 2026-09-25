@@ -1,22 +1,79 @@
+/* Block flow rather than flex column: a CSS multi-column layout (below) needs a normal
+   block formatting context to lay its children into columns — flex containers ignore
+   column-count entirely. Spacing between stacked cards comes from margin-bottom on each
+   child instead of flex gap, which behaves the same in a single column and keeps working
+   once a child is flowing inside a column. */
 .sheet {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
+  display: block;
 }
 
-/* ---- Identity card ----------------------------------------------------- */
+.sheet > * {
+  margin-bottom: var(--sp-4);
+}
+
+.sheet > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Desktop: sections flow into balanced columns instead of one long scroll. Order in the
+   DOM is unchanged — this is presentation only, so print (which forces one column below)
+   and screen readers both still see the sections in their original sequence. Identity and
+   the HP/MP/saves bar stay full-width banners above the columns via column-span. */
+@media (min-width: 1024px) {
+  .sheet {
+    column-count: 2;
+    column-gap: var(--sp-4);
+  }
+
+  .sheet > * {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  .identity {
+    column-span: all;
+  }
+
+  /* A handful of sections carry genuinely wide tables (Equipment's 12-column weapon row,
+     Arts' 9-column Spellsong row, Mounts' 13-column section-stats row) — squeezed into one
+     grid column they wrap headers onto two lines and force horizontal scrolling. Those
+     sections opt into full width via this modifier class instead of flowing with the rest;
+     everything else still packs into the balanced columns above. */
+  .sectionWide {
+    column-span: all;
+  }
+}
+
+@media (min-width: 1600px) {
+  .sheet {
+    column-count: 3;
+  }
+}
+
+/* ---- Identity card ------------------------------------------------------
+   One card, not two: identity (portrait, name, race/class) used to sit in its own
+   full-width banner with the HP/MP/saves bar as a second, separate banner right under it —
+   together the tallest, least information-dense thing on the sheet. `.identityTop` carries
+   the old `.identity` row layout; `.vitals` now nests inside the same card as a second row
+   instead of paying for its own padding/border/shadow. */
 
 .identity {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--sp-3);
   padding: var(--sp-4) var(--sp-5);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+}
+
+.identityTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
 }
 
 .identityMain {
@@ -50,23 +107,20 @@
   white-space: nowrap;
 }
 
-/* ---- Vitals (HP/MP bars + saves) --------------------------------------- */
+/* ---- Vitals (HP/MP bars + saves) — second row of .identity, not its own card --------- */
 
 .vitals {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--sp-4);
-  padding: var(--sp-4) var(--sp-5);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-2) var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
 }
 
 .gauge {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-1);
 }
 
 .gaugeHead {
@@ -77,7 +131,7 @@
 
 .gaugeLabel {
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   color: var(--text-muted);
 }
@@ -91,7 +145,7 @@
 }
 
 .gaugeValue input {
-  width: 4.5em;
+  width: 3.6em;
 }
 
 .gaugeMax {
@@ -99,7 +153,7 @@
 }
 
 .track {
-  height: 8px;
+  height: 6px;
   border-radius: 999px;
   background: var(--surface-2);
   overflow: hidden;
@@ -127,7 +181,7 @@
 
 .saves {
   display: flex;
-  gap: var(--sp-5);
+  gap: var(--sp-4);
   align-items: center;
 }
 
@@ -138,14 +192,14 @@
 }
 
 .statLabel {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
 
 .statValue {
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -169,6 +223,38 @@
   justify-content: space-between;
   gap: var(--sp-3);
   flex-wrap: wrap;
+}
+
+/* Class-specific systems (Spells, Arts, Evocations, Mounts, Geomancer, Tactician, Essence
+   Weavings, Schools, Work Skills) render as a <details>/<summary> pair instead of a plain
+   <section>/<div> pair — most characters only ever use one or two of these nine, and a
+   full empty card for each of the rest was most of what made the sheet feel bulky on
+   screen. `open` is only ever set as an initial value by each section (character has the
+   relevant class, or already has entries) — never re-driven by React afterward, so a
+   manual expand/collapse click sticks for the rest of the session without fighting a
+   controlled prop. Printing always shows every section in full regardless: the book's own
+   paper sheet leaves every one of these blank for the player to fill by hand, collapsed
+   or not is a screen-only convenience. */
+summary.sectionHead {
+  cursor: pointer;
+  list-style: none;
+}
+
+summary.sectionHead::-webkit-details-marker {
+  display: none;
+}
+
+summary.sectionHead::before {
+  content: '▸';
+  display: inline-block;
+  width: 1em;
+  margin-right: var(--sp-1);
+  color: var(--text-faint);
+  transition: transform 0.15s ease;
+}
+
+details[open] > summary.sectionHead::before {
+  transform: rotate(90deg);
 }
 
 .sectionNote {
@@ -510,7 +596,6 @@
 
 @media (max-width: 640px) {
   .identity,
-  .vitals,
   .section {
     padding: var(--sp-3);
   }
@@ -607,8 +692,15 @@
 /* ---- Print ------------------------------------------------------------- */
 
 @media print {
+  /* The desktop multi-column layout is a screen-only convenience: paper goes back to one
+     column top to bottom, in DOM order, same as before the grid layout existed. */
   .sheet {
-    gap: 3mm;
+    column-count: 1;
+  }
+
+  .sheet > * {
+    margin-bottom: 3mm;
+    column-span: none;
   }
 
   /* Cards become flat blocks: the screen's padding/shadow/rounding just wastes
@@ -625,6 +717,19 @@
 
   .section {
     break-inside: avoid;
+  }
+
+  /* Collapsed-on-screen sections still print in full — CharacterSheetView.tsx forces every
+     [data-collapsible] <details> open on `beforeprint` and restores it on `afterprint`
+     (setting `open` as a real DOM property, not fought over CSS specificity against the UA
+     stylesheet that hides a closed <details>'s body). This just hides the toggle affordance
+     itself, since printed paper has no click to make. */
+  summary.sectionHead {
+    cursor: default;
+  }
+
+  summary.sectionHead::before {
+    display: none;
   }
 
   .identity {

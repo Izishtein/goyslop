@@ -10,6 +10,8 @@ import { downloadRoster } from './features/character-io/downloadRoster';
 import { ImportCharacterButton } from './features/character-io/ImportCharacterButton';
 import { ReferenceView } from './features/reference/ReferenceView';
 import { GuideView } from './features/guide/GuideView';
+import { QuickStartView } from './features/quick-start/QuickStartView';
+import { FreeDiceRoller } from './features/dice-roller/FreeDiceRoller';
 import type { Character } from './types/character';
 import styles from './App.module.css';
 
@@ -41,12 +43,14 @@ function App() {
      character hidden behind it. */
   const [showReference, setShowReference] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [showQuickStart, setShowQuickStart] = useState(false);
 
   /** Picking a character — or starting a new one — always lands on that character. */
   function openCharacter(id: string | null) {
     setActiveId(id);
     setShowReference(false);
     setShowGuide(false);
+    setShowQuickStart(false);
   }
 
   /* The storage layer cannot render anything, so it shouts and the shell listens. Not
@@ -96,6 +100,7 @@ function App() {
           onClick={() => {
             setShowReference((open) => !open);
             setShowGuide(false);
+            setShowQuickStart(false);
           }}
           aria-pressed={showReference}
         >
@@ -106,10 +111,22 @@ function App() {
           onClick={() => {
             setShowGuide((open) => !open);
             setShowReference(false);
+            setShowQuickStart(false);
           }}
           aria-pressed={showGuide}
         >
           {t('guide.open')}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowQuickStart((open) => !open);
+            setShowReference(false);
+            setShowGuide(false);
+          }}
+          aria-pressed={showQuickStart}
+        >
+          {t('quickStart.open')}
         </button>
         <div className={styles.langSwitch}>
           <label htmlFor="theme-switch">{t('app.theme')}</label>
@@ -217,6 +234,8 @@ function App() {
         <ReferenceView onClose={() => setShowReference(false)} />
       ) : showGuide ? (
         <GuideView onClose={() => setShowGuide(false)} />
+      ) : showQuickStart ? (
+        <QuickStartView onClose={() => setShowQuickStart(false)} />
       ) : activeCharacter ? (
         <CharacterSheetView character={activeCharacter} />
       ) : (
@@ -227,9 +246,17 @@ function App() {
               {t('guide.creationPromptLink')}
             </button>
           </p>
+          <p className={styles.guidePrompt}>
+            {t('quickStart.creationPrompt')}{' '}
+            <button type="button" className={styles.guidePromptLink} onClick={() => setShowQuickStart(true)}>
+              {t('quickStart.creationPromptLink')}
+            </button>
+          </p>
           <CharacterCreationForm onCreated={(id) => openCharacter(id)} />
         </>
       )}
+
+      <FreeDiceRoller />
     </main>
   );
 }

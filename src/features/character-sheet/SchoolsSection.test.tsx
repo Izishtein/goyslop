@@ -86,6 +86,19 @@ describe('SchoolsSection', () => {
     expect(screen.getByRole('heading', { name: 'Battle Mastery Schools' })).toBeInTheDocument();
   });
 
+  it('collapses by default for a character with no School membership or Secrets yet', () => {
+    renderSection(makeCharacter());
+    const details = screen.getByRole('heading', { name: 'Battle Mastery Schools' }).closest('details');
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute('open');
+  });
+
+  it('starts open for a character who already joined a School', () => {
+    renderSection(makeCharacter({ schools: [{ id: 's1', name: 'Ivar Frenzy Style' }] }));
+    const details = screen.getByRole('heading', { name: 'Battle Mastery Schools' }).closest('details');
+    expect(details).toHaveAttribute('open');
+  });
+
   it('joins a School from the catalog', async () => {
     const user = userEvent.setup();
     const store = renderSection(makeCharacter());

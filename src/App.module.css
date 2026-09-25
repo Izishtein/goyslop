@@ -7,6 +7,23 @@
   gap: var(--sp-4);
 }
 
+/* The character sheet's multi-column layout (CharacterSheetView.module.css) switches on
+   viewport width at 1024px/1600px, but until this rule it kept laying those columns out
+   inside a box capped at 1000px regardless of screen size — on a 1920px display that left
+   huge idle margins either side while the columns themselves stayed cramped. Widening the
+   container at the same two breakpoints lets the columns actually use the extra space. */
+@media (min-width: 1024px) {
+  .app {
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .app {
+    max-width: 1800px;
+  }
+}
+
 .topBar {
   display: flex;
   align-items: center;

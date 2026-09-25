@@ -1,0 +1,92 @@
+.wrap {
+  position: fixed;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+
+.fab {
+  width: 3.2em;
+  height: 3.2em;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+  font-size: 0.78rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  width: 15rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.field label {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.field input,
+.field select {
+  width: 100%;
+}
+
+.dLetter {
+  padding-bottom: 6px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.result {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+.fumble {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.critical {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* A floating control, not part of the character sheet — no page has room for it, and
+   window.print() should never catch it mid-roll. */
+@media print {
+  .wrap {
+    display: none;
+  }
+}

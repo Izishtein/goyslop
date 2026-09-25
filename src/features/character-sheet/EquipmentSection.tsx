@@ -314,7 +314,7 @@ export function EquipmentSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section} aria-labelledby="section-equipment">
+    <section className={`${styles.section} ${styles.sectionWide}`} aria-labelledby="section-equipment">
       <div className={styles.sectionHead}>
         <h3 id="section-equipment">{t('sheet.equipment')}</h3>
         <p className={styles.sectionNote}>

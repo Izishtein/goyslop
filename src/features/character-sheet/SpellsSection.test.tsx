@@ -196,6 +196,21 @@ describe('SpellsSection', () => {
     expect(screen.getByText(/casts nothing/)).toBeInTheDocument();
   });
 
+  it('collapses for a non-caster instead of disappearing — the message above stays reachable', () => {
+    renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 1 }] }));
+
+    const details = screen.getByText(/casts nothing/).closest('details');
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute('open');
+  });
+
+  it('starts open for a caster, even with no spells written down yet', () => {
+    renderSection(makeCharacter());
+
+    const details = screen.getByRole('heading', { name: 'Spells' }).closest('details');
+    expect(details).toHaveAttribute('open');
+  });
+
   it('removes a spell', async () => {
     const user = userEvent.setup();
     const store = renderSection(

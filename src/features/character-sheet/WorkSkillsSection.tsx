@@ -43,15 +43,19 @@ export function WorkSkillsSection({ character }: { character: Character }) {
     update((c) => ({ ...c, workSkills: c.workSkills.filter((entry) => entry.id !== id) }));
   }
 
+  // Optional § 3 system, not gated by class — same reasoning as SchoolsSection: collapsed
+  // rather than removed, since there is no class that would bring it back.
+  const defaultOpen = character.workSkills.length > 0;
+
   return (
-    <section className={styles.section} aria-labelledby="section-work-skills">
-      <div className={styles.sectionHead}>
-        <h3 id="section-work-skills">{t('sheet.workSkills')}</h3>
+    <details className={styles.section} data-collapsible open={defaultOpen}>
+      <summary className={styles.sectionHead}>
+        <h3>{t('sheet.workSkills')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.workSkillsLevels')}:{' '}
           <strong className={`${styles.numeric} ${overCap ? styles.overspent : ''}`}>{totalLevels} / 10</strong>
         </p>
-      </div>
+      </summary>
       <p className={styles.sectionNote}>{t('sheet.workSkillsIntro')}</p>
 
       {character.workSkills.length === 0 ? (
@@ -138,6 +142,6 @@ export function WorkSkillsSection({ character }: { character: Character }) {
           {t('sheet.addCustomWorkSkill')}
         </button>
       </div>
-    </section>
+    </details>
   );
 }

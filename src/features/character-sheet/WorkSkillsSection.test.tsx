@@ -157,6 +157,21 @@ describe('WorkSkillsSection catalog', () => {
   });
 });
 
+describe('WorkSkillsSection collapse', () => {
+  it('collapses by default for a character with no Work Skills yet', () => {
+    renderSection(makeCharacter());
+    const details = screen.getByLabelText('Add work skill from catalog').closest('details');
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute('open');
+  });
+
+  it('starts open for a character who already has a Work Skill', () => {
+    renderSection(makeCharacter({ workSkills: [{ id: 'w1', name: 'Merchant Skill', category: 'towns', level: 1, notes: '' }] }));
+    const details = screen.getByLabelText('Add work skill from catalog').closest('details');
+    expect(details).toHaveAttribute('open');
+  });
+});
+
 describe('WorkSkillsSection guideline', () => {
   it('flags a character carrying more than 10 levels total', () => {
     renderSection(

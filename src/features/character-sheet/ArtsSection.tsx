@@ -150,7 +150,7 @@ export function ArtsSection({ character }: { character: Character }) {
   }
 
   return (
-    <section className={styles.section} aria-labelledby="section-arts">
+    <section className={`${styles.section} ${styles.sectionWide}`} aria-labelledby="section-arts">
       <div className={styles.sectionHead}>
         <h3 id="section-arts">{t('sheet.arts')}</h3>
         <p className={styles.sectionNote}>

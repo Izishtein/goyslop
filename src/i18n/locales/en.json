@@ -85,6 +85,16 @@
     "nextTitle": "Where to go from here",
     "nextBody": "The Reference screen (same button in the header as this guide) holds every catalog in the app — races, classes, spells, combat feats and more — each with the book's own rules text where it's been transcribed, so you don't need the book itself at the table. This guide stays one click away from the header any time you want to come back to it."
   },
+  "dice": {
+    "floatingButton": "Roll dice",
+    "floatingButtonShort": "Dice",
+    "panelLabel": "Free dice roll",
+    "count": "Count",
+    "sides": "Sides",
+    "modifier": "Modifier",
+    "roll": "Roll",
+    "rollResult": "{{dice}} {{sign}} {{modAbs}} = {{total}}"
+  },
   "sheet": {
     "adventurerLevel": "Adventurer Level",
     "abilities": "Ability scores",
@@ -503,6 +513,15 @@
       "actionCheck": "Action check",
       "custom": "Custom"
     }
+  },
+  "quickStart": {
+    "open": "Quick Start",
+    "title": "Quick Start",
+    "intro": "Seven level 1 pregenerated characters, one per iconic archetype — pick one and start playing without building a character from scratch. Taking one adds it to your roster as a fresh copy, so the same archetype can be taken more than once.",
+    "take": "Take this character",
+    "close": "Close",
+    "creationPrompt": "In a hurry?",
+    "creationPromptLink": "Take a ready-made character instead"
   },
   "reference": {
     "title": "Reference",

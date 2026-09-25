@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { adventurerLevel, wizardLevelSum } from '../../lib/formulas/character-levels';
@@ -75,129 +76,160 @@ export function CharacterSheetView({ character }: { character: Character }) {
     update((c) => ({ ...c, profile: { ...c.profile, [field]: value } }));
   }
 
+  /* The class-specific sections below render as <details data-collapsible>, collapsed on
+     screen when the character doesn't use that system — most of what made the sheet feel
+     bulky was a full empty card for each of the eight or nine a given character never
+     touches. Paper doesn't get that convenience: the book's printed sheet leaves every one
+     of these blank for the player to fill by hand, so a real print (or Ctrl+P, not just this
+     button) forces every one open first and puts whatever the player had collapsed back the
+     way it was afterward — a DOM property, not a CSS override, so it doesn't fight the
+     display:contents trick `.subsection` already relies on for the same print pass. */
+  useEffect(() => {
+    function openForPrint() {
+      for (const details of document.querySelectorAll<HTMLDetailsElement>('details[data-collapsible]')) {
+        details.dataset.wasOpen = details.open ? '1' : '0';
+        details.open = true;
+      }
+    }
+    function restoreAfterPrint() {
+      for (const details of document.querySelectorAll<HTMLDetailsElement>('details[data-collapsible]')) {
+        details.open = details.dataset.wasOpen === '1';
+        delete details.dataset.wasOpen;
+      }
+    }
+    window.addEventListener('beforeprint', openForPrint);
+    window.addEventListener('afterprint', restoreAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', openForPrint);
+      window.removeEventListener('afterprint', restoreAfterPrint);
+    };
+  }, []);
+
   return (
     <section className={styles.sheet}>
       <header className={styles.identity}>
-        <AvatarField character={character} />
+        <div className={styles.identityTop}>
+          <AvatarField character={character} />
 
-        <div className={styles.identityMain}>
-          <h2>{character.name}</h2>
-          <p className={styles.meta}>
-            {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
-          </p>
+          <div className={styles.identityMain}>
+            <h2>{character.name}</h2>
+            <p className={styles.meta}>
+              {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
+            </p>
 
-          <div className={styles.profileFields}>
-            <label className={styles.profileField}>
-              <span>{t('sheet.gender')}</span>
-              <input
-                value={character.profile.gender}
-                onChange={(event) => updateProfile('gender', event.target.value)}
-                aria-label={t('sheet.gender')}
-              />
-            </label>
-            <label className={styles.profileField}>
-              <span>{t('sheet.age')}</span>
-              <input
-                value={character.profile.age}
-                onChange={(event) => updateProfile('age', event.target.value)}
-                aria-label={t('sheet.age')}
-              />
-            </label>
-          </div>
-          <ul className={styles.classBadges}>
-            {character.classes.map((classLevel) => (
-              <li key={classLevel.classId} className={styles.classBadge}>
-                {getClass(classLevel.classId)?.name ?? classLevel.classId} {classLevel.level}
-              </li>
-            ))}
-          </ul>
-
-          {/* Racial abilities unlock at Adventurer Level 6 and 11, so the ones still out of
-              reach are shown dimmed with their level rather than hidden. */}
-          {racialAbilities.length > 0 && (
-            <ul className={styles.racialAbilities} aria-label={t('sheet.racialAbilities')}>
-              {racialAbilities.map((ability, index) => {
-                const locked = advLevel < ability.fromLevel;
-                return (
-                  <li key={`${ability.name}-${index}`} className={locked ? styles.racialAbilityLocked : undefined}>
-                    [{ability.name}]{ability.fromLevel > 0 ? ` Lv${ability.fromLevel}+` : ''}
-                  </li>
-                );
-              })}
+            <div className={styles.profileFields}>
+              <label className={styles.profileField}>
+                <span>{t('sheet.gender')}</span>
+                <input
+                  value={character.profile.gender}
+                  onChange={(event) => updateProfile('gender', event.target.value)}
+                  aria-label={t('sheet.gender')}
+                />
+              </label>
+              <label className={styles.profileField}>
+                <span>{t('sheet.age')}</span>
+                <input
+                  value={character.profile.age}
+                  onChange={(event) => updateProfile('age', event.target.value)}
+                  aria-label={t('sheet.age')}
+                />
+              </label>
+            </div>
+            <ul className={styles.classBadges}>
+              {character.classes.map((classLevel) => (
+                <li key={classLevel.classId} className={styles.classBadge}>
+                  {getClass(classLevel.classId)?.name ?? classLevel.classId} {classLevel.level}
+                </li>
+              ))}
             </ul>
-          )}
+
+            {/* Racial abilities unlock at Adventurer Level 6 and 11, so the ones still out of
+                reach are shown dimmed with their level rather than hidden. */}
+            {racialAbilities.length > 0 && (
+              <ul className={styles.racialAbilities} aria-label={t('sheet.racialAbilities')}>
+                {racialAbilities.map((ability, index) => {
+                  const locked = advLevel < ability.fromLevel;
+                  return (
+                    <li key={`${ability.name}-${index}`} className={locked ? styles.racialAbilityLocked : undefined}>
+                      [{ability.name}]{ability.fromLevel > 0 ? ` Lv${ability.fromLevel}+` : ''}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <button type="button" onClick={() => window.print()}>
+            {t('sheet.print')}
+          </button>
         </div>
-        <button type="button" onClick={() => window.print()}>
-          {t('sheet.print')}
-        </button>
+
+        <div className={styles.vitals}>
+          <div className={styles.gauge}>
+            <div className={styles.gaugeHead}>
+              <span className={styles.gaugeLabel}>{t('sheet.hp')}</span>
+              <span className={styles.gaugeValue}>
+                <input
+                  type="number"
+                  value={hp.current}
+                  onChange={(event) => updateCurrent('hp', Number(event.target.value))}
+                  aria-label={t('sheet.hp')}
+                />
+                <span className={styles.gaugeMax}>/ {hp.max}</span>
+                <button type="button" onClick={() => updateCurrent('hp', hp.max)} title={t('sheet.resetToMax')}>
+                  {t('sheet.resetToMaxShort')}
+                </button>
+              </span>
+            </div>
+            <div className={styles.track}>
+              <div className={`${styles.fill} ${hpFillClass(hp.current, hp.max)}`} style={{ width: percent(hp.current, hp.max) }} />
+            </div>
+          </div>
+
+          <div className={styles.gauge}>
+            <div className={styles.gaugeHead}>
+              <span className={styles.gaugeLabel}>{t('sheet.mp')}</span>
+              <span className={styles.gaugeValue}>
+                <input
+                  type="number"
+                  value={mp.current}
+                  onChange={(event) => updateCurrent('mp', Number(event.target.value))}
+                  aria-label={t('sheet.mp')}
+                />
+                <span className={styles.gaugeMax}>/ {mp.max}</span>
+                <button type="button" onClick={() => updateCurrent('mp', mp.max)} title={t('sheet.resetToMax')}>
+                  {t('sheet.resetToMaxShort')}
+                </button>
+              </span>
+            </div>
+            <div className={styles.track}>
+              <div className={`${styles.fill} ${styles.mpFill}`} style={{ width: percent(mp.current, mp.max) }} />
+            </div>
+          </div>
+
+          <div className={styles.saves}>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>{t('sheet.fortitude')}</span>
+              <span className={styles.statValue} aria-label={t('sheet.fortitude')}>
+                {fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
+              </span>
+              <DiceRoll
+                modifier={fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
+                label={t('sheet.fortitude')}
+              />
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>{t('sheet.willpower')}</span>
+              <span className={styles.statValue} aria-label={t('sheet.willpower')}>
+                {willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
+              </span>
+              <DiceRoll
+                modifier={willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
+                label={t('sheet.willpower')}
+              />
+            </div>
+          </div>
+        </div>
       </header>
-
-      <div className={styles.vitals}>
-        <div className={styles.gauge}>
-          <div className={styles.gaugeHead}>
-            <span className={styles.gaugeLabel}>{t('sheet.hp')}</span>
-            <span className={styles.gaugeValue}>
-              <input
-                type="number"
-                value={hp.current}
-                onChange={(event) => updateCurrent('hp', Number(event.target.value))}
-                aria-label={t('sheet.hp')}
-              />
-              <span className={styles.gaugeMax}>/ {hp.max}</span>
-              <button type="button" onClick={() => updateCurrent('hp', hp.max)} title={t('sheet.resetToMax')}>
-                {t('sheet.resetToMaxShort')}
-              </button>
-            </span>
-          </div>
-          <div className={styles.track}>
-            <div className={`${styles.fill} ${hpFillClass(hp.current, hp.max)}`} style={{ width: percent(hp.current, hp.max) }} />
-          </div>
-        </div>
-
-        <div className={styles.gauge}>
-          <div className={styles.gaugeHead}>
-            <span className={styles.gaugeLabel}>{t('sheet.mp')}</span>
-            <span className={styles.gaugeValue}>
-              <input
-                type="number"
-                value={mp.current}
-                onChange={(event) => updateCurrent('mp', Number(event.target.value))}
-                aria-label={t('sheet.mp')}
-              />
-              <span className={styles.gaugeMax}>/ {mp.max}</span>
-              <button type="button" onClick={() => updateCurrent('mp', mp.max)} title={t('sheet.resetToMax')}>
-                {t('sheet.resetToMaxShort')}
-              </button>
-            </span>
-          </div>
-          <div className={styles.track}>
-            <div className={`${styles.fill} ${styles.mpFill}`} style={{ width: percent(mp.current, mp.max) }} />
-          </div>
-        </div>
-
-        <div className={styles.saves}>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>{t('sheet.fortitude')}</span>
-            <span className={styles.statValue} aria-label={t('sheet.fortitude')}>
-              {fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
-            </span>
-            <DiceRoll
-              modifier={fortitude(advLevel, vitMod) + sumModifiersForField(character.statusEffects, 'fortitude')}
-              label={t('sheet.fortitude')}
-            />
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>{t('sheet.willpower')}</span>
-            <span className={styles.statValue} aria-label={t('sheet.willpower')}>
-              {willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
-            </span>
-            <DiceRoll
-              modifier={willpower(advLevel, sprMod) + sumModifiersForField(character.statusEffects, 'willpower')}
-              label={t('sheet.willpower')}
-            />
-          </div>
-        </div>
-      </div>
 
       <AbilitySection character={character} />
 

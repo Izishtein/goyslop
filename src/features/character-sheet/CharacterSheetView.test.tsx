@@ -186,4 +186,21 @@ describe('CharacterSheetView HP and MP limits', () => {
 
     expect(store.get(charactersAtom)[0].mp.current).toBe(0);
   });
+
+  it('forces every collapsed section open for print and restores it afterward', () => {
+    // makeCharacter() is a Fighter with no spells/schools/work skills, so Spells/Schools/
+    // Work Skills all default collapsed — exactly the paper-vs-screen gap the beforeprint/
+    // afterprint listeners exist to close.
+    renderSheet(makeCharacter());
+    const collapsible = () => [...document.querySelectorAll<HTMLDetailsElement>('details[data-collapsible]')];
+
+    expect(collapsible().length).toBeGreaterThan(0);
+    expect(collapsible().some((details) => details.open)).toBe(false);
+
+    fireEvent(window, new Event('beforeprint'));
+    expect(collapsible().every((details) => details.open)).toBe(true);
+
+    fireEvent(window, new Event('afterprint'));
+    expect(collapsible().some((details) => details.open)).toBe(false);
+  });
 });

@@ -45,12 +45,19 @@ export function SchoolsSection({ character }: { character: Character }) {
     setSecretPick('');
   }
 
+  // No class gates this the way it gates Mounts/Geomancer/Tactician/EssenceWeaving —
+  // School membership is bought with Reputation alone, open to anyone — so it can't just
+  // vanish for a character not using it yet the way those do: there would be nothing left
+  // on the sheet to click to start using it. Collapsed instead, not gone; see the print
+  // effect comment in CharacterSheetView.tsx for how paper still gets it in full.
+  const defaultOpen = character.schools.length > 0 || character.schoolSecrets.length > 0;
+
   return (
-    <section className={styles.section} aria-labelledby="section-schools">
-      <div className={styles.sectionHead}>
-        <h3 id="section-schools">{t('sheet.schools')}</h3>
+    <details className={styles.section} data-collapsible open={defaultOpen}>
+      <summary className={styles.sectionHead}>
+        <h3>{t('sheet.schools')}</h3>
         <p className={styles.sectionNote}>{t('sheet.schoolsNote')}</p>
-      </div>
+      </summary>
 
       <div className={styles.subsection} data-print-empty={character.schools.length === 0 || undefined}>
         <h4 className={styles.subHead}>{t('sheet.schoolsJoined')}</h4>
@@ -166,6 +173,6 @@ export function SchoolsSection({ character }: { character: Character }) {
           </button>
         </div>
       </div>
-    </section>
+    </details>
   );
 }

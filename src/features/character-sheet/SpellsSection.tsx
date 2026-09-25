@@ -88,14 +88,21 @@ export function SpellsSection({ character }: { character: Character }) {
     update((c) => ({ ...c, spells: c.spells.filter((spell) => spell.id !== id) }));
   }
 
+  // Unlike Mounts/Geomancer/Tactician/EssenceWeaving (which vanish for a character who
+  // can't use them at all), Spells stays on the sheet even for a non-caster and says so —
+  // that message is load-bearing (SpellsSection.test.tsx), not just a placeholder, so this
+  // collapses instead of disappearing. See the print effect comment in
+  // CharacterSheetView.tsx for how paper still gets it in full regardless.
+  const defaultOpen = schools.length > 0 || character.spells.length > 0;
+
   return (
-    <section className={styles.section} aria-labelledby="section-spells">
-      <div className={styles.sectionHead}>
-        <h3 id="section-spells">{t('sheet.spells')}</h3>
+    <details className={styles.section} data-collapsible open={defaultOpen}>
+      <summary className={styles.sectionHead}>
+        <h3>{t('sheet.spells')}</h3>
         <p className={styles.sectionNote}>
           {schools.length > 0 ? schools.join(' · ') : t('sheet.noMagicSchools')}
         </p>
-      </div>
+      </summary>
 
       <div className={styles.subsection} data-print-empty={character.spells.length === 0 || undefined}>
         <div className={styles.tableWrap}>
@@ -221,6 +228,6 @@ export function SpellsSection({ character }: { character: Character }) {
           {t('sheet.addCustomSpell')}
         </button>
       </div>
-    </section>
+    </details>
   );
 }
