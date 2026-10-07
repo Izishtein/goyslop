@@ -2,11 +2,18 @@
 
 Источник: `Sword World 2.5 - Monstrous Lore.pdf`. Каталог — `src/data/monsters/monsters.json` (генерируется `scripts/parse-monsters.mjs`), тип — `src/data/monsters/types.ts`, экран — вкладка «Монстры» справочника (`MonstersReference.tsx`).
 
-## Что в каталоге: 375 карточек
+## Что в каталоге: 375 карточек основной части (+ 26 в 6.1б, см. ниже)
 
 Barbarous 86 · Animals 47 · Plants 19 · Undead 43 · Constructs 27 · Magitech 31 · Mythical Beasts 28 · Fairies 35 · Daemons 39 · Humanoids 20. Книга сама собрала сюда монстров из Core I–III и дополнений («First Appearance»: `CR I p. 397`, `KF`, `VC`, `New`…), отдельные бестиарии не нужны.
 
-Не вошло (отдельный формат страниц, следующая пачка 6.1б): Golem Data pp. 225–235, Familiar Data pp. 236–243, «Common Abilities of …» (Undead, Constructs/Magitech, Fairies — общие способности категории, в карточках отдельных монстров опущены), «Modifying Humanoid Monsters» p. 223.
+## 6.1б — големы, фамильяры, общие способности, расы гуманоидов
+
+- **Големы (16) и фамильяры (10)** — `src/data/monsters/extra-monsters.json`, делает `scripts/parse-golems.mjs` (страницы 227–235 и 237–238; общие помощники разбора вынесены в `scripts/monster-lib.mjs`, `parse-monsters.mjs` на них переведён и даёт побайтно тот же `monsters.json`). Категории `Golems` и `Familiars` (`EXTRA_MONSTER_CATEGORIES`); `loadMonsters()` склеивает оба файла, главный файл и его тест (375) не тронуты. Итого в справочнике 401 карточка.
+- **Голем** отличается от обычной карточки: вместо Intelligence/Language/… общие данные (Servant / Magic / Instructed / None / Various, стр. 227), строка материала («Enchanted Oak Branch (50/100)» — цены обычных/улучшенных материалов), `Maximum of Enhancing Items` и список усиливающих предметов. Он хранится в `material` и `enhancements: { max, entries[] }`: запись — строка книги целиком, метки «※Head Only», «※Any Section» — отдельные записи, перенос строки склеен.
+- **Фамильяр**: HP нет (урон идёт хозяину), в колонке MP — число; общие данные берутся из стр. 236 (Familiar) и 238 (Familiar II: Int Average, Lang Arcana, Rep 12). **В бой на экране «Соло» фамильяры не предлагаются** (HP `null` — монстр был бы «повержен» сразу), големы — предлагаются.
+- **Грабли:** (1) Straw Bird напечатан дважды (стр. 227 как образец и 229) — берётся второй; примечания к схеме карточки на стр. 227–228 («①…⑨») не попадают в карточки, потому что первая копия отбрасывается; (2) общие данные Familiars II на стр. 238 идут сразу после последнего фамильяра стр. 237 — режутся фильтром от «Common Basic Data» до следующего заголовка; (3) заголовок Familiar II: Spider напечатан как «CR III p. 431: 16» — «16» это Initiative, потерявшаяся строка; (4) Familiar II: Cat скопирован из Bird: Initiative 18 и «-/30 (Flying)» — так напечатано, оставлено как в книге.
+- **Общие способности классификаций** — `common-abilities.ts` (Undead p. 134, Constructs 149, Magitech 159, Fairies 187 — три группы, Golems 227, Familiars 236 и 238). Показываются раскрывающимся блоком над списком, когда в фильтре выбрана классификация.
+- **Расы гуманоидов** (стр. 223–224) — `humanoid-races.ts`: 12 рас (поправки к данным, восприятие, уникальные умения с изменениями на 6 и 11 уровне, оговорки). Таблица под фильтром «Humanoids». В расчёт боя это не подключено — справочная таблица для мастера.
 
 ## Как читается PDF
 

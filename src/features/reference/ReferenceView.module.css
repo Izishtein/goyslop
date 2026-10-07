@@ -255,6 +255,26 @@
   font-weight: 600;
 }
 
+.monsterEnhancing {
+  margin: 0;
+  max-width: 80ch;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  white-space: pre-line;
+}
+
+.monsterCommon {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.monsterCommon summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .monsterProse {
   margin: 0;
   max-width: 80ch;

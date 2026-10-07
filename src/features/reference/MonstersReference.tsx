@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatValue, loadMonsters, MONSTER_CATEGORIES, type Monster, type MonsterSkill } from '../../data/monsters';
+import {
+  ALL_MONSTER_CATEGORIES,
+  COMMON_ABILITIES,
+  formatValue,
+  HUMANOID_RACES,
+  HUMANOID_RULES,
+  loadMonsters,
+  type Monster,
+  type MonsterSkill,
+} from '../../data/monsters';
 import styles from './ReferenceView.module.css';
 
 /** "1+" for the variable-level template monsters, the plain number otherwise. */
@@ -18,12 +27,122 @@ function groupBySection(skills: MonsterSkill[]): { section: string; skills: Mons
   return groups;
 }
 
+function SkillList({ skills }: { skills: MonsterSkill[] }) {
+  return (
+    <div className={styles.monsterSkills}>
+      {skills.map((skill, index) => (
+        <div key={`${skill.name}-${index}`}>
+          {skill.name && (
+            <p className={styles.monsterSkillName}>
+              {skill.icons && <span aria-hidden="true">{skill.icons} </span>}
+              {skill.name}
+            </p>
+          )}
+          {skill.text.map((line, lineIndex) => (
+            <p key={lineIndex} className={styles.monsterProse}>
+              {line}
+            </p>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** What the book prints once for a whole classification and leaves out of its cards. */
+function CommonAbilities({ category }: { category: string }) {
+  const { t } = useTranslation();
+  const groups = COMMON_ABILITIES[category];
+  if (!groups) return null;
+  return (
+    <details className={styles.monsterCommon}>
+      <summary>{t('reference.monsters.commonAbilities', { category: t(`reference.monsters.categories.${category}`) })}</summary>
+      {groups.map((group) => (
+        <div key={group.title}>
+          <h5>{group.title}</h5>
+          {group.intro?.map((line) => (
+            <p key={line} className={styles.monsterProse}>
+              {line}
+            </p>
+          ))}
+          <SkillList skills={group.skills} />
+        </div>
+      ))}
+    </details>
+  );
+}
+
+/** Humanoid cards assume a Human; this is the book's table for every other race. */
+function HumanoidRaces() {
+  const { t } = useTranslation();
+  return (
+    <details className={styles.monsterCommon}>
+      <summary>{t('reference.monsters.humanoidRaces')}</summary>
+      {HUMANOID_RULES.map((line) => (
+        <p key={line} className={styles.monsterProse}>
+          {line}
+        </p>
+      ))}
+      <div className={styles.tableWrap}>
+        <table className={styles.table} aria-label={t('reference.monsters.humanoidRaces')}>
+          <thead>
+            <tr>
+              <th>{t('reference.monsters.race')}</th>
+              <th>{t('reference.monsters.dataModification')}</th>
+              <th>{t('reference.monsters.uniqueSkills')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {HUMANOID_RACES.map((race) => (
+              <tr key={race.id}>
+                <th scope="row" className={styles.rowName}>
+                  {t(`reference.monsters.races.${race.id}`)}
+                </th>
+                <td>
+                  {race.perception && (
+                    <span>
+                      {t('reference.monsters.perception')}: {race.perception}.{' '}
+                    </span>
+                  )}
+                  {race.modification}
+                  {race.note && <em> — {race.note}</em>}
+                </td>
+                <td>
+                  {race.skills.length === 0
+                    ? t('reference.monsters.noSkills')
+                    : race.skills.map((skill) => (
+                        <p key={skill.name} className={styles.monsterProse}>
+                          <strong>
+                            {skill.icons} {skill.name}
+                          </strong>{' '}
+                          {skill.text}
+                          {skill.level6 && ' (' + t('reference.monsters.level6') + ': ' + skill.level6 + ')'}
+                          {skill.level11 && ' (' + t('reference.monsters.level11') + ': ' + skill.level11 + ')'}
+                        </p>
+                      ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
 function MonsterCard({ monster }: { monster: Monster }) {
   const { t } = useTranslation();
   const groups = groupBySection(monster.skills);
 
   return (
     <article className={styles.monsterCard} aria-label={monster.name}>
+      {monster.material && (
+        <p className={styles.monsterTraits}>
+          <span>
+            {t('reference.monsters.material')}: {monster.material}
+          </span>
+        </p>
+      )}
       <p className={styles.monsterTraits}>
         <span>
           {t('reference.monsters.intelligence')}: {monster.intelligence}
@@ -126,6 +245,22 @@ function MonsterCard({ monster }: { monster: Monster }) {
         ))
       )}
 
+      {monster.enhancements && monster.enhancements.entries.length > 0 && (
+        <>
+          <h5>
+            {t('reference.monsters.enhancing')}
+            {monster.enhancements.max !== null && ' — ' + t('reference.monsters.enhancingMax', { max: monster.enhancements.max })}
+          </h5>
+          <div className={styles.monsterSkills}>
+            {monster.enhancements.entries.map((entry, index) => (
+              <p key={index} className={styles.monsterEnhancing}>
+                {entry}
+              </p>
+            ))}
+          </div>
+        </>
+      )}
+
       {monster.loot.length > 0 && (
         <>
           <h5>{t('reference.monsters.loot')}</h5>
@@ -213,7 +348,7 @@ export function MonstersReference() {
           {t('reference.monsters.category')}
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">{t('reference.monsters.allCategories')}</option>
-            {MONSTER_CATEGORIES.map((name) => (
+            {ALL_MONSTER_CATEGORIES.map((name) => (
               <option key={name} value={name}>
                 {t(`reference.monsters.categories.${name}`)}
               </option>
@@ -229,6 +364,9 @@ export function MonstersReference() {
           <input type="number" min={0} value={maxLevel} onChange={(e) => setMaxLevel(e.target.value)} />
         </label>
       </div>
+
+      {category && <CommonAbilities category={category} />}
+      {category === 'Humanoids' && <HumanoidRaces />}
 
       {failed && <p className={styles.missing}>{t('reference.monsters.loadFailed')}</p>}
       {!monsters && !failed && <p className={styles.note}>{t('reference.monsters.loading')}</p>}

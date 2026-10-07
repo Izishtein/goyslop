@@ -60,6 +60,38 @@ export function declaredAttackModifiers(declared: CombatFeat[], magicPower: numb
   return result;
 }
 
+/** Pinpoint Attack I / II raise every Accuracy check by +1 / +2 (CR I); the higher one counts. */
+export function passiveAccuracyBonus(feats: CombatFeat[]): number {
+  let best = 0;
+  for (const feat of feats) {
+    const name = feat.name.trim().toLowerCase();
+    if (name === 'pinpoint attack i') best = Math.max(best, 1);
+    if (name === 'pinpoint attack ii') best = Math.max(best, 2);
+  }
+  return best;
+}
+
+/** "Swords" / "Axes" / "War Hammer" → the singular, spaceless word the weapon categories use. */
+function categoryKey(text: string): string {
+  return text.toLowerCase().replace(/[^a-z]/g, '').replace(/s$/, '');
+}
+
+/**
+ * Weapon Proficiency A/** adds +1 damage and Weapon Proficiency S/** +3 in total (CR I) to weapons of
+ * the category the player wrote after the slash. Both held: the S value counts. A weapon whose
+ * category is unknown, or a feat with no category written, changes nothing.
+ */
+export function proficiencyDamage(feats: CombatFeat[], category: string | undefined): number {
+  if (!category) return 0;
+  let best = 0;
+  for (const feat of feats) {
+    const match = /^weapon proficiency ([as])\s*\/\s*(.+)$/i.exec(feat.name.trim());
+    if (!match || categoryKey(match[2]) !== categoryKey(category)) continue;
+    best = Math.max(best, match[1].toLowerCase() === 's' ? 3 : 1);
+  }
+  return best;
+}
+
 /**
  * The Critical Value actually rolled against: every modifier applies, but "in SW2.5 the final
  * Critical Value will never be 7 or less" — it is raised to 8 (CR I p. 137). A value of 13 or

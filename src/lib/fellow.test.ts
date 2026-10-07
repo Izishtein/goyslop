@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EMPTY_FELLOW, EMPTY_INVENTORY, type Character, type FellowAction } from '../types/character';
-import { fellowActionFor, fellowAttack, fellowValue, parseFellowRoll, roundPower, suggestFellowActions, type SuggestedWording } from './fellow';
+import { bestDamageSpell, fellowActionFor, fellowAttack, fellowHeal, fellowValue, mpCostOf, parseFellowRoll, roundPower, suggestFellowActions, type SuggestedWording } from './fellow';
 
 const action = (patch: Partial<FellowAction>): FellowAction => ({ id: 'a', roll: '1-2', name: 'x', ...patch });
 
@@ -49,13 +49,14 @@ describe('Fellow Action Table', () => {
 const words: SuggestedWording = {
   weapon: 'weapon',
   attack: (weapon) => `Attack with ${weapon} (Melee Attack)`,
+  spell: (spell, mp) => `Cast [${spell}], MP${mp}`,
   rangedAttack: (weapon, range) => `Shoot ${weapon} (Ranged Attack), range ${range}`,
   attackWithFeat: (weapon, feat) => `Attack with ${weapon} and [${feat}]`,
   observation: 'Search check',
   scoutObservation: 'Scout Observation Check',
   movement: 'Agility check',
   scoutMovement: 'Scout Movement Check',
-  dialogue: { attack: 'a', feat: 'f', observation: 'o', movement: 'm' },
+  dialogue: { attack: 'a', feat: 'f', observation: 'o', movement: 'm', spell: 's' },
 };
 
 function sheet(patch: Partial<Character>): Character {
@@ -67,6 +68,7 @@ function sheet(patch: Partial<Character>): Character {
     combatFeats: [],
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     fellow: EMPTY_FELLOW,
+    spells: [],
     ...patch,
   } as unknown as Character;
 }
@@ -116,5 +118,52 @@ describe('suggested table', () => {
     );
 
     expect(rows[0].effect).toContain('Crit Value 8');
+  });
+});
+
+const known = (id: string, name: string, mp: number, school = 'Truespeech Magic') => ({ id, name, school, circle: 1, mp });
+const sorcerer = (spells: ReturnType<typeof known>[]) => sheet({ classes: [{ classId: 'sorcerer', level: 3 }], spells });
+
+describe('Fellow spells', () => {
+  let n = 0;
+  const id = () => `s${(n += 1)}`;
+
+  it('reads the MP cost from the action name and tells a healing row from an attack', () => {
+    expect(mpCostOf(action({ name: '[Energy Bolt] Range 2 (30m), MP5' }))).toBe(5);
+    expect(mpCostOf(action({ name: 'Attack with Sword' }))).toBe(0);
+    expect(fellowHeal(action({ effect: 'Heal Power 20+5' }))).toEqual({ power: 20, bonus: 5 });
+    expect(fellowAttack(action({ effect: 'Heal Power 20+5' }))).toBeNull();
+    expect(fellowHeal(action({ effect: 'Power 10+5' }))).toBeNull();
+  });
+
+  it('picks the strongest damage spell the Fellow can pay for, never a heal', () => {
+    const spells = [known('energy-bolt', 'Energy Bolt', 5), known('cure-wounds', 'Cure Wounds', 3, 'Spiritualism Magic'), known('lightning', 'Lightning', 7), known('blast', 'Blast', 99)];
+    const best = bestDamageSpell(sorcerer(spells));
+    // Sorcerer 3 + INT 2 = Magic Power 5; Lightning (Power 20, MP 7) beats Energy Bolt; Blast costs more than the whole pool.
+    expect(best).toEqual({ name: 'Lightning', mp: 7, power: 20, magicPower: 5 });
+    expect(bestDamageSpell(sorcerer([known('cure-wounds', 'Cure Wounds', 3)]))).toBeNull();
+  });
+
+  it('puts the spell into the table: Value = Result + Magic Power, Effect "Power N+Magic Power"', () => {
+    const rows = suggestFellowActions(sorcerer([known('energy-bolt', 'Energy Bolt', 5)]), words, id);
+
+    expect(rows.map((row) => row.roll)).toEqual(['1-2', '3-4', '5', '6']);
+    expect(rows[0]).toMatchObject({ name: 'Cast [Energy Bolt], MP5', value: '12', effect: 'Power 10+5' });
+    expect(rows[2]).toMatchObject({ name: 'Cast [Energy Bolt], MP5', value: '14' });
+  });
+
+  it('keeps the weapon first and gives the fifth row to a spell that out-powers it', () => {
+    const rows = suggestFellowActions(
+      sheet({
+        classes: [{ classId: 'fighter', level: 3 }, { classId: 'sorcerer', level: 3 }],
+        equipment: { weapons: [{ ...sword, power: 5 }], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+        spells: [known('energy-bolt', 'Energy Bolt', 5)],
+      }),
+      words,
+      id,
+    );
+
+    expect(rows[0].name).toBe('Attack with Sword (Melee Attack)');
+    expect(rows[2].name).toBe('Cast [Energy Bolt], MP5');
   });
 });

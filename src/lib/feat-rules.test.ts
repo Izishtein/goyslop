@@ -67,6 +67,24 @@ describe('unmetRequirements', () => {
     expect(unmetRequirements(sheet([['sorcerer', 6], ['conjurer', 6]], powerful), powerful)).toHaveLength(0);
   });
 
+  it('checks the feats of the supplements: Magus Arts, Outlaw Profile Book, Tyrants Crypts', () => {
+    const triad = feat('Dividing Triad');
+    expect(unmetRequirements(sheet([['geomancer', 2]], triad), triad)).toHaveLength(1);
+    expect(unmetRequirements(sheet([['geomancer', 3]], triad), triad)).toHaveLength(0);
+
+    const second = feat('Additional Stratagem/Maneuver II');
+    expect(unmetRequirements(sheet([['tactician', 5]], second), second)).toHaveLength(1); // the first one is missing
+    expect(unmetRequirements(sheet([['tactician', 5]], second, feat('Additional Stratagem/Maneuver I')), second)).toHaveLength(0);
+
+    const strike = feat('Desperate Strike II');
+    expect(unmetRequirements(sheet([['fighter', 7]], strike, feat('Desperate Strike I')), strike)).toHaveLength(0);
+    expect(unmetRequirements(sheet([['fighter', 6]], strike, feat('Desperate Strike I')), strike)).toHaveLength(1);
+
+    const mastery = feat('Grimoire Mastery');
+    expect(unmetRequirements(sheet([['bibliomancer', 11]], mastery, feat('Grimoire Proficiency S')), mastery)).toHaveLength(0);
+    expect(unmetRequirements(sheet([['bibliomancer', 10]], mastery, feat('Grimoire Proficiency S')), mastery)).toHaveLength(1);
+  });
+
   it('does not judge a feat the table does not cover', () => {
     const custom = feat('Homebrew Strike');
     expect(unmetRequirements(sheet([], custom), custom)).toEqual([]);

@@ -46,6 +46,7 @@ export function FellowSection({ character }: { character: Character }) {
       {
         weapon: t('sheet.fellowSuggest.weapon'),
         attack: (weapon) => t('sheet.fellowSuggest.attack', { weapon }),
+        spell: (spell, mp) => t('sheet.fellowSuggest.spell', { spell, mp }),
         rangedAttack: (weapon, range) => t('sheet.fellowSuggest.rangedAttack', { weapon, range }),
         attackWithFeat: (weapon, feat) => t('sheet.fellowSuggest.attackWithFeat', { weapon, feat }),
         observation: t('sheet.fellowSuggest.observation'),
@@ -57,6 +58,7 @@ export function FellowSection({ character }: { character: Character }) {
           feat: t('sheet.fellowSuggest.dialogueFeat'),
           observation: t('sheet.fellowSuggest.dialogueObservation'),
           movement: t('sheet.fellowSuggest.dialogueMovement'),
+          spell: t('sheet.fellowSuggest.dialogueSpell'),
         },
       },
       () => crypto.randomUUID(),

@@ -1,16 +1,19 @@
 import type { Monster } from './types';
 
 export type { Monster, MonsterSection, MonsterSkill, MonsterValue, ValuePair } from './types';
-export { MONSTER_CATEGORIES } from './types';
+export { ALL_MONSTER_CATEGORIES, EXTRA_MONSTER_CATEGORIES, MONSTER_CATEGORIES } from './types';
+export { COMMON_ABILITIES, type CommonAbilityGroup } from './common-abilities';
+export { HUMANOID_RACES, HUMANOID_RULES, type HumanoidRace } from './humanoid-races';
 
 /**
  * The monster catalogue is about a megabyte of text, so it is a separate chunk, fetched when
  * the monsters tab (or a fight) first needs it rather than shipped with the sheet. Source:
- * Monstrous Lore pp. 73-224, produced by scripts/parse-monsters.mjs.
+ * Monstrous Lore pp. 73-224 (scripts/parse-monsters.mjs) plus the golem and familiar cards
+ * of pp. 227-238 (scripts/parse-golems.mjs).
  */
 export async function loadMonsters(): Promise<Monster[]> {
-  const module = await import('./monsters.json');
-  return module.default as unknown as Monster[];
+  const [main, extra] = await Promise.all([import('./monsters.json'), import('./extra-monsters.json')]);
+  return [...(main.default as unknown as Monster[]), ...(extra.default as unknown as Monster[])];
 }
 
 export function isValuePair(value: unknown): value is { value: number; fixed: number | null } {

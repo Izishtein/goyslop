@@ -1,9 +1,9 @@
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
-import { charactersAtom } from '../../state/characters';
+import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { turnFeatsAtom } from '../../state/turn';
 import { CharacterSchema, EMPTY_INVENTORY, type Character, type Weapon, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { EquipmentSection } from './EquipmentSection';
@@ -525,4 +525,55 @@ describe('EquipmentSection weapon numbers', () => {
 
     expect(withoutArtificer).toBeGreaterThan(number(cell('Total Extra Damage')));
   });
+  it('adds Pinpoint Attack to every weapon Accuracy, the higher grade only', () => {
+    renderSection(fighter());
+    const plain = number(cell('Total Accuracy'));
+    cleanup();
+
+    renderSection(fighter({ combatFeats: [{ id: 'a', name: 'Pinpoint Attack I', category: 'passive' }, { id: 'b', name: 'Pinpoint Attack II', category: 'passive' }] }));
+
+    expect(number(cell('Total Accuracy'))).toBe(plain + 2);
+  });
+
+  it('adds Weapon Proficiency damage to weapons of its category: +1 for A, +3 for S', () => {
+    const gauche = weapon({ name: 'Main Gauche' }); // a sword in the catalogue
+    const withFeats = (...names: string[]) =>
+      withWeapon(gauche, { classes: [{ classId: 'fighter', level: 3 }], combatFeats: names.map((name, i) => ({ id: String(i), name, category: 'passive' as const })) });
+    renderSection(withWeapon(gauche, { classes: [{ classId: 'fighter', level: 3 }] }));
+    const plain = number(cell('Total Extra Damage'));
+    cleanup();
+
+    renderSection(withFeats('Weapon Proficiency A/Swords'));
+    expect(number(cell('Total Extra Damage'))).toBe(plain + 1);
+    cleanup();
+
+    renderSection(withFeats('Weapon Proficiency A/Swords', 'Weapon Proficiency S/Sword'));
+    expect(number(cell('Total Extra Damage'))).toBe(plain + 3);
+    cleanup();
+
+    renderSection(withFeats('Weapon Proficiency A/Axes'));
+    expect(number(cell('Total Extra Damage'))).toBe(plain);
+  });
+
+  it('offers the 50 XP a first-roll double 1 earns, once', async () => {
+    const user = userEvent.setup();
+    const character = fighter();
+    const store = createStore();
+    store.set(charactersAtom, [character]);
+    store.set(activeCharacterIdAtom, character.id);
+    render(
+      <Provider store={store}>
+        <Harness id={character.id} />
+      </Provider>,
+    );
+    vi.spyOn(Math, 'random').mockReturnValue(0); // 1 + 1
+
+    await user.click(screen.getByRole('button', { name: /Roll damage for Longsword/ }));
+    await user.click(screen.getByRole('button', { name: '+50 XP' }));
+
+    expect(store.get(charactersAtom)[0].experience.total).toBe(50);
+    expect(screen.getByRole('button', { name: '+50 XP added' })).toBeDisabled();
+    vi.restoreAllMocks();
+  });
+
 });

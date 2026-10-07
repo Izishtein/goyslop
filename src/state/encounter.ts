@@ -10,7 +10,9 @@ const EncounterSchema = z.object({
         id: z.string(),
         monsterId: z.string(),
         label: z.string(),
-        sections: z.array(z.object({ hp: z.number().int(), mp: z.number().int() })),
+        sections: z.array(z.object({ hp: z.number().int(), mp: z.number().int(), fate: z.enum(['out', 'dead']).optional() })),
+        identified: z.boolean().optional(),
+        weakKnown: z.boolean().optional(),
       }),
     )
     .default(() => []),
@@ -39,3 +41,6 @@ const storage = {
 };
 
 export const encounterAtom = atomWithStorage<Encounter>('sw25.encounter', EMPTY_ENCOUNTER, storage);
+
+/** Hide a monster's Initiative, saves and Weak Point until Monster Knowledge has revealed them. */
+export const hideUnknownAtom = atomWithStorage<boolean>('sw25.hideUnknown', false);

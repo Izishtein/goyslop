@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
 import { isValuePair, type Monster } from '../../data/monsters';
 import { damageSection, isDown, numberOf, rollD6, rollEvasion, type EncounterMonster } from '../../lib/encounter';
-import { fellowActionFor, fellowAttack, fellowValue } from '../../lib/fellow';
+import { fellowActionFor, fellowAttack, fellowHeal, fellowMpMax, fellowValue, mpCostOf } from '../../lib/fellow';
 import { rollWeaponDamage, type DamageRoll } from '../../lib/formulas/damage-roll';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
-import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
+import { hpMax } from '../../lib/formulas/hp-mp';
+import { abilityTotal } from '../../lib/formulas/abilities';
+import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
 import { encounterAtom } from '../../state/encounter';
 import { partyAtom } from '../../state/party';
 import type { Character, FellowAction } from '../../types/character';
@@ -20,6 +22,12 @@ const PARTY_LIMIT = 6;
 interface FellowTurn {
   die: number;
   action: FellowAction | null;
+  /** MP the row spent when it was rolled (given back if the players cancel it). */
+  spent?: number;
+  /** The row needs MP the Fellow does not have, so it is forcibly cancelled (CR I p. 202). */
+  noMp?: number;
+  /** Result of a healing spell cast on the open character. */
+  healed?: { amount: number; dice: [number, number] };
   /** Filled once an attack has been aimed and resolved. */
   result?: {
     target: string;
@@ -53,6 +61,7 @@ function targetsOf(monsters: EncounterMonster[], byId: Map<string, Monster>): Ta
 
 function FellowCard({
   fellow,
+  pc,
   fixed,
   acted,
   onActed,
@@ -60,6 +69,7 @@ function FellowCard({
   byId,
 }: {
   fellow: Character;
+  pc: Character | undefined;
   fixed: boolean;
   acted: boolean;
   onActed: () => void;
@@ -73,13 +83,39 @@ function FellowCard({
 
   const targets = targetsOf(encounter.monsters, byId);
   const target = targets.find((entry) => entry.key === targetKey) ?? targets[0];
-  const attack = turn?.action ? fellowAttack(turn.action) : null;
+  const updateFellow = useUpdateCharacter(fellow.id);
+  const updatePc = useUpdateCharacter(pc?.id ?? '');
+  const mpTotal = fellowMpMax(fellow);
+  const attack = turn?.action && !turn.noMp ? fellowAttack(turn.action) : null;
+  const heal = turn?.action && !turn.noMp ? fellowHeal(turn.action) : null;
   const value = turn?.action ? fellowValue(turn.action) : null;
 
   function act() {
     const die = rollD6();
-    setTurn({ die, action: fellowActionFor(fellow.fellow.actions, die) });
+    const action = fellowActionFor(fellow.fellow.actions, die);
+    const cost = action ? mpCostOf(action) : 0;
     onActed();
+    if (cost > fellow.mp.current) {
+      setTurn({ die, action, noMp: cost });
+      return;
+    }
+    if (cost > 0) updateFellow((c) => ({ ...c, mp: { current: c.mp.current - cost } }));
+    setTurn({ die, action, spent: cost || undefined });
+  }
+
+  function cancel() {
+    if (turn?.spent) updateFellow((c) => ({ ...c, mp: { current: c.mp.current + (turn.spent ?? 0) } }));
+    setTurn(null);
+  }
+
+  /** A healing spell: Power Table roll without criticals, plus Magic Power, onto the open character. */
+  function castHeal() {
+    if (!turn?.action || !heal || !pc) return;
+    const roll = rollWeaponDamage(heal.power, 13, heal.bonus);
+    const room = Math.max(0, hpMax(adventurerLevel(pc.classes), abilityTotal(pc.abilities.VIT)) - pc.hp.current);
+    const amount = Math.min(roll.calculatedDamage, room);
+    updatePc((c) => ({ ...c, hp: { current: c.hp.current + amount } }));
+    setTurn({ ...turn, healed: { amount, dice: [roll.steps[0].d1, roll.steps[0].d2] } });
   }
 
   /** The Fellow's check value is fixed by its table; the monster's Evasion is rolled (or Fixed).
@@ -118,6 +154,11 @@ function FellowCard({
       </header>
       <p className={styles.facts}>
         <span>{classes}</span>
+        {mpTotal > 0 && (
+          <span>
+            MP {fellow.mp.current} / {mpTotal}
+          </span>
+        )}
         {fellow.fellow.selfIntroduction && <span>“{fellow.fellow.selfIntroduction}”</span>}
       </p>
 
@@ -129,7 +170,7 @@ function FellowCard({
             {acted ? t('solo.party.actedThisRound') : t('solo.party.act')}
           </button>
           {turn && (
-            <button type="button" onClick={() => setTurn(null)}>
+            <button type="button" onClick={cancel}>
               {t('solo.party.cancel')}
             </button>
           )}
@@ -149,7 +190,9 @@ function FellowCard({
               t('solo.party.noRow')
             )}
           </p>
-          {turn.action && (
+          {turn.noMp !== undefined && <p className={styles.defeated}>{t('solo.party.noMp', { cost: turn.noMp, have: fellow.mp.current })}</p>}
+          {turn.spent !== undefined && <p className={styles.note}>{t('solo.party.mpSpent', { cost: turn.spent })}</p>}
+          {turn.action && !turn.noMp && (
             <p>
               {t('solo.party.value')}: <strong>{value ?? '–'}</strong>
               {turn.action.effect ? ` · ${turn.action.effect}` : ''}
@@ -176,7 +219,19 @@ function FellowCard({
               )}
             </div>
           )}
-          {!attack && turn.action && <p className={styles.note}>{t('solo.party.checkNote')}</p>}
+          {heal && !turn.healed && (
+            <div className={styles.controls}>
+              <button type="button" onClick={castHeal} disabled={!pc}>
+                {pc ? t('solo.party.healTarget', { name: pc.name }) : t('solo.party.noHealTarget')}
+              </button>
+            </div>
+          )}
+          {turn.healed && (
+            <p>
+              {turn.healed.dice[0]}+{turn.healed.dice[1]} → <strong>{turn.healed.amount}</strong> {t('solo.party.healed')}
+            </p>
+          )}
+          {!attack && !heal && turn.action && !turn.noMp && <p className={styles.note}>{t('solo.party.checkNote')}</p>}
 
           {turn.result && (
             <>
@@ -258,6 +313,7 @@ export function PartyPanel({ fixed }: { fixed: boolean }) {
             <FellowCard
               key={fellow.id}
               fellow={fellow}
+              pc={characters.find((entry) => entry.id === activeId)}
               fixed={fixed}
               byId={byId}
               acted={actedRound[fellow.id] === encounter.round && encounter.round > 0}

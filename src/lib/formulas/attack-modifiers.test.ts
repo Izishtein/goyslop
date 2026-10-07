@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatFeat } from '../../types/character';
-import { declaredAttackModifiers, effectiveCriticalValue } from './attack-modifiers';
+import { declaredAttackModifiers, effectiveCriticalValue, passiveAccuracyBonus, proficiencyDamage } from './attack-modifiers';
 
 const feat = (name: string): CombatFeat => ({ id: name, name, category: 'declaration' });
 
@@ -35,5 +35,23 @@ describe('effectiveCriticalValue', () => {
     expect(effectiveCriticalValue(9, -1)).toBe(8);
     expect(effectiveCriticalValue(10, -1)).toBe(9);
     expect(effectiveCriticalValue(12, 1)).toBe(13);
+  });
+});
+
+describe('passive feats', () => {
+  it('takes the higher Pinpoint Attack', () => {
+    expect(passiveAccuracyBonus([])).toBe(0);
+    expect(passiveAccuracyBonus([feat('Pinpoint Attack I')])).toBe(1);
+    expect(passiveAccuracyBonus([feat('Pinpoint Attack I'), feat('pinpoint attack II')])).toBe(2);
+  });
+
+  it('matches Weapon Proficiency to its category however the player spelled it', () => {
+    expect(proficiencyDamage([feat('Weapon Proficiency A/Swords')], 'sword')).toBe(1);
+    expect(proficiencyDamage([feat('Weapon Proficiency S/Sword')], 'sword')).toBe(3);
+    expect(proficiencyDamage([feat('Weapon Proficiency A/Axes')], 'axe')).toBe(1);
+    expect(proficiencyDamage([feat('Weapon Proficiency A/War Hammers')], 'warhammer')).toBe(1);
+    expect(proficiencyDamage([feat('Weapon Proficiency A/Axes')], 'sword')).toBe(0);
+    expect(proficiencyDamage([feat('Weapon Proficiency A')], 'sword')).toBe(0);
+    expect(proficiencyDamage([feat('Weapon Proficiency A/Swords')], undefined)).toBe(0);
   });
 });

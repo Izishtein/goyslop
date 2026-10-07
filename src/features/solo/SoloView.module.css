@@ -210,6 +210,185 @@
   font-size: 0.9rem;
 }
 
+.oracleLog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
+.oracleLog li {
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.oracleLog p {
+  margin: 0;
+}
+
+.hexSvg {
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  align-self: center;
+}
+
+.hexCell polygon {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  fill: var(--border);
+}
+
+.hexCell text {
+  font-size: 18px;
+  fill: #1c1c1c;
+  pointer-events: none;
+}
+
+.hexCell[data-biome='grassland'] polygon {
+  fill: hsl(95 42% 66%);
+}
+.hexCell[data-biome='forest'] polygon {
+  fill: hsl(140 34% 52%);
+}
+.hexCell[data-biome='hills'] polygon {
+  fill: hsl(48 48% 68%);
+}
+.hexCell[data-biome='marsh'] polygon {
+  fill: hsl(180 28% 56%);
+}
+.hexCell[data-biome='mountains'] polygon {
+  fill: hsl(220 12% 66%);
+}
+
+.hexCell[data-reachable] {
+  cursor: pointer;
+}
+.hexCell[data-reachable] polygon {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.hexCell:focus-visible polygon {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.hexLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.hexSwatch {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 2px;
+  vertical-align: -0.1em;
+}
+.hexSwatch[data-biome='grassland'] {
+  background: hsl(95 42% 66%);
+}
+.hexSwatch[data-biome='forest'] {
+  background: hsl(140 34% 52%);
+}
+.hexSwatch[data-biome='hills'] {
+  background: hsl(48 48% 68%);
+}
+.hexSwatch[data-biome='marsh'] {
+  background: hsl(180 28% 56%);
+}
+.hexSwatch[data-biome='mountains'] {
+  background: hsl(220 12% 66%);
+}
+
+.hexCell text.hexRealm {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #3a2a00;
+}
+
+.factions h4 {
+  margin: 0 0 var(--sp-1);
+}
+
+.factions ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.factions li {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.factions p {
+  margin: 0;
+}
+
+.dungeonDoor {
+  stroke: var(--text-muted);
+  stroke-width: 4;
+}
+
+.dungeonRoom rect {
+  fill: var(--border);
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+}
+
+.dungeonRoom text {
+  font-size: 17px;
+  fill: #1c1c1c;
+  pointer-events: none;
+}
+
+.dungeonRoom[data-visited] rect {
+  fill: hsl(40 35% 82%);
+}
+
+.dungeonRoom[data-reachable] {
+  cursor: pointer;
+}
+.dungeonRoom[data-reachable] rect {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.dungeonRoom[data-here] rect {
+  fill: hsl(48 70% 70%);
+  stroke: var(--danger);
+  stroke-width: 3;
+}
+.dungeonRoom:focus-visible rect {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.hexParty {
+  fill: var(--danger);
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
 @media print {
   .solo {
     display: none;

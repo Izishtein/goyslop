@@ -4,10 +4,11 @@
  * CR III pp. 199–205). A feat's requirements are ALL of the entries listed ("AND"); inside
  * one entry the alternatives are the entry's own (several classes sharing one level).
  *
- * Not covered: Magus Arts, Outlaw Profile Book, Battle Mastery and Tyrants Crypts feats.
- * Their data pages are two-column and the extracted text interleaves the columns, so a
- * prerequisite could not be attributed to its feat with confidence — a feat missing from
- * this table is simply not checked, never reported as failing.
+ * The supplements' feats follow the core ones: Magus Arts (pp. 22, 34, read from the PDF with
+ * the two columns told apart by eye), the Outlaw Profile Book (the table in
+ * docs/sheet-content/22-vagrant-misc.md) and Tyrants Crypts' grimoire chain (as the feats' own
+ * effect text states it). Battle Mastery's only selectively acquired feat, [Quick Cast], has
+ * "Prer. None". A feat missing from this table is simply not checked, never reported as failing.
  *
  * A requirement on another feat names it the way the book does. "Cover I" means that feat or
  * any higher numeral of it (a [Cover II] replaces [Cover I] on the sheet); a bare "Cover"
@@ -108,6 +109,30 @@ export const COMBAT_FEAT_PREREQUISITES: Record<string, FeatRequirement[]> = {
   'Violentcast II': [feat('Violentcast I'), adv(13)],
   'Lethal Strike III': [feat('Lethal Strike II'), cls(11, 'fencer')],
   'Armor Piercer III': [feat('Armor Piercer II'), cls(15, 'grappler')],
+
+  // --- Magus Arts ---
+  'Spreading Triad': [cls(1, 'geomancer')],
+  'Dividing Triad': [cls(3, 'geomancer')],
+  'Frontline Mastermind': [cls(5, 'tactician')],
+  'Additional Stratagem/Maneuver I': [cls(1, 'tactician')],
+  'Additional Stratagem/Maneuver II': [feat('Additional Stratagem/Maneuver I'), cls(5, 'tactician')],
+  'Additional Stratagem/Maneuver III': [feat('Additional Stratagem/Maneuver II'), cls(9, 'tactician')],
+  Versatile: [cls(9, 'tactician')],
+
+  // --- Outlaw Profile Book (Vagrant Combat Feats, pp. 138-141) ---
+  'Follow-Up': [feat('Shield Bash')],
+  'Enhanced Resistance I': [adv(3)],
+  'Enhanced Resistance II': [feat('Enhanced Resistance I'), adv(11)],
+  'Cheat Cast II': [feat('Cheat Cast I'), adv(13)],
+  'Shield Bash II': [feat('Shield Bash I'), adv(5)],
+  'Shadow Step II': [feat('Shadow Step I'), adv(7)],
+  'Desperate Strike II': [feat('Desperate Strike I'), adv(7)],
+  'Desperate Strike III': [feat('Desperate Strike II'), adv(15)],
+  'Wild Strike II': [feat('Wild Strike I'), adv(7)],
+
+  // --- Tyrants Crypts (fan wiki) ---
+  'Grimoire Proficiency S': [feat('Grimoire Proficiency A'), cls(5, 'bibliomancer')],
+  'Grimoire Mastery': [feat('Grimoire Proficiency S'), cls(11, 'bibliomancer')],
 };
 
 /**

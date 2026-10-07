@@ -1,0 +1,2093 @@
+[
+ {
+  "id": "oak-golem",
+  "name": "Oak Golem",
+  "level": 2,
+  "source": "CR II p. 419",
+  "category": "Golems",
+  "page": 228,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": 12,
+  "weakPoint": "Fire Damage +3 points",
+  "initiative": "9",
+  "movement": "9/-",
+  "fortitude": {
+   "value": 4,
+   "fixed": 11
+  },
+  "willpower": {
+   "value": 4,
+   "fixed": 11
+  },
+  "sections": [
+   {
+    "style": "Smash",
+    "accuracy": {
+     "value": 4,
+     "fixed": 11
+    },
+    "damage": "2d",
+    "evasion": {
+     "value": 2,
+     "fixed": 9
+    },
+    "defense": 2,
+    "hp": 18,
+    "mp": null
+   }
+  ],
+  "skills": [],
+  "loot": [
+   {
+    "roll": "2–8",
+    "item": "Nothing"
+   },
+   {
+    "roll": "9+",
+    "item": "Enchanted Oak Branch (200G/Gold Green A)"
+   }
+  ],
+  "description": [
+   "Oak Golems are made from oak wood. They are humanoid, with a short and stocky form."
+  ],
+  "material": "Enchanted Oak Branch (50/100)",
+  "enhancements": {
+   "max": 4,
+   "entries": [
+    "Cat's Eye Rivet (Small) (200) (►Double Attack)",
+    "└Golden Cat's Eye Rivet (Small) (200) (►Twin Strike & Double Attack)",
+    "Jet Sign (Small) (100) (🗨Aimed Attack = +2 Accuracy and -4 damage)",
+    "Obsidian Shield (Small) (150) (🗨△Cover I)",
+    "Amber Eye (Small) (500) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "oak-hound",
+  "name": "Oak Hound",
+  "level": 2,
+  "source": "CR II p. 419",
+  "category": "Golems",
+  "page": 228,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": 12,
+  "weakPoint": "Fire Damage +3 points",
+  "initiative": "10",
+  "movement": "9 (4 Legs)/-",
+  "fortitude": {
+   "value": 4,
+   "fixed": 11
+  },
+  "willpower": {
+   "value": 4,
+   "fixed": 11
+  },
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 4,
+     "fixed": 11
+    },
+    "damage": "2d",
+    "evasion": {
+     "value": 3,
+     "fixed": 10
+    },
+    "defense": 2,
+    "hp": 15,
+    "mp": null
+   }
+  ],
+  "skills": [],
+  "loot": [
+   {
+    "roll": "2–7",
+    "item": "Nothing"
+   },
+   {
+    "roll": "8+",
+    "item": "Enchanted Oak Branch (200G/Gold Green A)"
+   }
+  ],
+  "description": [
+   "This quadrupedal golem is made of oak wood and, like the Oak Golem, is not very precisely sculpted."
+  ],
+  "material": "Enchanted Oak Branch (50/100)",
+  "enhancements": {
+   "max": 3,
+   "entries": [
+    "Tiger's Eye Rivet (Small) (150) (◯Continuous Attack)",
+    "└Golden Tiger's Eye Rivet (Small) (300) (◯Continuous Attack II)",
+    "Spinel Horn (Small) (150) (►Charge)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "straw-bird",
+  "name": "Straw Bird",
+  "level": 3,
+  "source": "CR II p. 420",
+  "category": "Golems",
+  "page": 229,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 10,
+  "weakness": 13,
+  "weakPoint": "Fire Damage +3 points",
+  "initiative": "13",
+  "movement": "-/25 (Flying)",
+  "fortitude": {
+   "value": 5,
+   "fixed": 12
+  },
+  "willpower": {
+   "value": 5,
+   "fixed": 12
+  },
+  "sections": [
+   {
+    "style": "Beak",
+    "accuracy": {
+     "value": 5,
+     "fixed": 12
+    },
+    "damage": "2d+1",
+    "evasion": {
+     "value": 5,
+     "fixed": 12
+    },
+    "defense": 0,
+    "hp": 17,
+    "mp": null
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Fire Vulnerability",
+    "text": [
+     "When Straw Bird is hit by Fire-type damage, it takes an extra 3 damage."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Flight",
+    "text": [
+     "A Straw Bird receives a +1 bonus to Accuracy and Evasion only for melee",
+     "attacks."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–6",
+    "item": "Nothing"
+   },
+   {
+    "roll": "7+",
+    "item": "Enchanted Straw Bundle (150G/Gold Green A)"
+   }
+  ],
+  "description": [
+   "This lightweight bird-shaped golem is made of woven grass stalks."
+  ],
+  "material": "Enchanted Straw Bundle (100/200)",
+  "enhancements": {
+   "max": 2,
+   "entries": [
+    "Malachite Feather (Small) (150) (🗨All-Out Attack=Damage +8, Evasion -3)",
+    "Amethyst of Purple Lightning (Small) (600)\n►Discharge/4(11)/Willpower/Half\nGolem unleashes an electrical bolt with “Range/Area: 2(20m)/Shot”, dealing 2d+3 lightning magic damage. Stray shots cannot occur with this ability.",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)",
+    "Moonstone of Serenity (Small) (250) (Remove [○Fire Vulnerability], and Weak Point \"None\")."
+   ]
+  }
+ },
+ {
+  "id": "loam-puppet",
+  "name": "Loam Puppet",
+  "level": 3,
+  "source": "CR II p. 420",
+  "category": "Golems",
+  "page": 229,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": 15,
+  "weakPoint": "Accuracy +1",
+  "initiative": "10",
+  "movement": "10/-",
+  "fortitude": {
+   "value": 5,
+   "fixed": 12
+  },
+  "willpower": {
+   "value": 5,
+   "fixed": 12
+  },
+  "sections": [
+   {
+    "style": "Smash",
+    "accuracy": {
+     "value": 4,
+     "fixed": 11
+    },
+    "damage": "2d+4",
+    "evasion": {
+     "value": 4,
+     "fixed": 11
+    },
+    "defense": 2,
+    "hp": 25,
+    "mp": null
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Earth Immunity",
+    "text": []
+   },
+   {
+    "icons": "◯",
+    "name": "Mud Body",
+    "text": [
+     "Blunt weapons treat the Loam Puppet's Defense as 5 points higher.",
+     "In addition, a Loam Puppet is immune to criticals from edged weapons."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–7",
+    "item": "Nothing"
+   },
+   {
+    "roll": "8+",
+    "item": "Enchanted Clay (250G/Gold Green A)"
+   }
+  ],
+  "description": [
+   "A golem made from clay is the hopes and desires of its creator-given form. Typically standing around 1m, a Loam Puppet is often humanoid, though it can be any shape the creator wishes. Also, the shape does not make any difference in performance."
+  ],
+  "material": "Enchanted Clay (200/300)",
+  "enhancements": {
+   "max": 4,
+   "entries": [
+    "Obsidian Shield (Small) (150) (🗨△Cover I)",
+    "Corundum Protection (Small) (100) (◯Guardian I)",
+    "Cat's Eye Rivet (Small) (200) (►Double Attack)",
+    "└Golden Cat's Eye Rivet (Small) (200) (►Twin Strike & Double Attack)",
+    "Amber Eye (Small) (500) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "bone-animal",
+  "name": "Bone Animal",
+  "level": 4,
+  "source": "CR II p. 421",
+  "category": "Golems",
+  "page": 229,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": 15,
+  "weakPoint": "Bludgeoning damage +3 points",
+  "initiative": "12",
+  "movement": "14 (4 Legs)/-",
+  "fortitude": {
+   "value": 6,
+   "fixed": 13
+  },
+  "willpower": {
+   "value": 6,
+   "fixed": 13
+  },
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 6,
+     "fixed": 13
+    },
+    "damage": "2d+5",
+    "evasion": {
+     "value": 5,
+     "fixed": 12
+    },
+    "defense": 5,
+    "hp": 32,
+    "mp": null
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Bone Body",
+    "text": [
+     "Bone Animal is immune to criticals from edged weapons."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–8",
+    "item": "Nothing"
+   },
+   {
+    "roll": "9+",
+    "item": "Enchanted Animal Bones (250G/Gold Red A)"
+   }
+  ],
+  "description": [
+   "It is a golem made from the bones of an animal, and all that remains is the skeleton of the original animal."
+  ],
+  "material": "Enchanted Animal Bones (300/500)",
+  "enhancements": {
+   "max": 3,
+   "entries": [
+    "Tiger's Eye Rivet (Small) (150) (◯Continuous Attack)",
+    "└Golden Tiger's Eye Rivet (Small) (300) (◯Continuous Attack II)",
+    "Spinel Horn (Small) (150) (►Charge)",
+    "Amber Eye (Small) (500) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "leather-fish",
+  "name": "Leather Fish",
+  "level": 4,
+  "source": "CR II p. 421",
+  "category": "Golems",
+  "page": 230,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": 15,
+  "weakPoint": "Physical damage +2 points",
+  "initiative": "10",
+  "movement": "-/15 (Swimming)",
+  "fortitude": {
+   "value": 6,
+   "fixed": 13
+  },
+  "willpower": {
+   "value": 6,
+   "fixed": 13
+  },
+  "sections": [
+   {
+    "style": "Tail",
+    "accuracy": {
+     "value": 6,
+     "fixed": 13
+    },
+    "damage": "2d+4",
+    "evasion": {
+     "value": 6,
+     "fixed": 13
+    },
+    "defense": 4,
+    "hp": 36,
+    "mp": null
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Underwater",
+    "text": [
+     "Leather Fish doesn't receive penalties for moving or taking action in the",
+     "water. However, it can't perform any Action without water."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–8",
+    "item": "Nothing"
+   },
+   {
+    "roll": "9+",
+    "item": "Enchanted Leather (150G/Gold Red A)"
+   }
+  ],
+  "description": [
+   "This fish-shaped golem is made from animal skin. It does not have scales and has a slimy texture."
+  ],
+  "material": "Enchanted Leather (300/500)",
+  "enhancements": {
+   "max": 3,
+   "entries": [
+    "Lapis Lazuli Weight (Small) (200) (🗨Tail Swing I)",
+    "└Quartz Counterweight (Small) (300) (🗨Tail Swing II)",
+    "Blue Lotus Jade (Small) (600)\n►Water Gun/5 (12)/Fortitude/Half\nGolem sprays a jet of water with “Range/Area: 2(20m)/Shot” onto “Target: 1 Character”, dealing 2d+4 water/ice magic damage and causing it to fall prone. Stray shots cannot occur with this ability.",
+    "Amber Eye (Small) (500) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "Anisotropic Anorthite (Small) (150) (Ground movement 10 (crawling), [◯Underwater Specialization])"
+   ]
+  }
+ },
+ {
+  "id": "flabby-golem",
+  "name": "Flabby Golem",
+  "level": 4,
+  "source": "CR II p. 422",
+  "category": "Golems",
+  "page": 230,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 10,
+  "weakness": 14,
+  "weakPoint": "Physical damage +2 points",
+  "initiative": "13",
+  "movement": "8/-",
+  "fortitude": {
+   "value": 7,
+   "fixed": 14
+  },
+  "willpower": {
+   "value": 8,
+   "fixed": 15
+  },
+  "sections": [
+   {
+    "style": "Smash",
+    "accuracy": {
+     "value": 7,
+     "fixed": 14
+    },
+    "damage": "2d+5",
+    "evasion": {
+     "value": 5,
+     "fixed": 12
+    },
+    "defense": 2,
+    "hp": 35,
+    "mp": null
+   }
+  ],
+  "skills": [],
+  "loot": [
+   {
+    "roll": "2–8",
+    "item": "Nothing"
+   },
+   {
+    "roll": "9+",
+    "item": "Treasure (200G/Gold White A) x 1d"
+   }
+  ],
+  "description": [
+   "It is a golem made of flesh. It is about 2 to 3 meters in size and looks like a simplified version of the human form."
+  ],
+  "material": "Enchanted Flesh (500/1,000)",
+  "enhancements": {
+   "max": 5,
+   "entries": [
+    "Obsidian Shield (Small) (150) (🗨△Cover I)",
+    "Corundum Protection (Small) (100) (◯Guardian I)",
+    "Cat's Eye Rivet (Small) (200) (►Double Attack)",
+    "└Golden Cat's Eye Rivet (Small) (200) (►Twin Strike & Double Attack)",
+    "Amber Eye (Small) (500) (◯Ultimate Aim = +4 Accuracy)",
+    "Coral Branch (Small) (100) (◯Block)",
+    "Garnet of Vitality (Small) (200) (◯HP Enhancement = Max HP +5)",
+    "└Focused Garnet of Vitality (Small) (300) (◯Improved HP Enhancement = Max HP +5)",
+    "Red Iron Blood (Small) (100) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "stone-servant",
+  "name": "Stone Servant",
+  "level": 5,
+  "source": "CR II p. 423",
+  "category": "Golems",
+  "page": 231,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 11,
+  "weakness": 15,
+  "weakPoint": "Accuracy +1",
+  "initiative": "13",
+  "movement": "18/-",
+  "fortitude": {
+   "value": 8,
+   "fixed": 15
+  },
+  "willpower": {
+   "value": 7,
+   "fixed": 14
+  },
+  "sections": [
+   {
+    "style": "Fist",
+    "accuracy": {
+     "value": 8,
+     "fixed": 15
+    },
+    "damage": "2d+6",
+    "evasion": {
+     "value": 6,
+     "fixed": 13
+    },
+    "defense": 7,
+    "hp": 40,
+    "mp": null
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Stone Body",
+    "text": [
+     "A Stone Servant is immune to criticals from both edged weapons and all",
+     "non-Energy-type Magic damage."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–5",
+    "item": "Nothing"
+   },
+   {
+    "roll": "6–12",
+    "item": "Magical Stone (250G/Gold A)"
+   },
+   {
+    "roll": "13+",
+    "item": "Mithril (2,600G/Gold S)"
+   }
+  ],
+  "description": [
+   "A golem made of stone, this golem is about 2 meters in size, and as long as it has arms and legs, its shape can be freely set by the creator, but it cannot be made very precise, nor can its color or texture be changed. Also, the shape does not make a difference game-wise."
+  ],
+  "material": "Enchanted Stone (1,000/2,000)",
+  "enhancements": {
+   "max": 5,
+   "entries": [
+    "Cat's Eye Rivet (Medium) (800) (►Double Attack)",
+    "└Golden Cat's Eye Rivet (Medium) (800) (►Twin Strike & Double Attack)",
+    "Jet Sign (Medium) (400) (🗨Aimed Attack = +2 Accuracy and -4 damage)",
+    "Obsidian Shield (Medium) (600) (🗨△Cover II)",
+    "Corundum Protection (Medium) (400) (◯Guardian I)",
+    "Coral Branch (Medium) (400) (◯Block)",
+    "Amber Eye (Medium) (2,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Medium) (800) (◯HP Enhancement = Max HP +10)",
+    "└Focused Garnet of Vitality (Medium) (1,200) (◯Improved HP Enhancement = Max HP +10)",
+    "Red Iron Blood (Medium) (400) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "brasswing",
+  "name": "Brasswing",
+  "level": 6,
+  "source": "CR II p. 424",
+  "category": "Golems",
+  "page": 231,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 11,
+  "weakness": 15,
+  "weakPoint": "Bludgeoning Damage +3 points",
+  "initiative": "13",
+  "movement": "-/25 (Flying)",
+  "fortitude": {
+   "value": 8,
+   "fixed": 15
+  },
+  "willpower": {
+   "value": 8,
+   "fixed": 15
+  },
+  "sections": [
+   {
+    "style": "Beak (Head)",
+    "accuracy": {
+     "value": 8,
+     "fixed": 15
+    },
+    "damage": "2d+6",
+    "evasion": {
+     "value": 7,
+     "fixed": 14
+    },
+    "defense": 5,
+    "hp": 40,
+    "mp": null
+   },
+   {
+    "style": "Claws (Body)",
+    "accuracy": {
+     "value": 8,
+     "fixed": 15
+    },
+    "damage": "2d+6",
+    "evasion": {
+     "value": 7,
+     "fixed": 14
+    },
+    "defense": 5,
+    "hp": 40,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Head / Body) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Brass Body",
+    "text": [
+     "A Brasswing is immune to criticals from edged weapons and all magic",
+     "damage, except for Energy-type damage."
+    ]
+   },
+   {
+    "section": "Body",
+    "icons": "◯",
+    "name": "Flight",
+    "text": [
+     "A Brasswing receives a +1 bonus to Accuracy and Evasion only for melee",
+     "attacks."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–5",
+    "item": "Nothing"
+   },
+   {
+    "roll": "6–12",
+    "item": "Magical Brass (400G/Gold Black A)"
+   },
+   {
+    "roll": "13+",
+    "item": "Mithril (2,600G/Gold S)"
+   }
+  ],
+  "description": [
+   "This bird-shaped golem is made by layering thin sheets of brass."
+  ],
+  "material": "Enchanted Brass (1,500/3,000)",
+  "enhancements": {
+   "max": 3,
+   "entries": [
+    "※Head Only",
+    "Bright Red Ruby (Medium) (1,600)\n►Flame Breath/8(15)/Fortitude/Half\nGolem spits out the fire with \"Range/Area: 2(20m)/Shot\" and “Target: 1 area (3m Radius)/5,” dealing 2d+6 fire magic damage. This ability cannot be used on consecutive turns. It also cannot be used on the turn immediately after using [►Lightning].",
+    "Amethyst of Purple Lightning (Medium) (1,600)\n►Lightning/8(15)/Fortitude/Half\nGolem unleashes an electrical bolt with \"Range/Area: 30m/Line\", dealing 2d+6 lightning magic damage to the target. This ability cannot be used on consecutive turns. It also cannot be used on the turn immediately after using [►Flame Breath].",
+    "Calcite Compound Eyes (Medium) (800) (◯Breath Control)",
+    "※Body Only",
+    "Obsidian Shield (Medium) (600) (🗨△Cover II)",
+    "Malachite Feather (Medium) (600) (🗨All-Out Attack=Damage +8, Evasion -3)",
+    "※Any Section",
+    "Amber Eye (Medium) (2,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Medium) (800) (◯HP Enhancement = Max HP +10)",
+    "Shimmering Onyx (Medium) (600) (◯Mana Coating = Magic damage - 3)",
+    "※All Section Must be Equipped",
+    "Red Iron Blood (Medium) (400) (◯Mobility Enhancement = Movement +5)",
+    "Yellow Flint (Medium) (800) (◯Fast Reaction = [Footwork])"
+   ]
+  }
+ },
+ {
+  "id": "scale-flipper",
+  "name": "Scale Flipper",
+  "level": 7,
+  "source": "CR II p. 425",
+  "category": "Golems",
+  "page": 232,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": 16,
+  "weakPoint": "Physical Damage +2 points",
+  "initiative": "13",
+  "movement": "-/20 (Swimming)",
+  "fortitude": {
+   "value": 10,
+   "fixed": 17
+  },
+  "willpower": {
+   "value": 10,
+   "fixed": 17
+  },
+  "sections": [
+   {
+    "style": "Bite (Head)",
+    "accuracy": {
+     "value": 9,
+     "fixed": 16
+    },
+    "damage": "2d+11",
+    "evasion": {
+     "value": 9,
+     "fixed": 16
+    },
+    "defense": 10,
+    "hp": 50,
+    "mp": null
+   },
+   {
+    "style": "Tail (Body)",
+    "accuracy": {
+     "value": 9,
+     "fixed": 16
+    },
+    "damage": "2d+10",
+    "evasion": {
+     "value": 9,
+     "fixed": 16
+    },
+    "defense": 10,
+    "hp": 60,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Head / Body) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Stone Body",
+    "text": [
+     "A Scale Flipper is immune to criticals from both edged weapons and all",
+     "non-Energy-type Magic damage."
+    ]
+   },
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Underwater",
+    "text": [
+     "Scale Flipper doesn't receive penalties for moving or taking action in the",
+     "water. However, it can't perform any Action without water."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–10",
+    "item": "Magical Stone (250G/Gold A)"
+   },
+   {
+    "roll": "11+",
+    "item": "Mithril (2,600G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a fish-shaped golem made of light, perforated rock."
+  ],
+  "material": "Enchanted Rock Slag (1,500/3,000)",
+  "enhancements": {
+   "max": 4,
+   "entries": [
+    "※Head Only",
+    "Spinel Horn (Medium) (600) (►Charge)",
+    "Blue Lotus Jade (Medium) (1,600)\n►Blizzard Breath/9 (16)/Fortitude/Half\nGolem sprays a jet of water with “Range/Area: 20m/Shot” in a “Target: 3m Radius/5”, dealing 2d+7 water/ice magic damage. This ability cannot be used on consecutive turns.",
+    "Calcite Compound Eyes (Medium) (800) (◯Breath Control)",
+    "※Body Only",
+    "Lapis Lazuli Weight (Medium) (800) (🗨Tail Swing I)",
+    "└Quartz Counterweight (Medium) (1,200) (🗨Tail Swing II)",
+    "※Any Section",
+    "Amber Eye (Medium) (2,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Medium) (800) (◯HP Enhancement = Max HP +10)",
+    "└Focused Garnet of Vitality (Medium) (1,200) (◯Improved HP Enhancement = Max HP +10)",
+    "※All Section Must be Equipped",
+    "Anisotropic Anorthite (Medium) (600) (Ground movement 10 (crawling), [◯Underwater Specialization])"
+   ]
+  }
+ },
+ {
+  "id": "rock-golem",
+  "name": "Rock Golem",
+  "level": 8,
+  "source": "CR II p. 426",
+  "category": "Golems",
+  "page": 232,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 13,
+  "weakness": 18,
+  "weakPoint": "Energy damage +3 points",
+  "initiative": "8",
+  "movement": "10/-",
+  "fortitude": {
+   "value": 11,
+   "fixed": 18
+  },
+  "willpower": {
+   "value": 11,
+   "fixed": 18
+  },
+  "sections": [
+   {
+    "style": "Fist (Right Side)",
+    "accuracy": {
+     "value": 10,
+     "fixed": 17
+    },
+    "damage": "2d+14",
+    "evasion": {
+     "value": 7,
+     "fixed": 14
+    },
+    "defense": 12,
+    "hp": 60,
+    "mp": null
+   },
+   {
+    "style": "Fist (Left Side)",
+    "accuracy": {
+     "value": 10,
+     "fixed": 17
+    },
+    "damage": "2d+14",
+    "evasion": {
+     "value": 7,
+     "fixed": 14
+    },
+    "defense": 12,
+    "hp": 60,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Right Side / Left Side) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Rock Body",
+    "text": [
+     "The Rock Golem is immune to criticals from edged weapons and all non-",
+     "Energy-type Magic damage."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–8",
+    "item": "Magical Stone (250G/Gold A)"
+   },
+   {
+    "roll": "9+",
+    "item": "Mithril (2,600G/Gold S)"
+   }
+  ],
+  "description": [
+   "Rock Golems are humanoid constructs built entirely out of rocks of various sizes and stand menacingly around 3m tall."
+  ],
+  "material": "Enchanted Rock (2,000/5,000)",
+  "enhancements": {
+   "max": 5,
+   "entries": [
+    "※Any Section",
+    "Obsidian Shield (Medium) (600) (🗨△Cover II)",
+    "Corundum Protection (Medium) (400) (◯Guardian I)",
+    "Jet Sign (Medium) (400) (🗨Aimed Attack = +2 Accuracy and -4 damage)",
+    "Sunstone Brilliance (Medium) (1,200) (►Brand=Next attack cannot be evaded, damage +5)",
+    "Amber Eye (Medium) (2,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Medium) (800) (◯HP Enhancement = Max HP +10)",
+    "└Focused Garnet of Vitality (Medium) (1,200) (◯Improved HP Enhancement = Max HP +10)",
+    "Shimmering Onyx (Medium) (600) (◯Mana Coating = Magic damage - 3)",
+    "※All Section Must be Equipped",
+    "Coral Branch (Medium) (400) (◯Block)",
+    "Red Iron Blood (Medium) (400) (◯Mobility Enhancement = Movement +5)",
+    "Moonstone of Serenity (Medium) (1,000) (Golem loses its Weak Point (it becomes \"None\"))",
+    "Quartz Disruptor (Medium) (1,000) (◯Type Resistance)"
+   ]
+  }
+ },
+ {
+  "id": "bronze-golem",
+  "name": "Bronze Golem",
+  "level": 9,
+  "source": "CR III p. 435",
+  "category": "Golems",
+  "page": 233,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 14,
+  "weakness": 20,
+  "weakPoint": "Energy damage +3 points",
+  "initiative": "9",
+  "movement": "11/-",
+  "fortitude": {
+   "value": 12,
+   "fixed": 19
+  },
+  "willpower": {
+   "value": 12,
+   "fixed": 19
+  },
+  "sections": [
+   {
+    "style": "Fist (Right Side)",
+    "accuracy": {
+     "value": 11,
+     "fixed": 18
+    },
+    "damage": "2d+16",
+    "evasion": {
+     "value": 8,
+     "fixed": 15
+    },
+    "defense": 14,
+    "hp": 65,
+    "mp": null
+   },
+   {
+    "style": "Fist (Left Side)",
+    "accuracy": {
+     "value": 11,
+     "fixed": 18
+    },
+    "damage": "2d+16",
+    "evasion": {
+     "value": 8,
+     "fixed": 15
+    },
+    "defense": 14,
+    "hp": 65,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Right Side / Left Side) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Bronze Body",
+    "text": [
+     "The Bronze Golem is immune to criticals from edged weapons and all",
+     "non-Energy-type Magic damage."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–7",
+    "item": "Magic Bronze (420G/Gold Black A)"
+   },
+   {
+    "roll": "8+",
+    "item": "Mithril (2,600G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a golem made of bronze about 3 to 4 meters long."
+  ],
+  "material": "Enchanted Bronze (4,000/10,000)",
+  "enhancements": {
+   "max": 5,
+   "entries": [
+    "※Any Section",
+    "Obsidian Shield (Large) (3,000) (🗨△Cover II)",
+    "Corundum Protection (Large) (2,000) (◯Guardian II)",
+    "Jet Sign (Large) (2,000) (🗨Aimed Attack = +2 Accuracy and -4 damage)",
+    "Sunstone Brilliance (Large) (6,000) (►Brand=Next attack cannot be evaded, damage +6)",
+    "Amber Eye (Large) (10,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Large) (4,000) (◯HP Enhancement = Max HP +15)",
+    "└Focused Garnet of Vitality (Large) (6,000) (◯Improved HP Enhancement = Max HP +15)",
+    "Shimmering Onyx (Large) (3,000) (◯Mana Coating = Magic damage -3)",
+    "※All Section Must be Equipped",
+    "Coral Branch (Large) (2,000) (◯Block)",
+    "Red Iron Blood (Large) (2,000) (◯Mobility Enhancement = Movement +5)",
+    "Moonstone of Serenity (Large) (5,000) (Golem loses its Weak Point (it becomes \"None\"))",
+    "Quartz Disruptor (Large) (5,000) (◯Type Resistance)"
+   ]
+  }
+ },
+ {
+  "id": "rutile-raptor",
+  "name": "Rutile Raptor",
+  "level": 10,
+  "source": "CR III p. 436",
+  "category": "Golems",
+  "page": 233,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 16,
+  "weakness": 21,
+  "weakPoint": "Accuracy +1",
+  "initiative": "16",
+  "movement": "-/30(Flying)",
+  "fortitude": {
+   "value": 12,
+   "fixed": 19
+  },
+  "willpower": {
+   "value": 13,
+   "fixed": 20
+  },
+  "sections": [
+   {
+    "style": "Beak (Head)",
+    "accuracy": {
+     "value": 12,
+     "fixed": 19
+    },
+    "damage": "2d+16",
+    "evasion": {
+     "value": 11,
+     "fixed": 18
+    },
+    "defense": 16,
+    "hp": 65,
+    "mp": null
+   },
+   {
+    "style": "Claws (Body)",
+    "accuracy": {
+     "value": 12,
+     "fixed": 19
+    },
+    "damage": "2d+16",
+    "evasion": {
+     "value": 11,
+     "fixed": 18
+    },
+    "defense": 16,
+    "hp": 75,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Head / Body) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Golden Red Stone Body",
+    "text": [
+     "The Rutile Raptor is immune to criticals from both edged weapons and",
+     "all non-Energy-type Magic damage."
+    ]
+   },
+   {
+    "section": "Body",
+    "icons": "◯",
+    "name": "Flight II",
+    "text": [
+     "All sections receive a +2 bonus to Accuracy and Evasion only for melee",
+     "attacks.",
+     "This ability is lost if the HP of Body section falls to 0 or below."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–7",
+    "item": "Enchanted Gemstones (250G/Gold A)"
+   },
+   {
+    "roll": "8–12",
+    "item": "Mithril (2,600G/Gold S)"
+   },
+   {
+    "roll": "13+",
+    "item": "Pure Mithril (8,800G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a bird-shaped golem with a golden-red stone body."
+  ],
+  "material": "Enchanted Golden Redstone (6,000/15,000)",
+  "enhancements": {
+   "max": 3,
+   "entries": [
+    "※Head Only",
+    "Bright Red Ruby (Large) (8,000)\n►Flame Breath/12(19)/Fortitude/Half\nGolem spits out the fire with \"Range/Area: 2(20m)/Shot\" and “Target: 1 area (5m Radius)/10,” dealing 2d+10 fire magic damage. This ability cannot be used on consecutive turns. It also cannot be used on the turn immediately after using [►Lightning].",
+    "Amethyst of Purple Lightning (Large) (8,000)\n►Lightning/12(19)/Fortitude/Half\nGolem unleashes an electrical bolt with \"Range/Area: 50m/Line\", dealing 2d+10 lightning magic damage to the target. This ability cannot be used on consecutive turns. It also cannot be used on the turn immediately after using [►Flame Breath].",
+    "Calcite Compound Eyes (Large) (4,000) (◯Breath Control)",
+    "※Body Only",
+    "Obsidian Shield (Large) (3,000) (🗨△Cover II)",
+    "Malachite Feather (Large) (3,000) (🗨All-Out Attack=Damage +8, Evasion -3)",
+    "※Any Section",
+    "Amber Eye (Large) (10,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Large) (4,000) (◯HP Enhancement = Max HP +15)",
+    "Shimmering Onyx (Large) (3,000) (◯Mana Coating = Magic damage -3)",
+    "※All Section Must be Equipped",
+    "Red Iron Blood (Large) (2,000) (◯Mobility Enhancement = Movement +5)",
+    "Yellow Flint (Large) (4,000) (◯Fast Reaction = [Footwork])"
+   ]
+  }
+ },
+ {
+  "id": "iron-golem",
+  "name": "Iron Golem",
+  "level": 11,
+  "source": "CR III p. 437",
+  "category": "Golems",
+  "page": 234,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 16,
+  "weakness": 22,
+  "weakPoint": "Energy damage +3 points",
+  "initiative": "9",
+  "movement": "12/-",
+  "fortitude": {
+   "value": 14,
+   "fixed": 21
+  },
+  "willpower": {
+   "value": 14,
+   "fixed": 21
+  },
+  "sections": [
+   {
+    "style": "Fist (Right Side)",
+    "accuracy": {
+     "value": 12,
+     "fixed": 19
+    },
+    "damage": "2d+18",
+    "evasion": {
+     "value": 9,
+     "fixed": 16
+    },
+    "defense": 16,
+    "hp": 75,
+    "mp": null
+   },
+   {
+    "style": "Fist (Left Side)",
+    "accuracy": {
+     "value": 12,
+     "fixed": 19
+    },
+    "damage": "2d+18",
+    "evasion": {
+     "value": 9,
+     "fixed": 16
+    },
+    "defense": 16,
+    "hp": 75,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Right Side / Left Side) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Iron Body",
+    "text": [
+     "The Iron Golem is immune to criticals from edged weapons and all non-",
+     "Energy-type Magic damage."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–7",
+    "item": "Magic Iron Ingot (680G/Gold Black A)"
+   },
+   {
+    "roll": "8–12",
+    "item": "Mithril (2,600G/Gold S)"
+   },
+   {
+    "roll": "13+",
+    "item": "Pure Mithril (8,800G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a golem made of iron and about 5 meters tall."
+  ],
+  "material": "Enchanted Iron (8,000/20,000)",
+  "enhancements": {
+   "max": 5,
+   "entries": [
+    "※Any Section",
+    "Obsidian Shield (Large) (3,000) (🗨△Cover II)",
+    "Corundum Protection (Large) (2,000) (◯Guardian II)",
+    "Jet Sign (Large) (2,000) (🗨Aimed Attack = +2 Accuracy and -4 damage)",
+    "Sunstone Brilliance (Large) (6,000) (►Brand=Next attack cannot be evaded, damage +7)",
+    "Amber Eye (Large) (10,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Large) (4,000) (◯HP Enhancement = Max HP +15)",
+    "└Focused Garnet of Vitality (Large) (6,000) (◯Improved HP Enhancement = Max HP +15)",
+    "Shimmering Onyx (Large) (3,000) (◯Mana Coating = Magic damage -3)",
+    "※All Section Must be Equipped",
+    "Coral Branch (Large) (2,000) (◯Block)",
+    "Red Iron Blood (Large) (2,000) (◯Mobility Enhancement = Movement +5)",
+    "Moonstone of Serenity (Large) (5,000) (Golem loses its Weak Point (it becomes \"None\"))",
+    "Quartz Disruptor (Large) (5,000) (◯Type Resistance)"
+   ]
+  }
+ },
+ {
+  "id": "granite-shell",
+  "name": "Granite Shell",
+  "level": 12,
+  "source": "CR III p. 438",
+  "category": "Golems",
+  "page": 234,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 17,
+  "weakness": 22,
+  "weakPoint": "Energy damage +3 points",
+  "initiative": "17",
+  "movement": "10(4 Legs)/30(Swimming)",
+  "fortitude": {
+   "value": 16,
+   "fixed": 23
+  },
+  "willpower": {
+   "value": 16,
+   "fixed": 23
+  },
+  "sections": [
+   {
+    "style": "Bite (Head)",
+    "accuracy": {
+     "value": 14,
+     "fixed": 21
+    },
+    "damage": "2d+20",
+    "evasion": {
+     "value": 13,
+     "fixed": 20
+    },
+    "defense": 16,
+    "hp": 80,
+    "mp": null
+   },
+   {
+    "style": "Tail (Body)",
+    "accuracy": {
+     "value": 13,
+     "fixed": 20
+    },
+    "damage": "2d+20",
+    "evasion": {
+     "value": 12,
+     "fixed": 19
+    },
+    "defense": 18,
+    "hp": 90,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 2 (Head / Body) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Rock Body",
+    "text": [
+     "A Granite Shell is immune to criticals from edged weapons and all magic",
+     "damage, except Energy-type damage."
+    ]
+   },
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Underwater Specialization",
+    "text": [
+     "Can move in water without penalties and restrictions. Conversely, all",
+     "action checks are subject to a -2 penalty on the ground."
+    ]
+   },
+   {
+    "section": "Body",
+    "icons": "►",
+    "name": "Shell Guard",
+    "text": [
+     "The Granite Shell can retract into its shell, increasing its Defense by +10",
+     "for 10 seconds (1 round)."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "Always",
+    "item": "Magical Stone (250G/Gold A) x 2d"
+   },
+   {
+    "roll": "2–6",
+    "item": "Nothing"
+   },
+   {
+    "roll": "7–11",
+    "item": "Mithril (2,600G/Gold S)"
+   },
+   {
+    "roll": "12+",
+    "item": "Pure Mithril (8,800G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a large golem in the shape of a sea turtle with a granite shell."
+  ],
+  "material": "Enchanted Granite (10,000/25,000)",
+  "enhancements": {
+   "max": 4,
+   "entries": [
+    "※Head Only",
+    "Spinel Horn (Large) (3,000) (►Charge)",
+    "Blue Lotus Jade (Large) (8,000)\n►Blizzard Breath/14 (21)/Fortitude/Half\nGolem sprays a jet of water with “Range/Area: 20m/Shot” in a “Target: 4m Radius/10”, dealing 2d+12 water/ice magic damage. This ability cannot be used on consecutive turns.",
+    "Calcite Compound Eyes (Large) (4,000) (◯Breath Control)",
+    "※Body Only",
+    "Obsidian Shield (Large) (3,000) (🗨△Cover II)",
+    "Corundum Protection (Large) (2,000) (◯Guardian II)",
+    "Lapis Lazuli Weight (Large) (4,000) (🗨Tail Swing I)",
+    "└Quartz Counterweight (Large) (6,000) (🗨Tail Swing II)",
+    "※Any Section",
+    "Amber Eye (Large) (10,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Large) (4,000) (◯HP Enhancement = Max HP +15)",
+    "└Focused Garnet of Vitality (Large) (6,000) (◯Improved HP Enhancement = Max HP +15)",
+    "Shimmering Onyx (Large) (3,000) (◯Mana Coating = Magic damage -3)",
+    "※All Section Must be Equipped",
+    "Red Iron Blood (Large) (2,000) (◯Mobility Enhancement = Movement +5)"
+   ]
+  }
+ },
+ {
+  "id": "platinum-dragon",
+  "name": "Platinum Dragon",
+  "level": 13,
+  "source": "CR III p. 439",
+  "category": "Golems",
+  "page": 235,
+  "intelligence": "Servant",
+  "perception": "Magic",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 17,
+  "weakness": 23,
+  "weakPoint": "Accuracy +1",
+  "initiative": "20",
+  "movement": "12/25(Flying)",
+  "fortitude": {
+   "value": 17,
+   "fixed": 24
+  },
+  "willpower": {
+   "value": 17,
+   "fixed": 24
+  },
+  "sections": [
+   {
+    "style": "Claws (Body)",
+    "accuracy": {
+     "value": 16,
+     "fixed": 23
+    },
+    "damage": "2d+22",
+    "evasion": {
+     "value": 14,
+     "fixed": 21
+    },
+    "defense": 20,
+    "hp": 100,
+    "mp": null
+   },
+   {
+    "style": "Wing (Wing)",
+    "accuracy": {
+     "value": 15,
+     "fixed": 22
+    },
+    "damage": "2d+18",
+    "evasion": {
+     "value": 13,
+     "fixed": 20
+    },
+    "defense": 18,
+    "hp": 65,
+    "mp": null
+   },
+   {
+    "style": "Wing (Wing)",
+    "accuracy": {
+     "value": 15,
+     "fixed": 22
+    },
+    "damage": "2d+18",
+    "evasion": {
+     "value": 13,
+     "fixed": 20
+    },
+    "defense": 18,
+    "hp": 65,
+    "mp": null
+   }
+  ],
+  "sectionsNote": "Sections: 3 (Body / Wing x 2) Main Section: None",
+  "mainSection": "None",
+  "skills": [
+   {
+    "section": "All Sections",
+    "icons": "◯",
+    "name": "Superalloy Body",
+    "text": [
+     "It is immune to criticals from magical or weapon attacks."
+    ]
+   },
+   {
+    "section": "Body",
+    "icons": "◯",
+    "name": "Flight II",
+    "text": [
+     "All sections receive a +2 bonus to Accuracy and Evasion only for melee",
+     "attacks.",
+     "It loses this ability if any of the Wing section HP becomes 0 or less."
+    ]
+   }
+  ],
+  "loot": [
+   {
+    "roll": "2–5",
+    "item": "Magic Iron Ingot (680G/Gold Black A)"
+   },
+   {
+    "roll": "6–11",
+    "item": "Mithril (2,600G/Gold S)"
+   },
+   {
+    "roll": "12+",
+    "item": "Pure Mithril (8,800G/Gold S)"
+   }
+  ],
+  "description": [
+   "It is a golem in the shape of a dragon, made of a solid alloy, mainly platinum."
+  ],
+  "material": "Enchanted Iron (8,000/20,000)",
+  "enhancements": {
+   "max": 4,
+   "entries": [
+    "※Body Only",
+    "Bright Red Ruby (Large) (8,000)\n►Flame Breath/15(22)/Fortitude/Half\nGolem spits out the fire with \"Range/Area: 2(20m)/Shot\" and “Target: 1 area (5m Radius)/10,” dealing 2d+13 fire magic damage.\nThis ability cannot be used in consecutive turns. Also, it cannot be used in the turn immediately after using [►Blizzard Breath] or [►Lightning].",
+    "Blue Lotus Jade (Large) (8,000)\n►Blizzard Breath/15(22)/Fortitude/Half\nGolem sprays a jet of water with “Range/Area: 20m/Shot” in a “Target: 4m Radius/10”, dealing 2d+13 water/ice magic damage.\nThis ability cannot be used in consecutive turns. Also, it cannot be used in the turn immediately after using [►Flame Breath] or [►Lightning].",
+    "Amethyst of Purple Lightning (Large) (8,000)\n►Lightning/15(22)/Fortitude/Half\nGolem unleashes an electrical bolt with \"Range/Area: 50m/Line\", dealing 2d+13 lightning magic damage to the target.\nThis ability cannot be used in consecutive turns. Also, it cannot be used in the turn immediately after using [►Flame Breath] or [►Blizzard Breath].",
+    "Calcite Compound Eyes (Large) (4,000) (◯Breath Control)",
+    "Spinel Horn (Large) (3,000) (►Charge)",
+    "Lapis Lazuli Weight (Large) (4,000) (🗨Tail Swing I)",
+    "└Quartz Counterweight (Large) (6,000) (🗨Tail Swing II)",
+    "※Wing Only",
+    "Obsidian Shield (Large) (3,000) (🗨△Cover II)",
+    "Corundum Protection (Large) (2,000) (◯Guardian II)",
+    "Malachite Feather (Large) (3,000) (🗨All-Out Attack=Damage +8, Evasion -3)",
+    "※Any Section",
+    "Amber Eye (Large) (10,000) (◯Ultimate Aim = +4 Accuracy)",
+    "Garnet of Vitality (Large) (4,000) (◯HP Enhancement = Max HP +15)",
+    "└Focused Garnet of Vitality (Large) (6,000) (◯Improved HP Enhancement = Max HP +15)",
+    "Shimmering Onyx (Large) (3,000) (◯Mana Coating = Magic damage -3)",
+    "※All Section Must be Equipped",
+    "Red Iron Blood (Large) (2,000) (◯Mobility Enhancement = Movement +5)",
+    "Yellow Flint (Large) (4,000) (◯Fast Reaction = [Footwork])",
+    "Quartz Disruptor (Large) (5,000) (◯Type Resistance)"
+   ]
+  }
+ },
+ {
+  "id": "familiar-frog",
+  "name": "Familiar: Frog",
+  "level": 0,
+  "source": "CR I p. 434",
+  "category": "Familiars",
+  "page": 237,
+  "intelligence": "None",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "10",
+  "movement": "5 (4 Legs)/10 (Swimming)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Tongue",
+    "accuracy": {
+     "value": 1,
+     "fixed": 8
+    },
+    "damage": "2d-2",
+    "evasion": {
+     "value": 1,
+     "fixed": 8
+    },
+    "defense": 0,
+    "hp": null,
+    "mp": 10
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Frog’s Body",
+    "text": [
+     "The frog can move underwater. Its mobility is equal to that of a normal",
+     "frog."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-spider",
+  "name": "Familiar: Spider",
+  "level": 0,
+  "source": "CR I p. 434",
+  "category": "Familiars",
+  "page": 237,
+  "intelligence": "None",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "11",
+  "movement": "7 (Many Legs)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 1,
+     "fixed": 8
+    },
+    "damage": "2d-2",
+    "evasion": {
+     "value": 2,
+     "fixed": 9
+    },
+    "defense": 0,
+    "hp": null,
+    "mp": 7
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Spider’s Body",
+    "text": [
+     "The spider can move freely on walls and ceilings. While sticking to the",
+     "ceiling, it will not target a wide range of effects unless the enemy specifically",
+     "target’s familiar. Its mobility is equal to a recluse spider."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-bird",
+  "name": "Familiar: Bird",
+  "level": 0,
+  "source": "CR I p. 434",
+  "category": "Familiars",
+  "page": 237,
+  "intelligence": "None",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "13",
+  "movement": "-/30 (Flying)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Beak",
+    "accuracy": {
+     "value": 2,
+     "fixed": 9
+    },
+    "damage": "2d-1",
+    "evasion": {
+     "value": 2,
+     "fixed": 9
+    },
+    "defense": 0,
+    "hp": null,
+    "mp": 7
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Bird's Body",
+    "text": [
+     "Capable of flight. Physical ability is that of a normal bird."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Flight",
+    "text": [
+     "A Bird Familiar receives a +1 bonus to Accuracy and Evasion only for",
+     "melee attacks."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-cat",
+  "name": "Familiar: Cat",
+  "level": 0,
+  "source": "CR I p. 434",
+  "category": "Familiars",
+  "page": 237,
+  "intelligence": "None",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "12",
+  "movement": "12 (4 Legs)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Claws",
+    "accuracy": {
+     "value": 3,
+     "fixed": 10
+    },
+    "damage": "2d",
+    "evasion": {
+     "value": 3,
+     "fixed": 10
+    },
+    "defense": 1,
+    "hp": null,
+    "mp": 7
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Cat's Body",
+    "text": [
+     "Can pass through narrow gaps, etc. Physical ability is the same as an",
+     "ordinary housecat."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Gives Darkvision",
+    "text": [
+     "Shares its Darkvision with the Master."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-snake",
+  "name": "Familiar: Snake",
+  "level": 0,
+  "source": "CR I p. 435",
+  "category": "Familiars",
+  "page": 237,
+  "intelligence": "None",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "None",
+  "habitat": "Various",
+  "reputation": 8,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "11",
+  "movement": "10 (Snaking)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 2,
+     "fixed": 9
+    },
+    "damage": "2d-1",
+    "evasion": {
+     "value": 2,
+     "fixed": 9
+    },
+    "defense": 1,
+    "hp": null,
+    "mp": 7
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Snake's Body",
+    "text": [
+     "The snake can pass through extremely narrow spaces. Its physical ability",
+     "is equal to that of the normal snake."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Toxic Tooth",
+    "text": [
+     "When a familiar makes a melee attack and hits, it automatically deals 1",
+     "poison magic damage to the target of the melee attack. This ability only",
+     "works if the familiar is in touch range with the Master."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-ii-frog",
+  "name": "Familiar II: Frog",
+  "level": 7,
+  "source": "CR III p. 431",
+  "category": "Familiars",
+  "page": 238,
+  "intelligence": "Average",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "Arcana",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "15",
+  "movement": "5 (4 Legs)/10 (Swimming)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Tongue",
+    "accuracy": {
+     "value": 9,
+     "fixed": 16
+    },
+    "damage": "2d+7",
+    "evasion": {
+     "value": 8,
+     "fixed": 15
+    },
+    "defense": 5,
+    "hp": null,
+    "mp": 20
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Frog’s Body",
+    "text": [
+     "The frog can move underwater. Its mobility is equal to that of a normal",
+     "frog."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-ii-spider",
+  "name": "Familiar II: Spider",
+  "level": 7,
+  "source": "CR III p. 431",
+  "category": "Familiars",
+  "page": 238,
+  "intelligence": "Average",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "Arcana",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "16",
+  "movement": "7 (Many Legs)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 9,
+     "fixed": 16
+    },
+    "damage": "2d+8",
+    "evasion": {
+     "value": 9,
+     "fixed": 16
+    },
+    "defense": 6,
+    "hp": null,
+    "mp": 15
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Spider’s Body",
+    "text": [
+     "The spider can move freely on walls and ceilings. While sticking to the",
+     "ceiling, it will not target a wide range of effects unless the enemy specifically",
+     "target’s familiar. Its mobility is equal to a recluse spider."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-ii-bird",
+  "name": "Familiar II: Bird",
+  "level": 7,
+  "source": "CR III p. 431",
+  "category": "Familiars",
+  "page": 238,
+  "intelligence": "Average",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "Arcana",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "18",
+  "movement": "-/30 (Flying)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Beak",
+    "accuracy": {
+     "value": 10,
+     "fixed": 17
+    },
+    "damage": "2d+8",
+    "evasion": {
+     "value": 10,
+     "fixed": 17
+    },
+    "defense": 6,
+    "hp": null,
+    "mp": 15
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Bird's Body",
+    "text": [
+     "Capable of flight. Physical ability is that of a normal bird."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Flight",
+    "text": [
+     "A Bird Familiar receives a +1 bonus to Accuracy and Evasion only for",
+     "melee attacks."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-ii-cat",
+  "name": "Familiar II: Cat",
+  "level": 7,
+  "source": "CR III p. 432",
+  "category": "Familiars",
+  "page": 238,
+  "intelligence": "Average",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "Arcana",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "18",
+  "movement": "-/30 (Flying)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Claws",
+    "accuracy": {
+     "value": 10,
+     "fixed": 17
+    },
+    "damage": "2d+8",
+    "evasion": {
+     "value": 10,
+     "fixed": 17
+    },
+    "defense": 6,
+    "hp": null,
+    "mp": 15
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Cat's Body",
+    "text": [
+     "Can pass through narrow gaps, etc. Physical ability is the same as an",
+     "ordinary housecat."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Gives Darkvision",
+    "text": [
+     "Shares its Darkvision with the Master."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ },
+ {
+  "id": "familiar-ii-snake",
+  "name": "Familiar II: Snake",
+  "level": 7,
+  "source": "CR III p. 432",
+  "category": "Familiars",
+  "page": 238,
+  "intelligence": "Average",
+  "perception": "Shared with Caster",
+  "disposition": "Instructed",
+  "language": "Arcana",
+  "habitat": "Various",
+  "reputation": 12,
+  "weakness": null,
+  "weakPoint": "None",
+  "initiative": "16",
+  "movement": "10 (Snaking)",
+  "fortitude": null,
+  "willpower": null,
+  "sections": [
+   {
+    "style": "Bite",
+    "accuracy": {
+     "value": 10,
+     "fixed": 17
+    },
+    "damage": "2d+8",
+    "evasion": {
+     "value": 11,
+     "fixed": 18
+    },
+    "defense": 7,
+    "hp": null,
+    "mp": 15
+   }
+  ],
+  "skills": [
+   {
+    "icons": "◯",
+    "name": "Snake's Body",
+    "text": [
+     "The snake can pass through extremely narrow spaces. Its physical ability",
+     "is equal to that of the normal snake."
+    ]
+   },
+   {
+    "icons": "◯",
+    "name": "Toxic Tooth",
+    "text": [
+     "When a familiar makes a melee attack and hits, it automatically deals 1",
+     "poison magic damage to the target of the melee attack. This ability only",
+     "works if the familiar is in touch range with the Master."
+    ]
+   }
+  ],
+  "loot": [],
+  "description": []
+ }
+]

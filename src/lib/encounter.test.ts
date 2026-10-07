@@ -1,15 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import raw from '../data/monsters/monsters.json';
+import extraRaw from '../data/monsters/extra-monsters.json';
 import type { Monster } from '../data/monsters/types';
 import {
   attackHits,
   damageModifier,
   damageSection,
   healSection,
+  applyDeathCheck,
+  declarationsOf,
+  autoIdentifies,
   isDefeated,
   knowledgeResult,
   lootFor,
   lootRowMatches,
+  regenerate,
+  regenerationOf,
+  rollDeathCheck,
+  rollKnowledge,
   rollMonsterAttack,
   rollMonsterDamage,
   spawnMonster,
@@ -131,5 +139,89 @@ describe('Monster Knowledge', () => {
     expect(knowledgeResult(goblin, 4)).toEqual({ identified: false, weak: false });
     expect(knowledgeResult(goblin, 5)).toEqual({ identified: true, weak: false });
     expect(knowledgeResult(goblin, 10)).toEqual({ identified: true, weak: true });
+  });
+
+  it('rolls 2d6 plus the modifier, or takes the Fixed Value', () => {
+    const goblin = find('Goblin');
+    expect(rollKnowledge(goblin, 2, false, faces(3, 4))).toMatchObject({ value: 9, identified: true, weak: false });
+    expect(rollKnowledge(goblin, 2, true)).toMatchObject({ dice: null, value: 9, identified: true, weak: false });
+    expect(rollKnowledge(goblin, 3, true)).toMatchObject({ value: 10, identified: true, weak: true });
+  });
+
+  it('learns nothing on a natural 2 and everything on a natural 12', () => {
+    const goblin = find('Goblin');
+    expect(rollKnowledge(goblin, 20, false, faces(1, 1))).toMatchObject({ outcome: 'fumble', identified: false, weak: false });
+    expect(rollKnowledge(goblin, -20, false, faces(6, 6))).toMatchObject({ outcome: 'critical', identified: true, weak: true });
+  });
+
+  it('lets the Conjurer, Sorcerer and Fairy Tamer recognise their own kind unrolled', () => {
+    const extra = (id: string) => (extraRaw as unknown as Monster[]).find((m) => m.id === id)!;
+    expect(autoIdentifies(extra('oak-golem'), ['conjurer'])).toBe(true);
+    expect(autoIdentifies(extra('oak-golem'), ['sage'])).toBe(false);
+    expect(autoIdentifies(extra('familiar-cat'), ['sorcerer'])).toBe(true);
+    expect(autoIdentifies(find('Goblin'), ['conjurer', 'sorcerer', 'fairy-tamer'])).toBe(false);
+    const fairies = monsters.filter((m) => m.category === 'Fairies');
+    const olden = fairies.find((m) => m.skills.some((s) => s.name.startsWith('Olden')))!;
+    const normal = fairies.find((m) => !m.skills.some((s) => s.name.startsWith('Olden')))!;
+    expect(autoIdentifies(normal, ['fairy-tamer'])).toBe(true);
+    expect(autoIdentifies(olden, ['fairy-tamer'])).toBe(false);
+  });
+});
+
+describe('Death Check', () => {
+  it('compares 2d6 + the Standard Value with the HP deficit', () => {
+    expect(rollDeathCheck(3, -8, false, faces(3, 3))).toMatchObject({ value: 9, target: 8, result: 'survived' });
+    expect(rollDeathCheck(3, -8, false, faces(2, 2))).toMatchObject({ value: 7, target: 8, result: 'dead' });
+  });
+
+  it('wakes on double 6s and dies on double 1s, whatever the numbers', () => {
+    expect(rollDeathCheck(-20, -30, false, faces(6, 6)).result).toBe('revived');
+    expect(rollDeathCheck(20, -2, false, faces(1, 1)).result).toBe('dead');
+  });
+
+  it('has no automatic outcomes with Fixed Values (CR I p. 383)', () => {
+    expect(rollDeathCheck(3, -10, true)).toMatchObject({ dice: null, value: 10, result: 'survived' });
+    expect(rollDeathCheck(3, -11, true).result).toBe('dead');
+  });
+
+  it('records the fate on the section, and fresh damage or healing clears it', () => {
+    const goblin = spawnMonster(find('Goblin'), [], 'a');
+    const down = damageSection(goblin, 0, 20, 0, false).instance; // -4
+    const out = applyDeathCheck(down, 0, rollDeathCheck(3, -4, true));
+    expect(out.sections[0].fate).toBe('out');
+    expect(damageSection(out, 0, 1, 0, false).instance.sections[0].fate).toBeUndefined();
+    expect(healSection(out, 0, 10, 16).sections[0]).toEqual({ hp: 6, mp: 12 });
+    expect(applyDeathCheck(down, 0, { dice: [6, 6], value: 12, target: 4, result: 'revived' }).sections[0]).toEqual({ hp: 1, mp: 12 });
+  });
+});
+
+describe('declared attacks', () => {
+  it('offers the declarations whose effect is a plain number', () => {
+    expect(declarationsOf(find('Ogre Berserker'), 0)).toEqual([{ name: 'Power Strike II', accuracy: 0, damage: 12 }]);
+    expect(declarationsOf(find('Goblin'), 0)).toEqual([]);
+  });
+
+  it('keeps a section-bound declaration to its own rows', () => {
+    const withSection = (monster: Monster) => ({ ...monster, skills: [{ section: 'Neck', icons: '🗨', name: 'Power Strike I', text: [] }] });
+    const hydra = withSection(find('Hydra'));
+    expect(declarationsOf(hydra, 0)).toEqual([]);
+    expect(declarationsOf(hydra, 1).map((d) => d.name)).toEqual(['Power Strike I']);
+  });
+});
+
+describe('regeneration', () => {
+  it('reads the points and whether every section recovers', () => {
+    expect(regenerationOf(find('Living Tree'))).toEqual({ amount: 10, allSections: false });
+    expect(regenerationOf(find('Hydra'))).toEqual({ amount: 10, allSections: true });
+    expect(regenerationOf(find('Goblin'))).toBeNull();
+  });
+
+  it('heals at the end of a round, up to the maximum, and never a section at 0 HP', () => {
+    const hydra = find('Hydra');
+    const spawned = spawnMonster(hydra, [], 'a'); // Body 106, Neck 86
+    const hurt = { ...spawned, sections: [{ hp: 100, mp: 0 }, { hp: 0, mp: 0 }] };
+    const { instance, healed } = regenerate(hydra, hurt);
+    expect(instance.sections.map((s) => s.hp)).toEqual([106, 0]);
+    expect(healed).toBe(6);
   });
 });

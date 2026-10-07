@@ -11,6 +11,7 @@ import {
   magicPower,
   monsterKnowledge,
 } from '../../lib/formulas/derived-stats';
+import { passiveAccuracyBonus } from '../../lib/formulas/attack-modifiers';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
@@ -27,7 +28,7 @@ export function CombatStatsSection({ character }: { character: Character }) {
   const agiMod = abilityModifier(abilityTotal(character.abilities.AGI));
   const strMod = abilityModifier(abilityTotal(character.abilities.STR));
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
-  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy');
+  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + passiveAccuracyBonus(character.combatFeats);
   const evasionStatusMod = sumModifiersForField(character.statusEffects, 'evasion');
 
   const warriorRows = character.classes

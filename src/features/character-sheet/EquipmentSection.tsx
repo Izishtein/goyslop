@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EQUIPMENT_RANKS, type AbyssEnhancement, type Accessory, type Armor, type Character, type InventoryItem, type Shield, type Weapon } from '../../types/character';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
-import { declaredAttackModifiers, effectiveCriticalValue, FENCER_CRITICAL_MODIFIER } from '../../lib/formulas/attack-modifiers';
+import {
+  declaredAttackModifiers,
+  effectiveCriticalValue,
+  FENCER_CRITICAL_MODIFIER,
+  passiveAccuracyBonus,
+  proficiencyDamage,
+} from '../../lib/formulas/attack-modifiers';
 import { characterDefense, characterEvasion } from '../../lib/formulas/character-defense';
 import { magicPower } from '../../lib/formulas/derived-stats';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
@@ -28,6 +34,7 @@ import {
   WEAPON_CATEGORIES,
   getArmor,
   getShield,
+  equipmentId,
   getWeapon,
   listWeaponsByCategory,
   type WeaponDefinition,
@@ -181,6 +188,7 @@ export function EquipmentSection({ character }: { character: Character }) {
     bestMagicPower,
   );
   const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy');
+  const pinpoint = passiveAccuracyBonus(character.combatFeats);
   const artificerLevel = character.classes.filter((entry) => entry.classId === 'artificer').reduce((max, entry) => Math.max(max, entry.level), 0);
 
   /** Everything one weapon row shows and rolls with, from the class the attack is made with. */
@@ -188,11 +196,13 @@ export function EquipmentSection({ character }: { character: Character }) {
     const attackClass = attackClassOf(character, weapon);
     const level = attackClass?.level ?? 0;
     return {
-      accuracy: weaponTotalAccuracy(level, dexMod, weapon.accuracyBonus) + accuracyStatusMod + attackMods.accuracy,
+      accuracy: weaponTotalAccuracy(level, dexMod, weapon.accuracyBonus) + accuracyStatusMod + attackMods.accuracy + pinpoint,
       // A gun's Extra Damage is the Magic Power of the Artificer's bullet spell (CR I p. 135).
-      extraDamage: weapon.gun
-        ? (artificerLevel > 0 ? magicPower(artificerLevel, intMod) : 0) + weapon.extraDamageBonus
-        : weaponTotalExtraDamage(level, strMod, weapon.extraDamageBonus),
+      extraDamage:
+        (weapon.gun
+          ? (artificerLevel > 0 ? magicPower(artificerLevel, intMod) : 0) + weapon.extraDamageBonus
+          : weaponTotalExtraDamage(level, strMod, weapon.extraDamageBonus)) +
+        proficiencyDamage(character.combatFeats, getWeapon(equipmentId(weapon.name))?.category),
       criticalValue: effectiveCriticalValue(
         weapon.criticalValue,
         attackMods.criticalValue + (attackClass?.classId === 'fencer' ? FENCER_CRITICAL_MODIFIER : 0),

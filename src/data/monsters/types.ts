@@ -73,6 +73,10 @@ export interface Monster {
   skills: MonsterSkill[];
   loot: MonsterLoot[];
   description: string[];
+  /** Golems only: what the golem is made of, "Enchanted Oak Branch (50/100)". */
+  material?: string;
+  /** Golems only: the Enhancing Items it can carry, as the book lists them (group marks and wrapped lines joined). */
+  enhancements?: { max: number | null; entries: string[] };
 }
 
 export const MONSTER_CATEGORIES = [
@@ -87,3 +91,7 @@ export const MONSTER_CATEGORIES = [
   'Daemons',
   'Humanoids',
 ] as const;
+
+/** Cards from the Golem Data and Familiar Data chapters (pp. 225-238), kept in their own file. */
+export const EXTRA_MONSTER_CATEGORIES = ['Golems', 'Familiars'] as const;
+export const ALL_MONSTER_CATEGORIES = [...MONSTER_CATEGORIES, ...EXTRA_MONSTER_CATEGORIES] as const;

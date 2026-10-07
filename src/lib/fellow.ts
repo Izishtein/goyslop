@@ -2,7 +2,12 @@ import type { Character, FellowAction } from '../types/character';
 import { abilityModifier, abilityTotal } from './formulas/abilities';
 import { primaryWarriorLevel } from './formulas/character-defense';
 import { adventurerLevel } from './formulas/character-levels';
+import { getSpellPower } from '../data/spell-power';
 import { effectiveCriticalValue, FENCER_CRITICAL_MODIFIER } from './formulas/attack-modifiers';
+import { magicPower } from './formulas/derived-stats';
+import { mpMax } from './formulas/hp-mp';
+import { wizardLevelSum } from './formulas/character-levels';
+import { schoolLevel } from './spellcasting';
 import { sumModifiersForField } from './formulas/status-effects';
 
 /** The faces of a d6 a Fellow Action Table row answers to: "1-2", "3 – 4", "5", "1, 2". */
@@ -48,9 +53,47 @@ export function fellowAttack(action: FellowAction): FellowAttack | null {
   const text = action.effect ?? '';
   const weapon = /Power\s*(\d+)\s*\/\s*(?:C(?:rit(?:ical)?)?\.?\s*Value|CV)\s*(\d+)\s*\+\s*(\d+)/i.exec(text);
   if (weapon) return { power: Number(weapon[1]), criticalValue: Number(weapon[2]), extraDamage: Number(weapon[3]), magic: false };
-  const spell = /Power\s*(\d+)\s*\+\s*(\d+)/i.exec(text);
+  // A healing spell reads "Heal Power 20+5": it has Power too, but nothing to hit.
+  const spell = /^\s*heal/i.test(text) ? null : /Power\s*(\d+)\s*\+\s*(\d+)/i.exec(text);
   if (spell) return { power: Number(spell[1]), criticalValue: 10, extraDamage: Number(spell[2]), magic: true };
   return null;
+}
+
+/** A healing spell row: "Heal Power 20+5" — the Power and the Magic Power added to it. */
+export function fellowHeal(action: FellowAction): { power: number; bonus: number } | null {
+  const match = /^\s*heal\w*:?\s*Power\s*(\d+)\s*\+\s*(\d+)/i.exec(action.effect ?? '');
+  return match ? { power: Number(match[1]), bonus: Number(match[2]) } : null;
+}
+
+/** The MP a row spends when it is carried out, written in the action's name as "MP5" (CR I p. 202, p. 206). */
+export function mpCostOf(action: FellowAction): number {
+  const match = /\bMP\s*(\d+)/i.exec(action.name);
+  return match ? Number(match[1]) : 0;
+}
+
+/** The Fellow's MP pool, as the sheet derives it. */
+export function fellowMpMax(character: Character): number {
+  return mpMax(wizardLevelSum(character.classes), abilityTotal(character.abilities.SPR));
+}
+
+/**
+ * The damage spell a Fellow would cast: of the spells the sheet lists, the one with the most Power it
+ * can pay for out of its full MP (ties: the cheaper). Its Magic Power is the level of the class that
+ * casts that school plus the INT bonus. Spells with no Power in the catalogue are not considered.
+ */
+export function bestDamageSpell(character: Character): { name: string; mp: number; power: number; magicPower: number } | null {
+  const intMod = abilityModifier(abilityTotal(character.abilities.INT));
+  const budget = fellowMpMax(character);
+  let best: { name: string; mp: number; power: number; magicPower: number } | null = null;
+  for (const spell of character.spells) {
+    const data = getSpellPower(spell.id);
+    if (!data || data.kind !== 'damage' || spell.mp > budget) continue;
+    const level = schoolLevel(character, spell.school);
+    if (level <= 0) continue;
+    const candidate = { name: spell.name, mp: spell.mp, power: data.power, magicPower: magicPower(level, intMod) };
+    if (!best || candidate.power > best.power || (candidate.power === best.power && candidate.mp < best.mp)) best = candidate;
+  }
+  return best;
 }
 
 /** "Round the Power": to the nearest 5 — 11–12 down to 10, 13–17 to 15, 18–19 up to 20 (CR I p. 205). */
@@ -63,13 +106,14 @@ export interface SuggestedWording {
   /** The name used when the weapon row has none. */
   weapon: string;
   attack: (weapon: string) => string;
+  spell: (spell: string, mp: number) => string;
   rangedAttack: (weapon: string, range: string) => string;
   attackWithFeat: (weapon: string, feat: string) => string;
   observation: string;
   scoutObservation: string;
   movement: string;
   scoutMovement: string;
-  dialogue: { attack: string; feat: string; observation: string; movement: string };
+  dialogue: { attack: string; feat: string; observation: string; movement: string; spell: string };
 }
 
 /**
@@ -97,10 +141,21 @@ export function suggestFellowActions(character: Character, words: SuggestedWordi
     const critical = effectiveCriticalValue(weapon?.criticalValue ?? 10, (isFencer ? FENCER_CRITICAL_MODIFIER : 0) + bonus.critical);
     return { id: newId(), roll, name, dialogue, value: String(result + accuracy), effect: `Power ${roundPower(weapon?.power ?? 0)}/Crit Value ${critical} + ${extra}` };
   };
+  const spell = bestDamageSpell(character);
+  /** A spell row: Value = Result + Magic Power (the spellcasting check), Effect = "Power 10+5"; the MP cost sits in the name. */
+  const spellRow = (roll: string, result: number): FellowAction => ({
+    id: newId(),
+    roll,
+    name: words.spell(spell!.name, spell!.mp),
+    dialogue: words.dialogue.spell,
+    value: String(result + spell!.magicPower),
+    effect: `Power ${spell!.power}+${spell!.magicPower}`,
+  });
   const plainName = weapon?.range ? words.rangedAttack(weaponName, weapon.range) : words.attack(weaponName);
 
   const rows: FellowAction[] = [];
   if (weapon) rows.push(attackRow('1-2', 7, plainName, words.dialogue.attack));
+  else if (spell) rows.push(spellRow('1-2', 7));
 
   rows.push({
     id: newId(),
@@ -110,11 +165,14 @@ export function suggestFellowActions(character: Character, words: SuggestedWordi
     value: String(8 + (scout > 0 ? scout : level) + mod('INT')),
   });
 
-  if (weapon) {
+  if (spell && !weapon) {
+    rows.push(spellRow('5', 9));
+  } else if (weapon) {
     const has = (name: string) => character.combatFeats.some((entry) => entry.name === name);
     if (has('Power Strike I')) rows.push(attackRow('5', 9, words.attackWithFeat(weaponName, 'Power Strike I'), words.dialogue.feat, { accuracy: 0, critical: 0, damage: 4 }));
     else if (has('Aimed Attack I')) rows.push(attackRow('5', 9, words.attackWithFeat(weaponName, 'Aimed Attack I'), words.dialogue.feat, { accuracy: 1, critical: 1, damage: 0 }));
     // The same attack may be entered twice, once in 1-2/3-4 and once in 5/6 (CR I p. 204).
+    else if (spell && spell.power > (weapon.power ?? 0)) rows.push(spellRow('5', 9));
     else rows.push(attackRow('5', 9, plainName, words.dialogue.attack));
   }
 
