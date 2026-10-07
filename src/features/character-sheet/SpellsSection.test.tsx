@@ -32,6 +32,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     mp: { current: 8 },
     statusEffects: [],
     abyssCorruptionLevel: 0,
+    deity: '',
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
@@ -272,5 +273,76 @@ describe('SpellsSection catalog search', () => {
     await user.click(screen.getByRole('button', { name: 'Add spell' }));
 
     expect(store.get(charactersAtom)[0].spells[0].name).toBe('Energy Bolt');
+  });
+});
+
+describe('SpellsSection casting', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+
+  it('spends the printed MP when a spell is cast', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    expect(store.get(charactersAtom)[0].mp.current).toBe(5);
+  });
+
+  it('refuses a cast the character cannot pay for', async () => {
+    renderSection(makeCharacter({ spells: [bolt], mp: { current: 2 } }));
+
+    expect(screen.getByRole('button', { name: 'Energy Bolt Cast' })).toBeDisabled();
+  });
+
+  it('refuses, and says why, for a circle above the class level', () => {
+    renderSection(makeCharacter({ spells: [{ ...bolt, circle: 5 }], mp: { current: 20 } }));
+
+    expect(screen.getByRole('button', { name: 'Energy Bolt Cast' })).toBeDisabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('above the class level');
+  });
+});
+
+describe('SpellsSection Divine Magic and the worshipped god', () => {
+  const priest = () => makeCharacter({ classes: [{ classId: 'priest', level: 4 }] });
+
+  it('offers only the basic spells until a god is chosen, then that god\'s too', async () => {
+    const user = userEvent.setup();
+    renderSection(priest());
+
+    const options = () => [...screen.getByLabelText('Add from catalog').querySelectorAll('option')].map((o) => o.textContent ?? '');
+    expect(options().some((text) => text.includes('(Tidan)'))).toBe(false);
+
+    await user.selectOptions(screen.getByLabelText('God worshipped'), 'Tidan');
+
+    expect(options().some((text) => text.includes('(Tidan)'))).toBe(true);
+    expect(options().some((text) => text.includes('(Lyphos)'))).toBe(false);
+  });
+
+  it('stores the chosen god on the character', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(priest());
+
+    await user.selectOptions(screen.getByLabelText('God worshipped'), 'Lyphos');
+
+    expect(store.get(charactersAtom)[0].deity).toBe('Lyphos');
+  });
+});
+
+describe('SpellsSection cast log', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+
+  it('says what a cast cost and lets the last one be taken back', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    expect(screen.getByTestId('cast-log')).toHaveTextContent('spent 3 MP (8 → 5)');
+    expect(store.get(charactersAtom)[0].mp.current).toBe(5);
+
+    await user.click(screen.getByRole('button', { name: 'Undo last cast' }));
+
+    expect(store.get(charactersAtom)[0].mp.current).toBe(8);
+    expect(screen.queryByTestId('cast-log')).toBeNull();
   });
 });

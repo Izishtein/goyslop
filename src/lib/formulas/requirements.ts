@@ -1,4 +1,5 @@
 import type { CombatFeat } from '../../types/character';
+import { splitNumeral } from '../feat-names';
 
 /**
  * A weapon's Required Strength, as the wielder actually experiences it.
@@ -26,9 +27,24 @@ export function combatFeatSlots(adventurerLevel: number): number {
   return Math.floor((Math.max(0, adventurerLevel) + 1) / 2);
 }
 
-/** Auto-acquired feats arrive with a class level and cost no slot, so they do not count. */
+/**
+ * True when a higher numeral of the same feat is also on the sheet. "[… II] replaces [… I] of
+ * the same name … without a new learning slot" (Core II p. 197), and III replaces II the same
+ * way, so the lower one is history and must not be counted as a second pick.
+ */
+export function isReplacedFeat(feat: CombatFeat, feats: CombatFeat[]): boolean {
+  const own = splitNumeral(feat.name);
+  if (own.rank === 0) return false;
+  return feats.some((other) => {
+    const rival = splitNumeral(other.name);
+    return rival.base === own.base && rival.rank > own.rank;
+  });
+}
+
+/** Auto-acquired feats arrive with a class level and cost no slot, so they do not count —
+ *  and neither does an "I" that a later "II"/"III" on the same sheet has replaced. */
 export function combatFeatsSpendingSlots(feats: CombatFeat[]): number {
-  return feats.filter((feat) => feat.category !== 'auto').length;
+  return feats.filter((feat) => feat.category !== 'auto' && !isReplacedFeat(feat, feats)).length;
 }
 
 /** Rider Stunt slots: "When taking a level of the Rider class, including the first, you can

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EQUIPMENT_RANKS, type AbyssEnhancement, type Accessory, type Armor, type Character, type InventoryItem, type Shield, type Weapon } from '../../types/character';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
-import { evasion as baseEvasionFormula } from '../../lib/formulas/derived-stats';
+import { declaredAttackModifiers, effectiveCriticalValue, FENCER_CRITICAL_MODIFIER } from '../../lib/formulas/attack-modifiers';
+import { characterDefense, characterEvasion } from '../../lib/formulas/character-defense';
+import { magicPower } from '../../lib/formulas/derived-stats';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { meetsStrength, requiredStrength } from '../../lib/formulas/requirements';
-import { totalDefense, totalEvasion, weaponTotalAccuracy, weaponTotalExtraDamage } from '../../lib/formulas/weapon-stats';
+import { weaponTotalAccuracy, weaponTotalExtraDamage } from '../../lib/formulas/weapon-stats';
 import {
   ABYSS_CORRUPTION_DAEMONIZATION_LEVEL,
   ABYSS_CURSES,
@@ -32,16 +34,24 @@ import {
   type WeaponStanceRow,
 } from '../../data/equipment';
 import { useUpdateCharacter } from '../../state/characters';
+import { useTurnFeats } from '../../state/turn';
 import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
 
-function primaryWarriorLevel(character: Character): number {
+/** Warrior-type classes the character holds, highest level first. */
+function warriorClasses(character: Character) {
   return character.classes
     .filter((classLevel) => getClass(classLevel.classId)?.type === 'warrior')
-    .reduce((max, classLevel) => Math.max(max, classLevel.level), 0);
+    .sort((a, b) => b.level - a.level);
+}
+
+/** The class an attack is made with: the one chosen on the weapon row, else the highest. */
+function attackClassOf(character: Character, weapon: Weapon) {
+  const classes = warriorClasses(character);
+  return classes.find((entry) => entry.classId === weapon.attackClass) ?? classes[0];
 }
 
 function newWeapon(): Weapon {
@@ -86,6 +96,7 @@ function weaponRowFrom(definition: WeaponDefinition, stanceRow: WeaponStanceRow)
     criticalValue: stanceRow.criticalValue,
     extraDamageBonus: stanceRow.extraDamage,
     range: definition.range,
+    gun: definition.category === 'gun' || undefined,
     rank: definition.rank,
     notes: joinNotes(stanceNote, definition.magazine ? `Magazine ${definition.magazine}` : undefined, definition.notes) || undefined,
     abyss: [],
@@ -157,16 +168,40 @@ export function EquipmentSection({ character }: { character: Character }) {
 
   const dexMod = abilityModifier(abilityTotal(character.abilities.DEX));
   const strMod = abilityModifier(abilityTotal(character.abilities.STR));
-  const agiMod = abilityModifier(abilityTotal(character.abilities.AGI));
-  const warriorLevel = primaryWarriorLevel(character);
-  const baseEvasion = baseEvasionFormula(warriorLevel, agiMod);
+  const intMod = abilityModifier(abilityTotal(character.abilities.INT));
 
-  const defense =
-    totalDefense(character.equipment.armor.map((a) => a.defense), character.equipment.shield?.defenseBonus ?? 0) +
-    sumModifiersForField(character.statusEffects, 'defense');
-  const evasionTotal =
-    totalEvasion(baseEvasion, character.equipment.armor.map((a) => a.evasionModifier), character.equipment.shield?.evasionBonus ?? 0) +
-    sumModifiersForField(character.statusEffects, 'evasion');
+  // Feats declared this turn (state shared with the feats section) feed every damage roll.
+  const [declaredIds] = useTurnFeats(character.id);
+  const bestMagicPower = Math.max(
+    0,
+    ...character.classes.filter((entry) => getClass(entry.classId)?.type === 'wizard').map((entry) => magicPower(entry.level, intMod)),
+  );
+  const attackMods = declaredAttackModifiers(
+    character.combatFeats.filter((feat) => declaredIds.includes(feat.id)),
+    bestMagicPower,
+  );
+  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy');
+  const artificerLevel = character.classes.filter((entry) => entry.classId === 'artificer').reduce((max, entry) => Math.max(max, entry.level), 0);
+
+  /** Everything one weapon row shows and rolls with, from the class the attack is made with. */
+  function weaponNumbers(weapon: Weapon) {
+    const attackClass = attackClassOf(character, weapon);
+    const level = attackClass?.level ?? 0;
+    return {
+      accuracy: weaponTotalAccuracy(level, dexMod, weapon.accuracyBonus) + accuracyStatusMod + attackMods.accuracy,
+      // A gun's Extra Damage is the Magic Power of the Artificer's bullet spell (CR I p. 135).
+      extraDamage: weapon.gun
+        ? (artificerLevel > 0 ? magicPower(artificerLevel, intMod) : 0) + weapon.extraDamageBonus
+        : weaponTotalExtraDamage(level, strMod, weapon.extraDamageBonus),
+      criticalValue: effectiveCriticalValue(
+        weapon.criticalValue,
+        attackMods.criticalValue + (attackClass?.classId === 'fencer' ? FENCER_CRITICAL_MODIFIER : 0),
+      ),
+    };
+  }
+
+  const defense = characterDefense(character);
+  const evasionTotal = characterEvasion(character);
 
   function updateWeapon(id: string, patch: Partial<Weapon>) {
     update((c) => ({ ...c, equipment: { ...c.equipment, weapons: c.equipment.weapons.map((w) => (w.id === id ? { ...w, ...patch } : w)) } }));
@@ -344,10 +379,26 @@ export function EquipmentSection({ character }: { character: Character }) {
               </tr>
             </thead>
             <tbody>
-              {character.equipment.weapons.map((weapon) => (
+              {character.equipment.weapons.map((weapon) => {
+                const numbers = weaponNumbers(weapon);
+                return (
                 <tr key={weapon.id}>
                   <td>
                     <PrintableField value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+                    {warriorClasses(character).length > 1 && !weapon.gun && (
+                      <select
+                        value={attackClassOf(character, weapon)?.classId ?? ''}
+                        onChange={(e) => updateWeapon(weapon.id, { attackClass: e.target.value })}
+                        aria-label={t('sheet.attackClass')}
+                        title={t('sheet.attackClass')}
+                      >
+                        {warriorClasses(character).map((entry) => (
+                          <option key={entry.classId} value={entry.classId}>
+                            {getClass(entry.classId)?.name ?? entry.classId} {entry.level}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </td>
                   <td>
                     <select value={weapon.stance} onChange={(e) => updateWeapon(weapon.id, { stance: e.target.value as Weapon['stance'] })} aria-label={t('sheet.stance')}>
@@ -369,9 +420,9 @@ export function EquipmentSection({ character }: { character: Character }) {
                     />
                   </td>
                   <td className={styles.numeric}>
-                    {weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}{' '}
+                    {numbers.accuracy}{' '}
                     <DiceRoll
-                      modifier={weaponTotalAccuracy(warriorLevel, dexMod, weapon.accuracyBonus)}
+                      modifier={numbers.accuracy}
                       label={`${weapon.name || t('sheet.unnamedItem')} ${t('sheet.totalAccuracy')}`}
                     />
                   </td>
@@ -395,12 +446,13 @@ export function EquipmentSection({ character }: { character: Character }) {
                     />
                   </td>
                   <td className={styles.numeric}>
-                    {weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}{' '}
+                    {numbers.extraDamage}{' '}
                     <WeaponDamageRoll
                       power={weapon.power}
-                      criticalValue={weapon.criticalValue}
-                      extraDamage={weaponTotalExtraDamage(warriorLevel, strMod, weapon.extraDamageBonus)}
+                      criticalValue={numbers.criticalValue}
+                      extraDamage={numbers.extraDamage}
                       label={weapon.name || t('sheet.unnamedItem')}
+                      options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied }}
                     />
                   </td>
                   <td>
@@ -432,7 +484,8 @@ export function EquipmentSection({ character }: { character: Character }) {
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

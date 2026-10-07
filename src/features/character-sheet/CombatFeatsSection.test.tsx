@@ -32,6 +32,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     mp: { current: 0 },
     statusEffects: [],
     abyssCorruptionLevel: 0,
+    deity: '',
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 0, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
@@ -176,5 +177,108 @@ describe('CombatFeatsSection slots', () => {
     renderSection(makeCharacter({ classes: [{ classId: 'battle-dancer', level: 1 }] }));
 
     expect(screen.getByText('Feats taken:').parentElement).toHaveTextContent('0 / 2');
+  });
+});
+
+describe('CombatFeatsSection prerequisites', () => {
+  const feat = (name: string, category: 'passive' | 'declaration' | 'majorAction' | 'auto', id = name) => ({ id, name, category });
+
+  it('names the prerequisite a feat is missing', () => {
+    renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 3 }], combatFeats: [feat('Tenacity', 'passive')] }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Prerequisites not met: Fighter / Grappler / Fencer level 5');
+  });
+
+  it('is quiet once the level is reached', () => {
+    renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 5 }], combatFeats: [feat('Tenacity', 'passive')] }));
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('counts a replaced feat once', () => {
+    renderSection(
+      makeCharacter({
+        classes: [{ classId: 'fighter', level: 7 }],
+        combatFeats: [feat('Cover I', 'declaration'), feat('Cover II', 'declaration')],
+      }),
+    );
+
+    expect(screen.getByText('1 / 4')).toBeInTheDocument();
+  });
+
+  it('flags a feat outside the starting list on a level-1 character', () => {
+    renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 1 }], combatFeats: [feat('Block', 'passive')] }));
+
+    expect(screen.getAllByRole('alert').map((node) => node.textContent).join(' ')).toContain('starting list');
+  });
+});
+
+describe('CombatFeatsSection turn tracker', () => {
+  const feat = (name: string, category: 'passive' | 'declaration' | 'majorAction' | 'auto') => ({ id: name, name, category });
+
+  it('lets only one active feat be declared per turn, until a new turn begins', async () => {
+    const user = userEvent.setup();
+    renderSection(
+      makeCharacter({ combatFeats: [feat('Power Strike I', 'declaration'), feat('Aimed Attack I', 'declaration')] }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Power Strike I Declare' }));
+
+    expect(screen.getByRole('button', { name: 'Aimed Attack I Declare' })).toBeDisabled();
+    expect(within(screen.getByTestId('turn-tracker')).getByText('1 / 1')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'New turn' }));
+
+    expect(screen.getByRole('button', { name: 'Aimed Attack I Declare' })).toBeEnabled();
+  });
+
+  it('allows a second declaration with Ever-Changing I', async () => {
+    const user = userEvent.setup();
+    renderSection(
+      makeCharacter({
+        classes: [{ classId: 'fencer', level: 5 }],
+        combatFeats: [feat('Ever-Changing I', 'passive'), feat('Power Strike I', 'declaration'), feat('Aimed Attack I', 'declaration')],
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Power Strike I Declare' }));
+
+    expect(screen.getByRole('button', { name: 'Aimed Attack I Declare' })).toBeEnabled();
+  });
+
+  it('does not count Cover II as a declaration', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ combatFeats: [feat('Cover II', 'declaration'), feat('Power Strike I', 'declaration')] }));
+
+    await user.click(screen.getByRole('button', { name: 'Cover II Declare' }));
+
+    expect(screen.getByRole('button', { name: 'Power Strike I Declare' })).toBeEnabled();
+  });
+
+  it('allows one Major Action feat a turn, separately from declarations', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ combatFeats: [feat('Snipe', 'majorAction'), feat('Wordbreak', 'majorAction'), feat('Power Strike I', 'declaration')] }));
+
+    await user.click(screen.getByRole('button', { name: 'Snipe Declare' }));
+
+    expect(screen.getByRole('button', { name: 'Wordbreak Declare' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Power Strike I Declare' })).toBeEnabled();
+  });
+});
+
+describe('CombatFeatsSection what is in force', () => {
+  it('shows the effect of a declared feat, and drops it on a new turn', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ combatFeats: [{ id: 'p', name: 'Power Strike I', category: 'declaration' }] }));
+
+    expect(screen.queryByTestId('turn-log')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Power Strike I Declare' }));
+
+    const log = screen.getByTestId('turn-log');
+    expect(within(log).getByText('Power Strike I')).toBeInTheDocument();
+    expect(log.textContent).toContain('damage');
+
+    await user.click(screen.getByRole('button', { name: 'New turn' }));
+    expect(screen.queryByTestId('turn-log')).toBeNull();
   });
 });

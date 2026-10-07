@@ -157,6 +157,110 @@
   font-weight: 600;
 }
 
+/* Monsters: a filterable list whose rows open into the book's stat block. */
+.monsterFilters label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.monsterFilters input[type='number'] {
+  width: 5rem;
+}
+
+.monsterList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.monsterRow {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(8rem, 1fr) minmax(8rem, 2fr) auto;
+  align-items: baseline;
+  gap: var(--sp-3);
+  width: 100%;
+  text-align: left;
+}
+
+.monsterRow[aria-expanded='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.monsterLevel {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.monsterName {
+  font-weight: 600;
+}
+
+.monsterMeta,
+.monsterSource {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 40rem) {
+  .monsterRow {
+    grid-template-columns: 2.5rem 1fr;
+  }
+
+  .monsterMeta,
+  .monsterSource {
+    grid-column: 2;
+  }
+}
+
+.monsterCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0 var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.monsterCard h5,
+.monsterCard h6 {
+  margin: var(--sp-2) 0 0;
+}
+
+.monsterTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.monsterSkills {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.monsterSkillName {
+  margin: var(--sp-1) 0 0;
+  font-weight: 600;
+}
+
+.monsterProse {
+  margin: 0;
+  max-width: 80ch;
+  line-height: 1.45;
+}
+
 @media print {
   .reference {
     gap: 3mm;

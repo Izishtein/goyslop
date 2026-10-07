@@ -1,0 +1,217 @@
+/* The solo screen. Tokens and chrome echo the reference screen: same panel, same quiet notes. */
+.solo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.head h2 {
+  margin: 0;
+}
+
+.note {
+  margin: var(--sp-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  max-width: 70ch;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.panelHead h3 {
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.toolbar input[type='number'] {
+  width: 4.5rem;
+}
+
+.round {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.inline {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--sp-2) !important;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+  gap: var(--sp-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.cardDefeated {
+  opacity: 0.8;
+  border-style: dashed;
+}
+
+.cardHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.cardHead h4 {
+  margin: 0;
+  flex: 1;
+}
+
+.level {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.defeated {
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
+}
+
+.sectionDown .sectionHead strong {
+  text-decoration: line-through;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.bar {
+  position: relative;
+  height: 1.3rem;
+  border-radius: var(--radius-sm);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--danger);
+  transition: width 0.15s;
+}
+
+.barText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  text-shadow: 0 0 3px var(--surface);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.controls input[type='number'] {
+  width: 6.5rem;
+}
+
+.report {
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.report p {
+  margin: 0 0 var(--sp-1);
+}
+
+.loot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.loot p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@media print {
+  .solo {
+    display: none;
+  }
+}

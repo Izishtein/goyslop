@@ -14,6 +14,8 @@ import {
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
+import { DEEP_MAGIC } from '../../data/spells';
+import { deepMagicPower } from '../../lib/spellcasting';
 import type { Character } from '../../types/character';
 import { DiceRoll } from './DiceRoll';
 import styles from './CharacterSheetView.module.css';
@@ -66,12 +68,18 @@ export function CombatStatsSection({ character }: { character: Character }) {
     ...(priestLevel > 0 ? [{ key: 'healingPower', value: healingPower(priestLevel, intMod) }] : []),
   ];
 
-  const wizardRows = character.classes
-    .filter((classLevel) => getClass(classLevel.classId)?.type === 'wizard')
-    .map((classLevel) => ({
-      name: getClass(classLevel.classId)?.name ?? classLevel.classId,
-      magicPower: magicPower(classLevel.level, intMod),
-    }));
+  const deepPower = deepMagicPower(character, intMod);
+  const wizardRows = [
+    ...character.classes
+      .filter((classLevel) => getClass(classLevel.classId)?.type === 'wizard')
+      .map((classLevel) => ({
+        name: getClass(classLevel.classId)?.name ?? classLevel.classId,
+        magicPower: magicPower(classLevel.level, intMod),
+      })),
+    // Deep Magic belongs to no single class: it runs on the higher of Sorcerer and Conjurer
+    // (Magus Arts p. 95), so it gets its own row once both are mastered.
+    ...(deepPower === null ? [] : [{ name: DEEP_MAGIC, magicPower: deepPower }]),
+  ];
 
   return (
     <section className={styles.section} aria-labelledby="section-combat-stats">

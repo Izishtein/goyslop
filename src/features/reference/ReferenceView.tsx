@@ -20,6 +20,7 @@ import {
   WorkSkillsReference,
 } from './CatalogReference';
 import { ClassesReference } from './ClassesReference';
+import { MonstersReference } from './MonstersReference';
 import { RacesReference } from './RacesReference';
 import styles from './ReferenceView.module.css';
 
@@ -43,6 +44,7 @@ const TABS = [
   'vagrant',
   'advancedCombat',
   'powerTable',
+  'monsters',
 ] as const;
 type ReferenceTab = (typeof TABS)[number];
 
@@ -66,6 +68,7 @@ const PANELS: Record<ReferenceTab, () => React.JSX.Element> = {
   vagrant: VagrantReference,
   advancedCombat: AdvancedCombatReference,
   powerTable: PowerTableReference,
+  monsters: MonstersReference,
 };
 
 export function ReferenceView({ onClose }: { onClose: () => void }) {

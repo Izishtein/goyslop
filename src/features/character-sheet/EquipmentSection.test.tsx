@@ -1,9 +1,10 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import { beforeEach, describe, expect, it } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
+import { turnFeatsAtom } from '../../state/turn';
 import { CharacterSchema, EMPTY_INVENTORY, type Character, type Weapon, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { EquipmentSection } from './EquipmentSection';
 
@@ -32,6 +33,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     mp: { current: 0 },
     statusEffects: [],
     abyssCorruptionLevel: 0,
+    deity: '',
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
@@ -463,5 +465,64 @@ describe('EquipmentSection catalog pickers', () => {
 
     expect(store.get(charactersAtom)[0].equipment.weapons).toHaveLength(1);
     expect(store.get(charactersAtom)[0].equipment.weapons[0].name).toBe('');
+  });
+});
+
+describe('EquipmentSection weapon numbers', () => {
+  /** The text of one weapon-row cell, found by its column header. */
+  function cell(header: string): string {
+    const table = screen.getAllByRole('table')[0];
+    const index = within(table).getAllByRole('columnheader').findIndex((th) => th.textContent === header);
+    const row = within(table).getAllByRole('row')[1];
+    return within(row).getAllByRole('cell')[index].textContent ?? '';
+  }
+  const number = (text: string) => Number(/-?\d+/.exec(text)?.[0]);
+
+  const fighter = (overrides: Partial<Character> = {}) =>
+    withWeapon(weapon(), { classes: [{ classId: 'fighter', level: 3 }], ...overrides });
+
+  it('applies the Accuracy of a declared feat and leaves it out when nothing is declared', () => {
+    renderSection(fighter());
+    const plain = number(cell('Total Accuracy'));
+    cleanup();
+
+    const withDecoy = fighter({ combatFeats: [{ id: 'f', name: 'Decoy Attack I', category: 'declaration' }] });
+    const store = renderSection(withDecoy);
+    act(() => store.set(turnFeatsAtom, { [withDecoy.id]: ['f'] }));
+
+    expect(number(cell('Total Accuracy'))).toBe(plain - 2);
+  });
+
+  it('adds the Accuracy status effects the combat table already applied', () => {
+    renderSection(fighter());
+    const plain = number(cell('Total Accuracy'));
+    cleanup();
+
+    renderSection(fighter({ statusEffects: [{ id: 's', name: 'Blessed', duration: { kind: 'permanent' }, modifiers: [{ field: 'accuracy', value: 1 }] }] }));
+
+    expect(number(cell('Total Accuracy'))).toBe(plain + 1);
+  });
+
+  it('lets the player pick which Warrior class makes the attack, and Extra Damage follows its level', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(fighter({ classes: [{ classId: 'fighter', level: 3 }, { classId: 'grappler', level: 6 }] }));
+    // Highest level by default: Grappler 6.
+    const highest = number(cell('Total Extra Damage'));
+
+    await user.selectOptions(screen.getByLabelText('Class the attack is made with'), 'fighter');
+
+    expect(number(cell('Total Extra Damage'))).toBe(highest - 3);
+    expect(store.get(charactersAtom)[0].equipment.weapons[0].attackClass).toBe('fighter');
+  });
+
+  it('gives a gun the Artificer\'s Magic Power as Extra Damage instead of Warrior Level + STR', () => {
+    renderSection(
+      withWeapon(weapon({ gun: true }), { classes: [{ classId: 'marksman', level: 5 }, { classId: 'artificer', level: 2 }] }),
+    );
+    const withoutArtificer = number(cell('Total Extra Damage'));
+    cleanup();
+    renderSection(withWeapon(weapon({ gun: true }), { classes: [{ classId: 'marksman', level: 5 }] }));
+
+    expect(withoutArtificer).toBeGreaterThan(number(cell('Total Extra Damage')));
   });
 });

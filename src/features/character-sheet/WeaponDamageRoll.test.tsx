@@ -76,3 +76,45 @@ describe('WeaponDamageRoll', () => {
     expect(screen.queryByText(/critical/i)).not.toBeInTheDocument();
   });
 });
+
+describe('WeaponDamageRoll with declared feats', () => {
+  it('adds the flat feat damage after the Calculated Damage and names the feat', async () => {
+    // Power 20, roll 5 -> 3, +2 Extra Damage = 5; [Power Strike I] adds 4 -> Total Damage 9.
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(faceValue(2)).mockReturnValueOnce(faceValue(3));
+    render(
+      <WeaponDamageRoll power={20} criticalValue={10} extraDamage={2} label="Sword" options={{ bonusDamage: 4, appliedFeats: ['Power Strike I'] }} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Sword/ }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Power Table 3 + Extra Damage 2 = 5');
+    expect(screen.getByRole('status')).toHaveTextContent('Power Strike I 4 = Total Damage 9');
+  });
+
+  it('moves a 3-11 roll one up the table under Lethal Strike', async () => {
+    // Power 20 is the identity row (roll n -> n-2). A roll of 5 counts as 6 -> 4.
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(faceValue(2)).mockReturnValueOnce(faceValue(3));
+    render(<WeaponDamageRoll power={20} criticalValue={13} extraDamage={0} label="Sword" options={{ lethal: true }} />);
+
+    await user.click(screen.getByRole('button', { name: /Sword/ }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('2 + 3 = 5 → 4 (+1)');
+  });
+
+  it('counts the raised roll towards the Critical Value', async () => {
+    // Critical Value 10: a raw 9 would not crit, but under Lethal Strike it counts as 10.
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(faceValue(4))
+      .mockReturnValueOnce(faceValue(5))
+      .mockReturnValueOnce(faceValue(1))
+      .mockReturnValueOnce(faceValue(2));
+    render(<WeaponDamageRoll power={20} criticalValue={10} extraDamage={0} label="Sword" options={{ lethal: true }} />);
+
+    await user.click(screen.getByRole('button', { name: /Sword/ }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('critical');
+  });
+});

@@ -35,6 +35,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     mp: { current: 8 },
     statusEffects: [],
     abyssCorruptionLevel: 0,
+    deity: '',
     equipment: { weapons: [], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
     currency: { cash: 1200, savings: 0, debt: 0, spendingLog: '' },
     combatFeats: [],
@@ -141,5 +142,22 @@ describe('FellowSection', () => {
     delete legacy.fellow;
 
     expect(CharacterSchema.parse(legacy).fellow).toEqual(EMPTY_FELLOW);
+  });
+});
+
+describe('FellowSection suggested table', () => {
+  it('fills an empty table from the sheet, and is not offered once there is one', async () => {
+    const user = userEvent.setup();
+    const sword = { id: 'w', name: 'Sword', stance: '1H' as const, minStr: 8, accuracyBonus: 0, power: 20, criticalValue: 10, extraDamageBonus: 0, rank: 'B' as const, abyss: [] };
+    const base = makeCharacter();
+    const store = renderSection({ ...base, equipment: { ...base.equipment, weapons: [sword] } });
+
+    await user.click(screen.getByRole('button', { name: 'Suggest a table' }));
+
+    const rows = store.get(charactersAtom)[0].fellow.actions;
+    expect(rows.map((row) => row.roll)).toEqual(['1-2', '3-4', '5', '6']);
+    expect(rows[0].name).toBe('Attack with Sword (Melee Attack)');
+    expect(rows[0].effect).toMatch(/^Power 20\/Crit Value 10 \+ \d+$/);
+    expect(screen.queryByRole('button', { name: 'Suggest a table' })).toBeNull();
   });
 });

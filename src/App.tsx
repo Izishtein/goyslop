@@ -10,6 +10,7 @@ import { ReferenceView } from './features/reference/ReferenceView';
 import { GuideView } from './features/guide/GuideView';
 import { QuickStartView } from './features/quick-start/QuickStartView';
 import { RosterView } from './features/roster/RosterView';
+import { SoloView } from './features/solo/SoloView';
 import { FreeDiceRoller } from './features/dice-roller/FreeDiceRoller';
 import type { Character } from './types/character';
 import styles from './App.module.css';
@@ -40,13 +41,15 @@ function App() {
   const [showGuide, setShowGuide] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
+  const [showSolo, setShowSolo] = useState(false);
 
   /** Opening one screen closes the others — they all stand in the sheet's place. */
-  function openScreen(screen: 'reference' | 'guide' | 'quickStart' | 'roster' | 'sheet') {
+  function openScreen(screen: 'reference' | 'guide' | 'quickStart' | 'roster' | 'solo' | 'sheet') {
     setShowReference(screen === 'reference');
     setShowGuide(screen === 'guide');
     setShowQuickStart(screen === 'quickStart');
     setShowRoster(screen === 'roster');
+    setShowSolo(screen === 'solo');
   }
 
   /** Picking a character — or starting a new one — always lands on that character. */
@@ -123,6 +126,9 @@ function App() {
         >
           {t('quickStart.open')}
         </button>
+        <button type="button" onClick={() => openScreen(showSolo ? 'sheet' : 'solo')} aria-pressed={showSolo}>
+          {t('solo.open')}
+        </button>
         <div className={styles.langSwitch}>
           <label htmlFor="theme-switch">{t('app.theme')}</label>
           <select
@@ -179,6 +185,8 @@ function App() {
         <GuideView onClose={() => openScreen('sheet')} />
       ) : showQuickStart ? (
         <QuickStartView onClose={() => openScreen('sheet')} />
+      ) : showSolo ? (
+        <SoloView onClose={() => openScreen('sheet')} />
       ) : activeCharacter ? (
         <CharacterSheetView character={activeCharacter} />
       ) : (

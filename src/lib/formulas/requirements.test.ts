@@ -99,3 +99,17 @@ describe('battleDancerBonusFeatSlot', () => {
     expect([1, 5, 10, 15].map(battleDancerBonusFeatSlot)).toEqual([1, 1, 1, 1]);
   });
 });
+
+describe('replacement feats', () => {
+  const feat = (name: string, category: 'passive' | 'declaration' | 'majorAction' | 'auto' = 'declaration') => ({ id: name, name, category });
+
+  // Core II p. 197: [... II] replaces [... I] of the same name and needs no new learning slot.
+  it('counts a feat and its replacement once', () => {
+    expect(combatFeatsSpendingSlots([feat('Cover I'), feat('Cover II')])).toBe(1);
+    expect(combatFeatsSpendingSlots([feat('Power Strike I'), feat('Power Strike II'), feat('Power Strike III')])).toBe(1);
+  });
+
+  it('leaves unrelated numbered feats alone', () => {
+    expect(combatFeatsSpendingSlots([feat('Cover I'), feat('Power Strike I'), feat('Dodge', 'passive')])).toBe(3);
+  });
+});

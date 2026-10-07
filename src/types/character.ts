@@ -107,6 +107,12 @@ export const WeaponSchema = z.object({
   power: z.number().int(),
   criticalValue: z.number().int(),
   extraDamageBonus: z.number().int().default(0),
+  /** A gun deals the Magic Power of the Artificer who loaded the bullet as Extra Damage, not
+   *  Warrior Level + STR (CR I p. 135). Set when the row comes from the catalog. */
+  gun: z.boolean().optional(),
+  /** The Warrior-type class the attack is made with: its level feeds Accuracy and Extra
+   *  Damage, and a Fencer's attacks lower the Critical Value by 1. Empty means the highest. */
+  attackClass: z.string().optional(),
   range: z.string().optional(),
   rank: EquipmentRankSchema,
   notes: z.string().optional(),
@@ -551,6 +557,9 @@ export const CharacterSchema = z.object({
    *  Corruption Table (Abyss Breaker pp. 44-46). At 5 the book Daemonizes the character —
    *  the sheet only tracks and flags the count, the GM/player decide what happens at 5. */
   abyssCorruptionLevel: z.number().int().min(0).default(0),
+  /** The one god a Priest worships (Core I p. 175): only this god's Specialized Divine
+   *  spells are open to them. Empty until chosen; irrelevant to every other class. */
+  deity: z.string().default(''),
   currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0, spendingLog: '' })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),

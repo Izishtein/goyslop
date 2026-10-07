@@ -1,53 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getClass } from '../../data/classes';
-import { CATALOGUED_SCHOOLS, DEEP_MAGIC, getSpell, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
+import { CATALOGUED_SCHOOLS, getSpell, SPELLS, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
+import { DIVINE } from '../../data/spells/types';
+import { deityAllows, listDeities, magicSchoolsOf, mpAfterCast, schoolLevel, spellProblems } from '../../lib/spellcasting';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
-
-/** Highest level the character has in a given class id — 0 if they don't have it at all. */
-function classLevel(character: Character, classId: string): number {
-  return character.classes
-    .filter((entry) => entry.classId === classId)
-    .reduce((max, entry) => Math.max(max, entry.level), 0);
-}
-
-/** The schools this character casts from, in class order — Wizard-type classes only. */
-function magicSchoolsOf(character: Character): string[] {
-  const schools = character.classes
-    .map((entry) => getClass(entry.classId))
-    .filter((classDef) => classDef?.type === 'wizard')
-    .map((classDef) => classDef?.magicSchool)
-    .filter((school): school is string => Boolean(school));
-  // Deep Magic has no owning class (see data/spells/deep.ts) — it's automatically gained by
-  // mastering both Sorcerer and Conjurer instead of coming from a single class's magicSchool.
-  if (classLevel(character, 'sorcerer') > 0 && classLevel(character, 'conjurer') > 0) {
-    schools.push(DEEP_MAGIC);
-  }
-  return [...new Set(schools)];
-}
 
 /** The circles a list of spells actually covers, in order. */
 function circlesIn(spells: SpellDefinition[]): number[] {
   return [...new Set(spells.map((spell) => spell.circle))].sort((a, b) => a - b);
 }
 
-/** Highest level among the classes that cast from this school — the circle they know up to. */
-function schoolLevel(character: Character, school: string): number {
-  if (school === DEEP_MAGIC) {
-    // Available circle = the LOWER of the two class levels, not the higher — the opposite of
-    // every other school, since Deep Magic requires both classes at once rather than one.
-    return Math.min(classLevel(character, 'sorcerer'), classLevel(character, 'conjurer'));
-  }
-  return character.classes
-    .filter((entry) => getClass(entry.classId)?.magicSchool === school)
-    .reduce((max, entry) => Math.max(max, entry.level), 0);
-}
-
 export function SpellsSection({ character }: { character: Character }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const update = useUpdateCharacter(character.id);
 
   const schools = magicSchoolsOf(character);
@@ -55,15 +22,45 @@ export function SpellsSection({ character }: { character: Character }) {
   const [school, setSchool] = useState('');
   const [spellId, setSpellId] = useState('');
   const [search, setSearch] = useState('');
+  // What was cast this session, newest last — so a click is never a silent MP drop.
+  const [casts, setCasts] = useState<{ id: string; spell: KnownSpell; before: number; after: number }[]>([]);
 
   const activeSchool = school || pickableSchools[0] || '';
   const known = new Set(character.spells.map((spell) => spell.name));
-  const allOptions = activeSchool ? listSpellsBySchool(activeSchool) : [];
+  // A Priest worships one god and may only learn that god's Specialized Divine spells
+  // (Core I p. 175); with no god chosen yet, only the Basic ones are offered.
+  const allOptions = (activeSchool ? listSpellsBySchool(activeSchool) : []).filter(
+    (spell) => activeSchool !== DIVINE || deityAllows(spell.deity, character.deity),
+  );
+  const isPriest = schools.includes(DIVINE);
   // 257 spells in one list is a scroll, not a choice. Filtering by name narrows it without
   // hiding the circle grouping, so a filtered list still says what is out of reach.
   const query = search.trim().toLowerCase();
   const options = query ? allOptions.filter((spell) => spell.name.toLowerCase().includes(query)) : allOptions;
   const levelInSchool = activeSchool ? schoolLevel(character, activeSchool) : 0;
+
+  function setDeity(deity: string) {
+    update((c) => ({ ...c, deity }));
+    setSpellId('');
+  }
+
+  /** Casting spends the MP printed on the row; a spell the character cannot cast, or cannot
+   *  pay for, does nothing rather than driving MP below zero. */
+  function cast(spell: KnownSpell) {
+    const before = character.mp.current;
+    const left = mpAfterCast(before, spell.mp);
+    if (left === null) return;
+    update((c) => ({ ...c, mp: { current: left } }));
+    setCasts((list) => [...list, { id: crypto.randomUUID(), spell, before, after: left }]);
+  }
+
+  /** Undo the latest cast: hands its MP back. Only the last one, so the log stays honest. */
+  function undoLastCast() {
+    const last = casts[casts.length - 1];
+    if (!last) return;
+    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) } }));
+    setCasts((list) => list.slice(0, -1));
+  }
 
   function addSpell(spell: KnownSpell) {
     update((c) => ({ ...c, spells: [...c.spells, spell] }));
@@ -101,6 +98,12 @@ export function SpellsSection({ character }: { character: Character }) {
         <h3>{t('sheet.spells')}</h3>
         <p className={styles.sectionNote}>
           {schools.length > 0 ? schools.join(' · ') : t('sheet.noMagicSchools')}
+          {schools.length > 0 && (
+            <>
+              {' · '}
+              {t('sheet.mp')}: <strong className={styles.numeric}>{character.mp.current}</strong>
+            </>
+          )}
         </p>
       </summary>
 
@@ -115,13 +118,22 @@ export function SpellsSection({ character }: { character: Character }) {
                 <th>{t('sheet.spellMp')}</th>
                 <th>{t('sheet.spellNotes')}</th>
                 <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {character.spells.map((spell) => (
-                <tr key={spell.id}>
+              {character.spells.map((spell) => {
+                const problems = spellProblems(character, spell);
+                const lacksMp = spell.mp > character.mp.current;
+                return (
+                <tr key={spell.id} data-problem={problems.length > 0 || undefined}>
                   <td>
                     <PrintableField value={spell.name} onChange={(e) => updateSpell(spell.id, { name: e.target.value })} aria-label={t('sheet.spellName')} />
+                    {problems.map((problem) => (
+                      <p key={problem} className={`${styles.overspent} ${styles.ruleWarning}`} role="alert">
+                        {t(`sheet.spellProblem.${problem}`)}
+                      </p>
+                    ))}
                   </td>
                   <td>
                     <PrintableField value={spell.school} onChange={(e) => updateSpell(spell.id, { school: e.target.value })} aria-label={t('sheet.spellSchool')} />
@@ -146,21 +158,75 @@ export function SpellsSection({ character }: { character: Character }) {
                     <PrintableField value={spell.notes ?? ''} onChange={(e) => updateSpell(spell.id, { notes: e.target.value })} aria-label={t('sheet.spellNotes')} />
                   </td>
                   <td>
+                    <button
+                      type="button"
+                      onClick={() => cast(spell)}
+                      disabled={problems.length > 0 || lacksMp}
+                      title={lacksMp ? t('sheet.notEnoughMp') : undefined}
+                      aria-label={`${spell.name} ${t('sheet.castSpell')}`}
+                    >
+                      {t('sheet.castSpell')}
+                    </button>
+                  </td>
+                  <td>
                     <button type="button" onClick={() => removeSpell(spell.id)} aria-label={`${spell.name} ${t('sheet.remove')}`}>
                       {t('sheet.remove')}
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
 
+      {casts.length > 0 && (
+        <div className={styles.turnLog} role="status" aria-live="polite" data-testid="cast-log">
+          <h4>{t('sheet.castLog')}</h4>
+          <ul>
+            {casts.map((entry) => {
+              const catalog = SPELLS.find((spell) => spell.name === entry.spell.name && spell.school === entry.spell.school);
+              const key = `reference.spellEffect.${catalog?.id}`;
+              return (
+                <li key={entry.id}>
+                  <strong>{entry.spell.name}</strong> — {t('sheet.castSpent', { mp: entry.spell.mp, before: entry.before, after: entry.after })}
+                  {i18n.exists(key) && (
+                    <details>
+                      <summary>{t('sheet.castEffect')}</summary>
+                      <p>{t(key)}</p>
+                    </details>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <button type="button" onClick={undoLastCast}>
+            {t('sheet.castUndo')}
+          </button>
+          <button type="button" onClick={() => setCasts([])}>
+            {t('sheet.castClear')}
+          </button>
+        </div>
+      )}
+
       {character.spells.length === 0 && <p className={styles.empty}>{t('sheet.noSpells')}</p>}
 
       {/* Selects are data elsewhere on the sheet, so this picker is marked as chrome for print. */}
       <div className={`${styles.inlineRow} ${styles.controlRow}`}>
+        {isPriest && (
+          <>
+            <label htmlFor="priest-deity">{t('sheet.deity')}</label>
+            <select id="priest-deity" value={character.deity} onChange={(e) => setDeity(e.target.value)}>
+              <option value="">{t('sheet.deityNone')}</option>
+              {listDeities().map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         {pickableSchools.length > 0 ? (
           <>
             {pickableSchools.length > 1 && (

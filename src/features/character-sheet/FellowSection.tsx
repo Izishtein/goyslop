@@ -3,6 +3,7 @@ import { getClass } from '../../data/classes';
 import { getRace } from '../../data/races';
 import { adventurerLevel, wizardLevelSum } from '../../lib/formulas/character-levels';
 import { abilityTotal } from '../../lib/formulas/abilities';
+import { suggestFellowActions } from '../../lib/fellow';
 import { mpMax } from '../../lib/formulas/hp-mp';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, FellowAction } from '../../types/character';
@@ -34,6 +35,33 @@ export function FellowSection({ character }: { character: Character }) {
 
   function addAction() {
     update((c) => ({ ...c, fellow: { ...c.fellow, actions: [...c.fellow.actions, newAction()] } }));
+  }
+
+  /** Fills the table from the sheet — Result + Standard Value as the Value, Power/Crit Value/Extra
+   *  Damage for the attacks (CR I pp. 200–205). Only offered on an empty table: it is a start for
+   *  the player to edit, not something to overwrite what they wrote. */
+  function suggestTable() {
+    const rows = suggestFellowActions(
+      character,
+      {
+        weapon: t('sheet.fellowSuggest.weapon'),
+        attack: (weapon) => t('sheet.fellowSuggest.attack', { weapon }),
+        rangedAttack: (weapon, range) => t('sheet.fellowSuggest.rangedAttack', { weapon, range }),
+        attackWithFeat: (weapon, feat) => t('sheet.fellowSuggest.attackWithFeat', { weapon, feat }),
+        observation: t('sheet.fellowSuggest.observation'),
+        scoutObservation: t('sheet.fellowSuggest.scoutObservation'),
+        movement: t('sheet.fellowSuggest.movement'),
+        scoutMovement: t('sheet.fellowSuggest.scoutMovement'),
+        dialogue: {
+          attack: t('sheet.fellowSuggest.dialogueAttack'),
+          feat: t('sheet.fellowSuggest.dialogueFeat'),
+          observation: t('sheet.fellowSuggest.dialogueObservation'),
+          movement: t('sheet.fellowSuggest.dialogueMovement'),
+        },
+      },
+      () => crypto.randomUUID(),
+    );
+    update((c) => ({ ...c, fellow: { ...c.fellow, actions: rows } }));
   }
 
   function updateAction(id: string, patch: Partial<FellowAction>) {
@@ -157,6 +185,11 @@ export function FellowSection({ character }: { character: Character }) {
         <button type="button" onClick={addAction}>
           {t('sheet.addFellowAction')}
         </button>
+        {character.fellow.actions.length === 0 && (
+          <button type="button" onClick={suggestTable} title={t('sheet.fellowSuggest.hint')}>
+            {t('sheet.fellowSuggest.button')}
+          </button>
+        )}
       </div>
     </section>
   );
