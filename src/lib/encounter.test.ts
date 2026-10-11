@@ -4,6 +4,9 @@ import extraRaw from '../data/monsters/extra-monsters.json';
 import type { Monster } from '../data/monsters/types';
 import {
   attackHits,
+  bloodsuckingOf,
+  painfulStrikeOf,
+  withPainfulStrike,
   damageModifier,
   damageSection,
   healSection,
@@ -211,8 +214,8 @@ describe('declared attacks', () => {
 
 describe('regeneration', () => {
   it('reads the points and whether every section recovers', () => {
-    expect(regenerationOf(find('Living Tree'))).toEqual({ amount: 10, allSections: false });
-    expect(regenerationOf(find('Hydra'))).toEqual({ amount: 10, allSections: true });
+    expect(regenerationOf(find('Living Tree'))).toEqual({ amount: 10, allSections: false, dark: false });
+    expect(regenerationOf(find('Hydra'))).toEqual({ amount: 10, allSections: true, dark: false });
     expect(regenerationOf(find('Goblin'))).toBeNull();
   });
 
@@ -223,5 +226,39 @@ describe('regeneration', () => {
     const { instance, healed } = regenerate(hydra, hurt);
     expect(instance.sections.map((s) => s.hp)).toEqual([106, 0]);
     expect(healed).toBe(6);
+  });
+});
+
+describe('monster abilities with a number', () => {
+  it('Mana Strike adds the damage it prints, to the next attack', () => {
+    const drake = find('Drake (Human Form)');
+    expect(declarationsOf(drake, 0)).toContainEqual({ name: 'Mana Strike', accuracy: 0, damage: 8 });
+  });
+
+  it('Painful Strike adds its points when the damage dice come to 10 or more, and never in fixed mode', () => {
+    const bolg = find('Bolg');
+    expect(painfulStrikeOf(bolg)).toBe(4);
+    expect(painfulStrikeOf(find('Goblin'))).toBe(0);
+    const roll = (dice: [number, number] | null) => ({ dice, modifier: 5, total: (dice ? dice[0] + dice[1] : 7) + 5 });
+    expect(withPainfulStrike(roll([5, 5]), 4)).toMatchObject({ total: 19, painful: 4 });
+    expect(withPainfulStrike(roll([4, 5]), 4).total).toBe(14);
+    expect(withPainfulStrike(roll(null), 4).total).toBe(12);
+    expect(withPainfulStrike(roll([6, 6]), 0).total).toBe(17);
+  });
+
+  it('Bloodsucking restores what landed, to the striking section or to the most wounded one', () => {
+    expect(bloodsuckingOf(find('Crimson Maggot'))).toBe('same');
+    expect(bloodsuckingOf(find('Swamp Worm'))).toBe('any');
+    expect(bloodsuckingOf(find('Goblin'))).toBeNull();
+    expect(bloodsuckingOf(find('Movkira'))).toBeNull(); // a fixed 3, not the damage applied
+  });
+
+  it('Dark Regeneration heals like Regeneration, except in sunlight', () => {
+    const troll = find('Dark Troll');
+    expect(regenerationOf(troll)).toMatchObject({ amount: 5, dark: true });
+    const hurt = { ...spawnMonster(troll, [], 'a') };
+    hurt.sections = hurt.sections.map((section, index) => (index === 0 ? { ...section, hp: section.hp - 20 } : section));
+    expect(regenerate(troll, hurt).healed).toBe(5);
+    expect(regenerate(troll, hurt, true).healed).toBe(0);
   });
 });

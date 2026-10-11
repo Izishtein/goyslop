@@ -1401,7 +1401,11 @@
         "11": "flees",
         "12": "ignores the heroes and goes for its goal"
       }
-    }
+    },
+    "painfulStrike": "Painful Strike: the damage dice came to 10 or more — +{{points}} damage.",
+    "bloodsucking": "Bloodsucking: restore {{landed}} HP",
+    "bloodsuckingDone": "Bloodsucking applied",
+    "sunlight": "In sunlight (Dark Regeneration does not work)"
   },
   "guide": {
     "open": "Guide",

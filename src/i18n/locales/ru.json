@@ -1401,7 +1401,11 @@
         "11": "бежит",
         "12": "игнорирует героев и идёт к своей цели"
       }
-    }
+    },
+    "painfulStrike": "Painful Strike: кубики урона дали 10 и больше — +{{points}} к урону.",
+    "bloodsucking": "Кровососание: вернуть {{landed}} HP",
+    "bloodsuckingDone": "Кровососание применено",
+    "sunlight": "На солнце (Dark Regeneration не работает)"
   },
   "guide": {
     "open": "Гид",

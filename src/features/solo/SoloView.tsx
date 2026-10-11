@@ -19,7 +19,11 @@ import {
   regenerate,
   autoIdentifies,
   rollMonsterAttack,
+  bloodsuckingOf,
+  painfulStrikeOf,
+  regenerationOf,
   rollMonsterDamage,
+  withPainfulStrike,
   spawnMonster,
   type EncounterMonster,
   type EvasionRoll,
@@ -85,6 +89,7 @@ function MonsterCard({
   const [magic, setMagic] = useState(false);
   const [report, setReport] = useState<AttackReport | null>(null);
   const [applied, setApplied] = useState(false);
+  const [sucked, setSucked] = useState(false);
   const [loot, setLoot] = useState<{ sum: number; items: string[] } | null>(null);
 
   const defeated = isDefeated(monster, instance);
@@ -139,12 +144,31 @@ function MonsterCard({
     const roll = declaration ? { ...base, successValue: base.successValue + declaration.accuracy } : base;
     const evasion = rollEvasion(character ? characterEvasion(character) : 0, fixed);
     const hit = resolveAttack(roll, evasion);
-    const rolled = hit ? rollMonsterDamage(section, fixed) : null;
+    const struck = hit ? rollMonsterDamage(section, fixed) : null;
+    const rolled = struck ? withPainfulStrike(struck, painfulStrikeOf(monster)) : null;
     const damage = rolled && declaration ? { ...rolled, total: Math.max(0, rolled.total + declaration.damage) } : rolled;
     const landed = damage ? Math.max(0, damage.total - (character ? characterDefense(character) : 0)) : 0;
     setReport({ sectionIndex: index, declaration: declaration?.name, attack: roll, evasion, hit, damage, landed });
     setDeclared((current) => ({ ...current, [index]: '' }));
     setApplied(false);
+    setSucked(false);
+  }
+
+  const bloodsucking = bloodsuckingOf(monster);
+
+  /** Bloodsucking: the damage that landed comes back to the monster, to the section that struck or the most wounded one. */
+  function suck() {
+    if (!report || !bloodsucking) return;
+    let index = report.sectionIndex;
+    if (bloodsucking === 'any') {
+      const wounded = monster.sections
+        .map((section, i) => ({ i, lost: numberOf(section.hp) - instance.sections[i].hp, standing: instance.sections[i].hp > 0 }))
+        .filter((entry) => entry.standing)
+        .sort((a, b) => b.lost - a.lost)[0];
+      if (wounded) index = wounded.i;
+    }
+    onChange(healSection(instance, index, report.landed, numberOf(monster.sections[index].hp)));
+    setSucked(true);
   }
 
   function applyToCharacter() {
@@ -310,6 +334,12 @@ function MonsterCard({
               })}
             </p>
           )}
+          {report.damage?.painful && <p>{t('solo.painfulStrike', { points: report.damage.painful })}</p>}
+          {report.hit && report.landed > 0 && bloodsucking && (
+            <button type="button" onClick={suck} disabled={sucked}>
+              {sucked ? t('solo.bloodsuckingDone') : t('solo.bloodsucking', { landed: report.landed })}
+            </button>
+          )}
           {report.hit && character && report.landed > 0 && (
             <button type="button" onClick={applyToCharacter} disabled={applied}>
               {applied ? t('solo.applied') : t('solo.applyDamage', { landed: report.landed, name: character.name })}
@@ -344,6 +374,12 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
 
   const { monsters, byId } = useMonsters();
   const [regenNote, setRegenNote] = useState('');
+  /** Under the sun a Dark Regeneration does nothing. */
+  const [sunlight, setSunlight] = useState(false);
+  const darkRegenerators = encounter.monsters.some((entry) => {
+    const monster = byId.get(entry.monsterId);
+    return monster ? regenerationOf(monster)?.dark === true : false;
+  });
 
   /** Ends the round: monsters with "Regeneration = N points" recover it (CR I: at the end of each round). */
   function nextRound() {
@@ -351,7 +387,7 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
     const monsters = encounter.monsters.map((entry) => {
       const monster = byId.get(entry.monsterId);
       if (!monster) return entry;
-      const result = regenerate(monster, entry);
+      const result = regenerate(monster, entry, sunlight);
       if (result.healed > 0) notes.push(`${entry.label} +${result.healed}`);
       return result.instance;
     });
@@ -421,6 +457,12 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
           <input type="checkbox" checked={fixed} onChange={(e) => onFixedChange(e.target.checked)} />
           {t('solo.fixedValues')}
         </label>
+        {darkRegenerators && (
+          <label className={styles.inline}>
+            <input type="checkbox" checked={sunlight} onChange={(e) => setSunlight(e.target.checked)} />
+            {t('solo.sunlight')}
+          </label>
+        )}
         <label className={styles.inline}>
           <input type="checkbox" checked={hideUnknown} onChange={(e) => setHideUnknown(e.target.checked)} />
           {t('solo.hideUnknown')}

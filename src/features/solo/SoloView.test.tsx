@@ -273,6 +273,51 @@ describe('SoloView encounter', () => {
     expect(screen.getByText('Regeneration at the end of the round: Living Tree +10.')).toBeInTheDocument();
   });
 
+  it('does not let a Dark Regeneration work in sunlight', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo();
+    await addMonster(user, 'Dark Troll'); // Dark Regeneration = 5 points
+    const card = await screen.findByRole('article', { name: 'Dark Troll' });
+    await user.click(within(card).getAllByLabelText(/Amount/)[0]);
+    await user.keyboard('30');
+    await user.click(within(card).getAllByRole('button', { name: 'Damage' })[0]);
+    const hurt = store.get(encounterAtom).monsters[0].sections[0].hp;
+
+    await user.click(screen.getByLabelText('In sunlight (Dark Regeneration does not work)'));
+    await user.click(screen.getByRole('button', { name: 'Next round' }));
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBe(hurt);
+
+    await user.click(screen.getByLabelText('In sunlight (Dark Regeneration does not work)'));
+    await user.click(screen.getByRole('button', { name: 'Next round' }));
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBe(hurt + 5);
+  });
+
+  it('offers no sunlight switch when nothing at the table regenerates in the dark', async () => {
+    const user = userEvent.setup();
+    renderSolo();
+    await addMonster(user, 'Goblin');
+    await screen.findByRole('article', { name: 'Goblin' });
+    expect(screen.queryByLabelText(/In sunlight/)).not.toBeInTheDocument();
+  });
+
+  it('lets a Bloodsucking monster take back the damage that landed', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo();
+    await addMonster(user, 'Crimson Maggot'); // Bite 2d+11, HP 51
+    await user.click(screen.getByLabelText('Fixed values instead of rolls'));
+    const card = await screen.findByRole('article', { name: 'Crimson Maggot' });
+    await user.click(within(card).getAllByLabelText(/Amount/)[0]);
+    await user.keyboard('30');
+    await user.click(within(card).getAllByRole('button', { name: 'Damage' })[0]);
+    const hurt = store.get(encounterAtom).monsters[0].sections[0].hp;
+
+    await user.click(within(card).getByRole('button', { name: 'Crimson Maggot Bite Attack' }));
+    await user.click(await within(card).findByRole('button', { name: /Bloodsucking: restore/ }));
+
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBeGreaterThan(hurt);
+    expect(within(card).getByRole('button', { name: 'Bloodsucking applied' })).toBeDisabled();
+  });
+
   it('adds a declared attack to the next attack only', async () => {
     const user = userEvent.setup();
     renderSolo();

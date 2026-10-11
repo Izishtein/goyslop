@@ -145,7 +145,9 @@ export function declarationsOf(monster: Monster, sectionIndex: number): Declarat
   const style = monster.sections[sectionIndex]?.style ?? '';
   const found: Declaration[] = [];
   for (const skill of monster.skills) {
-    const effect = DECLARATION_EFFECTS[skill.name.replace(/\s*[=/].*$/, '').trim()];
+    // "Mana Strike = +8 damage": the printed number is the damage it adds
+    const mana = /^Mana Strike\s*=\s*\+(\d+)/.exec(skill.name);
+    const effect = mana ? { accuracy: 0, damage: Number(mana[1]) } : DECLARATION_EFFECTS[skill.name.replace(/\s*[=/].*$/, '').trim()];
     if (!effect) continue;
     const named = skill.section ? skill.section.replace(/ Sections?$/, '') : '';
     if (named && named !== 'All' && !style.includes(named)) continue;
@@ -155,22 +157,25 @@ export function declarationsOf(monster: Monster, sectionIndex: number): Declarat
   return found;
 }
 
-/** The HP a monster's "Regeneration = N points" returns at the end of each round, and whether it works on every section. */
-export function regenerationOf(monster: Monster): { amount: number; allSections: boolean } | null {
-  const skill = monster.skills.find((entry) => /^Regeneration\s*=\s*\d+/.test(entry.name));
+/**
+ * The HP a monster's "Regeneration = N points" returns at the end of each round, and whether it works on every
+ * section. A Dark Regeneration works the same way but fails under sunlight.
+ */
+export function regenerationOf(monster: Monster): { amount: number; allSections: boolean; dark: boolean } | null {
+  const skill = monster.skills.find((entry) => /^(?:Dark )?Regeneration\s*=\s*\d+/.test(entry.name));
   if (!skill) return null;
   const amount = Number(/(\d+)/.exec(skill.name)?.[1]);
   const text = skill.text.join(' ');
-  return { amount, allSections: /each section|all remaining|all sections/i.test(text) };
+  return { amount, allSections: /each section|all remaining|all sections/i.test(text), dark: /^Dark/.test(skill.name) };
 }
 
 /**
  * End of round: each standing section a regenerating monster has recovers its points (a section at 0 HP or
  * less does not). A monster with several sections that names none recovers on its first.
  */
-export function regenerate(monster: Monster, instance: EncounterMonster): { instance: EncounterMonster; healed: number } {
+export function regenerate(monster: Monster, instance: EncounterMonster, sunlight = false): { instance: EncounterMonster; healed: number } {
   const rule = regenerationOf(monster);
-  if (!rule) return { instance, healed: 0 };
+  if (!rule || (rule.dark && sunlight)) return { instance, healed: 0 };
   let healed = 0;
   const sections = instance.sections.map((section, index) => {
     if (section.hp <= 0 || (!rule.allSections && index !== 0)) return section;
@@ -257,6 +262,32 @@ export interface MonsterDamageRoll {
   dice: [number, number] | null;
   modifier: number;
   total: number;
+  /** Points Painful Strike added to the total. */
+  painful?: number;
+}
+
+/**
+ * "Painful Strike": a damage roll whose 2d comes to 10 or more is increased by the printed number of points.
+ * Nothing is rolled in fixed mode, so nothing is added there.
+ */
+export function painfulStrikeOf(monster: Monster): number {
+  const skill = monster.skills.find((entry) => /^Painful Strike/.test(entry.name));
+  const match = skill ? /\+(\d+)\s*points?/.exec(skill.text.join(' ')) : null;
+  return match ? Number(match[1]) : 0;
+}
+
+export function withPainfulStrike(roll: MonsterDamageRoll, bonus: number): MonsterDamageRoll {
+  if (bonus <= 0 || !roll.dice || roll.dice[0] + roll.dice[1] < 10) return roll;
+  return { ...roll, total: roll.total + bonus, painful: bonus };
+}
+
+/** "Bloodsucking": a hit restores HP equal to the damage applied. Returns whether it restores the section that struck or any one (the most wounded). */
+export function bloodsuckingOf(monster: Monster): 'same' | 'any' | null {
+  const skill = monster.skills.find((entry) => /^Bloodsucking/.test(entry.name));
+  if (!skill) return null;
+  const text = skill.text.join(' ');
+  if (!/equal to the applied damage|same value as the applied damage/i.test(text)) return null;
+  return /any one section/i.test(text) ? 'any' : 'same';
 }
 
 /** The monster's damage: 2d + X, rolled as it stands — monsters never roll criticals (CR I p. 135). */
