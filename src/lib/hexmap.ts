@@ -1,4 +1,6 @@
 import type { Monster } from '../data/monsters/types';
+import type { StatusEffect } from '../types/character';
+import { upsertManagedEffect } from './formulas/status-effects';
 import type { Rng } from './encounter';
 import type { Faction, RelationEntry } from './factions';
 
@@ -64,6 +66,22 @@ export const EMPTY_HEXMAP: HexMap = { hexes: [], party: { q: 0, r: 0 }, rations:
 
 export const START_RATIONS = 7;
 export const MAX_FATIGUE = 5;
+
+/** Id of the status effect that carries the party's fatigue onto a character sheet. */
+export const FATIGUE_EFFECT_ID = 'hexmap-fatigue';
+
+/**
+ * The character's status effects with the fatigue effect brought up to date: -N to Accuracy, Evasion,
+ * Fortitude, Willpower and every other check, and gone at 0. Returns the same array when nothing changes,
+ * so it can be compared by identity.
+ */
+export function withFatigueEffect(effects: StatusEffect[], fatigue: number, name: string): StatusEffect[] {
+  const modifiers = fatigue > 0 ? PENALTY_FIELDS.map((field) => ({ field, value: -fatigue })) : [];
+  return upsertManagedEffect(effects, FATIGUE_EFFECT_ID, name, 'hexmap', modifiers);
+}
+
+/** The fields a general weariness (fatigue, hunger) lowers: Accuracy, Evasion, the saves and every other check. */
+export const PENALTY_FIELDS = ['accuracy', 'evasion', 'fortitude', 'willpower', 'actionCheck'] as const;
 
 // ---- geometry: axial coordinates, pointy-top hexes ----
 

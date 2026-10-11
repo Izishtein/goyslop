@@ -2,6 +2,7 @@ import type { Character, FellowAction } from '../types/character';
 import { abilityModifier, abilityTotal } from './formulas/abilities';
 import { primaryWarriorLevel } from './formulas/character-defense';
 import { adventurerLevel } from './formulas/character-levels';
+import { getClass } from '../data/classes';
 import { getSpellPower } from '../data/spell-power';
 import { effectiveCriticalValue, FENCER_CRITICAL_MODIFIER } from './formulas/attack-modifiers';
 import { magicPower } from './formulas/derived-stats';
@@ -81,13 +82,14 @@ export function fellowMpMax(character: Character): number {
  * can pay for out of its full MP (ties: the cheaper). Its Magic Power is the level of the class that
  * casts that school plus the INT bonus. Spells with no Power in the catalogue are not considered.
  */
-export function bestDamageSpell(character: Character): { name: string; mp: number; power: number; magicPower: number } | null {
+export function bestDamageSpell(character: Character, school?: string): { name: string; mp: number; power: number; magicPower: number } | null {
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
   const budget = fellowMpMax(character);
   let best: { name: string; mp: number; power: number; magicPower: number } | null = null;
   for (const spell of character.spells) {
     const data = getSpellPower(spell.id);
     if (!data || data.kind !== 'damage' || spell.mp > budget) continue;
+    if (school && spell.school !== school) continue;
     const level = schoolLevel(character, spell.school);
     if (level <= 0) continue;
     const candidate = { name: spell.name, mp: spell.mp, power: data.power, magicPower: magicPower(level, intMod) };
@@ -130,14 +132,20 @@ export function suggestFellowActions(character: Character, words: SuggestedWordi
   const scout = character.classes.filter((entry) => entry.classId === 'scout').reduce((max, entry) => Math.max(max, entry.level), 0);
   const isFencer = character.classes.some((entry) => entry.classId === 'fencer');
   const accuracyStatus = sumModifiersForField(character.statusEffects, 'accuracy');
-  const weapon = [...character.equipment.weapons].filter((entry) => !entry.gun).sort((a, b) => b.power - a.power)[0];
+  const melee = [...character.equipment.weapons].filter((entry) => !entry.gun).sort((a, b) => b.power - a.power)[0];
+  // A gun prints no Power: the bullet the Artificer loads carries it, and its Magic Power is the Extra
+  // Damage (CR I p. 135). It is shot only when the Fellow can pay for the best Magitech damage spell.
+  const gun = character.equipment.weapons.find((entry) => entry.gun);
+  const bullet = gun ? bestDamageSpell(character, getClass('artificer')?.magicSchool) : null;
+  const shootsGun = !!gun && !!bullet && bullet.power > (melee?.power ?? 0);
+  const weapon = shootsGun ? { ...gun!, power: bullet!.power } : melee;
   const weaponName = weapon?.name || words.weapon;
 
   /** One attack row: Value = Result + Accuracy, Effect = Power/Crit Value + Extra Damage, each
    *  nudged by the feat the row declares ([Power Strike I] +4 damage, [Aimed Attack I] +1 Accuracy, +1 Crit Value). */
   const attackRow = (roll: string, result: number, name: string, dialogue: string, bonus = { accuracy: 0, critical: 0, damage: 0 }): FellowAction => {
     const accuracy = warriorLevel + mod('DEX') + (weapon?.accuracyBonus ?? 0) + accuracyStatus + bonus.accuracy;
-    const extra = warriorLevel + mod('STR') + (weapon?.extraDamageBonus ?? 0) + bonus.damage;
+    const extra = (shootsGun ? bullet!.magicPower : warriorLevel + mod('STR')) + (weapon?.extraDamageBonus ?? 0) + bonus.damage;
     const critical = effectiveCriticalValue(weapon?.criticalValue ?? 10, (isFencer ? FENCER_CRITICAL_MODIFIER : 0) + bonus.critical);
     return { id: newId(), roll, name, dialogue, value: String(result + accuracy), effect: `Power ${roundPower(weapon?.power ?? 0)}/Crit Value ${critical} + ${extra}` };
   };
@@ -151,7 +159,9 @@ export function suggestFellowActions(character: Character, words: SuggestedWordi
     value: String(result + spell!.magicPower),
     effect: `Power ${spell!.power}+${spell!.magicPower}`,
   });
-  const plainName = weapon?.range ? words.rangedAttack(weaponName, weapon.range) : words.attack(weaponName);
+  const baseName = weapon?.range ? words.rangedAttack(weaponName, weapon.range) : words.attack(weaponName);
+  // Each shot spends the bullet's MP; the Fellow table reads it from "MP N" in the name.
+  const plainName = shootsGun ? `${baseName}, MP${bullet!.mp}` : baseName;
 
   const rows: FellowAction[] = [];
   if (weapon) rows.push(attackRow('1-2', 7, plainName, words.dialogue.attack));

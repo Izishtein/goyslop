@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CATALOGUED_SCHOOLS, getSpell, SPELLS, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
+import { getSpellPower } from '../../data/spell-power';
 import { DIVINE } from '../../data/spells/types';
 import { deityAllows, listDeities, magicSchoolsOf, mpAfterCast, schoolLevel, spellProblems } from '../../lib/spellcasting';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
 import { PrintableField } from './PrintableField';
+import { SpellEffectRoll } from './SpellEffectRoll';
 import styles from './CharacterSheetView.module.css';
 
 /** The circles a list of spells actually covers, in order. */
@@ -188,9 +190,16 @@ export function SpellsSection({ character }: { character: Character }) {
             {casts.map((entry) => {
               const catalog = SPELLS.find((spell) => spell.name === entry.spell.name && spell.school === entry.spell.school);
               const key = `reference.spellEffect.${catalog?.id}`;
+              const power = catalog ? getSpellPower(catalog.id) : undefined;
               return (
                 <li key={entry.id}>
                   <strong>{entry.spell.name}</strong> — {t('sheet.castSpent', { mp: entry.spell.mp, before: entry.before, after: entry.after })}
+                  {power && power.power > 0 && (
+                    <>
+                      {' '}
+                      <SpellEffectRoll character={character} school={entry.spell.school} spell={power} />
+                    </>
+                  )}
                   {i18n.exists(key) && (
                     <details>
                       <summary>{t('sheet.castEffect')}</summary>

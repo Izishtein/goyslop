@@ -110,6 +110,30 @@ describe('suggested table', () => {
     expect(rows[0].value).toBe('12'); // 8 + Scout 2 + INT 2
   });
 
+  it('shoots a gun with the Power of the Artificer bullet and its Magic Power as Extra Damage', () => {
+    const rifle = { ...sword, id: 'g', name: 'Jezail', gun: true, power: 0, range: '30m', accuracyBonus: 1, extraDamageBonus: 0 };
+    const rows = suggestFellowActions(
+      sheet({
+        classes: [{ classId: 'marksman', level: 3 }, { classId: 'artificer', level: 3 }],
+        equipment: { weapons: [rifle], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY },
+        spells: [known('shotgun-bullet', 'Shotgun Bullet', 2, 'Magitech')],
+      }),
+      words,
+      id,
+    );
+
+    // Accuracy 3 + DEX 2 + 1 = 6 → Value 13; Extra Damage = Artificer 3 + INT 2 = 5, Power 20.
+    expect(rows[0]).toMatchObject({ value: '13', effect: 'Power 20/Crit Value 10 + 5' });
+    expect(rows[0].name).toContain('MP2');
+  });
+
+  it('leaves a gun out when no bullet spell can be paid for', () => {
+    const rifle = { ...sword, id: 'g', name: 'Jezail', gun: true, power: 0 };
+    const rows = suggestFellowActions(sheet({ equipment: { weapons: [rifle], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY } }), words, id);
+
+    expect(rows.map((row) => row.roll)).toEqual(['3-4', '6']);
+  });
+
   it('lowers the Critical Value for a Fencer, never below 8', () => {
     const rows = suggestFellowActions(
       sheet({ classes: [{ classId: 'fencer', level: 3 }], equipment: { weapons: [{ ...sword, criticalValue: 8 }], armor: [], shield: null, accessories: [], inventory: EMPTY_INVENTORY } }),

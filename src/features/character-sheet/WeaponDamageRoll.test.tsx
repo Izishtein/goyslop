@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createStore, Provider } from 'jotai';
+import { encounterAtom } from '../../state/encounter';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
@@ -116,5 +118,55 @@ describe('WeaponDamageRoll with declared feats', () => {
     await user.click(screen.getByRole('button', { name: /Sword/ }));
 
     expect(screen.getByRole('status')).toHaveTextContent('critical');
+  });
+});
+
+describe('WeaponDamageRoll against a monster on the table', () => {
+  it('reads Defense from the chosen monster, halves it under Armor Piercer and deals the rest', async () => {
+    // Power 20, roll 2+3 -> 3, Extra Damage 10 = 13. Shield Hoodling's Large Shield has Defense 5 -> 3 (half, rounded up).
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(faceValue(2)).mockReturnValueOnce(faceValue(3));
+    const store = createStore();
+    store.set(encounterAtom, { round: 1, monsters: [{ id: 'm1', monsterId: 'shield-hoodling', label: 'Hoodling', sections: [{ hp: 19, mp: 12 }] }] });
+    render(
+      <Provider store={store}>
+        <WeaponDamageRoll power={20} criticalValue={13} extraDamage={10} label="Sword" options={{ armorPiercer: 1 }} />
+      </Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Sword/ }));
+    await screen.findByRole('option', { name: /Hoodling/ });
+    await user.selectOptions(screen.getByRole('combobox'), 'm1:0');
+
+    expect(screen.getByRole('status')).toHaveTextContent('Defense 3, dealt 10');
+    await user.click(screen.getByRole('button', { name: 'Deal 10' }));
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBe(9);
+  });
+});
+
+describe('WeaponDamageRoll under Snipe', () => {
+  it('doubles the Total Damage when the Success Value was 3 or more higher', async () => {
+    // Power 20, roll 2+3=5 -> 3, +2 = 5; doubled 10.
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(faceValue(2)).mockReturnValueOnce(faceValue(3));
+    render(<WeaponDamageRoll power={20} criticalValue={10} extraDamage={2} label="Bow" options={{ snipe: true }} />);
+
+    await user.click(screen.getByRole('button', { name: /Bow/ }));
+
+    expect(screen.getByLabelText(/Snipe: Success Value 3\+ higher, damage ×2 = 10/)).not.toBeChecked();
+  });
+});
+
+describe('WeaponDamageRoll under Repeated Strike II', () => {
+  it('adds 4 damage when the first attack hit', async () => {
+    // Power 20, roll 2+3=5 -> 3, +2 = 5; +4 -> 9.
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValueOnce(faceValue(2)).mockReturnValueOnce(faceValue(3));
+    render(<WeaponDamageRoll power={20} criticalValue={10} extraDamage={2} label="Spear" options={{ repeatedStrikeII: true }} />);
+
+    await user.click(screen.getByRole('button', { name: /Spear/ }));
+    await user.click(screen.getByRole('checkbox', { name: /Repeated Strike II/ }));
+
+    expect(screen.getByRole('checkbox', { name: /Total Damage 9/ })).toBeChecked();
   });
 });

@@ -1,9 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import { charactersAtom } from '../../state/characters';
+import { encounterAtom } from '../../state/encounter';
 import { CharacterSchema, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { SpellsSection } from './SpellsSection';
 
@@ -344,5 +345,70 @@ describe('SpellsSection cast log', () => {
 
     expect(store.get(charactersAtom)[0].mp.current).toBe(8);
     expect(screen.queryByTestId('cast-log')).toBeNull();
+  });
+});
+
+describe('SpellsSection Power roll', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+
+  it('offers the Power roll for a damaging spell after it is cast and ignores Defense', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+
+    expect(screen.queryByRole('button', { name: /^Damage: Power/ })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    // Sorcerer 2 + INT bonus 1 (INT 8): Magic Power 3.
+    await user.click(screen.getByRole('button', { name: 'Damage: Power 10 + 3' }));
+
+    expect(within(screen.getByTestId('cast-log')).getByRole('status')).toHaveTextContent(/Extra Damage 3 = /);
+  });
+});
+
+describe('SpellsSection several targets', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+
+  it('rolls the damage separately for each target under one casting check', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    const targets = screen.getByLabelText('Targets');
+    await user.tripleClick(targets);
+    await user.keyboard('3');
+
+    expect(screen.getAllByRole('button', { name: /^Damage: Power 10 [+] 3 #/ })).toHaveLength(3);
+    expect(screen.getAllByRole('button', { name: /Spellcasting check/ })).toHaveLength(1);
+  });
+});
+
+describe('SpellsSection Resistance', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+  const face = (n: number) => (n - 1) / 6;
+  afterEach(() => vi.restoreAllMocks());
+
+  it('halves the damage when the Willpower of the target holds against the casting check', async () => {
+    const user = userEvent.setup();
+    // Casting 3+4 + Magic Power 3 = 10; damage 2+3; Shield Hoodling Willpower 5 + 5+5 = 15 holds.
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(face(3)).mockReturnValueOnce(face(4))
+      .mockReturnValueOnce(face(2)).mockReturnValueOnce(face(3))
+      .mockReturnValueOnce(face(5)).mockReturnValueOnce(face(5));
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+    store.set(encounterAtom, { round: 1, monsters: [{ id: 'm1', monsterId: 'shield-hoodling', label: 'Hoodling', sections: [{ hp: 19, mp: 12 }] }] });
+
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+    await user.click(screen.getByRole('button', { name: 'Damage: Power 10 + 3' }));
+    await screen.findByRole('option', { name: /Hoodling/ });
+    await user.selectOptions(within(screen.getByTestId('cast-log')).getByRole('combobox'), 'm1:0');
+    await user.click(screen.getByRole('button', { name: 'Target Willpower' }));
+
+    const log = screen.getByTestId('cast-log');
+    expect(log).toHaveTextContent('Willpower 15 vs casting 10 — resisted');
+    expect(log).toHaveTextContent('resisted: damage halved');
+    await user.click(within(log).getByRole('button', { name: /^Deal [0-9]+/ }));
+    const hp = store.get(encounterAtom).monsters[0].sections[0].hp;
+    expect(hp).toBeLessThan(19);
+    expect(hp).toBeGreaterThanOrEqual(19 - 5);
   });
 });

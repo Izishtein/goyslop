@@ -535,6 +535,22 @@ describe('EquipmentSection weapon numbers', () => {
     expect(number(cell('Total Accuracy'))).toBe(plain + 2);
   });
 
+  it('takes 2 off every Accuracy for two attacks under Dual Wielding, only while the box is ticked', async () => {
+    const user = userEvent.setup();
+    renderSection(fighter({ combatFeats: [{ id: 'a', name: 'Dual Wielding', category: 'passive' }] }));
+    const plain = number(cell('Total Accuracy'));
+
+    await user.click(screen.getByRole('checkbox', { name: /Dual Wielding/ }));
+    expect(number(cell('Total Accuracy'))).toBe(plain - 2);
+    await user.click(screen.getByRole('checkbox', { name: /Dual Wielding/ }));
+    expect(number(cell('Total Accuracy'))).toBe(plain);
+  });
+
+  it('shows no Dual Wielding box to a character without the feat', () => {
+    renderSection(fighter());
+    expect(screen.queryByRole('checkbox', { name: /Dual Wielding/ })).toBeNull();
+  });
+
   it('adds Weapon Proficiency damage to weapons of its category: +1 for A, +3 for S', () => {
     const gauche = weapon({ name: 'Main Gauche' }); // a sword in the catalogue
     const withFeats = (...names: string[]) =>

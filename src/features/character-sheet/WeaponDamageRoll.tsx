@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { rollWeaponDamage, type DamageRoll } from '../../lib/formulas/damage-roll';
+import { encounterAtom } from '../../state/encounter';
+import { AttackTarget } from '../solo/AttackTarget';
 import { activeCharacterIdAtom, useUpdateCharacter } from '../../state/characters';
 import styles from './DiceRoll.module.css';
 
@@ -16,6 +18,12 @@ export interface DamageOptions {
   bonusDamage?: number;
   /** Feats responsible for the above, named in the readout. */
   appliedFeats?: string[];
+  /** [Armor Piercer] tier declared: the readout offers a target Defense and shows the damage dealt. */
+  armorPiercer?: 0 | 1 | 2 | 3;
+  /** [Snipe] declared: offer the doubling for a Success Value 3 or more above the target's. */
+  snipe?: boolean;
+  /** [Repeated Strike II] declared: offer +4 damage for a hit on the first Accuracy check. */
+  repeatedStrikeII?: boolean;
 }
 
 export function WeaponDamageRoll({
@@ -35,6 +43,11 @@ export function WeaponDamageRoll({
   const { t } = useTranslation();
   const [roll, setRoll] = useState<DamageRoll | null>(null);
   const [xpGiven, setXpGiven] = useState(false);
+  const tier = options.armorPiercer ?? 0;
+  const [doubled, setDoubled] = useState(false);
+  const [firstHit, setFirstHit] = useState(false);
+  const repeatBonus = options.repeatedStrikeII && firstHit ? 4 : 0;
+  const hasMonsters = useAtomValue(encounterAtom).monsters.length > 0;
   const activeId = useAtomValue(activeCharacterIdAtom);
   const updateCharacter = useUpdateCharacter(activeId ?? '');
 
@@ -93,6 +106,19 @@ export function WeaponDamageRoll({
                   })}
                 </span>
               )}
+              {options.repeatedStrikeII && (
+                <label>
+                  {' '}
+                  <input type="checkbox" checked={firstHit} onChange={(event) => setFirstHit(event.target.checked)} /> {t('sheet.repeatedHit', { total: roll.calculatedDamage + bonus + 4 })}
+                </label>
+              )}
+              {options.snipe && (
+                <label>
+                  {' '}
+                  <input type="checkbox" checked={doubled} onChange={(event) => setDoubled(event.target.checked)} /> {t('sheet.snipeDoubled', { total: (roll.calculatedDamage + bonus + repeatBonus) * 2 })}
+                </label>
+              )}
+              {(tier > 0 || hasMonsters) && <AttackTarget tier={tier} damage={(roll.calculatedDamage + bonus + repeatBonus) * (doubled ? 2 : 1)} critical={roll.steps.length > 1} />}
             </>
           )}
         </span>

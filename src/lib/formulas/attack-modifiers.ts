@@ -10,9 +10,27 @@ export interface AttackModifiers {
   damage: number;
   /** Each 2d roll of 3-11 counts one higher on the Power Table ([Lethal Strike]). */
   lethal: boolean;
+  /** [Snipe] declared: Total Damage doubles when the Success Value beats the target's by 3 or more. */
+  snipe: boolean;
+  /** [Repeated Strike II] declared: +4 damage when the first Accuracy check hit. */
+  repeatedStrikeII: boolean;
   /** Names of the feats that actually changed something, for the roll's own readout. */
   applied: string[];
+  /** Highest [Armor Piercer] tier declared (0 = none): it works on the target's Defense, not on a number here. */
+  armorPiercer: 0 | 1 | 2 | 3;
 }
+
+/**
+ * The target's Defense under [Armor Piercer] on a hit: half, rounded up (all tiers); 0 when the damage
+ * was a critical and the tier is II or III (CR I p. 258 and the supplements).
+ */
+export function armorPiercerDefense(tier: 0 | 1 | 2 | 3, defense: number, critical: boolean): number {
+  if (tier === 0) return defense;
+  if (critical && tier >= 2) return 0;
+  return Math.ceil(defense / 2);
+}
+
+const ARMOR_PIERCER_TIER: Record<string, 1 | 2 | 3> = { 'armor piercer i': 1, 'armor piercer ii': 2, 'armor piercer iii': 3 };
 
 interface FeatEffect {
   accuracy?: number;
@@ -21,13 +39,15 @@ interface FeatEffect {
   /** Damage equal to the caster's Magic Power ([Mana Strike]). */
   magicPower?: boolean;
   lethal?: boolean;
+  snipe?: boolean;
+  repeatedStrikeII?: boolean;
 }
 
 /**
  * The declared feats that touch a weapon attack, read from their effect text (CR I pp. 255+,
  * CR II pp. 198+, CR III pp. 199+). Only effects that are a plain number are here: feats whose
- * effect depends on the target ([Armor Piercer]'s Defense, [Cleave]'s three targets,
- * [Snipe]'s doubling, [Repeated Strike]'s second attack) are left to the table.
+ * effect depends on the target ([Cleave]'s three targets, [Snipe]'s doubling, [Repeated Strike]'s
+ * second attack) are left to the table; [Armor Piercer]'s Defense is `armorPiercerDefense`.
  */
 const FEAT_EFFECTS: Record<string, FeatEffect> = {
   'power strike i': { damage: 4 },
@@ -40,6 +60,10 @@ const FEAT_EFFECTS: Record<string, FeatEffect> = {
   'aimed attack iii': { accuracy: 3 },
   'armor piercer i': { criticalValue: 1 },
   'armor piercer ii': { criticalValue: 1 },
+  // [Cleave I]: every target hit takes -3 damage; [Cleave II] has no such reduction.
+  'cleave i': { damage: -3 },
+  snipe: { snipe: true },
+  'repeated strike ii': { repeatedStrikeII: true },
   'lethal strike i': { lethal: true },
   'lethal strike ii': { lethal: true },
   'lethal strike iii': { lethal: true },
@@ -47,15 +71,19 @@ const FEAT_EFFECTS: Record<string, FeatEffect> = {
 };
 
 export function declaredAttackModifiers(declared: CombatFeat[], magicPower: number): AttackModifiers {
-  const result: AttackModifiers = { accuracy: 0, criticalValue: 0, damage: 0, lethal: false, applied: [] };
+  const result: AttackModifiers = { accuracy: 0, criticalValue: 0, damage: 0, lethal: false, snipe: false, repeatedStrikeII: false, applied: [], armorPiercer: 0 };
   for (const feat of declared) {
+    const tier = ARMOR_PIERCER_TIER[feat.name.trim().toLowerCase()];
+    if (tier && tier > result.armorPiercer) result.armorPiercer = tier;
     const effect = FEAT_EFFECTS[feat.name.trim().toLowerCase()];
     if (!effect) continue;
     result.accuracy += effect.accuracy ?? 0;
     result.criticalValue += effect.criticalValue ?? 0;
     result.damage += (effect.damage ?? 0) + (effect.magicPower ? magicPower : 0);
     result.lethal ||= effect.lethal === true;
-    result.applied.push(feat.name);
+    result.snipe ||= effect.snipe === true;
+    result.repeatedStrikeII ||= effect.repeatedStrikeII === true;
+    if (!effect.snipe && !effect.repeatedStrikeII) result.applied.push(feat.name);
   }
   return result;
 }

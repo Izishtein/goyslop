@@ -39,6 +39,7 @@ import { CampaignPanel } from './CampaignPanel';
 import { DungeonPanel } from './DungeonPanel';
 import { GeneratorsPanel } from './GeneratorsPanel';
 import { HexMapPanel } from './HexMapPanel';
+import { VoyagePanel } from './VoyagePanel';
 import { OraclePanel } from './OraclePanel';
 import { PartyPanel } from './PartyPanel';
 import styles from './SoloView.module.css';
@@ -536,6 +537,7 @@ export function SoloView({ onClose }: { onClose: () => void }) {
       <PartyPanel fixed={fixed} />
       <HexMapPanel />
       <DungeonPanel />
+      <VoyagePanel />
       <GeneratorsPanel />
       <OraclePanel />
       <CampaignPanel />

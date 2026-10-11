@@ -1,11 +1,11 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Monster } from '../../data/monsters';
 import { spawnMonster } from '../../lib/encounter';
-import { calendarOf, encounterThreshold, forageModifier } from '../../lib/calendar';
+import { calendarOf, encounterThreshold, forageModifier, rollFestivalEvent } from '../../lib/calendar';
 import { addEntry, setDay } from '../../lib/campaign';
-import { generateDungeon } from '../../lib/dungeon';
+import { generateDungeon, generateLair, generateSettlement } from '../../lib/dungeon';
 import { addPatchFactions, factionsAt, rollFactionEvent, withFactions, type Faction, type FactionEvent } from '../../lib/factions';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import {
@@ -17,6 +17,7 @@ import {
   makeCamp,
   MAX_FATIGUE,
   restDay,
+  withFatigueEffect,
   hexAt,
   hexKey,
   landmarkOutcome,
@@ -27,11 +28,13 @@ import {
   type Hex,
   type LandmarkOutcome,
 } from '../../lib/hexmap';
-import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
+import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
 import { campaignAtom } from '../../state/campaign';
 import { dungeonAtom } from '../../state/dungeon';
 import { encounterAtom } from '../../state/encounter';
 import { hexMapAtom } from '../../state/hexmap';
+import { voyageAtom } from '../../state/voyage';
+import { setSail } from '../../lib/voyage';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -61,6 +64,7 @@ export function HexMapPanel() {
   const [campaign, setCampaign] = useAtom(campaignAtom);
   const setEncounter = useSetAtom(encounterAtom);
   const [dungeon, setDungeon] = useAtom(dungeonAtom);
+  const [voyage, setVoyage] = useAtom(voyageAtom);
   const characters = useAtomValue(charactersAtom);
   const activeId = useAtomValue(activeCharacterIdAtom);
   const { monsters, byId } = useMonsters();
@@ -68,6 +72,7 @@ export function HexMapPanel() {
   const [wandering, setWandering] = useState<Wandering | null>(null);
   const [looked, setLooked] = useState<LandmarkOutcome | null>(null);
   const [force, setForce] = useState(false);
+  const [festival, setFestival] = useState<{ day: number; event: number; logged: boolean } | null>(null);
   const [patrol, setPatrol] = useState<Faction | null>(null);
   const [events, setEvents] = useState<Record<number, FactionEvent>>({});
   const [logged, setLogged] = useState<Record<number, boolean>>({});
@@ -76,6 +81,15 @@ export function HexMapPanel() {
   const character = characters.find((entry) => entry.id === activeId);
   const level = character ? Math.max(1, adventurerLevel(character.classes)) : 1;
   const here = hexAt(map, map.party.q, map.party.r);
+
+  const updateCharacter = useUpdateCharacter(character?.id ?? '');
+  // Fatigue is carried onto the open character as a status effect, so Accuracy, Evasion and the saves feel it.
+  const fatigueName = t('solo.hex.fatigueEffect');
+  useEffect(() => {
+    if (!character) return;
+    const next = withFatigueEffect(character.statusEffects, map.fatigue, fatigueName);
+    if (next !== character.statusEffects) updateCharacter((c) => ({ ...c, statusEffects: withFatigueEffect(c.statusEffects, map.fatigue, fatigueName) }));
+  }, [character, map.fatigue, fatigueName, updateCharacter]);
 
   function newMap() {
     if (!monsters) return;
@@ -137,8 +151,18 @@ export function HexMapPanel() {
     const place = hexKey(here.q, here.r);
     if (dungeon?.place === place) return;
     const guardian = here.feature.monsterId && here.feature.count ? { monsterId: here.feature.monsterId, count: here.feature.count } : undefined;
-    setDungeon(generateDungeon({ level: map.level, monsters, biome: here.biome, place, guardian }));
+    const options = { level: map.level, monsters, biome: here.biome, place, guardian };
+    if (here.feature.kind === 'lair') setDungeon(generateLair(options));
+    else if (here.feature.kind === 'settlement') setDungeon(generateSettlement(here.feature.settlement ?? 'village', map.level, place));
+    else setDungeon(generateDungeon(options));
     setNote(t('solo.hex.dungeonEntered'));
+  }
+
+  /** Puts out to sea from the town the party stands in; the voyage remembers the hex it left. */
+  function putToSea() {
+    if (!here || voyage) return;
+    setVoyage(setSail(here.feature.settlement === 'hamlet' ? 'boat' : 'cog', map.level, Math.random, { homeHex: hexKey(here.q, here.r), homeSettlement: here.feature.settlement }));
+    setNote(t('solo.voyage.sailed.putOut'));
   }
 
   /** Opens the next 19 hexes beyond the edge the party stands on. */
@@ -264,6 +288,31 @@ export function HexMapPanel() {
         {date.festival && ` · ${t(`solo.hex.festivals.${date.festival}`)}`}
         {date.fullMoon && ` · ${t('solo.hex.fullMoon')}`}
       </p>
+      {date.festival && (
+        <p className={styles.note}>
+          <button type="button" onClick={() => setFestival({ day: campaign.day, event: rollFestivalEvent(), logged: false })}>
+            {t('solo.hex.festivalRoll')}
+          </button>
+          {festival && festival.day === campaign.day && (
+            <>
+              {' '}
+              <span role="status">{t(`solo.hex.festivalEvents.${festival.event}`)}</span>{' '}
+              <button
+                type="button"
+                disabled={festival.logged}
+                onClick={() => {
+                  setCampaign((current) =>
+                    addEntry(current, { kind: 'scene', title: t(`solo.hex.festivals.${date.festival}`), text: t(`solo.hex.festivalEvents.${festival.event}`), scene: 0 }, crypto.randomUUID()),
+                  );
+                  setFestival({ ...festival, logged: true });
+                }}
+              >
+                {t('solo.hex.festivalLog')}
+              </button>
+            </>
+          )}
+        </p>
+      )}
       {map.hexes.length === 0 && <p className={styles.note}>{t('solo.hex.empty', { level })}</p>}
       {note && (
         <p className={styles.note} role="status">
@@ -397,11 +446,19 @@ export function HexMapPanel() {
               {looked && <span role="status">{t(`solo.hex.outcomes.${looked}`)}</span>}
             </p>
           )}
-          {here.feature.kind === 'dungeon' && (
+          {(here.feature.kind === 'dungeon' || here.feature.kind === 'lair' || here.feature.kind === 'settlement') && (
             <p>
               <button type="button" onClick={enterDungeon} disabled={!monsters || dungeon?.place === hexKey(here.q, here.r)}>
-                {dungeon?.place === hexKey(here.q, here.r) ? t('solo.hex.dungeonBegun') : t('solo.hex.enterDungeon')}
+                {dungeon?.place === hexKey(here.q, here.r) ? t(`solo.hex.${here.feature.kind}Begun`) : t(`solo.hex.${here.feature.kind}Enter`)}
               </button>
+            </p>
+          )}
+          {here.feature.kind === 'settlement' && (
+            <p>
+              <button type="button" onClick={putToSea} disabled={!!voyage}>
+                {t('solo.voyage.sail')}
+              </button>{' '}
+              <span className={styles.note}>{voyage ? t('solo.voyage.underway') : t('solo.voyage.sailHint')}</span>
             </p>
           )}
           {resident && here.feature.count && (

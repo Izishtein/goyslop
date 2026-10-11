@@ -52,3 +52,10 @@ export function forageModifier(season: Season): number {
 export function encounterThreshold(date: CalendarDate): number {
   return date.fullMoon ? 2 : 1;
 }
+
+/** What a festival day brings: a d6 on our own table of six happenings (solo.hex.festivalEvents.1–6). */
+export const FESTIVAL_EVENT_COUNT = 6;
+
+export function rollFestivalEvent(rng: () => number = Math.random): number {
+  return 1 + Math.floor(rng() * FESTIVAL_EVENT_COUNT);
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatFeat } from '../../types/character';
-import { declaredAttackModifiers, effectiveCriticalValue, passiveAccuracyBonus, proficiencyDamage } from './attack-modifiers';
+import { armorPiercerDefense, declaredAttackModifiers, effectiveCriticalValue, passiveAccuracyBonus, proficiencyDamage } from './attack-modifiers';
 
 const feat = (name: string): CombatFeat => ({ id: name, name, category: 'declaration' });
 
@@ -53,5 +53,40 @@ describe('passive feats', () => {
     expect(proficiencyDamage([feat('Weapon Proficiency A/Axes')], 'sword')).toBe(0);
     expect(proficiencyDamage([feat('Weapon Proficiency A')], 'sword')).toBe(0);
     expect(proficiencyDamage([feat('Weapon Proficiency A/Swords')], undefined)).toBe(0);
+  });
+});
+
+describe('Armor Piercer', () => {
+  it('reports the highest tier declared', () => {
+    expect(declaredAttackModifiers([feat('Armor Piercer I'), feat('Armor Piercer III')], 0).armorPiercer).toBe(3);
+    expect(declaredAttackModifiers([feat('Power Strike I')], 0).armorPiercer).toBe(0);
+  });
+
+  it('halves Defense rounded up, and drops it to 0 on a critical from tier II', () => {
+    expect(armorPiercerDefense(0, 7, false)).toBe(7);
+    expect(armorPiercerDefense(1, 7, false)).toBe(4);
+    expect(armorPiercerDefense(1, 7, true)).toBe(4);
+    expect(armorPiercerDefense(2, 7, true)).toBe(0);
+    expect(armorPiercerDefense(3, 7, false)).toBe(4);
+  });
+});
+
+describe('Cleave and Snipe', () => {
+  it('takes 3 off the damage under Cleave I but nothing under Cleave II', () => {
+    expect(declaredAttackModifiers([feat('Cleave I')], 0).damage).toBe(-3);
+    expect(declaredAttackModifiers([feat('Cleave II')], 0).damage).toBe(0);
+  });
+
+  it('flags a declared Snipe', () => {
+    expect(declaredAttackModifiers([feat('Snipe')], 0).snipe).toBe(true);
+    expect(declaredAttackModifiers([], 0).snipe).toBe(false);
+  });
+});
+
+describe('Repeated Strike II', () => {
+  it('is flagged, not folded into a flat bonus', () => {
+    const result = declaredAttackModifiers([feat('Repeated Strike II')], 0);
+    expect(result.repeatedStrikeII).toBe(true);
+    expect(result.damage).toBe(0);
   });
 });

@@ -187,7 +187,11 @@ export function EquipmentSection({ character }: { character: Character }) {
     character.combatFeats.filter((feat) => declaredIds.includes(feat.id)),
     bestMagicPower,
   );
-  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy');
+  // [Dual Wielding]: one attack with each hand in one Major Action, each at -2 Accuracy.
+  const canDualWield = character.combatFeats.some((feat) => feat.name.trim().toLowerCase() === 'dual wielding');
+  const [dualWield, setDualWield] = useState(false);
+  const dualPenalty = canDualWield && dualWield ? -2 : 0;
+  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + dualPenalty;
   const pinpoint = passiveAccuracyBonus(character.combatFeats);
   const artificerLevel = character.classes.filter((entry) => entry.classId === 'artificer').reduce((max, entry) => Math.max(max, entry.level), 0);
 
@@ -369,6 +373,11 @@ export function EquipmentSection({ character }: { character: Character }) {
           hidden on paper anyway, leaving a heading over nothing. */}
       <div className={styles.subsection} data-print-empty={character.equipment.weapons.length === 0 || undefined}>
         <h4>{t('sheet.weapons')}</h4>
+        {canDualWield && (
+          <label>
+            <input type="checkbox" checked={dualWield} onChange={(event) => setDualWield(event.target.checked)} /> {t('sheet.dualWield')}
+          </label>
+        )}
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -462,7 +471,7 @@ export function EquipmentSection({ character }: { character: Character }) {
                       criticalValue={numbers.criticalValue}
                       extraDamage={numbers.extraDamage}
                       label={weapon.name || t('sheet.unnamedItem')}
-                      options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied }}
+                      options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
                     />
                   </td>
                   <td>

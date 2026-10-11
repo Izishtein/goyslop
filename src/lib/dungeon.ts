@@ -1,5 +1,6 @@
 import type { Monster } from '../data/monsters/types';
 import type { Rng } from './encounter';
+import { relationFor, type Relation } from './factions';
 import { packSize, pickMonster, type Biome } from './hexmap';
 
 /*
@@ -10,10 +11,14 @@ import { packSize, pickMonster, type Biome } from './hexmap';
  * stand for lives in the i18n tables (solo.dungeon.*).
  */
 
-export const ROOM_KINDS = ['entrance', 'empty', 'monsters', 'trap', 'treasure', 'special', 'hazard', 'secret', 'stairs', 'boss'] as const;
+export const ROOM_KINDS = ['entrance', 'empty', 'monsters', 'trap', 'treasure', 'special', 'hazard', 'secret', 'stairs', 'boss', 'market', 'tavern', 'temple', 'guild', 'slum', 'keep'] as const;
 export type RoomKind = (typeof ROOM_KINDS)[number];
 
-export const DUNGEON_COUNTS = { theme: 8, trap: 8, hazard: 6, special: 8 } as const;
+export const DUNGEON_COUNTS = { theme: 8, trap: 8, hazard: 6, special: 8, lairTheme: 6, townEvent: 6 } as const;
+
+/** What the map stands for: a dungeon proper, the lair of a hex's creature, or a settlement's districts. */
+export const MAP_KINDS = ['dungeon', 'lair', 'settlement'] as const;
+export type MapKind = (typeof MAP_KINDS)[number];
 
 export interface Room {
   id: number;
@@ -31,17 +36,43 @@ export interface Room {
   trap?: number;
   hazard?: number;
   special?: number;
+  /** Index into `Dungeon.groups` of the folk who hold this room. */
+  group?: number;
   /** Gold in the room's hoard, G. */
   gold?: number;
   /** A hoard also holds something of the treasure drop tables. */
   item?: boolean;
+  /** Target Number of the Disable Device check against the room's trap, and whether it was disarmed. */
+  trapTn?: number;
+  disarmed?: boolean;
+  /** The trap has been found by searching, or sprung by walking into it. */
+  trapFound?: boolean;
+  sprung?: boolean;
+  /** A locked hoard: the Target Number to pick it, and whether it was opened. */
+  lockTn?: number;
+  unlocked?: boolean;
 }
 
 export interface DungeonLevel {
   rooms: Room[];
 }
 
+/** A band of one kind of monster that holds part of the dungeon; group 0 is the guardian's own. */
+export interface DungeonGroup {
+  monsterId: string;
+}
+
+export interface GroupRelation {
+  a: number;
+  b: number;
+  relation: Relation;
+}
+
 export interface Dungeon {
+  /** Dungeon unless made as a lair or a settlement (older saves have none). */
+  kind: MapKind;
+  /** For a settlement: its kind (hamlet … monastery), which names it and sets its size. */
+  settlement?: string;
   /** The hex it lies in ("q,r"), or "free" for one made without a map. */
   place: string;
   theme: number;
@@ -49,6 +80,9 @@ export interface Dungeon {
   level: number;
   levels: DungeonLevel[];
   at: { level: number; room: number };
+  /** Who lives here: the guardian's folk and one or two other bands, with how each pair gets on. */
+  groups: DungeonGroup[];
+  groupRelations: GroupRelation[];
 }
 
 const die = (sides: number, rng: Rng): number => 1 + Math.floor(rng() * sides);
@@ -143,9 +177,40 @@ function furthest(rooms: { links: number[] }[], not: number[]): number {
   return best;
 }
 
+/**
+ * Target Number of a lock or trap met at this depth. The book's simple lock is 9 (CR I p. 97); a level-1
+ * party on the first level meets exactly that, and it climbs a point per level of party and depth.
+ */
+export function lockTarget(partyLevel: number, depth: number): number {
+  return 8 + Math.max(1, partyLevel) + depth;
+}
+
+export interface DisableDeviceRoll {
+  dice: [number, number];
+  value: number;
+  success: boolean;
+  outcome: 'fumble' | 'critical' | null;
+}
+
+/**
+ * A Disable Device check (CR I p. 102): 2d6 + Scout or Ranger Level + DEX modifier, -4 without Scout's Tools
+ * (or with no level in either class). It beats a Target Number when the Success Value reaches it; double 6s
+ * always succeed and double 1s always fail.
+ */
+export function rollDisableDevice(standard: number, tools: boolean, targetNumber: number, rng: Rng = Math.random): DisableDeviceRoll {
+  const dice: [number, number] = [die(6, rng), die(6, rng)];
+  const sum = dice[0] + dice[1];
+  const value = sum + standard - (tools ? 0 : 4);
+  const outcome = sum === 2 ? 'fumble' : sum === 12 ? 'critical' : null;
+  return { dice, value, outcome, success: outcome === 'critical' ? true : outcome === 'fumble' ? false : value >= targetNumber };
+}
+
 export function generateDungeon(options: DungeonOptions): Dungeon {
   const rng = options.rng ?? Math.random;
   const depthCount = levelCount(die(6, rng));
+  const groups = pickGroups(options, depthCount, rng);
+  const groupRelations: GroupRelation[] = [];
+  for (let a = 0; a < groups.length; a += 1) for (let b = a + 1; b < groups.length; b += 1) groupRelations.push({ a, b, relation: relationFor(die(10, rng)) });
   const levels: DungeonLevel[] = [];
   for (let depth = 0; depth < depthCount; depth += 1) {
     const layout = growLayout(6 + die(4, rng), rng);
@@ -157,20 +222,25 @@ export function generateDungeon(options: DungeonOptions): Dungeon {
       if (id === 0) return { ...base, kind: depth === 0 ? 'entrance' : 'stairs' };
       if (id === stairs) return { ...base, kind: 'stairs' };
       if (id === boss) {
-        const guardian = options.guardian ?? pickGuardian(options, depth, rng);
-        return { ...base, kind: 'boss', monsterId: guardian?.monsterId, count: guardian?.count, gold: hoard(options.level + depth, 3, rng), item: true };
+        const guardian = options.guardian ?? (groups[0] ? { monsterId: groups[0].monsterId, count: Math.max(1, packSize(options.monsters.find((entry) => entry.id === groups[0].monsterId)!, options.level + depth + 1, rng) - 1) } : pickGuardian(options, depth, rng));
+        return { ...base, kind: 'boss', group: groups[0] ? 0 : undefined, monsterId: guardian?.monsterId, count: guardian?.count, gold: hoard(options.level + depth, 3, rng), item: true };
       }
       const kind = roomKindFor(die(12, rng));
       const room = { ...base, kind };
       if (kind === 'monsters') {
-        const monster = pickMonster(options.monsters, options.biome, options.level + depth, rng, true);
-        if (monster) return { ...room, monsterId: monster.id, count: packSize(monster, options.level + depth, rng) };
+        const group = groups.length > 0 ? Math.floor(rng() * groups.length) : -1;
+        const monster = group >= 0 ? options.monsters.find((entry) => entry.id === groups[group].monsterId) : pickMonster(options.monsters, options.biome, options.level + depth, rng, true);
+        if (monster) return { ...room, monsterId: monster.id, count: packSize(monster, options.level + depth, rng), ...(group >= 0 ? { group } : {}) };
         return { ...room, kind: 'empty' as const };
       }
-      if (kind === 'trap') return { ...room, trap: die(DUNGEON_COUNTS.trap, rng) };
+      const tn = lockTarget(options.level, depth);
+      if (kind === 'trap') return { ...room, trap: die(DUNGEON_COUNTS.trap, rng), trapTn: tn };
       if (kind === 'hazard') return { ...room, hazard: die(DUNGEON_COUNTS.hazard, rng) };
       if (kind === 'special') return { ...room, special: die(DUNGEON_COUNTS.special, rng) };
-      if (kind === 'treasure' || kind === 'secret') return { ...room, gold: hoard(options.level + depth, kind === 'secret' ? 2 : 1, rng), item: die(3, rng) === 1 };
+      if (kind === 'treasure' || kind === 'secret') {
+        const locked = die(3, rng) === 1;
+        return { ...room, gold: hoard(options.level + depth, kind === 'secret' ? 2 : 1, rng), item: die(3, rng) === 1, ...(locked ? { lockTn: tn } : {}) };
+      }
       return room;
     });
     levels.push({ rooms });
@@ -179,7 +249,84 @@ export function generateDungeon(options: DungeonOptions): Dungeon {
   first.visited = true;
   first.seen = true;
   for (const id of first.links) levels[0].rooms[id].seen = true;
-  return { place: options.place, theme: die(DUNGEON_COUNTS.theme, rng), level: options.level, levels, at: { level: 0, room: 0 } };
+  return { kind: 'dungeon', place: options.place, theme: die(DUNGEON_COUNTS.theme, rng), level: options.level, levels, at: { level: 0, room: 0 }, groups, groupRelations };
+}
+
+/**
+ * The bands that hold the dungeon: the guardian's folk (one level above the party at the bottom) and one or two
+ * other kinds of monster, never the same kind twice. An imposed guardian (from a lair or dungeon hex) leads group 0.
+ */
+function pickGroups(options: DungeonOptions, depthCount: number, rng: Rng): DungeonGroup[] {
+  const groups: DungeonGroup[] = [];
+  const lead = options.guardian?.monsterId ?? pickMonster(options.monsters, options.biome, options.level + depthCount, rng, true)?.id;
+  if (!lead) return groups;
+  groups.push({ monsterId: lead });
+  const others = die(6, rng) >= 5 ? 2 : 1;
+  for (let attempt = 0; groups.length < 1 + others && attempt < 12; attempt += 1) {
+    const found = pickMonster(options.monsters, options.biome, options.level + Math.floor(depthCount / 2), rng, true);
+    if (found && !groups.some((entry) => entry.monsterId === found.id)) groups.push({ monsterId: found.id });
+  }
+  return groups;
+}
+
+/**
+ * The lair of a creature found in a hex: a single level of a few areas, the resident in the farthest one
+ * with a hoard thrice the usual, the rest empty ground, its own kin standing guard, a hazard or a small cache.
+ */
+export function generateLair(options: DungeonOptions): Dungeon {
+  const rng = options.rng ?? Math.random;
+  const layout = growLayout(5 + die(2, rng), rng);
+  const boss = furthest(layout, [0]);
+  const resident = options.guardian ?? pickGuardian(options, 0, rng);
+  const kin = resident ? options.monsters.find((entry) => entry.id === resident.monsterId) : undefined;
+  const rooms: Room[] = layout.map((cell, id) => {
+    const base: Room = { id, x: cell.x, y: cell.y, kind: 'empty', links: cell.links, visited: false, seen: false, cleared: false };
+    if (id === 0) return { ...base, kind: 'entrance' };
+    if (id === boss) return { ...base, kind: 'boss', group: resident ? 0 : undefined, monsterId: resident?.monsterId, count: resident?.count, gold: hoard(options.level, 3, rng), item: true };
+    const roll = die(6, rng);
+    if (roll <= 2) return base;
+    if (roll <= 4 && kin) return { ...base, kind: 'monsters', group: 0, monsterId: kin.id, count: packSize(kin, options.level, rng) };
+    if (roll === 5) return { ...base, kind: 'hazard', hazard: die(DUNGEON_COUNTS.hazard, rng) };
+    return { ...base, kind: 'treasure', gold: hoard(options.level, 1, rng), item: die(3, rng) === 1 };
+  });
+  return enterFirst({ kind: 'lair', place: options.place, theme: die(DUNGEON_COUNTS.lairTheme, rng), level: options.level, levels: [{ rooms }], at: { level: 0, room: 0 }, groups: resident ? [{ monsterId: resident.monsterId }] : [], groupRelations: [] });
+}
+
+/** Districts of a settlement by its kind: how many, and which are certain to be there. */
+const DISTRICTS: Record<string, { count: number; has: RoomKind[] }> = {
+  hamlet: { count: 4, has: ['tavern'] },
+  village: { count: 5, has: ['tavern', 'market'] },
+  town: { count: 8, has: ['tavern', 'market', 'temple', 'guild'] },
+  fortress: { count: 7, has: ['keep', 'tavern', 'market'] },
+  tower: { count: 5, has: ['keep', 'market'] },
+  monastery: { count: 6, has: ['temple', 'keep', 'market'] },
+};
+
+/**
+ * A settlement as a map of districts joined by streets: the gate, the places its kind must have, houses
+ * and slums for the rest. Each district other than the gate carries a small happening (solo.dungeon.townEvents).
+ */
+export function generateSettlement(kind: string, level: number, place: string, rng: Rng = Math.random): Dungeon {
+  const plan = DISTRICTS[kind] ?? DISTRICTS.village;
+  const layout = growLayout(plan.count, rng);
+  const fill: RoomKind[] = [...plan.has];
+  const spare: RoomKind[] = ['empty', 'empty', 'market', 'tavern', 'slum', 'guild'];
+  const rooms: Room[] = layout.map((cell, id) => {
+    const base: Room = { id, x: cell.x, y: cell.y, kind: 'empty', links: cell.links, visited: false, seen: false, cleared: false };
+    if (id === 0) return { ...base, kind: 'entrance' };
+    const roomKind = fill.length > 0 ? (fill.splice(Math.floor(rng() * fill.length), 1)[0] as RoomKind) : spare[Math.floor(rng() * spare.length)];
+    return { ...base, kind: roomKind, special: die(DUNGEON_COUNTS.townEvent, rng) };
+  });
+  return enterFirst({ kind: 'settlement', settlement: kind, place, theme: 1, level, levels: [{ rooms }], at: { level: 0, room: 0 }, groups: [], groupRelations: [] });
+}
+
+/** The first room is the way in: visited, and its neighbours seen. */
+function enterFirst(dungeon: Dungeon): Dungeon {
+  const first = dungeon.levels[0].rooms[0];
+  first.visited = true;
+  first.seen = true;
+  for (const id of first.links) dungeon.levels[0].rooms[id].seen = true;
+  return dungeon;
 }
 
 function pickGuardian(options: DungeonOptions, depth: number, rng: Rng): { monsterId: string; count: number } | null {

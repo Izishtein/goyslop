@@ -12,8 +12,12 @@ import {
   DUNGEON_COUNTS,
   enterRoom,
   generateDungeon,
+  generateLair,
+  generateSettlement,
   growLayout,
   hoard,
+  lockTarget,
+  rollDisableDevice,
   levelCount,
   roomKindFor,
   updateRoom,
@@ -139,5 +143,89 @@ describe('walking it', () => {
     const changed = updateRoom(dungeon, 0, 0, { cleared: true });
     expect(changed.levels[0].rooms[0].cleared).toBe(true);
     expect(dungeon.levels[0].rooms[0].cleared).toBe(false);
+  });
+});
+
+describe('locks and traps', () => {
+  const seq = (...faces: number[]) => () => (faces.shift()! - 1) / 6;
+
+  it('starts at the simple lock of the book for a first-level party on the first level', () => {
+    expect(lockTarget(1, 0)).toBe(9);
+    expect(lockTarget(5, 2)).toBe(15);
+  });
+
+  it('rolls Disable Device with -4 for want of tools or levels, double 6s and 1s deciding on their own', () => {
+    expect(rollDisableDevice(4, true, 9, seq(1, 6))).toMatchObject({ value: 11, success: true });
+    expect(rollDisableDevice(4, false, 9, seq(1, 6))).toMatchObject({ value: 7, success: false });
+    expect(rollDisableDevice(0, false, 20, seq(6, 6))).toMatchObject({ outcome: 'critical', success: true });
+    expect(rollDisableDevice(30, true, 5, seq(1, 1))).toMatchObject({ outcome: 'fumble', success: false });
+  });
+
+  it('sets a Target Number on every trap and some hoards', () => {
+    const dungeon = generateDungeon({ level: 3, monsters, biome: 'hills', place: 'free', rng: seeded(7) });
+    for (const room of dungeon.levels.flatMap((level) => level.rooms)) {
+      if (room.kind === 'trap') expect(room.trapTn).toBeGreaterThanOrEqual(11);
+      if (room.lockTn !== undefined) expect(['treasure', 'secret']).toContain(room.kind);
+    }
+  });
+});
+
+describe('the bands that hold a dungeon', () => {
+  it('has the guardian\'s folk and one or two other kinds, each pair with a relation', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const dungeon = make(seed);
+      expect(dungeon.groups.length).toBeGreaterThanOrEqual(2);
+      expect(dungeon.groups.length).toBeLessThanOrEqual(3);
+      expect(new Set(dungeon.groups.map((group) => group.monsterId)).size).toBe(dungeon.groups.length);
+      const pairs = (dungeon.groups.length * (dungeon.groups.length - 1)) / 2;
+      expect(dungeon.groupRelations).toHaveLength(pairs);
+    }
+  });
+
+  it('gives every monster room one of the bands and the lair the guardian\'s', () => {
+    const dungeon = make(9);
+    for (const room of dungeon.levels.flatMap((level) => level.rooms)) {
+      if (room.kind === 'monsters') {
+        expect(room.group).toBeDefined();
+        expect(room.monsterId).toBe(dungeon.groups[room.group as number].monsterId);
+      }
+      if (room.kind === 'boss') expect(room.group).toBe(0);
+    }
+  });
+
+  it('keeps an imposed guardian as the first band', () => {
+    const guardian = { monsterId: monsters.find((entry) => entry.name === 'Goblin')!.id, count: 2 };
+    const dungeon = make(3, { guardian });
+    expect(dungeon.groups[0].monsterId).toBe(guardian.monsterId);
+  });
+});
+
+describe('a lair and a settlement as maps of their own', () => {
+  const resident = { monsterId: monsters.find((entry) => entry.name === 'Goblin')!.id, count: 2 };
+
+  it('makes a one-level lair with its resident at the far end and a triple hoard', () => {
+    const lair = generateLair({ level: 3, monsters, biome: 'hills', place: '1,0', guardian: resident, rng: seeded(5) });
+    expect(lair.kind).toBe('lair');
+    expect(lair.levels).toHaveLength(1);
+    const rooms = lair.levels[0].rooms;
+    expect(rooms.length).toBeGreaterThanOrEqual(5);
+    const boss = rooms.filter((room) => room.kind === 'boss');
+    expect(boss).toHaveLength(1);
+    expect(boss[0]).toMatchObject({ monsterId: resident.monsterId, count: 2, item: true });
+    expect(rooms.some((room) => room.kind === 'trap' || room.kind === 'special')).toBe(false);
+  });
+
+  it('lays a settlement out in districts that its kind must have', () => {
+    const town = generateSettlement('town', 3, '0,1', seeded(2));
+    expect(town.kind).toBe('settlement');
+    const kinds = town.levels[0].rooms.map((room) => room.kind);
+    expect(kinds[0]).toBe('entrance');
+    for (const needed of ['tavern', 'market', 'temple', 'guild']) expect(kinds).toContain(needed);
+    expect(kinds).not.toContain('monsters');
+    expect(town.levels[0].rooms.filter((room) => room.id > 0).every((room) => room.special && room.special >= 1 && room.special <= 6)).toBe(true);
+  });
+
+  it('keeps a hamlet small', () => {
+    expect(generateSettlement('hamlet', 1, '0,0', seeded(1)).levels[0].rooms).toHaveLength(4);
   });
 });

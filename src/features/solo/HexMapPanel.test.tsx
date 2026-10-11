@@ -12,7 +12,10 @@ import type { Monster } from '../../data/monsters/types';
 import { campaignAtom } from '../../state/campaign';
 import { encounterAtom } from '../../state/encounter';
 import { dungeonAtom } from '../../state/dungeon';
+import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { hexMapAtom } from '../../state/hexmap';
+import { voyageAtom } from '../../state/voyage';
+import type { Character } from '../../types/character';
 import { HexMapPanel } from './HexMapPanel';
 
 beforeEach(() => localStorage.clear());
@@ -139,6 +142,51 @@ describe('HexMapPanel', () => {
     expect(map).toMatchObject({ fatigue: 0, rations: 6 });
     expect(map.hexes.filter((hex) => hex.camp)).toHaveLength(1);
     expect(store.get(campaignAtom).day).toBe(2);
+  });
+
+  it('carries fatigue onto the open character as a status effect and lifts it with the rest', async () => {
+    const user = userEvent.setup();
+    const { store, container } = renderPanel();
+    store.set(charactersAtom, [{ id: 'c1', name: 'Hero', classes: [{ classId: 'fighter', level: 1 }], statusEffects: [] } as unknown as Character]);
+    store.set(activeCharacterIdAtom, 'c1');
+    await generate(user);
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+
+    await user.click(screen.getByLabelText('Forced march'));
+    await user.click(container.querySelectorAll('[data-reachable]')[0] as Element);
+
+    await waitFor(() => expect(store.get(charactersAtom)[0].statusEffects).toHaveLength(1));
+    const effect = store.get(charactersAtom)[0].statusEffects[0];
+    expect(effect.modifiers).toContainEqual({ field: 'accuracy', value: -1 });
+    expect(effect.modifiers).toContainEqual({ field: 'evasion', value: -1 });
+
+    await user.click(screen.getByRole('button', { name: 'Make camp' }));
+    await waitFor(() => expect(store.get(charactersAtom)[0].statusEffects).toHaveLength(0));
+  });
+
+  it('rolls a happening on a festival day and puts it in the campaign log', async () => {
+    const user = userEvent.setup();
+    const { store } = renderPanel();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    await user.click(screen.getByRole('button', { name: 'What happens at the festival?' }));
+    expect(screen.getByRole('status')).toHaveTextContent('A fair fills the square');
+
+    await user.click(screen.getByRole('button', { name: 'To the log' }));
+    expect(store.get(campaignAtom).entries[0]).toMatchObject({ kind: 'scene', title: 'Springtide festival' });
+    expect(screen.getByRole('button', { name: 'To the log' })).toBeDisabled();
+  });
+
+  it('puts out to sea from the starting village, remembering the hex it left', async () => {
+    const user = userEvent.setup();
+    const { store } = renderPanel();
+    await generate(user);
+
+    await user.click(screen.getByRole('button', { name: 'Put out to sea' }));
+
+    expect(store.get(voyageAtom)).toMatchObject({ homeHex: '0,0', day: 0 });
+    expect(store.get(voyageAtom)!.sea!.hexes.find((hex) => hex.kind === 'port' && hex.visited)?.settlement).toBe('village');
+    expect(screen.getByRole('button', { name: 'Put out to sea' })).toBeDisabled();
   });
 
   it('shows the calendar date and its festival', async () => {

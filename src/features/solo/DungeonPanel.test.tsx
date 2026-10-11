@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore } from 'jotai';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import raw from '../../data/monsters/monsters.json';
 import type { Monster } from '../../data/monsters/types';
@@ -16,11 +16,13 @@ import { EMPTY_FELLOW, EMPTY_GEOMANCER_QI, EMPTY_INVENTORY, EMPTY_PERFORMANCE, t
 const goblin = (raw as unknown as Monster[]).find((m) => m.name === 'Goblin')!;
 
 beforeEach(() => localStorage.clear());
+afterEach(() => vi.restoreAllMocks());
 
 const room = (id: number, x: number, patch: Partial<Room> = {}): Room => ({ id, x, y: 0, kind: 'empty', links: [], visited: false, seen: false, cleared: false, ...patch });
 
 function crafted(): Dungeon {
   return {
+    kind: 'dungeon',
     place: 'free',
     theme: 1,
     level: 1,
@@ -34,6 +36,8 @@ function crafted(): Dungeon {
       },
     ],
     at: { level: 0, room: 0 },
+    groups: [],
+    groupRelations: [],
   };
 }
 
@@ -107,5 +111,60 @@ describe('DungeonPanel', () => {
 
     await user.click(screen.getByRole('button', { name: 'Leave the dungeon' }));
     expect(store.get(dungeonAtom)).toBeNull();
+  });
+
+  it('keeps a locked hoard shut until the lock is picked', async () => {
+    const user = userEvent.setup();
+    const dungeon = crafted();
+    dungeon.levels[0].rooms[1].lockTn = 9;
+    const store = renderPanel(dungeon);
+    await waitFor(() => expect(screen.getByRole('group', { name: /Dungeon level map/ })).toBeInTheDocument());
+    await user.click(within(screen.getByRole('group', { name: /Dungeon level map/ })).getByRole('button', { name: 'a room you have not entered' }));
+
+    expect(screen.getByRole('button', { name: 'Take 100 G' })).toBeDisabled();
+    // a fighter has no Disable Device: 2d6 alone at -4 — 6+5 = 11 - 4 = 7 < 9, the lock holds
+    vi.spyOn(Math, 'random').mockReturnValueOnce(5 / 6).mockReturnValueOnce(4 / 6);
+    await user.click(screen.getByRole('button', { name: 'Pick the lock' }));
+    expect(screen.getByRole('status')).toHaveTextContent('the lock holds');
+    expect(screen.getByRole('button', { name: 'Take 100 G' })).toBeDisabled();
+
+    vi.spyOn(Math, 'random').mockReturnValueOnce(5 / 6).mockReturnValueOnce(5 / 6); // double 6: always opens
+    await user.click(screen.getByRole('button', { name: 'Pick the lock' }));
+    expect(store.get(dungeonAtom)!.levels[0].rooms[1].unlocked).toBe(true);
+    expect(screen.getByRole('button', { name: 'Take 100 G' })).toBeEnabled();
+  });
+
+  it('hides a trap until it is searched out, then lets it be disarmed', async () => {
+    const user = userEvent.setup();
+    const dungeon = crafted();
+    dungeon.levels[0].rooms[1] = room(1, 1, { kind: 'trap', links: [0, 2], seen: true, trap: 1, trapTn: 9 });
+    const store = renderPanel(dungeon);
+    await waitFor(() => expect(screen.getByRole('group', { name: /Dungeon level map/ })).toBeInTheDocument());
+    await user.click(within(screen.getByRole('group', { name: /Dungeon level map/ })).getByRole('button', { name: 'a room you have not entered' }));
+
+    expect(screen.getByText(/may be trapped/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Disable Device' })).toBeNull();
+
+    vi.spyOn(Math, 'random').mockReturnValueOnce(5 / 6).mockReturnValueOnce(5 / 6); // double 6: found
+    await user.click(screen.getByRole('button', { name: 'Search for traps' }));
+    expect(store.get(dungeonAtom)!.levels[0].rooms[1].trapFound).toBe(true);
+
+    vi.spyOn(Math, 'random').mockReturnValueOnce(5 / 6).mockReturnValueOnce(5 / 6);
+    await user.click(screen.getByRole('button', { name: 'Disable Device' }));
+    expect(store.get(dungeonAtom)!.levels[0].rooms[1].disarmed).toBe(true);
+  });
+
+  it('springs the trap when the party rushes in', async () => {
+    const user = userEvent.setup();
+    const dungeon = crafted();
+    dungeon.levels[0].rooms[1] = room(1, 1, { kind: 'trap', links: [0, 2], seen: true, trap: 1, trapTn: 9 });
+    const store = renderPanel(dungeon);
+    await waitFor(() => expect(screen.getByRole('group', { name: /Dungeon level map/ })).toBeInTheDocument());
+    await user.click(within(screen.getByRole('group', { name: /Dungeon level map/ })).getByRole('button', { name: 'a room you have not entered' }));
+
+    await user.click(screen.getByRole('button', { name: 'Rush in' }));
+
+    expect(store.get(dungeonAtom)!.levels[0].rooms[1].sprung).toBe(true);
+    expect(screen.getByText('The trap has sprung.')).toBeInTheDocument();
   });
 });
