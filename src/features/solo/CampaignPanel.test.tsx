@@ -6,7 +6,9 @@ import '../../i18n';
 import { EMPTY_CAMPAIGN } from '../../lib/campaign';
 import { EMPTY_ORACLE } from '../../lib/oracle';
 import { campaignAtom } from '../../state/campaign';
+import { hexMapAtom } from '../../state/hexmap';
 import { oracleAtom } from '../../state/oracle';
+import { EMPTY_HEXMAP } from '../../lib/hexmap';
 import { CampaignPanel } from './CampaignPanel';
 
 beforeEach(() => localStorage.clear());
@@ -204,5 +206,31 @@ describe('CampaignPanel places', () => {
     );
     expect(screen.getByLabelText('Place of Marta')).toHaveValue('');
     expect(screen.getByLabelText('Where the story is now')).toHaveValue('');
+  });
+});
+
+describe('CampaignPanel places on the hex map', () => {
+  const hex = (q: number, r: number, place?: string) => ({ q, r, biome: 'forest' as const, feature: { kind: 'settlement' as const, settlement: 'village' as const }, visited: true, seen: true, place });
+
+  function renderWithMap(party: { q: number; r: number }) {
+    const store = createStore();
+    store.set(campaignAtom, { ...EMPTY_CAMPAIGN, activePlace: 'Last Inn' });
+    store.set(oracleAtom, { ...EMPTY_ORACLE, scene: 1 });
+    store.set(hexMapAtom, { ...EMPTY_HEXMAP, hexes: [hex(0, 0), hex(2, -1, 'Last Inn')], party });
+    render(
+      <Provider store={store}>
+        <CampaignPanel />
+      </Provider>,
+    );
+  }
+
+  it('says where the active place is on the map and how far the party is from it', () => {
+    renderWithMap({ q: 0, r: 0 });
+    expect(screen.getByRole('status')).toHaveTextContent('On the map: 2,-1 · 2 hexes from the party');
+  });
+
+  it('says so when the party is already there', () => {
+    renderWithMap({ q: 2, r: -1 });
+    expect(screen.getByRole('status')).toHaveTextContent('the party is there');
   });
 });

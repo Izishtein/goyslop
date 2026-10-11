@@ -9,6 +9,10 @@ import {
   generateHexMap,
   hexAt,
   hexDistance,
+  hexesAtPlace,
+  hexPlaces,
+  journalPlaceFor,
+  setHexPlace,
   landmarkOutcome,
   livesIn,
   makeCamp,
@@ -213,5 +217,37 @@ describe('growing the map', () => {
     expect(new Set(grown.hexes.map((h) => `${h.q},${h.r}`)).size).toBe(grown.hexes.length);
     expect(grown.hexes.length).toBe(19 * grown.patches.length);
     expect(grown.patches.length).toBeGreaterThan(2);
+  });
+});
+
+describe('places on the map', () => {
+  const map = generateHexMap({ level: 3, monsters, rng: seeded(11) });
+  const bare = map.hexes.find((hex) => hex.feature.kind === 'empty')!;
+  const featured = map.hexes.find((hex) => hex.feature.kind !== 'empty')!;
+
+  it('names a hex as typed and finds it again by name, case aside', () => {
+    const named = setHexPlace(map, bare.q, bare.r, 'Last Inn ');
+    expect(hexAt(named, bare.q, bare.r)?.place).toBe('Last Inn ');
+    expect(hexesAtPlace(named, 'last inn').map((hex) => [hex.q, hex.r])).toEqual([[bare.q, bare.r]]);
+    expect(hexPlaces(named)).toEqual(['Last Inn']);
+    expect(hexesAtPlace(named, '')).toEqual([]);
+  });
+
+  it('removes the name when it is blank', () => {
+    const named = setHexPlace(map, bare.q, bare.r, 'Inn');
+    expect(hexAt(setHexPlace(named, bare.q, bare.r, '  '), bare.q, bare.r)?.place).toBeUndefined();
+  });
+
+  it('gives the journal the hex name, or a name made from its feature, kept on the hex', () => {
+    const named = setHexPlace(map, bare.q, bare.r, 'Inn');
+    expect(journalPlaceFor(named, hexAt(named, bare.q, bare.r)!, 'x')?.place).toBe('Inn');
+    const made = journalPlaceFor(map, featured, 'Village (1,2)');
+    expect(made?.place).toBe('Village (1,2)');
+    expect(hexAt(made!.map, featured.q, featured.r)?.place).toBe('Village (1,2)');
+  });
+
+  it('says nothing about bare country unless asked', () => {
+    expect(journalPlaceFor(map, bare, 'Grassland (0,0)')).toBeNull();
+    expect(journalPlaceFor(map, bare, 'Grassland (0,0)', true)?.place).toBe('Grassland (0,0)');
   });
 });

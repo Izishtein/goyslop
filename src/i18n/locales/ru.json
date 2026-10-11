@@ -625,7 +625,13 @@
       "activePlace": "Где сейчас история",
       "activePlaceNote": "Если место задано, события оракула берут только записи оттуда и «отовсюду» (без места).",
       "entryPlace": "Место (пусто = везде)",
-      "placeOf": "Место: {{title}}"
+      "placeOf": "Место: {{title}}",
+      "onMap": "На карте: {{hexes}}",
+      "partyThere": "отряд там",
+      "partyAway_one": "{{count}} гекс от отряда",
+      "partyAway_few": "{{count}} гекса от отряда",
+      "partyAway_many": "{{count}} гексов от отряда",
+      "partyAway_other": "{{count}} гекса от отряда"
     },
     "knowledgeCheck": "Знание монстров",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",
@@ -812,7 +818,10 @@
       "lairBegun": "Логово открыто ниже",
       "settlementEnter": "Пройтись по улицам",
       "settlementBegun": "Улицы открыты ниже",
-      "dungeonEntered": "Вы входите в подземелье: смотрите панель «Подземелье»."
+      "dungeonEntered": "Вы входите в подземелье: смотрите панель «Подземелье».",
+      "placeName": "Название этого места",
+      "journalHere": "Журнал: действие здесь",
+      "journalFollows": "Журнал следует за отрядом"
     },
     "gen": {
       "nameStart": {

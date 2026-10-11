@@ -1,7 +1,7 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { z } from 'zod';
 import { RELATIONS } from '../lib/factions';
-import { BIOMES, EMPTY_HEXMAP, LANDMARK_COUNT, SETTLEMENT_KINDS, type HexMap } from '../lib/hexmap';
+import { BIOMES, EMPTY_HEXMAP, HEX_PLACE_LIMIT, LANDMARK_COUNT, SETTLEMENT_KINDS, type HexMap } from '../lib/hexmap';
 
 const FeatureSchema = z.object({
   kind: z.enum(['landmark', 'settlement', 'lair', 'dungeon', 'empty']),
@@ -22,6 +22,7 @@ const HexMapSchema = z.object({
         visited: z.boolean(),
         seen: z.boolean(),
         camp: z.boolean().optional(),
+        place: z.string().max(HEX_PLACE_LIMIT).optional(),
       }),
     )
     .max(800)
@@ -47,6 +48,7 @@ const HexMapSchema = z.object({
     .array(z.object({ a: z.number().int(), b: z.number().int(), relation: z.enum(RELATIONS) }))
     .max(800)
     .default(() => []),
+  followJournal: z.boolean().default(false),
 });
 
 const raw = createJSONStorage<HexMap>(() => localStorage);

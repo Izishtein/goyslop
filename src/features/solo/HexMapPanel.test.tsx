@@ -247,3 +247,53 @@ describe('HexMapPanel', () => {
     expect(store.get(hexMapAtom).patches).toHaveLength(2);
   });
 });
+
+describe('HexMapPanel — the place of the journal', () => {
+  it('names the hex the party stands on and points the journal at it', async () => {
+    const user = userEvent.setup();
+    const { store } = renderPanel();
+    await generate(user);
+
+    await user.type(screen.getByLabelText('Name of this place'), 'Last Inn');
+    await user.click(screen.getByRole('button', { name: 'Journal: the story is here' }));
+
+    expect(store.get(campaignAtom).activePlace).toBe('Last Inn');
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 0 && hex.r === 0)?.place).toBe('Last Inn');
+  });
+
+  it('names a nameless hex after what is on it and its coordinates', async () => {
+    const user = userEvent.setup();
+    const { store } = renderPanel();
+    await generate(user);
+    store.set(hexMapAtom, { ...store.get(hexMapAtom), hexes: store.get(hexMapAtom).hexes.map((hex) => (hex.q === 0 && hex.r === 0 ? { ...hex, feature: { kind: 'empty' as const }, place: undefined } : hex)) });
+
+    await user.click(screen.getByRole('button', { name: 'Journal: the story is here' }));
+
+    expect(store.get(campaignAtom).activePlace.endsWith('(0,0)')).toBe(true);
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 0 && hex.r === 0)?.place).toBe(store.get(campaignAtom).activePlace);
+  });
+
+  it('follows the party onto a named hex, and stays put on bare country', async () => {
+    const user = userEvent.setup();
+    const { store, container } = renderPanel();
+    await generate(user);
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const map = store.get(hexMapAtom);
+    const neighbours = map.hexes.filter((hex) => Math.max(Math.abs(hex.q), Math.abs(hex.r), Math.abs(-hex.q - hex.r)) === 1);
+    store.set(hexMapAtom, {
+      ...map,
+      hexes: map.hexes.map((hex) => (neighbours.includes(hex) ? { ...hex, feature: { kind: 'empty' as const }, place: undefined } : hex)),
+    });
+    await user.click(screen.getByLabelText('Journal follows the party'));
+    store.set(campaignAtom, { ...EMPTY_CAMPAIGN, activePlace: 'Elsewhere' });
+
+    await user.click(container.querySelectorAll('[data-reachable]')[0] as Element);
+    expect(store.get(campaignAtom).activePlace).toBe('Elsewhere');
+
+    const stepped = store.get(hexMapAtom);
+    const next = stepped.hexes.filter((hex) => Math.abs(hex.q - stepped.party.q) + Math.abs(hex.r - stepped.party.r) > 0);
+    store.set(hexMapAtom, { ...stepped, hexes: stepped.hexes.map((hex) => (next.includes(hex) ? { ...hex, place: 'Wayside Shrine' } : hex)) });
+    await user.click(container.querySelectorAll('[data-reachable]')[0] as Element);
+    expect(store.get(campaignAtom).activePlace).toBe('Wayside Shrine');
+  });
+});

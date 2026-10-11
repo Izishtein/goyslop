@@ -625,7 +625,11 @@
       "activePlace": "Where the story is now",
       "activePlaceNote": "With a place set, the oracle’s events draw only on entries from there and from “everywhere” (no place).",
       "entryPlace": "Place (empty = everywhere)",
-      "placeOf": "Place of {{title}}"
+      "placeOf": "Place of {{title}}",
+      "onMap": "On the map: {{hexes}}",
+      "partyThere": "the party is there",
+      "partyAway_one": "{{count}} hex from the party",
+      "partyAway_other": "{{count}} hexes from the party"
     },
     "knowledgeCheck": "Monster Knowledge",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",
@@ -812,7 +816,10 @@
       "lairBegun": "The lair is open below",
       "settlementEnter": "Walk the streets",
       "settlementBegun": "The streets are open below",
-      "dungeonEntered": "You enter the dungeon: see the Dungeon panel."
+      "dungeonEntered": "You enter the dungeon: see the Dungeon panel.",
+      "placeName": "Name of this place",
+      "journalHere": "Journal: the story is here",
+      "journalFollows": "Journal follows the party"
     },
     "gen": {
       "nameStart": {

@@ -23,7 +23,9 @@ import {
 import { calendarOf } from '../../lib/calendar';
 import { campaignFileName, campaignToMarkdown } from '../../lib/campaign-export';
 import { downloadText } from './downloadText';
+import { hexDistance, hexesAtPlace, hexPlaces } from '../../lib/hexmap';
 import { campaignAtom } from '../../state/campaign';
+import { hexMapAtom } from '../../state/hexmap';
 import { oracleAtom } from '../../state/oracle';
 import { ThreadTrack } from './ThreadTrack';
 import { plotArmor } from '../../lib/thread';
@@ -33,6 +35,7 @@ export function CampaignPanel() {
   const { t } = useTranslation();
   const [campaign, setCampaign] = useAtom(campaignAtom);
   const oracle = useAtomValue(oracleAtom);
+  const map = useAtomValue(hexMapAtom);
   const [kind, setKind] = useState<EntryKind>('scene');
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
@@ -42,6 +45,10 @@ export function CampaignPanel() {
 
   const date = calendarOf(campaign.day);
   const shown = filterEntries(campaign.entries, filter, search);
+  // The place the story is in, found on the hex map: where, and how far the party is from it.
+  const linked = hexesAtPlace(map, campaign.activePlace);
+  const away = linked.length > 0 ? Math.min(...linked.map((hex) => hexDistance(map.party, hex))) : 0;
+  const places = [...new Set([...placesOf(campaign), ...hexPlaces(map)])].sort();
 
   function add() {
     if (!title.trim()) return;
@@ -90,10 +97,15 @@ export function CampaignPanel() {
           />
         </label>
         <datalist id="campaign-places">
-          {placesOf(campaign).map((entry) => (
+          {places.map((entry) => (
             <option key={entry} value={entry} />
           ))}
         </datalist>
+        {linked.length > 0 && (
+          <span className={styles.note} role="status">
+            {t('solo.campaign.onMap', { hexes: linked.map((hex) => `${hex.q},${hex.r}`).join('; ') })} · {away === 0 ? t('solo.campaign.partyThere') : t('solo.campaign.partyAway', { count: away })}
+          </span>
+        )}
         <span className={styles.note}>{t('solo.campaign.activePlaceNote')}</span>
       </div>
 

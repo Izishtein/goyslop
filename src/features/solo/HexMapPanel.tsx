@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Monster } from '../../data/monsters';
 import { spawnMonster } from '../../lib/encounter';
 import { calendarOf, encounterThreshold, forageModifier, rollFestivalEvent } from '../../lib/calendar';
-import { addEntry, setDay } from '../../lib/campaign';
+import { addEntry, setActivePlace, setDay } from '../../lib/campaign';
 import { generateDungeon, generateLair, generateSettlement } from '../../lib/dungeon';
 import { addPatchFactions, factionsAt, rollFactionEvent, withFactions, type Faction, type FactionEvent } from '../../lib/factions';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
@@ -20,11 +20,14 @@ import {
   withFatigueEffect,
   hexAt,
   hexKey,
+  HEX_PLACE_LIMIT,
+  journalPlaceFor,
   landmarkOutcome,
   moveParty,
   nextPatchCentre,
   packSize,
   pickMonster,
+  setHexPlace,
   type Hex,
   type LandmarkOutcome,
 } from '../../lib/hexmap';
@@ -110,6 +113,7 @@ export function HexMapPanel() {
     if (result.dayPassed) setCampaign((current) => setDay(current, current.day + 1));
     setLooked(null);
     const entered = hexAt(result.map, hex.q, hex.r);
+    if (result.map.followJournal && entered) followJournal(result.map, entered);
     const parts = [result.hungry ? t('solo.hex.hungry') : ''];
     setPatrol(null);
     const holders = entered ? factionsAt(result.map.factions, entered.q, entered.r) : [];
@@ -127,6 +131,14 @@ export function HexMapPanel() {
       setWandering(null);
     }
     setNote(parts.filter(Boolean).join(' '));
+  }
+
+  /** Points the journal at a hex: its own name, or one made from what stands there and kept on the hex. */
+  function followJournal(from: typeof map, hex: Hex) {
+    const found = journalPlaceFor(from, hex, `${featureLabel(hex)} (${hex.q},${hex.r})`);
+    if (!found) return;
+    if (found.map !== from) setMap(found.map);
+    setCampaign((current) => setActivePlace(current, found.place));
   }
 
   function putOnTable(monster: Monster, count: number) {
@@ -229,18 +241,21 @@ export function HexMapPanel() {
     if (hex.camp) return `${describeHex(hex)} — ${t('solo.hex.campHere')}`;
     return describeHex(hex);
   };
+  /** What stands on a hex, in words: the settlement's size, the landmark's name, or the kind of feature. */
+  const featureLabel = (hex: Hex): string => {
+    const feature = hex.feature;
+    return feature.kind === 'settlement' && feature.settlement
+      ? t(`solo.hex.settlements.${feature.settlement}`)
+      : feature.kind === 'landmark' && feature.landmark
+        ? t(`solo.hex.landmarks.${feature.landmark}`)
+        : t(`solo.hex.features.${feature.kind}`);
+  };
   const describeHex = (hex: Hex): string => {
     if (!hex.visited) return hex.seen ? t('solo.hex.seenOnly', { biome: t(`solo.hex.biomes.${hex.biome}`) }) : t('solo.hex.unknown');
-    const feature = hex.feature;
-    const what =
-      feature.kind === 'settlement' && feature.settlement
-        ? t(`solo.hex.settlements.${feature.settlement}`)
-        : feature.kind === 'landmark' && feature.landmark
-          ? t(`solo.hex.landmarks.${feature.landmark}`)
-          : t(`solo.hex.features.${feature.kind}`);
+    const what = featureLabel(hex);
     const holders = factionsAt(map.factions, hex.q, hex.r);
     const realm = holders.length > 0 ? ` — ${holders.map(factionName).join(' / ')}` : '';
-    return `${t(`solo.hex.biomes.${hex.biome}`)}: ${what}${realm}`;
+    return `${hex.place ? `«${hex.place}» — ` : ''}${t(`solo.hex.biomes.${hex.biome}`)}: ${what}${realm}`;
   };
 
   return (
@@ -437,6 +452,33 @@ export function HexMapPanel() {
         <div className={styles.report}>
           <p>
             <strong>{t('solo.hex.youAreHere')}</strong> — {describe(here)}
+          </p>
+          <p className={styles.controls}>
+            <label>
+              {t('solo.hex.placeName')}{' '}
+              <input
+                type="text"
+                value={here.place ?? ''}
+                maxLength={HEX_PLACE_LIMIT}
+                onChange={(e) => setMap((current) => setHexPlace(current, here.q, here.r, e.target.value))}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                const label = here.feature.kind === 'empty' ? t(`solo.hex.biomes.${here.biome}`) : featureLabel(here);
+                const named = journalPlaceFor(map, here, `${label} (${here.q},${here.r})`, true);
+                if (!named) return;
+                setMap(named.map);
+                setCampaign((current) => setActivePlace(current, named.place));
+              }}
+            >
+              {t('solo.hex.journalHere')}
+            </button>
+            <label className={styles.inline}>
+              <input type="checkbox" checked={map.followJournal === true} onChange={(e) => setMap((current) => ({ ...current, followJournal: e.target.checked }))} />
+              {t('solo.hex.journalFollows')}
+            </label>
           </p>
           {here.feature.kind === 'landmark' && (
             <p>

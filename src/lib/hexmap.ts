@@ -45,6 +45,8 @@ export interface Hex {
   seen: boolean;
   /** The party has made camp here: the way is known, and a night's rest is safe. */
   camp?: boolean;
+  /** The name the campaign log knows this hex by: what the journal's "where the story is" is set to here. */
+  place?: string;
 }
 
 export interface HexMap {
@@ -60,6 +62,8 @@ export interface HexMap {
   /** Who holds what — filled in by withFactions (lib/factions.ts) once the map exists. */
   factions: Faction[];
   relations: RelationEntry[];
+  /** The journal's active place follows the party onto every hex that has a name or a feature. */
+  followJournal?: boolean;
 }
 
 export const EMPTY_HEXMAP: HexMap = { hexes: [], party: { q: 0, r: 0 }, rations: 0, fatigue: 0, patches: [], level: 1, factions: [], relations: [] };
@@ -399,4 +403,41 @@ export function landmarkOutcome(roll: number): LandmarkOutcome {
   if (roll <= 3) return 'empty';
   if (roll === 4) return 'special';
   return 'monsters';
+}
+
+// ---- places: the campaign log's "where the story is" tied to hexes ----
+
+/** The longest place name; the same limit the campaign log keeps for its own places. */
+export const HEX_PLACE_LIMIT = 40;
+
+const sameName = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/**
+ * Gives a hex its name (a blank name removes it). The name is kept as typed, spaces and all, because it is
+ * set keystroke by keystroke; whoever reads it trims. Nothing changes when the hex is not on the map.
+ */
+export function setHexPlace(map: HexMap, q: number, r: number, name: string): HexMap {
+  const place = name.slice(0, HEX_PLACE_LIMIT);
+  return { ...map, hexes: map.hexes.map((hex) => (hex.q === q && hex.r === r ? { ...hex, place: place.trim() === '' ? undefined : place } : hex)) };
+}
+
+/** The hexes that carry this place name (case aside); none for an empty one. */
+export function hexesAtPlace(map: HexMap, place: string): Hex[] {
+  return place.trim() === '' ? [] : map.hexes.filter((hex) => hex.place !== undefined && sameName(hex.place, place));
+}
+
+/** Every name hexes carry, for the journal's list of places. */
+export const hexPlaces = (map: HexMap): string[] => [...new Set(map.hexes.map((hex) => hex.place?.trim()).filter((place): place is string => !!place))].sort();
+
+/**
+ * Where the journal goes when the party stands on this hex: the hex's own name, else (for a place with a
+ * feature — a settlement, lair, dungeon or landmark) the name `label` gives it, which is then kept on the hex so
+ * the journal can find its way back. A bare hex of open country says nothing and returns null — unless
+ * the player asked for it (`force`), when it is named too.
+ */
+export function journalPlaceFor(map: HexMap, hex: Hex, label: string, force = false): { map: HexMap; place: string } | null {
+  if (hex.place?.trim()) return { map, place: hex.place.trim() };
+  if (hex.feature.kind === 'empty' && !force) return null;
+  const place = label.trim().slice(0, HEX_PLACE_LIMIT);
+  return { map: setHexPlace(map, hex.q, hex.r, place), place };
 }
