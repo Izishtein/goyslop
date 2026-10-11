@@ -1972,7 +1972,11 @@
       "damageFor": "Урон по цели {{name}}:"
     },
     "toughSkin": "Tough Skin: дробящий урон (−{{points}})",
-    "fireVulnerability": "Fire Vulnerability: огненный урон (+{{points}})"
+    "fireVulnerability": "Fire Vulnerability: огненный урон (+{{points}})",
+    "useTechnique": "Применить ({{mp}} MP)",
+    "makoStoneUseTechnique": "MP из камня на следующую технику (один камень за раз)",
+    "techniqueLog": "Техники этой сессии",
+    "useUndo": "Отменить последнее применение"
   },
   "io": {
     "export": "Скачать JSON",

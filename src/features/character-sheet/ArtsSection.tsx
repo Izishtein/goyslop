@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ART_CLASS_ID, getArt, listArtsByKind, type ArtDefinition, type ArtKind } from '../../data/arts';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { bardicPower, enhancerPower } from '../../lib/formulas/derived-stats';
+import { mpAfterCast } from '../../lib/spellcasting';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownArt } from '../../types/character';
 import { PrintableField } from './PrintableField';
@@ -12,6 +13,9 @@ import styles from './CharacterSheetView.module.css';
 const DURATIONS = ['10s', '30s', '3min', '1h', 'instant'] as const;
 
 const KINDS: ArtKind[] = ['technique', 'spellsong', 'finale'];
+
+/** "Unless stated otherwise, a Technique costs 3 MP to activate" — Core Rulebook II p. 98; no Technique on the list states otherwise. */
+export const TECHNIQUE_MP = 3;
 
 function classLevel(character: Character, classId: string): number {
   return character.classes.filter((entry) => entry.classId === classId).reduce((max, entry) => Math.max(max, entry.level), 0);
@@ -79,6 +83,12 @@ export function ArtsSection({ character }: { character: Character }) {
   const availableKinds = KINDS.filter((kind) => (kind === 'technique' ? showTechniques : showBard));
   const [kind, setKind] = useState<ArtKind>('technique');
   const [artId, setArtId] = useState('');
+  // Techniques used this session, newest last, with what each took from the pool and the stone.
+  const [uses, setUses] = useState<{ id: string; art: KnownArt; before: number; after: number; fromStone: number }[]>([]);
+  /** MP the next Technique takes from the mako stone (only one stone at a time, Core II p. 98). */
+  const [stoneUse, setStoneUse] = useState(0);
+  const stone = character.makoStone;
+  const drawFor = (): number => Math.max(0, Math.min(stoneUse, stone, TECHNIQUE_MP));
 
   const activeKind = availableKinds.includes(kind) ? kind : (availableKinds[0] ?? 'technique');
   const known = new Set(character.arts.map((art) => art.name));
@@ -96,6 +106,23 @@ export function ArtsSection({ character }: { character: Character }) {
 
   function addBlank() {
     update((c) => ({ ...c, arts: [...c.arts, blankRow(activeKind)] }));
+  }
+
+  /** Using a Technique spends its 3 MP, partly from the stone when asked; without the MP it does nothing. */
+  function applyTechnique(art: KnownArt) {
+    const before = character.mp.current;
+    const fromStone = drawFor();
+    const left = mpAfterCast(before, TECHNIQUE_MP - fromStone);
+    if (left === null) return;
+    update((c) => ({ ...c, mp: { current: left }, makoStone: c.makoStone - fromStone }));
+    setUses((list) => [...list, { id: crypto.randomUUID(), art, before, after: left, fromStone }]);
+  }
+
+  function undoLastUse() {
+    const last = uses[uses.length - 1];
+    if (!last) return;
+    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) }, makoStone: c.makoStone + last.fromStone }));
+    setUses((list) => list.slice(0, -1));
   }
 
   function updateArt(id: string, patch: Partial<KnownArt>) {
@@ -181,6 +208,7 @@ export function ArtsSection({ character }: { character: Character }) {
                   <th>{t('sheet.duration')}</th>
                   <th>{t('sheet.artNote')}</th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -200,12 +228,73 @@ export function ArtsSection({ character }: { character: Character }) {
                       </select>
                     </td>
                     <td>{noteCell(art)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => applyTechnique(art)}
+                        disabled={TECHNIQUE_MP - drawFor() > character.mp.current}
+                        title={TECHNIQUE_MP - drawFor() > character.mp.current ? t('sheet.notEnoughMp') : undefined}
+                        aria-label={`${art.name} ${t('sheet.useTechnique', { mp: TECHNIQUE_MP })}`}
+                      >
+                        {t('sheet.useTechnique', { mp: TECHNIQUE_MP })}
+                      </button>
+                    </td>
                     <td>{removeCell(art)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <div className={`${styles.inlineRow} ${styles.controlRow}`}>
+            <label>
+              {t('sheet.makoStone')}{' '}
+              <input
+                type="number"
+                min={0}
+                value={stone}
+                onChange={(e) => {
+                  const points = Math.max(0, Math.floor(Number(e.target.value)) || 0);
+                  update((c) => ({ ...c, makoStone: points }));
+                  setStoneUse((use) => Math.min(use, points));
+                }}
+                style={{ width: '4.5em' }}
+              />
+            </label>
+            {stone > 0 && (
+              <label>
+                {t('sheet.makoStoneUseTechnique')}{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={Math.min(stone, TECHNIQUE_MP)}
+                  value={Math.min(stoneUse, stone)}
+                  onChange={(e) => setStoneUse(Math.max(0, Math.floor(Number(e.target.value)) || 0))}
+                  style={{ width: '4.5em' }}
+                />
+              </label>
+            )}
+          </div>
+          {uses.length > 0 && (
+            <div className={styles.turnLog} role="status" aria-live="polite" data-testid="technique-log">
+              <h4>{t('sheet.techniqueLog')}</h4>
+              <ul>
+                {uses.map((entry) => (
+                  <li key={entry.id}>
+                    <strong>{entry.art.name}</strong> —{' '}
+                    {entry.fromStone > 0
+                      ? t('sheet.castSpentStone', { mp: TECHNIQUE_MP, stone: entry.fromStone, before: entry.before, after: entry.after })
+                      : t('sheet.castSpent', { mp: TECHNIQUE_MP, before: entry.before, after: entry.after })}
+                  </li>
+                ))}
+              </ul>
+              <button type="button" onClick={undoLastUse}>
+                {t('sheet.useUndo')}
+              </button>
+              <button type="button" onClick={() => setUses([])}>
+                {t('sheet.castClear')}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

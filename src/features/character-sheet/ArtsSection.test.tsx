@@ -212,6 +212,46 @@ describe('ArtsSection', () => {
   });
 });
 
+describe('ArtsSection — MP of a Technique', () => {
+  const enhancer = (overrides: Partial<Character> = {}) =>
+    makeCharacter({ mp: { current: 10 }, arts: [{ ...blankTechnique(), name: 'Beetleskin' }], ...overrides });
+
+  it('spends 3 MP and lists the use, which can be undone', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(enhancer());
+
+    await user.click(screen.getByRole('button', { name: 'Beetleskin Use (3 MP)' }));
+    expect(store.get(charactersAtom)[0].mp.current).toBe(7);
+    expect(screen.getByTestId('technique-log')).toHaveTextContent('Beetleskin — spent 3 MP (10 → 7)');
+
+    await user.click(screen.getByRole('button', { name: 'Undo last use' }));
+    expect(store.get(charactersAtom)[0].mp.current).toBe(10);
+  });
+
+  it('draws part of the cost from the mako stone, and gives it back on undo', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(enhancer({ makoStone: 5 }));
+
+    await user.clear(screen.getByLabelText(/MP drawn from it/));
+    await user.type(screen.getByLabelText(/MP drawn from it/), '2');
+    await user.click(screen.getByRole('button', { name: 'Beetleskin Use (3 MP)' }));
+    expect(store.get(charactersAtom)[0]).toMatchObject({ mp: { current: 9 }, makoStone: 3 });
+
+    await user.click(screen.getByRole('button', { name: 'Undo last use' }));
+    expect(store.get(charactersAtom)[0]).toMatchObject({ mp: { current: 10 }, makoStone: 5 });
+  });
+
+  it('is off without the MP, but a stone that covers the cost makes up for it', async () => {
+    const user = userEvent.setup();
+    renderSection(enhancer({ mp: { current: 1 }, makoStone: 3 }));
+
+    expect(screen.getByRole('button', { name: 'Beetleskin Use (3 MP)' })).toBeDisabled();
+    await user.clear(screen.getByLabelText(/MP drawn from it/));
+    await user.type(screen.getByLabelText(/MP drawn from it/), '3');
+    expect(screen.getByRole('button', { name: 'Beetleskin Use (3 MP)' })).toBeEnabled();
+  });
+});
+
 function blankTechnique() {
   return {
     id: 'a1',

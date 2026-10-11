@@ -1972,7 +1972,11 @@
       "damageFor": "Damage to {{name}}:"
     },
     "toughSkin": "Tough Skin: bludgeoning damage (−{{points}})",
-    "fireVulnerability": "Fire Vulnerability: fire damage (+{{points}})"
+    "fireVulnerability": "Fire Vulnerability: fire damage (+{{points}})",
+    "useTechnique": "Use ({{mp}} MP)",
+    "makoStoneUseTechnique": "MP drawn from it for the next Technique (one stone at a time)",
+    "techniqueLog": "Techniques used this session",
+    "useUndo": "Undo last use"
   },
   "io": {
     "export": "Download JSON",
