@@ -460,3 +460,37 @@ describe('SpellsSection fumble experience', () => {
     expect(screen.queryByRole('button', { name: '+50 XP' })).not.toBeInTheDocument();
   });
 });
+
+describe('SpellsSection resistance of a spell with no Power', () => {
+  const bind = { id: 's2', name: 'Thorn Bind', school: 'Truespeech Magic', circle: 1, mp: 2 };
+  const face = (n: number) => (n - 1) / 6;
+  afterEach(() => vi.restoreAllMocks());
+
+  it('offers the casting check and the target\'s Willpower, and reads the result', async () => {
+    const user = userEvent.setup();
+    // Casting 3+4 + Magic Power 3 = 10; the Hoodling's Willpower 5 + fixed... rolled 5+5 = 15 holds
+    vi.spyOn(Math, 'random')
+      .mockReturnValueOnce(face(3)).mockReturnValueOnce(face(4))
+      .mockReturnValueOnce(face(5)).mockReturnValueOnce(face(5));
+    const store = renderSection(makeCharacter({ spells: [bind], mp: { current: 8 } }));
+    store.set(encounterAtom, { round: 1, monsters: [{ id: 'm1', monsterId: 'shield-hoodling', label: 'Hoodling', sections: [{ hp: 19, mp: 12 }] }] });
+    await user.click(screen.getByRole('button', { name: 'Thorn Bind Cast' }));
+
+    expect(screen.queryByRole('button', { name: /^Damage: Power/ })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+    await screen.findByRole('button', { name: 'Target Willpower' });
+    await user.click(screen.getByRole('button', { name: 'Target Willpower' }));
+
+    const log = screen.getByTestId('cast-log');
+    expect(log).toHaveTextContent('Willpower 15 vs casting 10');
+    expect(log).toHaveTextContent('“Resistance: Neg” cancels the effect');
+  });
+
+  it('shows no target to resist when the table is empty', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ spells: [bind], mp: { current: 8 } }));
+    await user.click(screen.getByRole('button', { name: 'Thorn Bind Cast' }));
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+    expect(screen.queryByRole('button', { name: 'Target Willpower' })).not.toBeInTheDocument();
+  });
+});

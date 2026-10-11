@@ -1907,7 +1907,8 @@
       "rivers": "Пригород (реки и моря)"
     },
     "damageRollXp": "+50 XP",
-    "damageRollXpGiven": "+50 XP записано"
+    "damageRollXpGiven": "+50 XP записано",
+    "spellResistedNoDamage": "сопротивление: при «Resistance: Neg» эффект отменяется, при «Half» ослабляется"
   },
   "io": {
     "export": "Скачать JSON",

@@ -8,6 +8,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import { SpellEffectRoll } from './SpellEffectRoll';
+import { SpellResistRoll } from './SpellResistRoll';
 import styles from './CharacterSheetView.module.css';
 
 /** The circles a list of spells actually covers, in order. */
@@ -194,10 +195,15 @@ export function SpellsSection({ character }: { character: Character }) {
               return (
                 <li key={entry.id}>
                   <strong>{entry.spell.name}</strong> — {t('sheet.castSpent', { mp: entry.spell.mp, before: entry.before, after: entry.after })}
-                  {power && power.power > 0 && (
+                  {power && power.power > 0 ? (
                     <>
                       {' '}
                       <SpellEffectRoll character={character} school={entry.spell.school} spell={power} />
+                    </>
+                  ) : (
+                    <>
+                      {' '}
+                      <SpellResistRoll character={character} school={entry.spell.school} />
                     </>
                   )}
                   {i18n.exists(key) && (

@@ -1907,7 +1907,8 @@
       "rivers": "Suburbs (Rivers and Seas)"
     },
     "damageRollXp": "+50 XP",
-    "damageRollXpGiven": "+50 XP added"
+    "damageRollXpGiven": "+50 XP added",
+    "spellResistedNoDamage": "resisted: “Resistance: Neg” cancels the effect, “Half” weakens it"
   },
   "io": {
     "export": "Download JSON",
