@@ -19,6 +19,21 @@ import { useMonsters } from './useMonsters';
 /** "The adventurers" of a scenario: the PC and every Fellow, six at most (CR I p. 195). */
 const PARTY_LIMIT = 6;
 
+/** One attack aimed and resolved: a Fellow with Dual Wielding makes two in one action. */
+interface AttackResult {
+  target: string;
+  value: number;
+  evasion: number;
+  evasionDice: [number, number] | null;
+  hit: boolean;
+  damage?: DamageRoll;
+  dealt?: number;
+  magic: boolean;
+}
+
+/** [Dual Wielding]: one attack with each hand in one Major Action, each at -2 Accuracy. */
+const DUAL_WIELD_PENALTY = 2;
+
 interface FellowTurn {
   die: number;
   action: FellowAction | null;
@@ -28,17 +43,8 @@ interface FellowTurn {
   noMp?: number;
   /** Result of a healing spell cast on the open character. */
   healed?: { amount: number; dice: [number, number] };
-  /** Filled once an attack has been aimed and resolved. */
-  result?: {
-    target: string;
-    value: number;
-    evasion: number;
-    evasionDice: [number, number] | null;
-    hit: boolean;
-    damage?: DamageRoll;
-    dealt?: number;
-    magic: boolean;
-  };
+  /** Filled once an attack has been aimed and resolved (two entries for a dual-wielding action). */
+  results?: AttackResult[];
 }
 
 /** A target for a Fellow's attack: one section of one monster that is still standing. */
@@ -80,6 +86,7 @@ function FellowCard({
   const [encounter, setEncounter] = useAtom(encounterAtom);
   const [turn, setTurn] = useState<FellowTurn | null>(null);
   const [targetKey, setTargetKey] = useState('');
+  const [dual, setDual] = useState(false);
 
   const targets = targetsOf(encounter.monsters, byId);
   const target = targets.find((entry) => entry.key === targetKey) ?? targets[0];
@@ -89,6 +96,7 @@ function FellowCard({
   const attack = turn?.action && !turn.noMp ? fellowAttack(turn.action) : null;
   const heal = turn?.action && !turn.noMp ? fellowHeal(turn.action) : null;
   const value = turn?.action ? fellowValue(turn.action) : null;
+  const canDual = !!attack && !attack.magic && fellow.combatFeats.some((entry) => entry.name.trim().toLowerCase() === 'dual wielding');
 
   function act() {
     const die = rollD6();
@@ -122,22 +130,31 @@ function FellowCard({
    *  A hit needs a value above the monster's Success Value, then Power Table damage as for a PC. */
   function resolve() {
     if (!turn?.action || !attack || value === null || !target) return;
-    const instance = encounter.monsters[target.monsterIndex];
+    let instance = encounter.monsters[target.monsterIndex];
     const monster = byId.get(instance.monsterId);
     if (!monster) return;
     const section = monster.sections[target.sectionIndex];
     const standard = isValuePair(section.evasion) ? section.evasion.value : 0;
-    const evasion = rollEvasion(standard, fixed);
-    const hit = evasion.outcome === 'critical' ? false : evasion.outcome === 'fumble' ? true : value > evasion.value;
-    const base = { target: target.label, value, evasion: evasion.value, evasionDice: evasion.dice, magic: attack.magic };
-    if (!hit) {
-      setTurn({ ...turn, result: { ...base, hit } });
-      return;
+    // two blows for a dual-wielding action, each at -2; the second lands on whatever the first left standing
+    const twice = dual && canDual;
+    const attackValue = twice ? value - DUAL_WIELD_PENALTY : value;
+    const results: AttackResult[] = [];
+    for (let blow = 0; blow < (twice ? 2 : 1); blow += 1) {
+      const evasion = rollEvasion(standard, fixed);
+      const hit = evasion.outcome === 'critical' ? false : evasion.outcome === 'fumble' ? true : attackValue > evasion.value;
+      const base = { target: target.label, value: attackValue, evasion: evasion.value, evasionDice: evasion.dice, magic: attack.magic };
+      if (!hit) {
+        results.push({ ...base, hit });
+        continue;
+      }
+      const damage = rollWeaponDamage(attack.power, attack.criticalValue, attack.extraDamage);
+      const applied = damageSection(instance, target.sectionIndex, damage.calculatedDamage, numberOf(section.defense), !attack.magic);
+      instance = applied.instance;
+      results.push({ ...base, hit, damage, dealt: applied.dealt });
     }
-    const damage = rollWeaponDamage(attack.power, attack.criticalValue, attack.extraDamage);
-    const applied = damageSection(instance, target.sectionIndex, damage.calculatedDamage, numberOf(section.defense), !attack.magic);
-    setEncounter((current) => ({ ...current, monsters: current.monsters.map((entry) => (entry.id === applied.instance.id ? applied.instance : entry)) }));
-    setTurn({ ...turn, result: { ...base, hit, damage, dealt: applied.dealt } });
+    const settled = instance;
+    setEncounter((current) => ({ ...current, monsters: current.monsters.map((entry) => (entry.id === settled.id ? settled : entry)) }));
+    setTurn({ ...turn, results });
   }
 
   const classes = fellow.classes.map((entry) => `${getClass(entry.classId)?.name ?? entry.classId} ${entry.level}`).join(', ');
@@ -199,7 +216,12 @@ function FellowCard({
             </p>
           )}
 
-          {attack && !turn.result && (
+          {canDual && !turn.results && (
+            <label>
+              <input type="checkbox" checked={dual} onChange={(e) => setDual(e.target.checked)} /> {t('solo.party.dualWield')}
+            </label>
+          )}
+          {attack && !turn.results && (
             <div className={styles.controls}>
               {targets.length === 0 ? (
                 <span className={styles.note}>{t('solo.party.noTarget')}</span>
@@ -233,21 +255,21 @@ function FellowCard({
           )}
           {!attack && !heal && turn.action && !turn.noMp && <p className={styles.note}>{t('solo.party.checkNote')}</p>}
 
-          {turn.result && (
-            <>
+          {turn.results?.map((result, index) => (
+            <div key={index}>
               <p>
-                {turn.result.target}: {t('solo.party.attackLine', { value: turn.result.value, evasion: turn.result.evasion })} —{' '}
-                <strong>{turn.result.hit ? t('solo.hit') : t('solo.miss')}</strong>
+                {result.target}: {t('solo.party.attackLine', { value: result.value, evasion: result.evasion })} —{' '}
+                <strong>{result.hit ? t('solo.hit') : t('solo.miss')}</strong>
               </p>
-              {turn.result.damage && (
+              {result.damage && (
                 <p>
-                  {turn.result.damage.steps.map((step) => `${step.d1}+${step.d2}→${step.value}`).join(' · ')} ={' '}
-                  {turn.result.damage.calculatedDamage}
-                  {turn.result.magic ? ` (${t('solo.party.magic')})` : ''} → <strong>{turn.result.dealt}</strong> {t('solo.party.dealt')}
+                  {result.damage.steps.map((step) => `${step.d1}+${step.d2}→${step.value}`).join(' · ')} ={' '}
+                  {result.damage.calculatedDamage}
+                  {result.magic ? ` (${t('solo.party.magic')})` : ''} → <strong>{result.dealt}</strong> {t('solo.party.dealt')}
                 </p>
               )}
-            </>
-          )}
+            </div>
+          ))}
         </div>
       )}
     </article>

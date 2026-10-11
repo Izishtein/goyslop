@@ -136,7 +136,8 @@
       "mpSpent": "{{cost}} MP spent (given back if you cancel the action).",
       "healTarget": "Heal {{name}}",
       "noHealTarget": "No character is open to heal",
-      "healed": "HP restored"
+      "healed": "HP restored",
+      "dualWield": "Two attacks this action (Dual Wielding: −2 to each)"
     },
     "oracle": {
       "title": "Oracle",

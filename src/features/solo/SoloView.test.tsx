@@ -376,6 +376,33 @@ describe('SoloView Fellows', () => {
     expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBeLessThan(16);
   });
 
+  it('lets a dual-wielding Fellow strike twice at -2 each, and only then', async () => {
+    const user = userEvent.setup();
+    renderSolo(true, [{ ...wolfe(), combatFeats: [{ id: 'f', name: 'Dual Wielding', category: 'passive' }] } as Character]);
+    await addMonster(user, 'Goblin'); // Evasion 3 (10)
+    await screen.findByRole('article', { name: 'Goblin' });
+    const card = await invite(user);
+
+    vi.spyOn(Math, 'random').mockReturnValue(face(1)); // d6 = 1: the attack row; every later die is a 1 too
+    await user.click(within(card).getByRole('button', { name: 'Wolfe acts' }));
+    await user.click(within(card).getByLabelText(/Two attacks this action/));
+    await user.click(within(card).getByRole('button', { name: "Resolve Wolfe's attack" }));
+
+    const report = within(card).getByRole('status');
+    expect(report.textContent?.match(/Value 10 against Evasion/g)).toHaveLength(2);
+  });
+
+  it('offers no second blow to a Fellow without Dual Wielding', async () => {
+    const user = userEvent.setup();
+    renderSolo(true, [wolfe()]);
+    const card = await invite(user);
+    vi.spyOn(Math, 'random').mockReturnValue(face(1));
+
+    await user.click(within(card).getByRole('button', { name: 'Wolfe acts' }));
+
+    expect(within(card).queryByLabelText(/Two attacks this action/)).not.toBeInTheDocument();
+  });
+
   it('lets a Fellow act once a round', async () => {
     const user = userEvent.setup();
     renderSolo(true, [wolfe()]);
