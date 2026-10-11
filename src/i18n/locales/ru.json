@@ -337,7 +337,16 @@
       },
       "weight": "вес {{weight}}",
       "weightUp": "Чаще: {{title}}",
-      "weightDown": "Реже: {{title}}"
+      "weightDown": "Реже: {{title}}",
+      "export": {
+        "button": "Скачать журнал (.md)",
+        "title": "Журнал кампании",
+        "today": "История на сегодня — день {{day}}.",
+        "progress": "прогресс {{progress}}/{{size}}",
+        "settled": "закрыто",
+        "scene": "сцена {{scene}}",
+        "open": "Пока открыто"
+      }
     },
     "knowledgeCheck": "Знание монстров",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",

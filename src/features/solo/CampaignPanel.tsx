@@ -18,6 +18,8 @@ import {
   type KindFilter,
 } from '../../lib/campaign';
 import { calendarOf } from '../../lib/calendar';
+import { campaignFileName, campaignToMarkdown } from '../../lib/campaign-export';
+import { downloadText } from './downloadText';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import { ThreadTrack } from './ThreadTrack';
@@ -62,6 +64,13 @@ export function CampaignPanel() {
         </button>
         <button type="button" onClick={() => setCampaign((current) => setDay(current, current.day - 1))} disabled={campaign.day <= 1}>
           {t('solo.campaign.prevDay')}
+        </button>
+        <button
+          type="button"
+          disabled={campaign.entries.length === 0}
+          onClick={() => downloadText(campaignFileName(campaign.day), campaignToMarkdown(campaign, (key, options) => t(key, options)))}
+        >
+          {t('solo.campaign.export.button')}
         </button>
       </div>
 

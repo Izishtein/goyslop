@@ -161,3 +161,22 @@ describe('CampaignPanel thread track', () => {
     expect(screen.getByRole('button', { name: 'Discovery check: Find the sister' })).toBeDisabled();
   });
 });
+
+describe('CampaignPanel export', () => {
+  it('hands the log to the browser as a Markdown file, and is off while the log is empty', async () => {
+    const user = userEvent.setup();
+    const created: Blob[] = [];
+    vi.stubGlobal('URL', { ...URL, createObjectURL: (blob: Blob) => (created.push(blob), 'blob:log'), revokeObjectURL: () => {} });
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    renderPanel();
+    expect(screen.getByRole('button', { name: 'Download the log (.md)' })).toBeDisabled();
+
+    await user.type(screen.getByLabelText('Title'), 'Arrival');
+    await user.click(screen.getByRole('button', { name: 'Add to the log' }));
+    await user.click(screen.getByRole('button', { name: 'Download the log (.md)' }));
+
+    expect(created).toHaveLength(1);
+    expect(await created[0].text()).toContain('**Arrival**');
+    vi.unstubAllGlobals();
+  });
+});

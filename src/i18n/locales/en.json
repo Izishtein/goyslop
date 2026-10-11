@@ -337,7 +337,16 @@
       },
       "weight": "weight {{weight}}",
       "weightUp": "More often: {{title}}",
-      "weightDown": "Less often: {{title}}"
+      "weightDown": "Less often: {{title}}",
+      "export": {
+        "button": "Download the log (.md)",
+        "title": "Campaign log",
+        "today": "The story so far — day {{day}}.",
+        "progress": "progress {{progress}}/{{size}}",
+        "settled": "settled",
+        "scene": "scene {{scene}}",
+        "open": "Still open"
+      }
     },
     "knowledgeCheck": "Monster Knowledge",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",
