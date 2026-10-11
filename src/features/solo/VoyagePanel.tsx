@@ -8,12 +8,10 @@ import { addEntry, setDay } from '../../lib/campaign';
 import { generateSettlement } from '../../lib/dungeon';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { upsertManagedEffect } from '../../lib/formulas/status-effects';
-import { hexDistance, landfall, PENALTY_FIELDS, returnToHex, SETTLEMENT_KINDS, type SettlementKind } from '../../lib/hexmap';
-import { canSailTo, seaHexAt, type SeaHex } from '../../lib/seamap';
+import { driftMarkets, hexAt, isPort, PENALTY_FIELDS, withMarket } from '../../lib/hexmap';
 import { FLEET_MAX, GOODS, HIRE_FEE, SHIP_PRICE, goodPrice } from '../../lib/ships';
 import {
   addShip,
-  atHomePort,
   attackShip,
   cargoCapacity,
   cargoLoad,
@@ -23,6 +21,8 @@ import {
   crewNeeded,
   dayInPort,
   fleetOf,
+  goAboard,
+  goAshore,
   harbourHere,
   hireable,
   hireCrew,
@@ -37,8 +37,8 @@ import {
   inPort,
   repairDay,
   sailDay,
-  sailTo,
   setSail,
+  shipHex,
   SHIPS,
   type Ship,
   type ShipAttack,
@@ -53,17 +53,7 @@ import { voyageAtom } from '../../state/voyage';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
-const SIZE = 24;
-const SQRT3 = Math.sqrt(3);
-const center = (hex: { q: number; r: number }) => ({ x: SIZE * SQRT3 * (hex.q + hex.r / 2), y: SIZE * 1.5 * hex.r });
-const corners = (x: number, y: number) =>
-  Array.from({ length: 6 }, (_, i) => {
-    const angle = (Math.PI / 180) * (60 * i - 30);
-    return `${(x + SIZE * Math.cos(angle)).toFixed(1)},${(y + SIZE * Math.sin(angle)).toFixed(1)}`;
-  }).join(' ');
-
-const GLYPH: Record<string, string> = { water: '', port: '⚓', island: '▲', reef: '≋' };
-/** Ids of the status effects the voyage lays on the open character. */
+/** Ids of the status effects/** Ids of the status effects the voyage lays on the open character. */
 const HUNGER_EFFECT_ID = 'voyage-hunger';
 const DECK_EFFECT_ID = 'voyage-deck';
 /** A storm pitches the deck: -2 to Accuracy and Evasion while it lasts. */
@@ -81,8 +71,6 @@ export function VoyagePanel() {
   const setCampaign = useSetAtom(campaignAtom);
   const setDungeon = useSetAtom(dungeonAtom);
   const [hexMap, setHexMap] = useAtom(hexMapAtom);
-  const [landing, setLanding] = useState(false);
-  const [returning, setReturning] = useState(false);
   const characters = useAtomValue(charactersAtom);
   const activeId = useAtomValue(activeCharacterIdAtom);
   const updateCharacter = useUpdateCharacter(activeId ?? '');
@@ -99,7 +87,7 @@ export function VoyagePanel() {
 
   const character = characters.find((entry) => entry.id === activeId);
   const level = character ? Math.max(1, adventurerLevel(character.classes)) : 1;
-  const over = !!voyage && (voyage.arrived || voyage.wrecked);
+  const over = !!voyage && voyage.wrecked;
   const cash = character?.currency.cash ?? 0;
 
   /** Every voyage day is a day of the campaign calendar. */
@@ -116,8 +104,8 @@ export function VoyagePanel() {
   }
 
   // Hunger and a pitching deck are carried onto the open character as status effects, and lifted when they pass.
-  const hunger = voyage && !over ? voyage.hunger : 0;
-  const stormy = !!voyage && !over && voyage.weather === 'storm';
+  const hunger = voyage && !over && voyage.aboard ? voyage.hunger : 0;
+  const stormy = !!voyage && !over && voyage.aboard && voyage.weather === 'storm';
   const hungerName = t('solo.voyage.hungerEffect');
   const deckName = t('solo.voyage.deckEffect');
   useEffect(() => {
@@ -140,6 +128,19 @@ export function VoyagePanel() {
     if (apply(character.statusEffects) !== character.statusEffects) updateCharacter((c) => ({ ...c, statusEffects: apply(c.statusEffects) }));
   }, [character, hunger, stormy, hungerName, deckName, updateCharacter]);
 
+  const partyHex = hexAt(hexMap, hexMap.party.q, hexMap.party.r);
+  const partyInPort = isPort(hexMap, partyHex);
+
+  /** Puts out from the harbour the party stands in, in the ship chosen. */
+  function setSailHere() {
+    if (!partyHex || !partyInPort) return;
+    setVoyage(setSail(ship, level, { q: partyHex.q, r: partyHex.r, settlement: partyHex.feature.settlement }));
+    setHexMap((current) => withMarket(current, partyHex.q, partyHex.r));
+    setLogged(false);
+    setNote('');
+    setStrike(null);
+  }
+
   if (!voyage) {
     return (
       <section className={styles.panel} aria-labelledby="solo-voyage">
@@ -158,19 +159,12 @@ export function VoyagePanel() {
               ))}
             </select>
           </label>
-          <button
-            type="button"
-            onClick={() => {
-              setVoyage(setSail(ship, level));
-              setLogged(false);
-              setNote('');
-              setStrike(null);
-            }}
-          >
+          <button type="button" onClick={setSailHere} disabled={!partyInPort}>
             {t('solo.voyage.setSail')}
           </button>
           <span className={styles.numeric}>{t('solo.dungeon.forLevel', { level })}</span>
         </div>
+        {!partyInPort && <p className={styles.note}>{t('solo.voyage.needHarbour')}</p>}
       </section>
     );
   }
@@ -180,34 +174,29 @@ export function VoyagePanel() {
   const crew = pursuit ? byId.get(pursuit.crewId) : undefined;
   const fleet = fleetOf(voyage);
   const aimed = Math.min(target, fleet.length - 1);
-  const harbour = harbourHere(voyage);
+  const harbour = harbourHere(voyage, hexMap);
   const hunted = !!pursuit && (pursuit.state === 'closing' || pursuit.state === 'grappled');
-  const sea = voyage.sea;
-  const here = sea ? seaHexAt(sea, sea.ship.q, sea.ship.r) : undefined;
-  const docked = inPort(voyage);
+  const here = shipHex(voyage, hexMap);
+  const docked = inPort(voyage, hexMap);
+  /** The harbour's market, quay and shipyard are open to a party aboard or ashore beside its ship. */
+  const atQuay = docked && (voyage.aboard || (hexMap.party.q === voyage.at.q && hexMap.party.r === voyage.at.r));
 
   function day() {
     if (!monsters || !voyage) return;
+    if (!voyage.aboard) return;
     const report = sailDay(voyage, monsters);
     setVoyage(report.voyage);
+    setHexMap((current) => driftMarkets(current));
     setStrike(null);
     setNote(report.stormDamage > 0 ? t('solo.voyage.stormDamage', { damage: report.stormDamage }) : '');
   }
 
-  function sail(hex: SeaHex) {
-    if (!voyage || !sea || !canSailTo(sea, hex.q, hex.r) || voyage.moves <= 0) return;
-    const report = sailTo(voyage, hex.q, hex.r);
-    setVoyage(report.voyage);
-    setStrike(null);
-    const key = report.event === 'reef' ? 'reef' : report.event === 'arrived' ? 'arrivedPort' : report.event === 'port' || report.event === 'home' ? 'harbour' : '';
-    setNote(key ? t(`solo.voyage.sailed.${key}`, { damage: report.reefDamage }) : '');
-  }
-
   function search() {
     if (!voyage || !monsters) return;
-    const report = exploreIsland(voyage, monsters);
+    const report = exploreIsland(voyage, hexMap, monsters);
     if (!report) return;
     setVoyage(report.voyage);
+    setHexMap(report.map);
     if (report.outcome === 'wreck' && activeId) updateCharacter((c) => ({ ...c, currency: { ...c.currency, cash: c.currency.cash + report.gold } }));
     setNote(t(`solo.voyage.island.${report.outcome}`, { gold: report.gold }));
   }
@@ -303,34 +292,29 @@ export function VoyagePanel() {
     if (!voyage) return;
     const hired = Math.min(count, hireable(voyage));
     if (hired <= 0 || cash < hired * HIRE_FEE) return;
-    const next = hireCrew(voyage, hired);
+    const next = hireCrew(voyage, hexMap, hired);
     if (!next) return;
     pay(-hired * HIRE_FEE);
     setVoyage(next);
   }
 
-  /** Steps ashore in the new land: a fresh land map centred on the harbour town, the sea chart put away. */
-  function landHere() {
-    if (!voyage?.arrived || !monsters) return;
-    const kind = SETTLEMENT_KINDS.find((entry) => entry === here?.settlement) ?? ('town' satisfies SettlementKind);
-    setHexMap(landfall({ level, monsters }, kind));
-    setVoyage(null);
-    setLanding(false);
+  /** Down the gangway at the quay: the party is in the harbour town, the ship waits alongside. */
+  function disembark() {
+    if (!voyage) return;
+    const next = goAshore(voyage, hexMap);
+    if (next) setVoyage(next);
   }
 
-  /** Back down the gangway at the harbour the ship sailed from: the party stands on the hex it left, on the same land map, and the voyage ends. */
-  function returnHome() {
-    if (!voyage?.homeHex) return;
-    const back = returnToHex(hexMap, voyage.homeHex);
-    if (!back) return;
-    setHexMap(back);
-    setVoyage(null);
-    setReturning(false);
+  /** Back aboard the ship the party stands beside. */
+  function embark() {
+    if (!voyage) return;
+    const next = goAboard(voyage, hexMap);
+    if (next) setVoyage(next);
   }
 
   function buyShip() {
     if (!voyage || cash < SHIP_PRICE[shipToBuy]) return;
-    const next = addShip(voyage, shipToBuy);
+    const next = addShip(voyage, hexMap, shipToBuy);
     if (!next) return;
     pay(-SHIP_PRICE[shipToBuy]);
     setVoyage(next);
@@ -352,30 +336,18 @@ export function VoyagePanel() {
     }
   }
 
-  /** Down the gangway into the streets of the town the harbour belongs to. */
-  function goAshore() {
-    if (!sea || !harbour) return;
-    setDungeon(generateSettlement(harbour.settlement ?? 'town', level, `port:${harbour.q},${harbour.r}`));
-    setNote(t('solo.voyage.ashore'));
+  /** Into the streets of the town the harbour belongs to. */
+  function visitTown() {
+    if (!harbour) return;
+    setDungeon(generateSettlement(harbour.feature.settlement ?? 'town', level, `port:${harbour.q},${harbour.r}`));    setNote(t('solo.voyage.ashore'));
   }
 
   function logVoyage() {
     if (!voyage) return;
-    const title = t(voyage.arrived ? 'solo.voyage.logArrived' : 'solo.voyage.logWrecked');
+    const title = t('solo.voyage.logWrecked');
     setCampaign((current) => addEntry(current, { kind: 'scene', title, text: t('solo.voyage.logText', { days: voyage.day, hull: voyage.hull }), scene: 0 }, crypto.randomUUID()));
     setLogged(true);
   }
-
-  const xs = sea ? sea.hexes.map((hex) => center(hex).x) : [];
-  const ys = sea ? sea.hexes.map((hex) => center(hex).y) : [];
-  const box = sea ? { x: Math.min(...xs) - SIZE, y: Math.min(...ys) - SIZE, w: Math.max(...xs) - Math.min(...xs) + 2 * SIZE, h: Math.max(...ys) - Math.min(...ys) + 2 * SIZE } : null;
-
-  const describe = (hex: SeaHex) => {
-    if (!hex.seen) return t('solo.voyage.unknownWater');
-    if (hex.kind === 'port') return `${t('solo.voyage.kinds.port')}${hex.visited && hex.name ? `: ${t(`solo.voyage.ports.${hex.name}`)}` : ''}`;
-    if (hex.kind === 'island') return `${t('solo.voyage.kinds.island')}${hex.visited && hex.name ? `: ${t(`solo.voyage.islands.${hex.name}`)}` : ''}`;
-    return t(`solo.voyage.kinds.${hex.visited ? hex.kind : 'water'}`);
-  };
 
   return (
     <section className={styles.panel} aria-labelledby="solo-voyage">
@@ -385,7 +357,6 @@ export function VoyagePanel() {
           {t(`solo.voyage.ships.${voyage.ship}`, { hull: HULL[voyage.ship] })} ·{' '}
           {t('solo.voyage.status', {
             day: voyage.day,
-            left: sea ? hexDistance(sea.ship, sea.destination) : voyage.distance - voyage.progress,
             hull: voyage.hull,
             hullMax: HULL[voyage.ship],
             supplies: voyage.supplies,
@@ -410,8 +381,16 @@ export function VoyagePanel() {
         )}
       </p>
       {voyage.weather && <p>{t(`solo.voyage.weathers.${voyage.weather}`)}</p>}
-      {sea && !over && (
-        <p className={styles.note}>{t('solo.voyage.moves', { moves: voyage.moves })}</p>
+      {!over && voyage.aboard && <p className={styles.note}>{t('solo.voyage.moves', { moves: voyage.moves })}</p>}
+      {!over && !voyage.aboard && (
+        <p className={styles.note}>
+          {t('solo.voyage.waiting', { q: voyage.at.q, r: voyage.at.r })}{' '}
+          {hexMap.party.q === voyage.at.q && hexMap.party.r === voyage.at.r && (
+            <button type="button" onClick={embark}>
+              {t('solo.voyage.goAboard')}
+            </button>
+          )}
+        </p>
       )}
       {note && (
         <p role="status" className={styles.note}>
@@ -420,41 +399,6 @@ export function VoyagePanel() {
       )}
       {voyage.supplies === 0 && !over && <p role="alert">{t('solo.voyage.hungry', { penalty: voyage.hunger })}</p>}
       {voyage.hunger >= HUNGER_MAX && !over && <p role="alert">{t('solo.voyage.starving')}</p>}
-
-      {box && sea && (
-        <svg className={styles.hexSvg} viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`} role="group" aria-label={t('solo.voyage.chartAria')}>
-          {sea.hexes.map((hex) => {
-            const { x, y } = center(hex);
-            const ownShip = hex.q === sea.ship.q && hex.r === sea.ship.r;
-            const reachable = !over && voyage.moves > 0 && canSailTo(sea, hex.q, hex.r);
-            const known = hex.seen && (hex.visited || hex.kind === 'port' || hex.kind === 'water' || hex.kind === 'island' || hex.kind === 'reef');
-            return (
-              <g
-                key={`${hex.q},${hex.r}`}
-                role="button"
-                tabIndex={reachable ? 0 : -1}
-                aria-label={`${describe(hex)}${ownShip ? ` — ${t('solo.voyage.shipHere')}` : ''}`}
-                aria-disabled={!reachable}
-                className={styles.hexCell}
-                data-biome={hex.seen ? (hex.visited || hex.kind === 'port' ? hex.kind : 'sea') : 'unknown'}
-                data-reachable={reachable || undefined}
-                onClick={() => sail(hex)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    sail(hex);
-                  }
-                }}
-              >
-                <polygon points={corners(x, y)} />
-                <text x={x} y={y + 6} textAnchor="middle" aria-hidden="true">
-                  {ownShip ? '⛵' : known && (hex.visited || hex.kind === 'port') ? GLYPH[hex.kind] : hex.seen ? '' : '?'}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      )}
 
       {pursuit && (
         <div className={styles.report}>
@@ -493,14 +437,19 @@ export function VoyagePanel() {
         {t('solo.voyage.crewLine', { crew: crewAboard(voyage), needed: crewNeeded(voyage) })}
         {undermanned(voyage) && ` ${t('solo.voyage.shortHanded')}`}
       </p>
-      {docked && !over && harbour && (
+      {atQuay && !over && harbour && (
         <div className={styles.report}>
           <p>
-            <strong>{t('solo.voyage.harbour', { name: harbour.name ? t(`solo.voyage.ports.${harbour.name}`) : '' })}</strong>{' '}
-            {t('solo.voyage.townAshore', { town: t(`solo.hex.settlements.${harbour.settlement ?? 'town'}`) })}{' '}
-            <button type="button" onClick={goAshore}>
-              {t('solo.voyage.goAshore')}
-            </button>
+            <strong>{t('solo.voyage.harbour', { name: harbour.place?.trim() ?? '' })}</strong>{' '}
+            {t('solo.voyage.townAshore', { town: t(`solo.hex.settlements.${harbour.feature.settlement ?? 'town'}`) })}{' '}
+            <button type="button" onClick={visitTown}>
+              {t('solo.voyage.visitTown')}
+            </button>{' '}
+            {voyage.aboard && (
+              <button type="button" onClick={disembark}>
+                {t('solo.voyage.goAshore')}
+              </button>
+            )}
           </p>
           <p className={styles.note}>{t('solo.voyage.holds', { load: cargoLoad(voyage), capacity: cargoCapacity(voyage), cash })}</p>
           {undermanned(voyage) && (
@@ -515,25 +464,6 @@ export function VoyagePanel() {
                   </button>{' '}
                   <button type="button" onClick={() => hire(hireable(voyage))} disabled={cash < hireable(voyage) * HIRE_FEE}>
                     {t('solo.voyage.hireAll', { count: hireable(voyage), fee: hireable(voyage) * HIRE_FEE })}
-                  </button>
-                </>
-              )}
-            </p>
-          )}
-          {atHomePort(voyage) && voyage.homeHex && returnToHex(hexMap, voyage.homeHex) && (
-            <p>
-              {!returning ? (
-                <button type="button" onClick={() => setReturning(true)}>
-                  {t('solo.voyage.returnHome', { hex: voyage.homeHex })}
-                </button>
-              ) : (
-                <>
-                  <span className={styles.note}>{t('solo.voyage.returnHomeWarn', { hex: voyage.homeHex })}</span>{' '}
-                  <button type="button" onClick={returnHome}>
-                    {t('solo.voyage.returnHomeConfirm')}
-                  </button>{' '}
-                  <button type="button" onClick={() => setReturning(false)}>
-                    {t('solo.voyage.landfallCancel')}
                   </button>
                 </>
               )}
@@ -613,25 +543,38 @@ export function VoyagePanel() {
           })}
         </p>
       )}
-      {over && <p role="status">{t(voyage.arrived ? 'solo.voyage.arrived' : 'solo.voyage.wrecked')}</p>}
+      {over && <p role="status">{t('solo.voyage.wrecked')}</p>}
 
       <div className={styles.controls}>
-        {!over && (
+        {!over && voyage.aboard && (
           <>
             <button type="button" onClick={day} disabled={!monsters || hunted}>
               {t('solo.voyage.nextDay')}
             </button>
             {docked && (
-              <button type="button" onClick={() => setVoyage(dayInPort(voyage))}>
+              <button
+                type="button"
+                onClick={() => {
+                  setVoyage(dayInPort(voyage, harbour?.feature.settlement));
+                  setHexMap((current) => driftMarkets(current));
+                }}
+              >
                 {t('solo.voyage.dayInPort')}
               </button>
             )}
-            {here?.kind === 'island' && !here.explored && (
+            {here?.feature.kind === 'island' && !here.explored && (
               <button type="button" onClick={search} disabled={!monsters}>
                 {t('solo.voyage.searchIsland')}
               </button>
             )}
-            <button type="button" onClick={() => setVoyage(repairDay(voyage))} disabled={voyage.hull >= HULL[voyage.ship]}>
+            <button
+              type="button"
+              onClick={() => {
+                setVoyage(repairDay(voyage));
+                setHexMap((current) => driftMarkets(current));
+              }}
+              disabled={voyage.hull >= HULL[voyage.ship]}
+            >
               {t('solo.voyage.repair')}
             </button>
             <label>
@@ -640,22 +583,6 @@ export function VoyagePanel() {
             </label>
             <button type="button" onClick={() => setVoyage(hullBlow(voyage, Math.floor(Number(blow)) || 0, aimed))}>
               {t('solo.voyage.hit')}
-            </button>
-          </>
-        )}
-        {voyage.arrived && !landing && (
-          <button type="button" onClick={() => setLanding(true)} disabled={!monsters}>
-            {t('solo.voyage.landfall')}
-          </button>
-        )}
-        {voyage.arrived && landing && (
-          <>
-            <span className={styles.note}>{t('solo.voyage.landfallWarn')}</span>
-            <button type="button" onClick={landHere}>
-              {t('solo.voyage.landfallConfirm')}
-            </button>
-            <button type="button" onClick={() => setLanding(false)}>
-              {t('solo.voyage.landfallCancel')}
             </button>
           </>
         )}

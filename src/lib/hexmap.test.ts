@@ -24,7 +24,6 @@ import {
   MAX_FATIGUE,
   moveParty,
   restDay,
-  returnToHex,
   nextBiome,
   nextPatchCentre,
   PATCH_VECTORS,
@@ -255,29 +254,6 @@ describe('places on the map', () => {
   it('says nothing about bare country unless asked', () => {
     expect(journalPlaceFor(map, bare, 'Grassland (0,0)')).toBeNull();
     expect(journalPlaceFor(map, bare, 'Grassland (0,0)', true)?.place).toBe('Grassland (0,0)');
-  });
-});
-
-describe('returnToHex', () => {
-  const map = { ...generateHexMap({ level: 3, monsters, rng: seeded(11) }), rations: 2, fatigue: 4 };
-
-  it('stands the party on the hex of the key, visited, fed and rested', () => {
-    const target = map.hexes.find((hex) => hex.q === 1 && hex.r === 0)!;
-    const back = returnToHex(map, '1,0')!;
-    expect(back.party).toEqual({ q: 1, r: 0 });
-    expect(hexAt(back, 1, 0)).toMatchObject({ visited: true, seen: true, feature: target.feature });
-    expect(back.rations).toBe(START_RATIONS);
-    expect(back.fatigue).toBe(0);
-    expect(back.hexes).toHaveLength(map.hexes.length);
-  });
-
-  it('keeps more rations than a fresh pack has', () => {
-    expect(returnToHex({ ...map, rations: 12 }, '0,0')!.rations).toBe(12);
-  });
-
-  it('is null for a key that is not a hex of the map, or not a key at all', () => {
-    expect(returnToHex(map, '40,40')).toBeNull();
-    expect(returnToHex(map, 'home')).toBeNull();
   });
 });
 

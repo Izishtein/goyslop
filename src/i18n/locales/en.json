@@ -1051,7 +1051,7 @@
     },
     "voyage": {
       "title": "Sea voyage",
-      "note": "Weather, headway, sea monsters and the strength of the hull, day by day, from port to port.",
+      "note": "The ship sails the same map the party walks: weather sets the hexes sailed each day, reefs and sea monsters threaten the hull, harbours are settlements by the water.",
       "ship": "Ship",
       "setSail": "Set sail",
       "ships": {
@@ -1059,7 +1059,7 @@
         "cog": "a cog (hull {{hull}})",
         "galleon": "a galleon (hull {{hull}})"
       },
-      "status": "day {{day}}, {{left}} hexes from the far port, hull {{hull}}/{{hullMax}}, supplies for {{supplies}} days",
+      "status": "day {{day}}, hull {{hull}}/{{hullMax}}, supplies for {{supplies}} days",
       "weathers": {
         "storm": "A storm: no headway, and the sea tears at the hull.",
         "fog": "Fog: slow going, and the water hides things.",
@@ -1165,7 +1165,7 @@
       "prize": "Prize: {{gold}} G, {{crates}} crates, ship: {{ship}}.",
       "harbour": "Harbour {{name}}.",
       "townAshore": "Ashore: {{town}}.",
-      "goAshore": "Go ashore",
+      "goAshore": "Go ashore (the ship waits at the quay)",
       "ashore": "The streets of the town are open in the Dungeon panel.",
       "holds": "Holds {{load}}/{{capacity}} crates; purse {{cash}} G.",
       "good": "Good",
@@ -1200,7 +1200,12 @@
       "quayEmpty": "Nobody on the quay is looking for work — wait a day in port.",
       "returnHome": "Back ashore at home (hex {{hex}})",
       "returnHomeWarn": "The voyage ends here: the party steps ashore on hex {{hex}} of the land map it sailed from, fed and rested; the ships and cargo stay behind.",
-      "returnHomeConfirm": "Step ashore"
+      "returnHomeConfirm": "Step ashore",
+      "needHarbour": "A ship sails from a harbour: bring the party to a settlement with water beside it on the map.",
+      "waiting": "The ship waits at hex {{q}},{{r}}.",
+      "goAboard": "Go aboard",
+      "visitTown": "Walk the streets",
+      "boarded": "The party is back aboard."
     },
     "dungeon": {
       "title": "Dungeon",

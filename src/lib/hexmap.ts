@@ -3,6 +3,7 @@ import type { StatusEffect } from '../types/character';
 import { upsertManagedEffect } from './formulas/status-effects';
 import type { Rng } from './encounter';
 import type { Faction, RelationEntry } from './factions';
+import { GOODS } from './ships';
 
 /*
  * The hex sandbox. Sword World has no overland rules of its own, so this is a small procedure of
@@ -338,30 +339,6 @@ export function generateHexMap(options: GenerateOptions): HexMap {
   return { hexes: placed, party: { q: 0, r: 0 }, rations: START_RATIONS, fatigue: 0, patches: [{ q: 0, r: 0 }], level: options.level, factions: [], relations: [] };
 }
 
-/**
- * Landfall: the party steps ashore in a new land. A fresh patch of 19 hexes whose centre is the harbour town
- * (of the kind the quay belonged to), with the party in it, fed and rested. The old land stays behind.
- */
-export function landfall(options: GenerateOptions, settlement: SettlementKind): HexMap {
-  const map = generateHexMap(options);
-  return { ...map, hexes: map.hexes.map((hex) => (hex.q === 0 && hex.r === 0 ? { ...hex, feature: { kind: 'settlement' as const, settlement } } : hex)) };
-}
-
-/**
- * The party comes back ashore at a hex of the land map it sailed from ("q,r", as a voyage keeps it): the
- * hex is theirs again, fed and rested as after any stay in a harbour town. Null when the key is not a hex of this map
- * (the land was replaced in the meantime).
- */
-export function returnToHex(map: HexMap, key: string): HexMap | null {
-  const match = /^(-?\d+),(-?\d+)$/.exec(key);
-  if (!match) return null;
-  const q = Number(match[1]);
-  const r = Number(match[2]);
-  if (!hexAt(map, q, r)) return null;
-  const hexes = map.hexes.map((hex) => (hex.q === q && hex.r === r ? { ...hex, visited: true, seen: true } : hex));
-  return { ...map, hexes, party: { q, r }, rations: Math.max(map.rations, START_RATIONS), fatigue: 0 };
-}
-
 // ---- growing the map ----
 
 /** Where the next patch of 19 sits from a patch's centre: five hexes away, so the patches fit edge to edge. */
@@ -422,6 +399,16 @@ export function canMoveTo(map: HexMap, q: number, r: number, ship?: { q: number;
   return !isWater(target.biome) || (!!ship && ship.q === q && ship.r === r);
 }
 
+/** The hexes of the map with the one at (q, r) visited and the ones around it seen. */
+export function reveal(map: HexMap, q: number, r: number): Hex[] {
+  const next = neighbours(q, r);
+  return map.hexes.map((hex) => {
+    if (hex.q === q && hex.r === r) return { ...hex, visited: true, seen: true };
+    if (next.some(([nq, nr]) => nq === hex.q && nr === hex.r)) return { ...hex, seen: true };
+    return hex;
+  });
+}
+
 /** Whether a river here must be forded: the hex has one and no settlement to bridge it. */
 export function needsFord(hex: Hex | undefined): boolean {
   return !!hex?.river && hex.feature.kind !== 'settlement';
@@ -458,12 +445,7 @@ export interface MoveOptions {
 export function moveParty(map: HexMap, q: number, r: number, rng: Rng = Math.random, options: MoveOptions = {}): MoveResult | null {
   if (!canMoveTo(map, q, r, options.ship)) return null;
   if (options.force && map.fatigue >= MAX_FATIGUE) return null;
-  const next = neighbours(q, r);
-  const hexes = map.hexes.map((hex) => {
-    if (hex.q === q && hex.r === r) return { ...hex, visited: true, seen: true };
-    if (next.some(([nq, nr]) => nq === hex.q && nr === hex.r)) return { ...hex, seen: true };
-    return hex;
-  });
+  const hexes = reveal(map, q, r);
   const camped = hexAt(map, q, r)?.camp === true;
   const forced = options.force === true;
   // A river without a bridge is a day lost at the ford; on a forced march it is a second point of fatigue.
@@ -557,4 +539,49 @@ export function journalPlaceFor(map: HexMap, hex: Hex, label: string, force = fa
   if (hex.feature.kind === 'empty' && !force) return null;
   const place = label.trim().slice(0, HEX_PLACE_LIMIT);
   return { map: setHexPlace(map, hex.q, hex.r, place), place };
+}
+
+// ---- harbours ----
+
+/** A harbour: a settlement with open water beside it, where a ship can lie alongside and a party step aboard. */
+export function isPort(map: HexMap, hex: Hex | undefined): boolean {
+  if (!hex || hex.feature.kind !== 'settlement' || isWater(hex.biome)) return false;
+  return neighbours(hex.q, hex.r).some(([q, r]) => {
+    const next = hexAt(map, q, r);
+    return !!next && isWater(next.biome);
+  });
+}
+
+/** A harbour's market, made the first time a ship calls: one d6 per good (the order of GOODS in ships.ts). */
+export function withMarket(map: HexMap, q: number, r: number, rng: Rng = Math.random): HexMap {
+  const hex = hexAt(map, q, r);
+  if (!hex || hex.market || hex.feature.kind !== 'settlement') return map;
+  return { ...map, hexes: map.hexes.map((entry) => (entry === hex ? { ...entry, market: Array.from({ length: GOODS.length }, () => die(6, rng)) } : entry)) };
+}
+
+/**
+ * A day passes in the markets: each good's d6 slips one step with a die of 1 (cheaper) or 6 (dearer), and
+ * stays put otherwise, so prices wander slowly and a trader can profit from a long haul.
+ */
+export function driftMarkets(map: HexMap, rng: Rng = Math.random): HexMap {
+  return {
+    ...map,
+    hexes: map.hexes.map((hex) => {
+      if (!hex.market) return hex;
+      return {
+        ...hex,
+        market: hex.market.map((roll) => {
+          const d = die(6, rng);
+          return d === 1 ? Math.max(1, roll - 1) : d === 6 ? Math.min(6, roll + 1) : roll;
+        }),
+      };
+    }),
+  };
+}
+
+/** The party steps aboard the ship that lies on a neighbouring water hex: no day passes, nothing is eaten. */
+export function stepAboard(map: HexMap, q: number, r: number): HexMap | null {
+  const target = hexAt(map, q, r);
+  if (!target || hexDistance(map.party, { q, r }) !== 1) return null;
+  return { ...map, hexes: reveal(map, q, r), party: { q, r } };
 }

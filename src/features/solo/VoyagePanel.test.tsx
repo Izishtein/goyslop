@@ -7,8 +7,9 @@ import raw from '../../data/monsters/monsters.json';
 import type { Monster } from '../../data/monsters/types';
 import { EMPTY_CAMPAIGN } from '../../lib/campaign';
 import { EMPTY_ENCOUNTER } from '../../lib/encounter';
-import { generateHexMap } from '../../lib/hexmap';
+import type { HexMap } from '../../lib/hexmap';
 import { HULL, setSail, type Voyage } from '../../lib/voyage';
+import { harbourMap } from '../../test/harbour-map';
 import { dungeonAtom } from '../../state/dungeon';
 import { hexMapAtom } from '../../state/hexmap';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
@@ -23,9 +24,13 @@ const monsters = raw as unknown as Monster[];
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
-function renderPanel(voyage: Voyage | null = null, character?: Character) {
+/** A cog at the home village's quay (hex 0,0 of the test coast), the party aboard. */
+const cog = (level = 1): Voyage => setSail('cog', level, { q: 0, r: 0, settlement: 'village' }, () => 0.5);
+
+function renderPanel(voyage: Voyage | null = null, character?: Character, map: HexMap = harbourMap()) {
   const store = createStore();
   store.set(voyageAtom, voyage);
+  store.set(hexMapAtom, map);
   store.set(campaignAtom, EMPTY_CAMPAIGN);
   store.set(encounterAtom, EMPTY_ENCOUNTER);
   render(
@@ -46,43 +51,56 @@ function renderPanel(voyage: Voyage | null = null, character?: Character) {
 const hero = () =>
   ({ id: 'c1', name: 'Hero', classes: [{ classId: 'fighter', level: 1 }], statusEffects: [], currency: { cash: 0, savings: 0, debt: 0, spendingLog: '' } }) as unknown as Character;
 
+const purse = (cash: number) => ({ ...hero(), currency: { cash, savings: 0, debt: 0, spendingLog: '' } }) as Character;
+
 describe('VoyagePanel', () => {
-  it('sets sail onto a chart with the ship in its home harbour', async () => {
+  it('sets sail from the harbour the party stands in, onto the same map, with the ship at its quay', async () => {
     const user = userEvent.setup();
     const store = renderPanel();
 
     await user.click(screen.getByRole('button', { name: 'Set sail' }));
 
-    const voyage = store.get(voyageAtom)!;
-    expect(voyage).toMatchObject({ ship: 'cog', day: 0, hull: HULL.cog, moves: 0, hunger: 0 });
-    expect(voyage.sea!.hexes).toHaveLength(37);
-    expect(screen.getByRole('group', { name: 'Chart of the sea' })).toBeInTheDocument();
+    expect(store.get(voyageAtom)).toMatchObject({ ship: 'cog', at: { q: 0, r: 0 }, aboard: true, day: 0, hull: HULL.cog, moves: 0, hunger: 0 });
+    // the harbour has a market from the moment a ship calls
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 0 && hex.r === 0)?.market).toHaveLength(6);
   });
 
-  it('rolls the weather for headway and sails a hex with it', async () => {
+  it('cannot set sail from anywhere but a harbour, and says so', () => {
+    renderPanel(null, undefined, { ...harbourMap(), party: { q: -1, r: 0 } });
+    expect(screen.getByRole('button', { name: 'Set sail' })).toBeDisabled();
+    expect(screen.getByText(/A ship sails from a harbour/)).toBeInTheDocument();
+  });
+
+  it('rolls the weather for headway', async () => {
     const user = userEvent.setup();
-    const start = setSail('cog', 1);
-    const store = renderPanel(start);
+    const store = renderPanel(cog());
     const next = screen.getByRole('button', { name: 'Next day at sea' });
     await waitFor(() => expect(next).toBeEnabled());
     vi.spyOn(Math, 'random').mockReturnValue(0.5); // fair weather, no monster
 
     await user.click(next);
+
     expect(store.get(voyageAtom)).toMatchObject({ day: 1, moves: 1, weather: 'fair' });
     expect(screen.getByText('Fair weather: a day of headway.')).toBeInTheDocument();
+    expect(screen.getByText('Headway today: 1 hexes')).toBeInTheDocument();
+  });
 
-    const chart = screen.getByRole('group', { name: 'Chart of the sea' });
-    const reachable = chart.querySelectorAll('[data-reachable]');
-    expect(reachable.length).toBeGreaterThan(0);
-    await user.click(reachable[0] as Element);
-    const after = store.get(voyageAtom)!;
-    expect(after.moves).toBe(0);
-    expect(after.sea!.ship).not.toEqual(start.sea!.origin);
+  it('lets the markets drift with the day at sea', async () => {
+    const user = userEvent.setup();
+    const map = { ...harbourMap(), hexes: harbourMap().hexes.map((hex) => (hex.q === 0 && hex.r === 0 ? { ...hex, market: [3, 3, 3, 3, 3, 3] } : hex)) };
+    const store = renderPanel(cog(), undefined, map);
+    const next = screen.getByRole('button', { name: 'Next day at sea' });
+    await waitFor(() => expect(next).toBeEnabled());
+    vi.spyOn(Math, 'random').mockReturnValue(0.99); // a die of 6 everywhere: every price one dearer
+
+    await user.click(next);
+
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 0 && hex.r === 0)?.market).toEqual([4, 4, 4, 4, 4, 4]);
   });
 
   it('puts hunger on the open character as a status effect once the hold is empty', async () => {
     const user = userEvent.setup();
-    const start = { ...setSail('cog', 1), supplies: 0 };
+    const start = { ...cog(), supplies: 0 };
     const store = renderPanel(start, hero());
     const next = screen.getByRole('button', { name: 'Next day at sea' });
     await waitFor(() => expect(next).toBeEnabled());
@@ -99,7 +117,7 @@ describe('VoyagePanel', () => {
   it('lets a sea monster strike the ship and takes the hull down', async () => {
     const user = userEvent.setup();
     const kraken = monsters.find((entry) => /sea|ocean/i.test(entry.habitat) && entry.sections[0]?.accuracy && entry.sections[0].damage)!;
-    const start = { ...setSail('boat', kraken.level), encounter: { monsterId: kraken.id, count: 1 } };
+    const start = { ...setSail('boat', kraken.level, { q: 0, r: 0 }), encounter: { monsterId: kraken.id, count: 1 } };
     const store = renderPanel(start);
     await screen.findByText(new RegExp(kraken.name));
     vi.spyOn(Math, 'random').mockReturnValue(0.99); // boxcars: an automatic hit
@@ -111,9 +129,9 @@ describe('VoyagePanel', () => {
     expect(screen.getByText(/the hull loses/)).toBeInTheDocument();
   });
 
-  it('trades crates in a harbour against the open character\'s purse', async () => {
+  it("trades crates in a harbour against the open character's purse", async () => {
     const user = userEvent.setup();
-    const store = renderPanel(setSail('cog', 1), { ...hero(), currency: { cash: 1000, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    const store = renderPanel(cog(), purse(1000));
 
     await user.click(screen.getByRole('button', { name: 'Buy a crate of grain' }));
     expect(store.get(voyageAtom)!.cargo[0]).toBe(1);
@@ -126,15 +144,20 @@ describe('VoyagePanel', () => {
   });
 
   it('will not sell a crate it does not hold, nor buy one it cannot pay for', async () => {
-    renderPanel(setSail('cog', 1), { ...hero(), currency: { cash: 10, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    renderPanel(cog(), purse(10));
 
     expect(screen.getByRole('button', { name: 'Sell a crate of grain' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Buy a crate of grain' })).toBeDisabled();
   });
 
+  it('has no market out on the water', () => {
+    renderPanel({ ...cog(), at: { q: 1, r: 0 } }, purse(1000));
+    expect(screen.queryByRole('button', { name: 'Buy a crate of grain' })).not.toBeInTheDocument();
+  });
+
   it('buys a second ship at the quay for its price', async () => {
     const user = userEvent.setup();
-    const store = renderPanel(setSail('cog', 1), { ...hero(), currency: { cash: 5000, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    const store = renderPanel(cog(), purse(5000));
 
     await user.click(screen.getByRole('button', { name: 'Buy the ship' }));
 
@@ -142,18 +165,18 @@ describe('VoyagePanel', () => {
     expect(store.get(charactersAtom)[0].currency.cash).toBe(2000);
   });
 
-  it('opens the town ashore from a harbour', async () => {
+  it('opens the streets of the harbour town', async () => {
     const user = userEvent.setup();
-    const store = renderPanel(setSail('cog', 1));
+    const store = renderPanel(cog());
 
-    await user.click(screen.getByRole('button', { name: 'Go ashore' }));
+    await user.click(screen.getByRole('button', { name: 'Walk the streets' }));
 
     expect(store.get(dungeonAtom)).toMatchObject({ kind: 'settlement' });
   });
 
   it('counts voyage days on the campaign calendar', async () => {
     const user = userEvent.setup();
-    const store = renderPanel(setSail('cog', 1));
+    const store = renderPanel(cog());
     const before = store.get(campaignAtom).day;
 
     await user.click(screen.getByRole('button', { name: 'A day in port' }));
@@ -162,11 +185,44 @@ describe('VoyagePanel', () => {
     expect(store.get(campaignAtom).day).toBe(before + 1);
   });
 
+  it('goes ashore at the quay, the ship waiting; the market and the quay stay open to the party beside it, and it comes aboard again', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel(cog(), purse(1000));
+
+    await user.click(screen.getByRole('button', { name: 'Go ashore (the ship waits at the quay)' }));
+    expect(store.get(voyageAtom)).toMatchObject({ aboard: false, at: { q: 0, r: 0 } });
+    expect(screen.getByText(/The ship waits at hex 0,0/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Buy a crate of grain' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Next day at sea' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Go aboard' }));
+    expect(store.get(voyageAtom)!.aboard).toBe(true);
+  });
+
+  it('leaves the ship alone when the party is away from it', () => {
+    renderPanel({ ...cog(), aboard: false }, undefined, { ...harbourMap(), party: { q: -1, r: 0 } });
+    expect(screen.getByText(/The ship waits at hex 0,0/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Go aboard' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Buy a crate of grain' })).not.toBeInTheDocument();
+  });
+
+  it('searches the island the ship lies at, once, and marks it on the map', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel({ ...cog(), at: { q: 1, r: -1 } });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Search the island' })).toBeEnabled());
+    vi.spyOn(Math, 'random').mockReturnValue(0); // a spring
+
+    await user.click(screen.getByRole('button', { name: 'Search the island' }));
+
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 1 && hex.r === -1)?.explored).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Search the island' })).not.toBeInTheDocument();
+  });
+
   it('fights a hostile sail: a broadside, grapples that put the crew on the table, then the prize', async () => {
     const user = userEvent.setup();
     const crew = monsters.find((entry) => entry.category === 'Humanoids' && entry.level >= 1)!;
-    const chased: Voyage = { ...setSail('cog', crew.level), pursuit: { ship: 'boat', hull: 8, crewId: crew.id, crewCount: 3, crewLevel: crew.level, state: 'closing', round: 0 } };
-    const store = renderPanel(chased, { ...hero(), currency: { cash: 0, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    const chased: Voyage = { ...cog(crew.level), pursuit: { ship: 'boat', hull: 8, crewId: crew.id, crewCount: 3, crewLevel: crew.level, state: 'closing', round: 0 } };
+    const store = renderPanel(chased, purse(0));
     await screen.findByText(/A sail is closing/);
     expect(screen.getByRole('button', { name: 'Next day at sea' })).toBeDisabled();
 
@@ -186,7 +242,7 @@ describe('VoyagePanel', () => {
   it('lets the party slip away from a hostile sail', async () => {
     const user = userEvent.setup();
     const crew = monsters.find((entry) => entry.category === 'Humanoids' && entry.level >= 1)!;
-    const chased: Voyage = { ...setSail('cog', 3), moves: 2, pursuit: { ship: 'boat', hull: 8, crewId: crew.id, crewCount: 3, crewLevel: 2, state: 'closing', round: 0 } };
+    const chased: Voyage = { ...cog(3), moves: 2, pursuit: { ship: 'boat', hull: 8, crewId: crew.id, crewCount: 3, crewLevel: 2, state: 'closing', round: 0 } };
     const store = renderPanel(chased);
     await screen.findByText(/A sail is closing/);
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
@@ -216,10 +272,10 @@ describe('VoyagePanel', () => {
   });
 });
 
-describe('VoyagePanel crew and landfall', () => {
+describe('VoyagePanel crew', () => {
   it('shows the crew, and a ship bought at the quay is short-handed until sailors are hired', async () => {
     const user = userEvent.setup();
-    const store = renderPanel({ ...setSail('cog', 1), recruits: 6 }, { ...hero(), currency: { cash: 5000, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    const store = renderPanel({ ...cog(), recruits: 6 }, purse(5000));
     expect(screen.getByText(/Crew 6\/6\./)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
 
@@ -237,67 +293,20 @@ describe('VoyagePanel crew and landfall', () => {
   });
 
   it('will not hire what the purse cannot pay', () => {
-    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 6 }, { ...hero(), currency: { cash: 40, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    renderPanel({ ...cog(), crew: 3, recruits: 6 }, purse(40));
     expect(screen.getByRole('button', { name: 'Hire a sailor (25 G)' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hire 3 to a full crew (75 G)' })).toBeDisabled();
   });
 
   it('offers only the sailors the quay has today', () => {
-    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 2 }, { ...hero(), currency: { cash: 500, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    renderPanel({ ...cog(), crew: 3, recruits: 2 }, purse(500));
     expect(screen.getByText(/Sailors on the quay today: 2/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Hire 2 to a full crew (50 G)' })).toBeEnabled();
   });
 
   it('hires nobody from an empty quay and says to wait a day', () => {
-    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 0 }, hero());
+    renderPanel({ ...cog(), crew: 3, recruits: 0 }, hero());
     expect(screen.getByText(/Nobody on the quay is looking for work/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
-  });
-
-  it('steps back ashore at the home harbour, onto the hex the party sailed from, and ends the voyage; it asks first', async () => {
-    const user = userEvent.setup();
-    const land = generateHexMap({ level: 1, monsters });
-    const hexes = land.hexes.map((hex) => (hex.q === 1 && hex.r === 0 ? { ...hex, feature: { kind: 'settlement' as const, settlement: 'village' as const } } : hex));
-    const store = renderPanel({ ...setSail('cog', 1, Math.random, { homeHex: '1,0', homeSettlement: 'village' }) });
-    act(() => store.set(hexMapAtom, { ...land, hexes, rations: 1, fatigue: 3 }));
-
-    await user.click(screen.getByRole('button', { name: 'Back ashore at home (hex 1,0)' }));
-    expect(store.get(voyageAtom)).not.toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Stay aboard' }));
-    await user.click(screen.getByRole('button', { name: 'Back ashore at home (hex 1,0)' }));
-    await user.click(screen.getByRole('button', { name: 'Step ashore' }));
-
-    expect(store.get(voyageAtom)).toBeNull();
-    const back = store.get(hexMapAtom);
-    expect(back.party).toEqual({ q: 1, r: 0 });
-    expect(back.rations).toBe(7);
-    expect(back.fatigue).toBe(0);
-    expect(back.hexes).toHaveLength(land.hexes.length);
-  });
-
-  it('has no way home once the land map was replaced and the hex is gone', () => {
-    renderPanel({ ...setSail('cog', 1, Math.random, { homeHex: '9,9', homeSettlement: 'village' }) });
-    expect(screen.queryByRole('button', { name: /Back ashore at home/ })).not.toBeInTheDocument();
-  });
-
-  it('lands in a new country: a fresh land map around the harbour town, the voyage put away; it asks first', async () => {
-    const user = userEvent.setup();
-    const voyage = setSail('cog', 2);
-    const arrived = { ...voyage, arrived: true, sea: { ...voyage.sea!, ship: { ...voyage.sea!.destination } } };
-    const store = renderPanel(arrived);
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Land in the new country' })).toBeEnabled());
-
-    await user.click(screen.getByRole('button', { name: 'Land in the new country' }));
-    expect(store.get(voyageAtom)).not.toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Stay aboard' }));
-    expect(screen.getByRole('button', { name: 'Land in the new country' })).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Land in the new country' }));
-    await user.click(screen.getByRole('button', { name: 'Go ashore' }));
-
-    expect(store.get(voyageAtom)).toBeNull();
-    const land = store.get(hexMapAtom);
-    expect(land.party).toEqual({ q: 0, r: 0 });
-    expect(land.hexes.find((hex) => hex.q === 0 && hex.r === 0)?.feature.kind).toBe('settlement');
   });
 });

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore } from 'jotai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -185,16 +185,59 @@ describe('HexMapPanel', () => {
     expect(screen.getByRole('button', { name: 'To the log' })).toBeDisabled();
   });
 
-  it('puts out to sea from the starting village, remembering the hex it left', async () => {
+  it('puts out to sea from the starting village, the ship at its quay on the same map', async () => {
     const user = userEvent.setup();
     const { store } = renderPanel();
     await generate(user);
 
     await user.click(screen.getByRole('button', { name: 'Put out to sea' }));
 
-    expect(store.get(voyageAtom)).toMatchObject({ homeHex: '0,0', day: 0 });
-    expect(store.get(voyageAtom)!.sea!.hexes.find((hex) => hex.kind === 'port' && hex.visited)?.settlement).toBe('village');
+    expect(store.get(voyageAtom)).toMatchObject({ at: { q: 0, r: 0 }, aboard: true, day: 0 });
+    expect(store.get(hexMapAtom).hexes.find((hex) => hex.q === 0 && hex.r === 0)?.market).toHaveLength(6);
     expect(screen.getByRole('button', { name: 'Put out to sea' })).toBeDisabled();
+  });
+
+  it('sails the ship over the sea with the party aboard, and refuses to walk onto water', async () => {
+    const user = userEvent.setup();
+    const { store, container } = renderPanel();
+    await generate(user);
+    await user.click(screen.getByRole('button', { name: 'Put out to sea' }));
+    // no headway yet: the sea cannot be sailed
+    expect([...container.querySelectorAll('[data-reachable]')].some((entry) => entry.getAttribute('data-biome') === 'sea')).toBe(false);
+
+    act(() => store.set(voyageAtom, { ...store.get(voyageAtom)!, moves: 2 }));
+    const cell = container.querySelectorAll('[data-reachable]');
+    const seaCell = [...cell].find((entry) => entry.getAttribute('data-biome') === 'sea');
+    expect(seaCell).toBeDefined();
+    await user.click(seaCell as Element);
+
+    const after = store.get(voyageAtom)!;
+    expect(after.moves).toBe(1);
+    expect(store.get(hexMapAtom).party).toEqual(after.at);
+    expect(after.at).not.toEqual({ q: 0, r: 0 });
+  });
+
+  it('steps off the ship onto the beach, leaving it moored, and boards it again', async () => {
+    const user = userEvent.setup();
+    const { store, container } = renderPanel();
+    await generate(user);
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    await user.click(screen.getByRole('button', { name: 'Put out to sea' }));
+    act(() => store.set(voyageAtom, { ...store.get(voyageAtom)!, moves: 1 }));
+    const seaCell = [...container.querySelectorAll('[data-reachable]')].find((entry) => entry.getAttribute('data-biome') === 'sea') as Element;
+    await user.click(seaCell);
+    const moored = store.get(voyageAtom)!.at;
+
+    const landCell = [...container.querySelectorAll('[data-reachable]')].find((entry) => entry.getAttribute('data-biome') !== 'sea') as Element | undefined;
+    if (!landCell) return; // the dice put no dry land beside this sea hex
+    await user.click(landCell);
+    expect(store.get(voyageAtom)).toMatchObject({ aboard: false, at: moored });
+    expect(store.get(hexMapAtom).party).not.toEqual(moored);
+
+    const boardCell = [...container.querySelectorAll('[data-reachable]')].find((entry) => entry.getAttribute('aria-label')?.includes('the ship is here')) as Element;
+    await user.click(boardCell);
+    expect(store.get(voyageAtom)!.aboard).toBe(true);
+    expect(store.get(hexMapAtom).party).toEqual(moored);
   });
 
   it('shows the calendar date and its festival', async () => {

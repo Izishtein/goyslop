@@ -11,6 +11,11 @@ import { adventurerLevel } from '../../lib/formulas/character-levels';
 import {
   BIOMES,
   canMoveTo,
+  hexDistance,
+  isPort,
+  isWater,
+  stepAboard,
+  withMarket,
   expandMap,
   forage,
   generateHexMap,
@@ -37,7 +42,8 @@ import { dungeonAtom } from '../../state/dungeon';
 import { encounterAtom } from '../../state/encounter';
 import { hexMapAtom } from '../../state/hexmap';
 import { voyageAtom } from '../../state/voyage';
-import { setSail } from '../../lib/voyage';
+import { canLandAt, canSailTo, setSail } from '../../lib/voyage';
+import { sailTo } from '../../lib/voyage';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -105,10 +111,46 @@ export function HexMapPanel() {
     setLooked(null);
   }
 
+  /** The ship, when the party left it ashore: the one water hex it may step back onto. */
+  const waiting = voyage && !voyage.wrecked && !voyage.aboard ? voyage.at : null;
+  const aboard = !!voyage && !voyage.wrecked && voyage.aboard;
+  /** Boarding a ship that lies on a water hex next to the party: no day passes. */
+  const boardable = (hex: Hex) => !!waiting && isWater(hex.biome) && hex.q === waiting.q && hex.r === waiting.r && hexDistance(map.party, hex) === 1;
+
+  /** What a click on this hex would do: sail the ship, land from it, board it, or walk. */
+  function reachableHex(hex: Hex): boolean {
+    if (voyage && aboard) return (voyage.moves > 0 && canSailTo(map, voyage, hex.q, hex.r)) || canLandAt(map, voyage, hex.q, hex.r);
+    return canMoveTo(map, hex.q, hex.r, waiting) || boardable(hex);
+  }
+
+  function sail(hex: Hex) {
+    if (!voyage) return;
+    const report = sailTo(voyage, map, hex.q, hex.r);
+    if (!report.event) return;
+    setMap(report.map);
+    setVoyage(report.voyage);
+    setLooked(null);
+    setWandering(null);
+    setNote(report.event === 'reef' ? t('solo.voyage.sailed.reef', { damage: report.reefDamage }) : report.event === 'port' ? t('solo.voyage.sailed.harbour') : '');
+  }
+
   function move(hex: Hex) {
-    if (!canMoveTo(map, hex.q, hex.r)) return;
-    const result = moveParty(map, hex.q, hex.r, Math.random, { force, encounterOn: encounterThreshold(date) });
+    if (aboard && voyage) {
+      if (canSailTo(map, voyage, hex.q, hex.r)) return sail(hex);
+      if (!canLandAt(map, voyage, hex.q, hex.r)) return;
+    } else if (boardable(hex) && voyage) {
+      const next = stepAboard(map, hex.q, hex.r);
+      if (!next) return;
+      setMap(next);
+      setVoyage({ ...voyage, aboard: true });
+      setNote(t('solo.voyage.boarded'));
+      return;
+    }
+    if (!canMoveTo(map, hex.q, hex.r, aboard && voyage ? voyage.at : waiting)) return;
+    const result = moveParty(map, hex.q, hex.r, Math.random, { force, encounterOn: encounterThreshold(date), ship: aboard && voyage ? voyage.at : waiting });
     if (!result) return;
+    // stepping off a ship that lies at a beach: the ship stays where it is, the party is ashore
+    if (aboard && voyage) setVoyage({ ...voyage, aboard: false });
     setMap(result.map);
     if (result.dayPassed) setCampaign((current) => setDay(current, current.day + result.days));
     setLooked(null);
@@ -170,10 +212,11 @@ export function HexMapPanel() {
     setNote(t('solo.hex.dungeonEntered'));
   }
 
-  /** Puts out to sea from the town the party stands in; the voyage remembers the hex it left. */
+  /** Puts out to sea from the harbour the party stands in: the ship lies at its quay, the party aboard. */
   function putToSea() {
-    if (!here || voyage) return;
-    setVoyage(setSail(here.feature.settlement === 'hamlet' ? 'boat' : 'cog', map.level, Math.random, { homeHex: hexKey(here.q, here.r), homeSettlement: here.feature.settlement }));
+    if (!here || voyage || !isPort(map, here)) return;
+    setVoyage(setSail(here.feature.settlement === 'hamlet' ? 'boat' : 'cog', map.level, { q: here.q, r: here.r, settlement: here.feature.settlement }));
+    setMap((current) => withMarket(current, here.q, here.r));
     setNote(t('solo.voyage.sailed.putOut'));
   }
 
@@ -273,13 +316,13 @@ export function HexMapPanel() {
         {map.hexes.length > 0 && (
           <>
             <span className={styles.round}>{t('solo.hex.rations', { rations: map.rations })}</span>
-            <button type="button" onClick={doForage}>
+            <button type="button" onClick={doForage} disabled={aboard}>
               {t('solo.hex.forage')}
             </button>
-            <button type="button" onClick={() => rest(false)}>
+            <button type="button" onClick={() => rest(false)} disabled={aboard}>
               {t('solo.hex.rest')}
             </button>
-            <button type="button" onClick={() => rest(true)}>
+            <button type="button" onClick={() => rest(true)} disabled={aboard}>
               {t('solo.hex.makeCamp')}
             </button>
             <label className={styles.inline}>
@@ -341,13 +384,14 @@ export function HexMapPanel() {
           {map.hexes.map((hex) => {
             const { x, y } = center(hex);
             const party = hex.q === map.party.q && hex.r === map.party.r;
-            const reachable = canMoveTo(map, hex.q, hex.r);
+            const reachable = reachableHex(hex);
+            const ship = !!voyage && !voyage.wrecked && voyage.at.q === hex.q && voyage.at.r === hex.r;
             return (
               <g
                 key={hexKey(hex.q, hex.r)}
                 role="button"
                 tabIndex={reachable ? 0 : -1}
-                aria-label={`${describe(hex)}${party ? ` — ${t('solo.hex.youAreHere')}` : ''}`}
+                aria-label={`${describe(hex)}${party ? ` — ${t('solo.hex.youAreHere')}` : ''}${ship ? ` — ${t('solo.voyage.shipHere')}` : ''}`}
                 aria-disabled={!reachable}
                 className={styles.hexCell}
                 data-biome={hex.seen ? hex.biome : 'unknown'}
@@ -368,6 +412,11 @@ export function HexMapPanel() {
                 {hex.seen && factionsAt(map.factions, hex.q, hex.r).length > 0 && (
                   <text x={x} y={y + 22} textAnchor="middle" className={styles.hexRealm} aria-hidden="true">
                     {factionsAt(map.factions, hex.q, hex.r).map((faction) => faction.id).join('/')}
+                  </text>
+                )}
+                {ship && (
+                  <text x={x + 12} y={y - 8} textAnchor="middle" aria-hidden="true">
+                    ⛵
                   </text>
                 )}
                 {party && <circle cx={x} cy={y - 14} r={5} className={styles.hexParty} />}
@@ -497,7 +546,7 @@ export function HexMapPanel() {
               </button>
             </p>
           )}
-          {here.feature.kind === 'settlement' && (
+          {isPort(map, here) && (
             <p>
               <button type="button" onClick={putToSea} disabled={!!voyage}>
                 {t('solo.voyage.sail')}

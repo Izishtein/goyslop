@@ -2,27 +2,34 @@ import type { Monster, MonsterSection } from '../data/monsters/types';
 import { sightPursuit, type Pursuit } from './boarding';
 import { hoard } from './dungeon';
 import { attackHits, resolveAttack, rollEvasion, rollMonsterAttack, rollMonsterDamage, type EvasionRoll, type MonsterAttackRoll, type MonsterDamageRoll, type Rng } from './encounter';
-import { hexDistance } from './hexmap';
-import { driftMarkets, generateSeaMap, isDestination, islandOutcome, markExplored, seaHexAt, stepShip, type IslandOutcome, type SeaMap } from './seamap';
+import { hexAt, hexDistance, isPort, isWater, reveal, type Hex, type HexMap } from './hexmap';
 import { CARGO, CREW_NEEDED, FLEET_MAX, GOODS, HULL, SHIP_EVASION, SHIPS, type Ship } from './ships';
 
 export { HULL, SHIP_EVASION, SHIPS, type Ship };
 
 /*
- * Sea voyages. A voyage is a number of days to the far port; each day the weather is rolled, the ship
- * makes headway or not, and something may rise from the water. The tables are ours (Ruxe has no printed
- * seafaring rules in the books we own); the sea monsters come from the monster catalogue. The words the
- * numbers stand for live in the i18n tables (solo.voyage.*).
+ * Sea voyages. The ship sails the same hex map the party walks (lib/hexmap.ts): sea hexes, with reefs and
+ * islands among them, and harbours — settlements with water beside them — where it lies alongside. Each day
+ * the weather is rolled and sets how many hexes the ship may sail, and something may rise from the water.
+ * The party is aboard (it moves with the ship) or ashore (the ship waits where it was left). The tables are
+ * ours (Ruxe has no printed seafaring rules in the books we own); the sea monsters come from the monster
+ * catalogue. The words the numbers stand for live in the i18n tables (solo.voyage.*).
  */
 
 export const WEATHERS = ['storm', 'fog', 'fair', 'wind', 'calm'] as const;
 export type Weather = (typeof WEATHERS)[number];
 
+export type IslandOutcome = 'spring' | 'wreck' | 'nothing' | 'beasts';
+
+/** d6 on an island: 1–2 a freshwater spring, 3 a wreck on the beach, 4–5 nothing, 6 something lives there. */
+export function islandOutcome(roll: number): IslandOutcome {
+  if (roll <= 2) return 'spring';
+  if (roll === 3) return 'wreck';
+  return roll <= 5 ? 'nothing' : 'beasts';
+}
+
 export interface Voyage {
   ship: Ship;
-  /** Days of fair sailing to the far port. */
-  distance: number;
-  progress: number;
   day: number;
   hull: number;
   supplies: number;
@@ -30,11 +37,12 @@ export interface Voyage {
   weather: Weather | null;
   /** The monster of the day's encounter, if there was one. */
   encounter: { monsterId: string; count: number } | null;
-  arrived: boolean;
   wrecked: boolean;
   level: number;
-  /** The chart, once the ship has one; a voyage without it is the old bare count of days. */
-  sea: SeaMap | null;
+  /** The hex the ship lies in: a sea hex, or the harbour town it is moored at. */
+  at: { q: number; r: number };
+  /** The party is on board: it moves with the ship. Ashore, the ship waits at `at`. */
+  aboard: boolean;
   /** Hexes the ship can still sail today. */
   moves: number;
   /** Days the crew has gone without food, up to HUNGER_MAX; each costs -1 to every check. */
@@ -45,8 +53,6 @@ export interface Voyage {
   cargo: number[];
   /** A hostile ship on the water, from sighting to the prize. */
   pursuit: Pursuit | null;
-  /** The hex of the land map the voyage left from ("q,r"), when it began at a settlement. */
-  homeHex: string | null;
   /** Sailors aboard; null = every ship fully manned (an old voyage, or one that has not lost anyone). */
   crew: number | null;
   /** Sailors on the quay looking for work today: rolled on arrival and each day in port; null at sea (and in an old save, where the quay never runs dry). */
@@ -90,9 +96,9 @@ export function quayRecruits(settlement: string | undefined, rng: Rng = Math.ran
 }
 
 /** Signs sailors on in a harbour, never past what the fleet needs or the quay has today; the fee is the caller's affair. Null when nothing can be hired. */
-export function hireCrew(voyage: Voyage, count: number): Voyage | null {
+export function hireCrew(voyage: Voyage, map: HexMap, count: number): Voyage | null {
   const hired = Math.min(Math.floor(count), hireable(voyage));
-  if (!inPort(voyage) || voyage.wrecked || voyage.arrived || hired <= 0) return null;
+  if (!inPort(voyage, map) || voyage.wrecked || hired <= 0) return null;
   return { ...voyage, crew: crewAboard(voyage) + hired, recruits: voyage.recruits === null ? null : voyage.recruits - hired };
 }
 
@@ -162,11 +168,27 @@ export function pickSeaMonster(monsters: Monster[], level: number, rng: Rng = Ma
   return null;
 }
 
-export function setSail(ship: Ship, level: number, rng: Rng = Math.random, from?: { homeHex?: string; homeSettlement?: string }): Voyage {
-  const sea = generateSeaMap(rng, from?.homeSettlement);
-  const distance = hexDistance(sea.origin, sea.destination);
-  const recruits = quayRecruits(from?.homeSettlement, rng);
-  return { ship, distance, progress: 0, day: 0, hull: HULL[ship], supplies: FULL_SUPPLIES, weather: null, encounter: null, arrived: false, wrecked: false, level, sea, moves: 0, hunger: 0, escorts: [], cargo: GOODS.map(() => 0), pursuit: null, homeHex: from?.homeHex ?? null, crew: null, recruits };
+/** Puts out from a harbour hex with the ship at its quay: the voyage starts alongside, with that quay's sailors on offer. */
+export function setSail(ship: Ship, level: number, from: { q: number; r: number; settlement?: string }, rng: Rng = Math.random): Voyage {
+  return {
+    ship,
+    day: 0,
+    hull: HULL[ship],
+    supplies: FULL_SUPPLIES,
+    weather: null,
+    encounter: null,
+    wrecked: false,
+    level,
+    at: { q: from.q, r: from.r },
+    aboard: true,
+    moves: 0,
+    hunger: 0,
+    escorts: [],
+    cargo: GOODS.map(() => 0),
+    pursuit: null,
+    crew: null,
+    recruits: quayRecruits(from.settlement, rng),
+  };
 }
 
 export interface DayReport {
@@ -176,17 +198,17 @@ export interface DayReport {
 }
 
 /**
- * One day at sea: rolls the weather, makes headway, eats a day's supplies, and may bring a sea monster.
- * A storm tears 1d3 from the hull; at 0 the ship is lost. Reaching the distance ends the voyage.
+ * One day at sea: rolls the weather, which sets the hexes the ship may sail, eats a day's supplies, and may
+ * bring a sea monster. A storm tears 1d3 from the hull; at 0 the ship is lost. The markets drift (the caller's
+ * affair: driftMarkets in hexmap.ts).
  */
 export function sailDay(voyage: Voyage, monsters: Monster[], rng: Rng = Math.random): DayReport {
-  if (voyage.arrived || voyage.wrecked) return { voyage, stormDamage: 0 };
+  if (voyage.wrecked) return { voyage, stormDamage: 0 };
   const weather = weatherFor(die(6, rng));
   // a short-handed crew cannot trim the sails in a storm: one more point off every hull
   const handsShort = undermanned(voyage) ? 1 : 0;
   const stormDamage = weather === 'storm' ? die(3, rng) + handsShort : 0;
   const stormed = fleetOf(voyage).map((entry, index) => ({ ...entry, hull: weather === 'storm' ? entry.hull - (index === 0 ? stormDamage : die(3, rng) + handsShort) : entry.hull }));
-  const progress = voyage.sea ? voyage.progress : Math.min(voyage.distance, voyage.progress + headway(weather));
   const hunger = voyage.supplies === 0 ? Math.min(HUNGER_MAX, voyage.hunger + 1) : voyage.hunger;
   let encounter: Voyage['encounter'] = null;
   // an old chase is over once it is resolved; an unresolved one follows the fleet and no new sail is sighted
@@ -202,16 +224,16 @@ export function sailDay(voyage: Voyage, monsters: Monster[], rng: Rng = Math.ran
   const fleeted = withFleet(voyage, stormed);
   return {
     stormDamage,
-    voyage: { ...fleeted, sea: fleeted.sea ? driftMarkets(fleeted.sea, rng) : fleeted.sea, day: voyage.day + 1, weather, progress, supplies: Math.max(0, voyage.supplies - 1), hunger, moves: voyage.sea ? headway(weather) : 0, encounter, pursuit, arrived: !voyage.sea && !fleeted.wrecked && progress >= voyage.distance },
+    voyage: { ...fleeted, day: voyage.day + 1, weather, supplies: Math.max(0, voyage.supplies - 1), hunger, moves: headway(weather), encounter, pursuit, recruits: null },
   };
 }
 
 /** A day spent patching the hull: +1d3 points, up to the ship's full strength; supplies still go. */
 export function repairDay(voyage: Voyage, rng: Rng = Math.random): Voyage {
-  if (voyage.arrived || voyage.wrecked) return voyage;
+  if (voyage.wrecked) return voyage;
   const hunger = voyage.supplies === 0 ? Math.min(HUNGER_MAX, voyage.hunger + 1) : voyage.hunger;
   const mended = withFleet(voyage, fleetOf(voyage).map((entry) => ({ ...entry, hull: entry.hull > 0 ? Math.min(HULL[entry.ship], entry.hull + die(3, rng)) : 0 })));
-  return { ...mended, sea: mended.sea ? driftMarkets(mended.sea, rng) : mended.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hunger, supplies: Math.max(0, voyage.supplies - 1) };
+  return { ...mended, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hunger, supplies: Math.max(0, voyage.supplies - 1) };
 }
 
 /** A hull takes a blow (from a monster, a reef or a broadside); the ship is lost at 0. `target` is its place in the fleet, the flagship being 0. */
@@ -220,70 +242,95 @@ export function hullBlow(voyage: Voyage, damage: number, target = 0): Voyage {
   return withFleet(voyage, fleetOf(voyage).map((entry, index) => (index === target ? { ...entry, hull: Math.max(0, entry.hull - amount) } : entry)));
 }
 
-// ---- the chart ----
+// ---- the map ----
 
 export interface SailReport {
   voyage: Voyage;
+  map: HexMap;
   /** What the hex the ship moved into did to it. */
-  event: 'reef' | 'port' | 'home' | 'arrived' | 'open' | null;
+  event: 'reef' | 'port' | 'open' | null;
   /** Hull lost to a reef. */
   reefDamage: number;
 }
 
-/** One hex of the chart, if the day's headway allows it. A reef tears 1d3 from the hull; the far port ends the voyage. */
-export function sailTo(voyage: Voyage, q: number, r: number, rng: Rng = Math.random): SailReport {
-  if (!voyage.sea || voyage.moves <= 0 || voyage.arrived || voyage.wrecked) return { voyage, event: null, reefDamage: 0 };
-  const step = stepShip(voyage.sea, q, r);
-  if (!step) return { voyage, event: null, reefDamage: 0 };
+/** Whether the ship can sail into this hex: aboard, next to it, and it is open water or a harbour. */
+export function canSailTo(map: HexMap, voyage: Voyage, q: number, r: number): boolean {
+  if (!voyage.aboard || voyage.wrecked || hexDistance(voyage.at, { q, r }) !== 1) return false;
+  const target = hexAt(map, q, r);
+  return !!target && (isWater(target.biome) || isPort(map, target));
+}
+
+/** Whether the party, aboard, can step off onto this hex: dry land next to the ship that is no harbour (harbours are sailed into). */
+export function canLandAt(map: HexMap, voyage: Voyage, q: number, r: number): boolean {
+  if (!voyage.aboard || voyage.wrecked || hexDistance(voyage.at, { q, r }) !== 1) return false;
+  const target = hexAt(map, q, r);
+  return !!target && !isWater(target.biome) && !isPort(map, target);
+}
+
+/** One hex of sailing, if the day's headway allows it. A reef tears 1d3 from every hull; a harbour entered has sailors for hire. */
+export function sailTo(voyage: Voyage, map: HexMap, q: number, r: number, rng: Rng = Math.random): SailReport {
+  const idle: SailReport = { voyage, map, event: null, reefDamage: 0 };
+  if (voyage.moves <= 0 || !canSailTo(map, voyage, q, r)) return idle;
+  const target = hexAt(map, q, r) as Hex;
   // leaving a quay leaves its sailors behind; a harbour entered has its own
-  let next: Voyage = { ...voyage, sea: step.map, moves: voyage.moves - 1, encounter: null, recruits: null };
-  if (step.hex.kind === 'reef') {
+  let next: Voyage = { ...voyage, at: { q, r }, moves: voyage.moves - 1, encounter: null, recruits: null };
+  const moved: HexMap = { ...map, hexes: reveal(map, q, r), party: { q, r } };
+  if (target.feature.kind === 'reef') {
     const reefDamage = die(3, rng);
     next = hullBlow(next, reefDamage);
     for (let index = 1; index <= voyage.escorts.length; index += 1) next = hullBlow(next, die(3, rng), 1);
-    return { voyage: next, event: 'reef', reefDamage };
+    return { voyage: next, map: moved, event: 'reef', reefDamage };
   }
-  if (step.hex.kind === 'port') {
-    const recruits = quayRecruits(step.hex.settlement, rng);
-    if (isDestination(step.map, step.hex)) return { voyage: { ...next, arrived: true, moves: 0, recruits }, event: 'arrived', reefDamage: 0 };
-    const home = hexDistance(step.hex, step.map.origin) === 0;
-    return { voyage: { ...next, moves: 0, recruits }, event: home ? 'home' : 'port', reefDamage: 0 };
-  }
-  return { voyage: next, event: 'open', reefDamage: 0 };
+  if (isPort(map, target)) return { voyage: { ...next, moves: 0, recruits: quayRecruits(target.feature.settlement, rng) }, map: moved, event: 'port', reefDamage: 0 };
+  return { voyage: next, map: moved, event: 'open', reefDamage: 0 };
 }
+
+/** The hex the ship lies in. */
+export const shipHex = (voyage: Voyage, map: HexMap): Hex | undefined => hexAt(map, voyage.at.q, voyage.at.r);
 
 /** Whether the ship lies in a harbour. */
-export function inPort(voyage: Voyage): boolean {
-  const here = voyage.sea ? seaHexAt(voyage.sea, voyage.sea.ship.q, voyage.sea.ship.r) : undefined;
-  return here?.kind === 'port';
+export function inPort(voyage: Voyage, map: HexMap): boolean {
+  return isPort(map, shipHex(voyage, map));
 }
 
-/** Whether the ship lies in the harbour it sailed from, which has a land hex behind it to step back onto. */
-export function atHomePort(voyage: Voyage): boolean {
-  const sea = voyage.sea;
-  return !!sea && voyage.homeHex !== null && !voyage.wrecked && !voyage.arrived && sea.ship.q === sea.origin.q && sea.ship.r === sea.origin.r;
+/** The harbour the ship lies in (its settlement hex), if it lies in one. */
+export function harbourHere(voyage: Voyage, map: HexMap): Hex | undefined {
+  const here = shipHex(voyage, map);
+  return isPort(map, here) ? here : undefined;
 }
 
-/** A day alongside: the hull is mended, the hold filled and the crew fed, but no headway is made. */
-export function dayInPort(voyage: Voyage, rng: Rng = Math.random): Voyage {
-  if (!inPort(voyage) || voyage.wrecked || voyage.arrived) return voyage;
-  return { ...voyage, recruits: quayRecruits(harbourHere(voyage)?.settlement, rng), sea: voyage.sea ? driftMarkets(voyage.sea, rng) : voyage.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
+/** Steps off the ship where it lies in a harbour: the party is in the town, the ship waits at the quay. */
+export function goAshore(voyage: Voyage, map: HexMap): Voyage | null {
+  return voyage.aboard && inPort(voyage, map) && !voyage.wrecked ? { ...voyage, aboard: false } : null;
+}
+
+/** Boards the ship the party stands beside — in the harbour town where it lies. */
+export function goAboard(voyage: Voyage, map: HexMap): Voyage | null {
+  if (voyage.aboard || voyage.wrecked || map.party.q !== voyage.at.q || map.party.r !== voyage.at.r) return null;
+  return { ...voyage, aboard: true };
+}
+
+/** A day alongside: the hull is mended, the hold filled and the crew fed, a new quay of sailors, but no headway is made. */
+export function dayInPort(voyage: Voyage, settlement: string | undefined, rng: Rng = Math.random): Voyage {
+  if (voyage.wrecked) return voyage;
+  return { ...voyage, recruits: quayRecruits(settlement, rng), day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
 }
 
 export interface IslandReport {
   voyage: Voyage;
+  map: HexMap;
   outcome: IslandOutcome;
   /** Gold in a wreck's strongbox. */
   gold: number;
 }
 
 /** Searching the island the ship lies at, once: a spring (+3 supplies, hunger eased), a wreck (a small hoard), nothing, or beasts. */
-export function exploreIsland(voyage: Voyage, monsters: Monster[], rng: Rng = Math.random): IslandReport | null {
-  const sea = voyage.sea;
-  const here = sea ? seaHexAt(sea, sea.ship.q, sea.ship.r) : undefined;
-  if (!sea || !here || here.kind !== 'island' || here.explored) return null;
+export function exploreIsland(voyage: Voyage, map: HexMap, monsters: Monster[], rng: Rng = Math.random): IslandReport | null {
+  const here = shipHex(voyage, map);
+  if (!here || here.feature.kind !== 'island' || here.explored) return null;
   const outcome = islandOutcome(die(6, rng));
-  let next: Voyage = { ...voyage, sea: markExplored(sea, here.q, here.r) };
+  const marked: HexMap = { ...map, hexes: map.hexes.map((hex) => (hex === here ? { ...hex, explored: true } : hex)) };
+  let next: Voyage = voyage;
   let gold = 0;
   if (outcome === 'spring') next = { ...next, supplies: Math.min(FULL_SUPPLIES, next.supplies + 3), hunger: Math.max(0, next.hunger - 1) };
   if (outcome === 'wreck') gold = hoard(voyage.level, 1, rng);
@@ -291,7 +338,7 @@ export function exploreIsland(voyage: Voyage, monsters: Monster[], rng: Rng = Ma
     const monster = pickSeaMonster(monsters, voyage.level, rng);
     if (monster) next = { ...next, encounter: { monsterId: monster.id, count: monster.level < voyage.level ? die(2, rng) : 1 } };
   }
-  return { voyage: next, outcome: outcome === 'beasts' && !next.encounter ? 'nothing' : outcome, gold };
+  return { voyage: next, map: marked, outcome: outcome === 'beasts' && !next.encounter ? 'nothing' : outcome, gold };
 }
 
 // ---- a monster against the ship ----
@@ -327,15 +374,9 @@ export function attackShip(voyage: Voyage, section: MonsterSection, fixed: boole
 
 // ---- a fleet and its cargo ----
 
-/** The harbour the ship lies in, if it lies in one. */
-export function harbourHere(voyage: Voyage) {
-  const here = voyage.sea ? seaHexAt(voyage.sea, voyage.sea.ship.q, voyage.sea.ship.r) : undefined;
-  return here?.kind === 'port' ? here : undefined;
-}
-
 /** A hull bought at the quay joins the fleet at full strength; the fleet holds FLEET_MAX ships at most. */
-export function addShip(voyage: Voyage, ship: Ship): Voyage | null {
-  if (!inPort(voyage) || voyage.wrecked || voyage.arrived || voyage.escorts.length + 1 >= FLEET_MAX) return null;
+export function addShip(voyage: Voyage, map: HexMap, ship: Ship): Voyage | null {
+  if (!inPort(voyage, map) || voyage.wrecked || voyage.escorts.length + 1 >= FLEET_MAX) return null;
   // the new hull comes without sailors: pin the crew at what it is now, and the fleet is short-handed until it hires
   return { ...voyage, crew: crewAboard(voyage), escorts: [...voyage.escorts, { ship, hull: HULL[ship] }] };
 }
