@@ -15,11 +15,14 @@ import {
   interruptScene,
   LIKELIHOODS,
   pushEntry,
+  rollAdjustment,
   rollEvent,
+  rollWords,
   yesChance,
   type ChaosMode,
   type EventOptions,
   type Likelihood,
+  type AdjustmentEntry,
   type OracleAnswer,
   type OracleEntry,
   type OracleState,
@@ -27,12 +30,23 @@ import {
   type SceneCheck,
   type SceneEnd,
   type EventEntry,
+  type SceneAdjustment,
+  type WordsEntry,
 } from '../../lib/oracle';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
-type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd;
+type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry;
+
+function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
+  const { t } = useTranslation();
+  return (
+    <p>
+      <strong>{t('solo.oracle.adjustmentLabel')}:</strong> {adjustment.edits.map((edit) => t(`solo.oracle.adjustments.${edit}`)).join('; ')}
+    </p>
+  );
+}
 
 function EventLine({ event }: { event: RandomEvent }) {
   const { t } = useTranslation();
@@ -53,6 +67,7 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
         <p>
           <strong>{t(`solo.oracle.answer.${entry.answer}`)}</strong> · {t(`solo.oracle.likelihood.${entry.likelihood}`)}, {t('solo.oracle.chaos', { chaos: entry.chaos })},{' '}
           {t('solo.oracle.rollLine', { roll: entry.roll, chance: entry.chance })}
+          {entry.asRule && ` · ${t('solo.oracle.asRuleTag')}`}
         </p>
         {entry.event && <EventLine event={entry.event} />}
       </li>
@@ -66,6 +81,24 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
           {t('solo.oracle.chaos', { chaos: entry.chaos })}, {entry.roll > 0 ? `d10 = ${entry.roll}` : t('solo.oracle.noCheck')})
         </p>
         {entry.event && <EventLine event={entry.event} />}
+        {entry.adjustment && <AdjustmentLine adjustment={entry.adjustment} />}
+      </li>
+    );
+  }
+  if (entry.kind === 'adjustment') {
+    return (
+      <li>
+        <AdjustmentLine adjustment={entry} />
+      </li>
+    );
+  }
+  if (entry.kind === 'words') {
+    return (
+      <li>
+        <p>
+          <strong>{t('solo.oracle.wordsLabel')}:</strong> {t(`solo.oracle.action.${entry.action}`)} {t(`solo.oracle.connector.${entry.connector}`)}{' '}
+          {t(`solo.oracle.subject.${entry.subject}`)}
+        </p>
       </li>
     );
   }
@@ -133,7 +166,7 @@ export function OraclePanel() {
         <span className={styles.numeric}>{t('solo.oracle.eventChance', { chance: eventChance(oracle.chaos) })}</span>
         <button
           type="button"
-          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode }))}
+          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, ruleMode: state.ruleMode }))}
           disabled={oracle.log.length === 0 && oracle.scene === 0 && oracle.chaos === 5}
         >
           {t('solo.oracle.reset')}
@@ -152,7 +185,11 @@ export function OraclePanel() {
           </select>
         </label>
         <span className={styles.numeric}>{t('solo.oracle.yesChance', { chance: yesChance(likelihood, oracle.chaos) })}</span>
-        <button type="button" onClick={() => setOracle((state) => add(askOracle(likelihood, state.chaos, Math.random, eventOptions()))(state))}>
+        <label>
+          <input type="checkbox" checked={oracle.ruleMode} onChange={(e) => setOracle((state) => ({ ...state, ruleMode: e.target.checked }))} />
+          {t('solo.oracle.asRule')}
+        </label>
+        <button type="button" onClick={() => setOracle((state) => add(askOracle(likelihood, state.chaos, Math.random, { ...eventOptions(), asRule: state.ruleMode }))(state))}>
           {t('solo.oracle.ask')}
         </button>
       </div>
@@ -192,6 +229,12 @@ export function OraclePanel() {
         </button>
         <button type="button" onClick={() => setOracle((state) => add({ kind: 'event', event: rollEvent(Math.random, eventOptions()) })(state))}>
           {t('solo.oracle.rollEvent')}
+        </button>
+        <button type="button" onClick={() => setOracle((state) => add({ kind: 'adjustment', ...rollAdjustment() })(state))}>
+          {t('solo.oracle.rollAdjustment')}
+        </button>
+        <button type="button" onClick={() => setOracle((state) => add({ kind: 'words', ...rollWords() })(state))}>
+          {t('solo.oracle.digDeeper')}
         </button>
       </div>
 
@@ -241,6 +284,15 @@ export function OraclePanel() {
           </button>
         </fieldset>
       )}
+
+      <details>
+        <summary>{t('solo.oracle.tipsTitle')}</summary>
+        <ul>
+          {['dontKnow', 'twoQuestions', 'yes', 'no', 'exceptional', 'tension', 'connectors'].map((tip) => (
+            <li key={tip}>{t(`solo.oracle.tips.${tip}`)}</li>
+          ))}
+        </ul>
+      </details>
 
       {oracle.log.length === 0 ? (
         <p className={styles.note}>{t('solo.oracle.empty')}</p>

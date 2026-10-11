@@ -137,3 +137,56 @@ describe('OraclePanel and the journal', () => {
     expect(screen.queryByLabelText('The hero was in control of the scene')).not.toBeInTheDocument();
   });
 });
+
+describe('OraclePanel interpretation aids', () => {
+  it('rolls a scene edit on demand', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.25); // d10 = 3
+    renderPanel();
+
+    await user.click(screen.getByRole('button', { name: 'Scene edit (d10)' }));
+
+    expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('weaken or remove an activity');
+  });
+
+  it('attaches the edit to an altered scene', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.25); // scene d10 = 3: altered; edit d10 = 3
+    renderPanel();
+
+    await user.click(screen.getByRole('button', { name: 'New scene (check)' }));
+
+    expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('Scene edit: weaken or remove an activity');
+  });
+
+  it('digs deeper with two more words and a connector', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0); // first words, first connector
+    renderPanel();
+
+    await user.click(screen.getByRole('button', { name: 'Dig deeper (two more words)' }));
+
+    expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('reveal of a debt');
+  });
+
+  it('answers as a rule: neutral chaos, plain answer, no event, and remembers the switch', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.01); // d100 = 1: would be an exceptional yes with an event
+    const store = renderPanel();
+    await user.click(screen.getByRole('button', { name: 'Raise chaos' }));
+    await user.click(screen.getByLabelText('Oracle as a rule'));
+
+    await user.click(screen.getByRole('button', { name: 'Ask the oracle' }));
+
+    const log = screen.getByRole('list', { name: 'Oracle log' });
+    expect(log).toHaveTextContent('as a rule: chaos 5, no events');
+    expect(log).not.toHaveTextContent('strongly');
+    expect(log).not.toHaveTextContent('Event');
+    expect(store.get(oracleAtom).ruleMode).toBe(true);
+  });
+
+  it('keeps the reading tips at hand', () => {
+    renderPanel();
+    expect(screen.getByText('How to read the answers')).toBeInTheDocument();
+  });
+});

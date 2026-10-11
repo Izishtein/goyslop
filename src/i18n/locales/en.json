@@ -259,7 +259,39 @@
       "sceneEnded": "Scene {{scene}} ended",
       "chaosMoved": "chaos {{from}} → {{to}}",
       "inControl": "in control",
-      "outOfControl": "not in control"
+      "outOfControl": "not in control",
+      "adjustmentLabel": "Scene edit",
+      "adjustments": {
+        "1": "remove a character from the scene",
+        "2": "add a character",
+        "3": "weaken or remove an activity",
+        "4": "strengthen an activity",
+        "5": "remove an object",
+        "6": "add an object"
+      },
+      "rollAdjustment": "Scene edit (d10)",
+      "digDeeper": "Dig deeper (two more words)",
+      "wordsLabel": "Deeper meaning",
+      "connector": {
+        "1": "of",
+        "2": "and",
+        "3": "but",
+        "4": "against",
+        "5": "for",
+        "6": "instead of"
+      },
+      "asRule": "Oracle as a rule",
+      "asRuleTag": "as a rule: chaos 5, no events",
+      "tipsTitle": "How to read the answers",
+      "tips": {
+        "dontKnow": "“I do not know” rule: if an event or answer will not fit the story, drop it and play on.",
+        "twoQuestions": "Ask no more than two questions about one detail; after that, decide.",
+        "yes": "Yes — what you expected. Exceptional yes — the same, stronger or with a bonus.",
+        "no": "No — not “the opposite” but the next likeliest thing. Exceptional no — the opposite, or the next thing, stronger.",
+        "exceptional": "In “as a rule” mode exceptional answers and events are off: use it to fill a gap in the rules, not to steer the story.",
+        "tension": "Ask about tension, not about what would kill the plot outright.",
+        "connectors": "Two words say nothing? Join them with a connector, or dig deeper for a second pair."
+      }
     },
     "campaign": {
       "title": "Campaign log",

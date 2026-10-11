@@ -10,7 +10,9 @@ import {
   interruptScene,
   pickFromJournal,
   pushEntry,
+  rollAdjustment,
   rollEvent,
+  rollWords,
   sceneTwist,
   yesChance,
   EMPTY_ORACLE,
@@ -144,5 +146,43 @@ describe('chaos after a scene', () => {
   it('never leaves 1–9', () => {
     expect(chaosAfterScene('normal', 1, true)).toBe(1);
     expect(chaosAfterScene('normal', 9, false)).toBe(9);
+  });
+});
+
+describe('altered scene', () => {
+  it('a d10 of 1–6 is one edit, named by the die itself', () => {
+    expect(rollAdjustment(sequence(0.25))).toEqual({ roll: 3, edits: [3] });
+  });
+
+  it('a d10 of 7–10 is two different edits', () => {
+    // d10 = 8, then d6 = 2, then d6 = 2 again (repeat, rolled again) and d6 = 5
+    expect(rollAdjustment(sequence(0.75, 0.25, 0.25, 0.75))).toEqual({ roll: 8, edits: [2, 5] });
+  });
+
+  it('comes with an altered scene and with nothing else', () => {
+    expect(checkScene(1, 5, sequence(0.25, 0.25)).adjustment).toEqual({ roll: 3, edits: [3] }); // scene d10 = 3: altered
+    expect(checkScene(1, 5, sequence(0.95)).adjustment).toBeNull();
+    expect(checkScene(1, 5, sequence(0.15, 0, 0, 0)).adjustment).toBeNull();
+  });
+});
+
+describe('deeper meaning', () => {
+  it('rolls two words and a connector', () => {
+    expect(rollWords(sequence(0, 0.99, 0.99))).toEqual({ action: 1, subject: 20, connector: 6 });
+  });
+});
+
+describe('oracle as a rule', () => {
+  it('uses neutral chaos, turns exceptional answers into plain ones and never brings an event', () => {
+    const answer = askOracle('even', 9, sequence(pct(5), pct(1), 0, 0, 0), { asRule: true });
+    expect(answer).toMatchObject({ chaos: 5, chance: 50, answer: 'yes', event: null, asRule: true });
+    expect(askOracle('even', 1, sequence(pct(99), pct(1)), { asRule: true }).answer).toBe('no');
+  });
+
+  it('leaves ordinary questions alone', () => {
+    const answer = askOracle('even', 9, sequence(pct(5), pct(1), 0, 0, 0));
+    expect(answer).toMatchObject({ chaos: 9, answer: 'exceptionalYes' });
+    expect(answer.event).not.toBeNull();
+    expect(answer.asRule).toBeUndefined();
   });
 });

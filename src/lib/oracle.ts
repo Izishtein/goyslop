@@ -126,6 +126,46 @@ export function rollEvent(rng: Rng = Math.random, options: EventOptions = {}): R
   return { focus, action, subject, ref: picked ? { kind: picked.kind, title: picked.title } : null };
 }
 
+/** The six edits an altered scene can take: someone, something being done, something at hand — gone or added. */
+export const ADJUSTMENT_COUNT = 6;
+
+export interface SceneAdjustment {
+  /** The d10 roll: 1–6 one edit, 7–10 two edits. */
+  roll: number;
+  /** Edit numbers 1–6: 1 remove a character, 2 add one, 3 weaken an activity, 4 strengthen it, 5 remove an object, 6 add one. */
+  edits: number[];
+}
+
+/** d10: 1–6 is one edit (the die itself names it); 7–10 is two different ones, drawn on separate dice. */
+export function rollAdjustment(rng: Rng = Math.random): SceneAdjustment {
+  const roll = rollDie(10, rng);
+  if (roll <= ADJUSTMENT_COUNT) return { roll, edits: [roll] };
+  const first = rollDie(ADJUSTMENT_COUNT, rng);
+  let second = rollDie(ADJUSTMENT_COUNT, rng);
+  while (second === first) second = rollDie(ADJUSTMENT_COUNT, rng);
+  return { roll, edits: [first, second] };
+}
+
+/** Words that join two prompt words when the pair says nothing by itself. */
+export const CONNECTOR_COUNT = 6;
+
+export interface WordsEntry {
+  kind: 'words';
+  action: number;
+  subject: number;
+  connector: number;
+}
+
+/** "Dig deeper": another pair of words and a connector, for an event that is still unclear. */
+export function rollWords(rng: Rng = Math.random): Omit<WordsEntry, 'kind'> {
+  return { action: rollDie(WORD_COUNT, rng), subject: rollDie(WORD_COUNT, rng), connector: rollDie(CONNECTOR_COUNT, rng) };
+}
+
+export interface AskOptions extends EventOptions {
+  /** Using the oracle to stand in for a missing rule: neutral chaos, no exceptional answers, no events. */
+  asRule?: boolean;
+}
+
 export interface OracleAnswer {
   kind: 'question';
   likelihood: Likelihood;
@@ -135,20 +175,26 @@ export interface OracleAnswer {
   answer: Answer;
   /** Filled when the event die came up: the answer stands, but something else happens too. */
   event: RandomEvent | null;
+  /** Asked as a rule substitute: chaos 5, plain yes/no, no event. */
+  asRule?: boolean;
 }
 
-export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): OracleAnswer {
-  const chance = yesChance(likelihood, chaos);
+export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: AskOptions = {}): OracleAnswer {
+  const used = options.asRule ? CHAOS_START : chaos;
+  const chance = yesChance(likelihood, used);
   const roll = rollPercent(rng);
   const eventRoll = rollPercent(rng);
+  let answer = answerFor(roll, chance);
+  if (options.asRule) answer = answer === 'exceptionalYes' ? 'yes' : answer === 'exceptionalNo' ? 'no' : answer;
   return {
     kind: 'question',
     likelihood,
-    chaos: clampChaos(chaos),
+    chaos: clampChaos(used),
     chance,
     roll,
-    answer: answerFor(roll, chance),
-    event: eventRoll <= eventChance(chaos) ? rollEvent(rng, options) : null,
+    answer,
+    event: !options.asRule && eventRoll <= eventChance(used) ? rollEvent(rng, options) : null,
+    ...(options.asRule ? { asRule: true } : {}),
   };
 }
 
@@ -161,6 +207,8 @@ export interface SceneCheck {
   roll: number;
   twist: SceneTwist;
   event: RandomEvent | null;
+  /** An altered scene comes with its edit. */
+  adjustment?: SceneAdjustment | null;
 }
 
 /** d10 against half the chaos (rounded up): above it the scene goes as planned; at or below, odd bends it, even breaks in. */
@@ -172,7 +220,15 @@ export function sceneTwist(roll: number, chaos: number): SceneTwist {
 export function checkScene(scene: number, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): SceneCheck {
   const roll = rollDie(10, rng);
   const twist = sceneTwist(roll, chaos);
-  return { kind: 'scene', scene, chaos: clampChaos(chaos), roll, twist, event: twist === 'interrupted' ? rollEvent(rng, options) : null };
+  return {
+    kind: 'scene',
+    scene,
+    chaos: clampChaos(chaos),
+    roll,
+    twist,
+    event: twist === 'interrupted' ? rollEvent(rng, options) : null,
+    adjustment: twist === 'altered' ? rollAdjustment(rng) : null,
+  };
 }
 
 /** For a player who is stuck: the scene is interrupted at once, with no chaos check (roll 0 = not rolled). */
@@ -198,6 +254,10 @@ export function chaosAfterScene(mode: ChaosMode, chaos: number, controlled: bool
   return clampChaos(current + step);
 }
 
+export interface AdjustmentEntry extends SceneAdjustment {
+  kind: 'adjustment';
+}
+
 export interface EventEntry {
   kind: 'event';
   event: RandomEvent;
@@ -213,16 +273,18 @@ export interface SceneEnd {
   controlled: boolean | null;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd) & { id: string };
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry) & { id: string };
 
 export interface OracleState {
   chaos: number;
   scene: number;
   chaosMode: ChaosMode;
+  /** Questions are answered as a rule substitute (neutral chaos, no exceptional answers, no events). */
+  ruleMode: boolean;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', ruleMode: false, log: [] };
 
 /** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
 export const CHOOSE_FOCUS_EVERY = 5;
