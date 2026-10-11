@@ -17,6 +17,8 @@ export interface CampaignEntry {
   day: number;
   /** The oracle's scene counter at the time, so the log lines up with the oracle's. */
   scene: number;
+  /** 1–3: how often the oracle's events pick this entry. Rises when it takes part in a scene. */
+  weight: number;
 }
 
 export interface Campaign {
@@ -30,6 +32,14 @@ export const EMPTY_CAMPAIGN: Campaign = { day: 1, entries: [] };
 export const ENTRY_LIMIT = 300;
 export const TITLE_LIMIT = 80;
 export const TEXT_LIMIT = 2000;
+
+export const WEIGHT_MIN = 1;
+export const WEIGHT_MAX = 3;
+
+export const clampWeight = (weight: number): number => Math.min(WEIGHT_MAX, Math.max(WEIGHT_MIN, Math.round(weight) || WEIGHT_MIN));
+
+/** Entries the oracle can draw on: people, dangers and questions — scenes are history, not subjects. */
+export const isEventSource = (kind: EntryKind): boolean => kind !== 'scene';
 
 export const isSettleable = (kind: EntryKind): boolean => kind === 'threat' || kind === 'thread';
 
@@ -48,16 +58,37 @@ export function addEntry(
     closed: false,
     day: campaign.day,
     scene: input.scene,
+    weight: WEIGHT_MIN,
   };
   return { ...campaign, entries: [entry, ...campaign.entries] };
 }
 
-export function updateEntry(campaign: Campaign, id: string, patch: Partial<Pick<CampaignEntry, 'text' | 'closed'>>): Campaign {
+export function updateEntry(
+  campaign: Campaign,
+  id: string,
+  patch: Partial<Pick<CampaignEntry, 'text' | 'closed' | 'weight'>>,
+): Campaign {
   return {
     ...campaign,
     entries: campaign.entries.map((entry) =>
-      entry.id === id ? { ...entry, ...patch, text: patch.text === undefined ? entry.text : patch.text.slice(0, TEXT_LIMIT) } : entry,
+      entry.id === id
+        ? {
+            ...entry,
+            ...patch,
+            text: patch.text === undefined ? entry.text : patch.text.slice(0, TEXT_LIMIT),
+            weight: patch.weight === undefined ? entry.weight : clampWeight(patch.weight),
+          }
+        : entry,
     ),
+  };
+}
+
+/** Everyone who took part in the scene becomes one step likelier to turn up in an event (up to the cap). */
+export function raiseWeights(campaign: Campaign, ids: string[]): Campaign {
+  const chosen = new Set(ids);
+  return {
+    ...campaign,
+    entries: campaign.entries.map((entry) => (chosen.has(entry.id) ? { ...entry, weight: clampWeight(entry.weight + 1) } : entry)),
   };
 }
 

@@ -1,6 +1,8 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { z } from 'zod';
+import { ENTRY_KINDS } from '../lib/campaign';
 import {
+  CHAOS_MODES,
   CHAOS_MAX,
   CHAOS_MIN,
   CHAOS_START,
@@ -16,6 +18,7 @@ const EventSchema = z.object({
   focus: z.number().int().min(1).max(FOCUS_COUNT),
   action: z.number().int().min(1).max(WORD_COUNT),
   subject: z.number().int().min(1).max(WORD_COUNT),
+  ref: z.object({ kind: z.enum(ENTRY_KINDS), title: z.string() }).nullable().optional(),
 });
 
 const base = { id: z.string(), chaos: z.number().int(), roll: z.number().int() };
@@ -37,11 +40,20 @@ const EntrySchema = z.discriminatedUnion('kind', [
     event: EventSchema.nullable(),
   }),
   z.object({ id: z.string(), kind: z.literal('event'), event: EventSchema }),
+  z.object({
+    id: z.string(),
+    kind: z.literal('sceneEnd'),
+    scene: z.number().int(),
+    from: z.number().int(),
+    to: z.number().int(),
+    controlled: z.boolean().nullable(),
+  }),
 ]);
 
 const OracleSchema = z.object({
   chaos: z.number().int().min(CHAOS_MIN).max(CHAOS_MAX).default(CHAOS_START),
   scene: z.number().int().min(0).default(0),
+  chaosMode: z.enum(CHAOS_MODES).default('normal'),
   log: z.array(EntrySchema).max(LOG_LIMIT).default(() => []),
 });
 

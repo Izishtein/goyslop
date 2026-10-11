@@ -1,4 +1,5 @@
 import type { Rng } from './encounter';
+import type { EntryKind } from './campaign';
 
 /*
  * The solo oracle. Sword World has no solo rules of its own, so this is a small system of our
@@ -58,18 +59,71 @@ export function answerFor(roll: number, chance: number): Answer {
   return roll > 100 - Math.floor((100 - chance) / 5) ? 'exceptionalNo' : 'no';
 }
 
+/** A journal entry the event points at; the title is copied so the log still reads after the entry is deleted. */
+export interface EventRef {
+  kind: EntryKind;
+  title: string;
+}
+
 export interface RandomEvent {
   focus: number;
   action: number;
   subject: number;
+  ref?: EventRef | null;
 }
 
-export const FOCUS_COUNT = 10;
+export const FOCUS_COUNT = 11;
+/** "The current situation develops": the fallback focus when the journal has nobody to point at. */
+export const FOCUS_SITUATION = 11;
 export const WORD_COUNT = 20;
 
-/** A prompt for the player's imagination: what it is about (focus), and two words to hang a story on. */
-export function rollEvent(rng: Rng = Math.random): RandomEvent {
-  return { focus: rollDie(FOCUS_COUNT, rng), action: rollDie(WORD_COUNT, rng), subject: rollDie(WORD_COUNT, rng) };
+/** Foci that name someone from the campaign journal. */
+export const FOCUS_SOURCE: Partial<Record<number, EntryKind>> = { 2: 'npc', 3: 'threat', 4: 'threat', 5: 'thread', 6: 'thread' };
+
+/** What the oracle needs to know about a journal entry. */
+export interface JournalEntry {
+  id: string;
+  kind: EntryKind;
+  title: string;
+  closed: boolean;
+  weight: number;
+}
+
+export interface EventOptions {
+  /** The campaign journal: events draw their subject from it. */
+  journal?: JournalEntry[];
+  /** A focus the player chose instead of rolling for it (1–FOCUS_COUNT). */
+  focus?: number | null;
+}
+
+/** Weighted draw among the entries of one kind that are still in play; nothing to draw from gives null. */
+export function pickFromJournal(journal: JournalEntry[], kind: EntryKind, rng: Rng = Math.random): JournalEntry | null {
+  const pool = journal.filter((entry) => entry.kind === kind && !entry.closed);
+  const total = pool.reduce((sum, entry) => sum + Math.max(1, entry.weight), 0);
+  if (total === 0) return null;
+  let point = Math.floor(rng() * total);
+  for (const entry of pool) {
+    point -= Math.max(1, entry.weight);
+    if (point < 0) return entry;
+  }
+  return pool[pool.length - 1];
+}
+
+/**
+ * A prompt for the player's imagination: what it is about (focus), and two words to hang a story on.
+ * A focus about someone known draws them from the journal, likelier the more they have been in play;
+ * with nobody to draw, the event becomes "the current situation".
+ */
+export function rollEvent(rng: Rng = Math.random, options: EventOptions = {}): RandomEvent {
+  const rolled = rollDie(FOCUS_COUNT, rng);
+  const action = rollDie(WORD_COUNT, rng);
+  const subject = rollDie(WORD_COUNT, rng);
+  let focus = options.focus && options.focus >= 1 && options.focus <= FOCUS_COUNT ? options.focus : rolled;
+  const source = FOCUS_SOURCE[focus];
+  if (!source) return { focus, action, subject };
+  const picked = options.journal ? pickFromJournal(options.journal, source, rng) : null;
+  if (!picked) focus = FOCUS_SITUATION;
+  return { focus, action, subject, ref: picked ? { kind: picked.kind, title: picked.title } : null };
 }
 
 export interface OracleAnswer {
@@ -83,7 +137,7 @@ export interface OracleAnswer {
   event: RandomEvent | null;
 }
 
-export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random): OracleAnswer {
+export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): OracleAnswer {
   const chance = yesChance(likelihood, chaos);
   const roll = rollPercent(rng);
   const eventRoll = rollPercent(rng);
@@ -94,7 +148,7 @@ export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math
     chance,
     roll,
     answer: answerFor(roll, chance),
-    event: eventRoll <= eventChance(chaos) ? rollEvent(rng) : null,
+    event: eventRoll <= eventChance(chaos) ? rollEvent(rng, options) : null,
   };
 }
 
@@ -115,10 +169,33 @@ export function sceneTwist(roll: number, chaos: number): SceneTwist {
   return roll % 2 === 1 ? 'altered' : 'interrupted';
 }
 
-export function checkScene(scene: number, chaos: number, rng: Rng = Math.random): SceneCheck {
+export function checkScene(scene: number, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): SceneCheck {
   const roll = rollDie(10, rng);
   const twist = sceneTwist(roll, chaos);
-  return { kind: 'scene', scene, chaos: clampChaos(chaos), roll, twist, event: twist === 'interrupted' ? rollEvent(rng) : null };
+  return { kind: 'scene', scene, chaos: clampChaos(chaos), roll, twist, event: twist === 'interrupted' ? rollEvent(rng, options) : null };
+}
+
+/** For a player who is stuck: the scene is interrupted at once, with no chaos check (roll 0 = not rolled). */
+export function interruptScene(scene: number, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): SceneCheck {
+  return { kind: 'scene', scene, chaos: clampChaos(chaos), roll: 0, twist: 'interrupted', event: rollEvent(rng, options) };
+}
+
+/**
+ * How chaos moves when a scene ends.
+ * normal — the hero was in control: calm begets calm (−1), otherwise crisis grows (+1);
+ * mean   — the other way round, so chaos is pushed back toward the middle (fewer extremes);
+ * random — a d10 decides: at or under the chaos it falls, over it it rises; no judging of the scene needed.
+ */
+export const CHAOS_MODES = ['normal', 'mean', 'random'] as const;
+export type ChaosMode = (typeof CHAOS_MODES)[number];
+
+export function chaosAfterScene(mode: ChaosMode, chaos: number, controlled: boolean, rng: Rng = Math.random): number {
+  const current = clampChaos(chaos);
+  let step: number;
+  if (mode === 'random') step = rollDie(10, rng) <= current ? -1 : 1;
+  else if (mode === 'mean') step = controlled ? 1 : -1;
+  else step = controlled ? -1 : 1;
+  return clampChaos(current + step);
 }
 
 export interface EventEntry {
@@ -126,15 +203,29 @@ export interface EventEntry {
   event: RandomEvent;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry) & { id: string };
+/** Written when a scene is closed: how the chaos moved. */
+export interface SceneEnd {
+  kind: 'sceneEnd';
+  scene: number;
+  from: number;
+  to: number;
+  /** Null in random mode, where the scene is not judged. */
+  controlled: boolean | null;
+}
+
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd) & { id: string };
 
 export interface OracleState {
   chaos: number;
   scene: number;
+  chaosMode: ChaosMode;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', log: [] };
+
+/** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
+export const CHOOSE_FOCUS_EVERY = 5;
 
 /** The log is trimmed so the browser's storage quota is never the oracle's problem. */
 export const LOG_LIMIT = 50;

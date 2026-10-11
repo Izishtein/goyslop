@@ -1,6 +1,6 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { z } from 'zod';
-import { EMPTY_CAMPAIGN, ENTRY_KINDS, ENTRY_LIMIT, TEXT_LIMIT, TITLE_LIMIT, type Campaign } from '../lib/campaign';
+import { EMPTY_CAMPAIGN, ENTRY_KINDS, ENTRY_LIMIT, TEXT_LIMIT, TITLE_LIMIT, WEIGHT_MAX, WEIGHT_MIN, type Campaign } from '../lib/campaign';
 
 const CampaignSchema = z.object({
   day: z.number().int().min(1).default(1),
@@ -14,6 +14,7 @@ const CampaignSchema = z.object({
         closed: z.boolean().default(false),
         day: z.number().int().min(1).default(1),
         scene: z.number().int().min(0).default(0),
+        weight: z.number().int().min(WEIGHT_MIN).max(WEIGHT_MAX).default(WEIGHT_MIN),
       }),
     )
     .max(ENTRY_LIMIT)

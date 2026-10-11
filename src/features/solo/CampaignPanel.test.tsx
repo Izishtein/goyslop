@@ -62,3 +62,38 @@ describe('CampaignPanel', () => {
     expect(store.get(campaignAtom).entries).toEqual([]);
   });
 });
+
+describe('CampaignPanel weights', () => {
+  it('raises and lowers how often the oracle picks an entry, within 1–3; scenes have no weight', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel();
+    await user.selectOptions(screen.getByLabelText('Kind'), 'npc');
+    await user.type(screen.getByLabelText('Title'), 'Marta');
+    await user.click(screen.getByRole('button', { name: 'Add to the log' }));
+
+    await user.click(screen.getByRole('button', { name: 'More often: Marta' }));
+    await user.click(screen.getByRole('button', { name: 'More often: Marta' }));
+    expect(store.get(campaignAtom).entries[0].weight).toBe(3);
+    expect(screen.getByRole('button', { name: 'More often: Marta' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Less often: Marta' }));
+    expect(store.get(campaignAtom).entries[0].weight).toBe(2);
+
+    await user.selectOptions(screen.getByLabelText('Kind'), 'scene');
+    await user.type(screen.getByLabelText('Title'), 'Inn');
+    await user.click(screen.getByRole('button', { name: 'Add to the log' }));
+    expect(screen.queryByRole('button', { name: 'More often: Inn' })).not.toBeInTheDocument();
+  });
+
+  it('reads an old saved log, written before weights existed, as weight 1', () => {
+    localStorage.setItem(
+      'sw25.campaign',
+      JSON.stringify({ day: 3, entries: [{ id: 'a', kind: 'npc', title: 'Marta', text: '', closed: false, day: 1, scene: 0 }] }),
+    );
+    render(
+      <Provider store={createStore()}>
+        <CampaignPanel />
+      </Provider>,
+    );
+    expect(screen.getByText('weight 1')).toBeInTheDocument();
+  });
+});

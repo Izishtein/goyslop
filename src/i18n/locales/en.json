@@ -187,7 +187,8 @@
         "7": "A windfall",
         "8": "A loss",
         "9": "An omen in the surroundings",
-        "10": "Something personal to your hero"
+        "10": "Something personal to your hero",
+        "11": "The current situation develops"
       },
       "action": {
         "1": "reveal",
@@ -232,7 +233,33 @@
         "18": "a coin",
         "19": "a name",
         "20": "a fire"
-      }
+      },
+      "focusLabel": "Event focus",
+      "focusRoll": "Roll for it",
+      "chooseFocusHint": "Every {{count}} scenes you may pick the focus yourself — a way out of a rut.",
+      "interruptScene": "Interrupted scene (stuck)",
+      "noCheck": "no check",
+      "chaosMode": "Chaos after a scene",
+      "chaosModes": {
+        "normal": "Normal",
+        "mean": "Toward the middle",
+        "random": "Random"
+      },
+      "chaosModeNote": {
+        "normal": "Hero in control of the scene: chaos −1; not in control: +1. Calm begets calm, crisis begets crisis.",
+        "mean": "The other way round: in control — chaos +1, not — −1. Fewer extremes: after a run of success things are bound to blow up.",
+        "random": "A d10 decides: at or under the chaos it falls by 1, over it it rises by 1. No need to judge the scene."
+      },
+      "endScene": "End the scene",
+      "endSceneTitle": "End of scene {{scene}}",
+      "wasInControl": "The hero was in control of the scene",
+      "whoTookPart": "Who took part? They become likelier to turn up in events.",
+      "nobodyToRaise": "No open NPCs, threats or threads in the log.",
+      "applyEnd": "Apply",
+      "sceneEnded": "Scene {{scene}} ended",
+      "chaosMoved": "chaos {{from}} → {{to}}",
+      "inControl": "in control",
+      "outOfControl": "not in control"
     },
     "campaign": {
       "title": "Campaign log",
@@ -262,7 +289,10 @@
         "npc": "NPC",
         "threat": "Threat",
         "thread": "Thread"
-      }
+      },
+      "weight": "weight {{weight}}",
+      "weightUp": "More often: {{title}}",
+      "weightDown": "Less often: {{title}}"
     },
     "knowledgeCheck": "Monster Knowledge",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",

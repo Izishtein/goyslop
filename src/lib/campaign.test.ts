@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEntry, EMPTY_CAMPAIGN, ENTRY_LIMIT, filterEntries, removeEntry, setDay, TEXT_LIMIT, updateEntry } from './campaign';
+import { addEntry, EMPTY_CAMPAIGN, ENTRY_LIMIT, filterEntries, isEventSource, raiseWeights, removeEntry, setDay, TEXT_LIMIT, updateEntry } from './campaign';
 
 const note = (title: string, kind: 'scene' | 'npc' | 'threat' | 'thread' = 'scene') => ({ kind, title, text: '', scene: 2 });
 
@@ -40,5 +40,30 @@ describe('campaign log', () => {
     expect(filterEntries(log.entries, 'open', '').map((e) => e.id)).toEqual(['3']);
     expect(filterEntries(log.entries, 'threat', '').map((e) => e.id)).toEqual(['2']);
     expect(filterEntries(log.entries, 'all', 'letter').map((e) => e.id)).toEqual(['3']);
+  });
+});
+
+describe('entry weight', () => {
+  it('starts at 1 and is clamped to 1–3', () => {
+    let log = addEntry(EMPTY_CAMPAIGN, note('Marta', 'npc'), 'a');
+    expect(log.entries[0].weight).toBe(1);
+    log = updateEntry(log, 'a', { weight: 9 });
+    expect(log.entries[0].weight).toBe(3);
+    log = updateEntry(log, 'a', { weight: -4 });
+    expect(log.entries[0].weight).toBe(1);
+  });
+
+  it('rises by one for everyone who took part, up to the cap', () => {
+    let log = addEntry(EMPTY_CAMPAIGN, note('Marta', 'npc'), 'a');
+    log = addEntry(log, note('Wolves', 'threat'), 'b');
+    log = raiseWeights(log, ['a']);
+    log = raiseWeights(log, ['a']);
+    log = raiseWeights(log, ['a']);
+    expect(log.entries.map((e) => [e.id, e.weight])).toEqual([['b', 1], ['a', 3]]);
+  });
+
+  it('is a subject for events unless it is a scene', () => {
+    expect(isEventSource('npc')).toBe(true);
+    expect(isEventSource('scene')).toBe(false);
   });
 });

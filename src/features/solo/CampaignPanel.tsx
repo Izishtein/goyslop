@@ -5,12 +5,15 @@ import {
   addEntry,
   ENTRY_KINDS,
   filterEntries,
+  isEventSource,
   isSettleable,
   removeEntry,
   setDay,
   TEXT_LIMIT,
   TITLE_LIMIT,
   updateEntry,
+  WEIGHT_MAX,
+  WEIGHT_MIN,
   type EntryKind,
   type KindFilter,
 } from '../../lib/campaign';
@@ -121,6 +124,27 @@ export function CampaignPanel() {
                 onChange={(e) => setCampaign((current) => updateEntry(current, entry.id, { text: e.target.value }))}
               />
               <div className={styles.controls}>
+                {isEventSource(entry.kind) && (
+                  <>
+                    <span className={styles.numeric}>{t('solo.campaign.weight', { weight: entry.weight })}</span>
+                    <button
+                      type="button"
+                      aria-label={t('solo.campaign.weightUp', { title: entry.title })}
+                      onClick={() => setCampaign((current) => updateEntry(current, entry.id, { weight: entry.weight + 1 }))}
+                      disabled={entry.weight >= WEIGHT_MAX}
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={t('solo.campaign.weightDown', { title: entry.title })}
+                      onClick={() => setCampaign((current) => updateEntry(current, entry.id, { weight: entry.weight - 1 }))}
+                      disabled={entry.weight <= WEIGHT_MIN}
+                    >
+                      −
+                    </button>
+                  </>
+                )}
                 {isSettleable(entry.kind) && (
                   <button type="button" onClick={() => setCampaign((current) => updateEntry(current, entry.id, { closed: !entry.closed }))}>
                     {t(entry.closed ? 'solo.campaign.reopen' : entry.kind === 'threat' ? 'solo.campaign.settleThreat' : 'solo.campaign.settleThread')}
