@@ -293,6 +293,17 @@
         "exceptional": "In “as a rule” mode exceptional answers and events are off: use it to fill a gap in the rules, not to steer the story.",
         "tension": "Ask about tension, not about what would kill the plot outright.",
         "connectors": "Two words say nothing? Join them with a connector, or dig deeper for a second pair."
+      },
+      "flavor": "Weight of chaos",
+      "flavors": {
+        "full": "Full",
+        "mild": "Mild",
+        "none": "None"
+      },
+      "flavorNote": {
+        "full": "Each step of chaos moves the “yes” chance by 5 points and the event chance by 3.",
+        "mild": "A steadier world: 3 points per step for “yes”, 2 for events.",
+        "none": "Chaos does not bend the answers; events stay at 15%."
       }
     },
     "campaign": {

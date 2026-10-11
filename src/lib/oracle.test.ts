@@ -212,3 +212,24 @@ describe('prepared adventures', () => {
     expect(check.adjustment).toBeNull();
   });
 });
+
+describe('weight of chaos', () => {
+  it('softens or removes the pull of chaos on "yes"', () => {
+    expect(yesChance('even', 9)).toBe(70);
+    expect(yesChance('even', 9, 'mild')).toBe(62);
+    expect(yesChance('even', 1, 'mild')).toBe(38);
+    expect(yesChance('even', 9, 'none')).toBe(50);
+    expect(yesChance('even', 1, 'none')).toBe(50);
+  });
+
+  it('softens the event chance, and fixes it with no chaos', () => {
+    expect(eventChance(9)).toBe(27);
+    expect(eventChance(9, 'mild')).toBe(18);
+    expect(eventChance(1, 'none')).toBe(15);
+    expect(eventChance(9, 'none')).toBe(15);
+  });
+
+  it('is used by the question', () => {
+    expect(askOracle('even', 9, sequence(pct(30), pct(99)), { flavor: 'none' })).toMatchObject({ chance: 50, chaos: 9 });
+  });
+});

@@ -4,6 +4,7 @@ import { ENTRY_KINDS } from '../lib/campaign';
 import {
   ADJUSTMENT_COUNT,
   CONNECTOR_COUNT,
+  CHAOS_FLAVORS,
   CHAOS_MODES,
   CHAOS_MAX,
   CHAOS_MIN,
@@ -90,6 +91,7 @@ const OracleSchema = z.object({
   chaos: z.number().int().min(CHAOS_MIN).max(CHAOS_MAX).default(CHAOS_START),
   scene: z.number().int().min(0).default(0),
   chaosMode: z.enum(CHAOS_MODES).default('normal'),
+  chaosFlavor: z.enum(CHAOS_FLAVORS).default('full'),
   ruleMode: z.boolean().default(false),
   log: z.array(EntrySchema).max(LOG_LIMIT).default(() => []),
 });

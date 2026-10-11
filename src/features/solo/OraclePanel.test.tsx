@@ -190,3 +190,18 @@ describe('OraclePanel interpretation aids', () => {
     expect(screen.getByText('How to read the answers')).toBeInTheDocument();
   });
 });
+
+describe('OraclePanel weight of chaos', () => {
+  it('changes the shown chances and is remembered', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel();
+    await user.click(screen.getByRole('button', { name: 'Raise chaos' }));
+    expect(screen.getByText('“yes” chance 55%')).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Weight of chaos'), 'mild');
+    expect(screen.getByText('“yes” chance 53%')).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Weight of chaos'), 'none');
+    expect(screen.getByText('“yes” chance 50%')).toBeInTheDocument();
+    expect(store.get(oracleAtom).chaosFlavor).toBe('none');
+  });
+});

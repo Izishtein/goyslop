@@ -33,15 +33,28 @@ export function clampChaos(chaos: number): number {
   return Math.min(CHAOS_MAX, Math.max(CHAOS_MIN, Math.round(chaos)));
 }
 
-/** Each step of chaos away from the start moves the chance by 5 points: a wilder world says yes more. */
-export function yesChance(likelihood: Likelihood, chaos: number): number {
-  const shifted = BASE_CHANCE[likelihood] + (clampChaos(chaos) - CHAOS_START) * 5;
+/**
+ * How much chaos matters. full — the base rule; mild — a softer pull (the world is steadier);
+ * none — chaos does not move the answers at all (the event chance stays fixed).
+ */
+export const CHAOS_FLAVORS = ['full', 'mild', 'none'] as const;
+export type ChaosFlavor = (typeof CHAOS_FLAVORS)[number];
+
+/** Points of "yes" chance per step of chaos away from the start, and points of event chance per step of chaos. */
+const YES_STEP: Record<ChaosFlavor, number> = { full: 5, mild: 3, none: 0 };
+const EVENT_STEP: Record<ChaosFlavor, number> = { full: 3, mild: 2, none: 0 };
+/** With no chaos effect the event chance stays where full chaos puts it at the start. */
+const FIXED_EVENT_CHANCE = CHAOS_START * EVENT_STEP.full;
+
+/** Each step of chaos away from the start moves the chance by 5 points (3 mild, 0 none): a wilder world says yes more. */
+export function yesChance(likelihood: Likelihood, chaos: number, flavor: ChaosFlavor = 'full'): number {
+  const shifted = BASE_CHANCE[likelihood] + (clampChaos(chaos) - CHAOS_START) * YES_STEP[flavor];
   return Math.min(CHANCE_CEILING, Math.max(CHANCE_FLOOR, shifted));
 }
 
-/** Chance (percent) that an event interrupts the answer: 3 points per step of chaos. */
-export function eventChance(chaos: number): number {
-  return clampChaos(chaos) * 3;
+/** Chance (percent) that an event interrupts the answer: 3 points per step of chaos (2 mild, fixed 15 with none). */
+export function eventChance(chaos: number, flavor: ChaosFlavor = 'full'): number {
+  return flavor === 'none' ? FIXED_EVENT_CHANCE : clampChaos(chaos) * EVENT_STEP[flavor];
 }
 
 export function rollPercent(rng: Rng = Math.random): number {
@@ -182,6 +195,8 @@ export function rollWords(rng: Rng = Math.random): Omit<WordsEntry, 'kind'> {
 export interface AskOptions extends EventOptions {
   /** Using the oracle to stand in for a missing rule: neutral chaos, no exceptional answers, no events. */
   asRule?: boolean;
+  /** How strongly chaos bends the answer (default: fully). */
+  flavor?: ChaosFlavor;
 }
 
 export interface OracleAnswer {
@@ -199,7 +214,8 @@ export interface OracleAnswer {
 
 export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: AskOptions = {}): OracleAnswer {
   const used = options.asRule ? CHAOS_START : chaos;
-  const chance = yesChance(likelihood, used);
+  const flavor = options.flavor ?? 'full';
+  const chance = yesChance(likelihood, used, flavor);
   const roll = rollPercent(rng);
   const eventRoll = rollPercent(rng);
   let answer = answerFor(roll, chance);
@@ -211,7 +227,7 @@ export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math
     chance,
     roll,
     answer,
-    event: !options.asRule && eventRoll <= eventChance(used) ? rollEvent(rng, options) : null,
+    event: !options.asRule && eventRoll <= eventChance(used, flavor) ? rollEvent(rng, options) : null,
     ...(options.asRule ? { asRule: true } : {}),
   };
 }
@@ -319,12 +335,13 @@ export interface OracleState {
   chaos: number;
   scene: number;
   chaosMode: ChaosMode;
+  chaosFlavor: ChaosFlavor;
   /** Questions are answered as a rule substitute (neutral chaos, no exceptional answers, no events). */
   ruleMode: boolean;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', ruleMode: false, log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', ruleMode: false, log: [] };
 
 /** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
 export const CHOOSE_FOCUS_EVERY = 5;
