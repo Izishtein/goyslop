@@ -13,7 +13,10 @@ import {
   pushEntry,
   rollAdjustment,
   rollEvent,
+  rollThemed,
   rollWords,
+  THEME_WORDS,
+  THEMES,
   sceneTwist,
   yesChance,
   EMPTY_ORACLE,
@@ -231,5 +234,26 @@ describe('weight of chaos', () => {
 
   it('is used by the question', () => {
     expect(askOracle('even', 9, sequence(pct(30), pct(99)), { flavor: 'none' })).toMatchObject({ chance: 50, chaos: 9 });
+  });
+});
+
+describe('themed words', () => {
+  it('rolls one word from each of the theme\'s two lists', () => {
+    expect(rollThemed('magic', sequence(0, 0.99))).toEqual({ theme: 'magic', a: 1, b: 20 });
+  });
+
+  it('has twenty distinct words in each list, in both languages', async () => {
+    const en = (await import('../i18n/locales/en.json')).default.solo.oracle.themes as Record<string, { name: string; a: Record<string, string>; b: Record<string, string> }>;
+    const ru = (await import('../i18n/locales/ru.json')).default.solo.oracle.themes as typeof en;
+    for (const theme of THEMES) {
+      for (const book of [en, ru]) {
+        for (const side of ['a', 'b'] as const) {
+          const list = Object.values(book[theme][side]);
+          expect(list, `${theme}.${side}`).toHaveLength(THEME_WORDS);
+          expect(new Set(list).size, `${theme}.${side} repeats a word`).toBe(THEME_WORDS);
+        }
+      }
+    }
+    expect(Object.keys(en)).toEqual(Object.keys(ru));
   });
 });

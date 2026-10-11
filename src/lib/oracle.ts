@@ -192,6 +192,22 @@ export function rollWords(rng: Rng = Math.random): Omit<WordsEntry, 'kind'> {
   return { action: rollDie(WORD_COUNT, rng), subject: rollDie(WORD_COUNT, rng), connector: rollDie(CONNECTOR_COUNT, rng) };
 }
 
+/** Themed word tables: two lists of twenty (a quality or happening, and a thing it touches) per theme. */
+export const THEMES = ['character', 'place', 'creature', 'magic', 'world'] as const;
+export type Theme = (typeof THEMES)[number];
+export const THEME_WORDS = 20;
+
+export interface ThemedEntry {
+  kind: 'themed';
+  theme: Theme;
+  a: number;
+  b: number;
+}
+
+export function rollThemed(theme: Theme, rng: Rng = Math.random): Omit<ThemedEntry, 'kind'> {
+  return { theme, a: rollDie(THEME_WORDS, rng), b: rollDie(THEME_WORDS, rng) };
+}
+
 export interface AskOptions extends EventOptions {
   /** Using the oracle to stand in for a missing rule: neutral chaos, no exceptional answers, no events. */
   asRule?: boolean;
@@ -329,7 +345,7 @@ export interface SceneEnd {
   controlled: boolean | null;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry) & { id: string };
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry) & { id: string };
 
 export interface OracleState {
   chaos: number;

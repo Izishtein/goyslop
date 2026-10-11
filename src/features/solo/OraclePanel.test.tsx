@@ -205,3 +205,16 @@ describe('OraclePanel weight of chaos', () => {
     expect(store.get(oracleAtom).chaosFlavor).toBe('none');
   });
 });
+
+describe('OraclePanel themed words', () => {
+  it('rolls two words on the chosen theme', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0); // word 1 of each list
+    renderPanel();
+
+    await user.selectOptions(screen.getByLabelText('Theme'), 'Creature');
+    await user.click(screen.getByRole('button', { name: 'Words on the theme' }));
+
+    expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('On the theme “Creature”: hunger / claws');
+  });
+});

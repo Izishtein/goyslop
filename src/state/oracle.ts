@@ -5,6 +5,8 @@ import {
   ADJUSTMENT_COUNT,
   CONNECTOR_COUNT,
   CHAOS_FLAVORS,
+  THEME_WORDS,
+  THEMES,
   CHAOS_MODES,
   CHAOS_MAX,
   CHAOS_MIN,
@@ -51,6 +53,13 @@ const EntrySchema = z.discriminatedUnion('kind', [
     adjustment: AdjustmentSchema.nullable().optional(),
   }),
   z.object({ id: z.string(), kind: z.literal('adjustment'), ...AdjustmentSchema.shape }),
+  z.object({
+    id: z.string(),
+    kind: z.literal('themed'),
+    theme: z.enum(THEMES),
+    a: z.number().int().min(1).max(THEME_WORDS),
+    b: z.number().int().min(1).max(THEME_WORDS),
+  }),
   z.object({ id: z.string(), kind: z.literal('keyed'), scene: z.number().int(), titles: z.array(z.string()) }),
   z.object({
     ...base,

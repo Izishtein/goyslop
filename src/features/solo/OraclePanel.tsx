@@ -20,7 +20,11 @@ import {
   pushEntry,
   rollAdjustment,
   rollEvent,
+  rollThemed,
   rollWords,
+  THEMES,
+  type Theme,
+  type ThemedEntry,
   yesChance,
   type ChaosFlavor,
   type ChaosMode,
@@ -44,7 +48,7 @@ import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
-type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry;
+type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry;
 
 function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
   const { t } = useTranslation();
@@ -110,6 +114,16 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
       </li>
     );
   }
+  if (entry.kind === 'themed') {
+    return (
+      <li>
+        <p>
+          <strong>{t('solo.oracle.themedLabel', { theme: t(`solo.oracle.themes.${entry.theme}.name`) })}:</strong>{' '}
+          {t(`solo.oracle.themes.${entry.theme}.a.${entry.a}`)} / {t(`solo.oracle.themes.${entry.theme}.b.${entry.b}`)}
+        </p>
+      </li>
+    );
+  }
   if (entry.kind === 'keyed') {
     return (
       <li>
@@ -160,6 +174,7 @@ export function OraclePanel() {
   const [likelihood, setLikelihood] = useState<Likelihood>('even');
   /** 0 = roll for the event's focus; otherwise the focus the player picked. */
   const [focus, setFocus] = useState(0);
+  const [theme, setTheme] = useState<Theme>('character');
   const [ending, setEnding] = useState(false);
   const [controlled, setControlled] = useState(true);
   const [present, setPresent] = useState<string[]>([]);
@@ -277,6 +292,19 @@ export function OraclePanel() {
         </button>
         <button type="button" onClick={() => setOracle((state) => add({ kind: 'words', ...rollWords() })(state))}>
           {t('solo.oracle.digDeeper')}
+        </button>
+        <label>
+          {t('solo.oracle.themeLabel')}
+          <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
+            {THEMES.map((entry) => (
+              <option key={entry} value={entry}>
+                {t(`solo.oracle.themes.${entry}.name`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="button" onClick={() => setOracle((state) => add({ kind: 'themed', ...rollThemed(theme) })(state))}>
+          {t('solo.oracle.rollTheme')}
         </button>
       </div>
 
