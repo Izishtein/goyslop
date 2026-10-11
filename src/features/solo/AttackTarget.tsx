@@ -2,7 +2,7 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isValuePair } from '../../data/monsters';
-import { damageSection, isDown, numberOf, rollEvasion, type EvasionRoll } from '../../lib/encounter';
+import { damageSection, rollEvasion, tableTargets, type EvasionRoll } from '../../lib/encounter';
 import { halveRoundUp, spellResisted, type SpellcastingCheck } from '../../lib/spell-check';
 import { armorPiercerDefense } from '../../lib/formulas/attack-modifiers';
 import { encounterAtom } from '../../state/encounter';
@@ -27,31 +27,26 @@ export function AttackTarget({
   critical,
   magic = false,
   spell,
+  initialTarget = '',
 }: {
   tier: 0 | 1 | 2 | 3;
   damage: number;
   critical: boolean;
   magic?: boolean;
   spell?: SpellAim;
+  /** A target already chosen by the Accuracy check that led here. */
+  initialTarget?: string;
 }) {
   const { t } = useTranslation();
   const [encounter, setEncounter] = useAtom(encounterAtom);
   const { byId } = useMonsters();
-  const [choice, setChoice] = useState('');
+  const [choice, setChoice] = useState(initialTarget);
   const [typed, setTyped] = useState('');
   const [appliedTo, setAppliedTo] = useState('');
   const [fixed, setFixed] = useState(false);
   const [save, setSave] = useState<EvasionRoll | null>(null);
 
-  const targets = encounter.monsters.flatMap((instance, monsterIndex) => {
-    const monster = byId.get(instance.monsterId);
-    if (!monster) return [];
-    return monster.sections.flatMap((section, sectionIndex) =>
-      isDown(instance.sections[sectionIndex])
-        ? []
-        : [{ key: `${instance.id}:${sectionIndex}`, monsterIndex, sectionIndex, defense: numberOf(section.defense), label: `${instance.label} — ${section.style} (${instance.sections[sectionIndex].hp})` }],
-    );
-  });
+  const targets = tableTargets(encounter, byId);
   const target = targets.find((entry) => entry.key === choice);
   const rawDefense = magic ? 0 : target ? target.defense : Math.max(0, Number(typed) || 0);
   const known = magic ? target !== undefined : target !== undefined || typed !== '';

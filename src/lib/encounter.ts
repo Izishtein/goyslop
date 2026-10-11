@@ -351,3 +351,25 @@ export function knowledgeResult(monster: Monster, successValue: number): { ident
     weak: monster.weakness !== null && successValue >= monster.weakness,
   };
 }
+
+/** Every standing section on the table, one row each: what a weapon attack can be aimed at. */
+export function tableTargets(encounter: Encounter, byId: Map<string, Monster>) {
+  return encounter.monsters.flatMap((instance, monsterIndex) => {
+    const monster = byId.get(instance.monsterId);
+    if (!monster) return [];
+    return monster.sections.flatMap((section, sectionIndex) =>
+      isDown(instance.sections[sectionIndex])
+        ? []
+        : [
+            {
+              key: `${instance.id}:${sectionIndex}`,
+              monsterIndex,
+              sectionIndex,
+              defense: numberOf(section.defense),
+              evasion: typeof section.evasion === 'object' && section.evasion !== null && 'value' in section.evasion ? section.evasion.value : 0,
+              label: `${instance.label} — ${section.style} (${instance.sections[sectionIndex].hp})`,
+            },
+          ],
+    );
+  });
+}

@@ -1941,6 +1941,22 @@
       "body": "Body",
       "scorpion": "Scorpion",
       "pincers": "Pincers"
+    },
+    "attackPanel": {
+      "title": "Attack a target on the table",
+      "weapon": "Weapon",
+      "targets": "Targets (up to {{max}})",
+      "fixed": "Fixed Evasion",
+      "attack": "Attack",
+      "accuracyLine": "Accuracy: 2d6 ({{d1}}+{{d2}}) {{sign}} {{mod}} = {{value}}",
+      "secondPass": "[Repeated Strike] — another Accuracy check against those who evaded:",
+      "fumble": "double 1 — automatic miss",
+      "critical": "double 6 — automatic hit",
+      "targetLine": "{{name}}: Evasion {{evasion}} —",
+      "hit": "hit (by {{margin}})",
+      "evaded": "evaded",
+      "noHits": "Nobody was hit.",
+      "damageFor": "Damage to {{name}}:"
     }
   },
   "io": {

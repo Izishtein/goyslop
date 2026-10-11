@@ -45,6 +45,7 @@ import { useTurnFeats } from '../../state/turn';
 import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
+import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
 
@@ -535,6 +536,15 @@ export function EquipmentSection({ character }: { character: Character }) {
             {t('sheet.addWeapon')}
           </button>
         </div>
+        <AttackPanel
+          weapons={character.equipment.weapons.map((weapon) => {
+            const numbers = weaponNumbers(weapon);
+            return { id: weapon.id, label: weapon.name || t('sheet.unnamedItem'), accuracy: numbers.accuracy, power: weapon.power, criticalValue: numbers.criticalValue, extraDamage: numbers.extraDamage };
+          })}
+          options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
+          targetLimit={attackMods.targets}
+          repeated={attackMods.repeatedStrike}
+        />
       </div>
 
       <div className={styles.subsection} data-print-empty={character.equipment.armor.length === 0 || undefined}>

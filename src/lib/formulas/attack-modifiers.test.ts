@@ -28,6 +28,19 @@ describe('declaredAttackModifiers', () => {
   });
 });
 
+describe('declaredAttackModifiers — target-dependent feats', () => {
+  it('reaches 3 targets under [Cleave I] (at -3 damage) and 5 under [Cleave II] (no reduction)', () => {
+    expect(declaredAttackModifiers([feat('Cleave I')], 0)).toMatchObject({ targets: 3, damage: -3, applied: ['Cleave I'] });
+    expect(declaredAttackModifiers([feat('Cleave II')], 0)).toMatchObject({ targets: 5, damage: 0, applied: [] });
+    expect(declaredAttackModifiers([], 0).targets).toBe(1);
+  });
+
+  it('flags [Repeated Strike I] and II for a second Accuracy check without touching the numbers', () => {
+    expect(declaredAttackModifiers([feat('Repeated Strike I')], 0)).toMatchObject({ repeatedStrike: true, repeatedStrikeII: false, damage: 0, applied: [] });
+    expect(declaredAttackModifiers([feat('Repeated Strike II')], 0)).toMatchObject({ repeatedStrike: true, repeatedStrikeII: true });
+  });
+});
+
 describe('effectiveCriticalValue', () => {
   // CR I p. 137: "the final Critical Value will never be 7 or less" — it becomes 8.
   it('never drops below 8', () => {

@@ -1,0 +1,64 @@
+.panel {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  display: grid;
+  gap: var(--sp-2);
+  font-size: 0.85rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+.targets {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.pass {
+  display: grid;
+  gap: var(--sp-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.hit {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.miss {
+  color: var(--text-muted);
+}
+
+.fumble {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.damage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+/* A past attack is not sheet data. */
+@media print {
+  .panel {
+    display: none !important;
+  }
+}
