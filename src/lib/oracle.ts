@@ -220,6 +220,24 @@ export function rollThemed(theme: Theme, rng: Rng = Math.random): Omit<ThemedEnt
   return { theme, a: rollDie(THEME_WORDS, rng), b: rollDie(THEME_WORDS, rng) };
 }
 
+/** The four questions that open an adventure: who, what, where and why, each answered by a themed pair of words. */
+export const OPENING_THEMES: Theme[] = ['character', 'world', 'place', 'character'];
+
+export interface OpeningEntry {
+  kind: 'opening';
+  /** In the order of OPENING_THEMES: who, what, where, why. */
+  parts: Array<{ theme: Theme; a: number; b: number }>;
+}
+
+export function rollOpening(rng: Rng = Math.random): Omit<OpeningEntry, 'kind'> {
+  return { parts: OPENING_THEMES.map((theme) => rollThemed(theme, rng)) };
+}
+
+/** The very first scene: it simply begins — no chaos check, nothing bends it (roll 0 = not rolled). */
+export function openingScene(chaos: number): SceneCheck {
+  return { kind: 'scene', scene: 1, chaos: clampChaos(chaos), roll: 0, twist: 'expected', event: null, adjustment: null };
+}
+
 export interface AskOptions extends EventOptions {
   /** Using the oracle to stand in for a missing rule: neutral chaos, no exceptional answers, no events. */
   asRule?: boolean;
@@ -357,7 +375,7 @@ export interface SceneEnd {
   controlled: boolean | null;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry) & { id: string };
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry | OpeningEntry) & { id: string };
 
 export interface OracleState {
   chaos: number;

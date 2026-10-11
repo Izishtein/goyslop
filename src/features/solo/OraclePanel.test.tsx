@@ -267,3 +267,21 @@ describe('OraclePanel style of play', () => {
     expect(screen.getByText(/Stuck\? Make the next scene/)).toBeInTheDocument();
   });
 });
+
+describe('OraclePanel opening', () => {
+  it('begins the adventure: scene 1 without a check, and the four answers; the button is for the first scene only', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const store = renderPanel();
+
+    await user.click(screen.getByRole('button', { name: 'Begin the adventure (who, what, where, why)' }));
+
+    expect(store.get(oracleAtom).scene).toBe(1);
+    const log = screen.getByRole('list', { name: 'Oracle log' });
+    expect(log).toHaveTextContent('Who: pride / a rival');
+    expect(log).toHaveTextContent('Where: dampness / a door');
+    expect(log).toHaveTextContent('Scene 1 · goes as expected');
+    expect(log).toHaveTextContent('no check');
+    expect(screen.queryByRole('button', { name: /Begin the adventure/ })).not.toBeInTheDocument();
+  });
+});

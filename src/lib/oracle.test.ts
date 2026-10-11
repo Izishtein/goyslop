@@ -13,6 +13,8 @@ import {
   pushEntry,
   rollAdjustment,
   rollEvent,
+  openingScene,
+  rollOpening,
   rollThemed,
   rollWords,
   THEME_WORDS,
@@ -255,5 +257,17 @@ describe('themed words', () => {
       }
     }
     expect(Object.keys(en)).toEqual(Object.keys(ru));
+  });
+});
+
+describe('opening an adventure', () => {
+  it('asks who, what, where and why from themed tables', () => {
+    const opening = rollOpening(sequence(0, 0.99));
+    expect(opening.parts.map((part) => part.theme)).toEqual(['character', 'world', 'place', 'character']);
+    expect(opening.parts[0]).toEqual({ theme: 'character', a: 1, b: 20 });
+  });
+
+  it('starts the first scene with no check', () => {
+    expect(openingScene(7)).toMatchObject({ scene: 1, chaos: 7, roll: 0, twist: 'expected', event: null });
   });
 });

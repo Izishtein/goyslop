@@ -18,6 +18,9 @@ import {
   FOCUS_FEATURE,
   interruptScene,
   LIKELIHOODS,
+  openingScene,
+  rollOpening,
+  type OpeningEntry,
   PLAY_STYLES,
   pushEntry,
   rollAdjustment,
@@ -52,7 +55,7 @@ import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
-type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry;
+type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry | OpeningEntry;
 
 function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
   const { t } = useTranslation();
@@ -134,6 +137,20 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
       </li>
     );
   }
+  if (entry.kind === 'opening') {
+    return (
+      <li>
+        <p>
+          <strong>{t('solo.oracle.openingLabel')}</strong>
+        </p>
+        {entry.parts.map((part, index) => (
+          <p key={index}>
+            {t(`solo.oracle.openingParts.${index}`)}: {t(`solo.oracle.themes.${part.theme}.a.${part.a}`)} / {t(`solo.oracle.themes.${part.theme}.b.${part.b}`)}
+          </p>
+        ))}
+      </li>
+    );
+  }
   if (entry.kind === 'themed') {
     return (
       <li>
@@ -208,13 +225,20 @@ export function OraclePanel() {
   });
 
   /** A new scene: check it, tick the keyed scenes, and say which of them fired. */
-  function startScene(stuck: boolean) {
+  function startScene(mode: 'check' | 'stuck' | 'opening') {
     const scene = oracle.scene + 1;
-    const check = stuck ? interruptScene(scene, oracle.chaos, Math.random, eventOptions()) : checkScene(scene, oracle.chaos, Math.random, eventOptions());
+    const opening = mode === 'opening' ? rollOpening() : null;
+    const check =
+      mode === 'opening'
+        ? openingScene(oracle.chaos)
+        : mode === 'stuck'
+          ? interruptScene(scene, oracle.chaos, Math.random, eventOptions())
+          : checkScene(scene, oracle.chaos, Math.random, eventOptions());
     const { scenes, fired } = advanceScene(adventure.keyed, scene);
     if (adventure.keyed.length > 0) setAdventure((current) => ({ ...current, keyed: scenes }));
     setOracle((state) => {
-      const next = add(check)({ ...state, scene });
+      const started = add(check)({ ...state, scene });
+      const next = opening ? add({ kind: 'opening', ...opening })(started) : started;
       return fired.length > 0 ? add({ kind: 'keyed', scene, titles: fired.map((keyed) => keyed.title) })(next) : next;
     });
   }
@@ -298,10 +322,15 @@ export function OraclePanel() {
 
       <div className={styles.toolbar}>
         <span className={styles.numeric}>{t('solo.oracle.scene', { scene: oracle.scene })}</span>
-        <button type="button" onClick={() => startScene(false)}>
+        {oracle.scene === 0 && (
+          <button type="button" onClick={() => startScene('opening')}>
+            {t('solo.oracle.beginAdventure')}
+          </button>
+        )}
+        <button type="button" onClick={() => startScene('check')}>
           {t('solo.oracle.newScene')}
         </button>
-        <button type="button" onClick={() => startScene(true)}>
+        <button type="button" onClick={() => startScene('stuck')}>
           {t('solo.oracle.interruptScene')}
         </button>
         <button type="button" onClick={() => setOracle((state) => add({ kind: 'event', event: rollEvent(Math.random, eventOptions()) })(state))}>

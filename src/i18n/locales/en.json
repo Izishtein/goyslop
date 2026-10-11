@@ -563,6 +563,14 @@
         "plotShift": "Plot shift: stop on a turn of the story — a reveal, a decision, a reversal.",
         "mood": "Mood: stop when the mood changes — tension breaks, or a calm falls.",
         "autoInterrupt": "Stuck? Make the next scene an interrupted one, with no chaos check."
+      },
+      "beginAdventure": "Begin the adventure (who, what, where, why)",
+      "openingLabel": "The adventure opens",
+      "openingParts": {
+        "0": "Who",
+        "1": "What",
+        "2": "Where",
+        "3": "Why"
       }
     },
     "campaign": {
