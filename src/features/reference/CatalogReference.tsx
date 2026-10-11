@@ -12,6 +12,7 @@ import { listArtsByKind, type ArtKind } from '../../data/arts';
 import { COMBAT_FEATS } from '../../data/combat-feats';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import { listEssenceWeavingsByLevel } from '../../data/essence-weavings';
+import { basicValues, FORMS, INNATE_KINDS, INNATE_RANKS, INNATE_WEAPONS, SECTION_COLUMNS, HERITOR_MAX_LEVEL } from '../../data/sections';
 import { getInfusion, INFUSION_RACES, INFUSION_TIERS, INFUSIONS } from '../../data/infusions';
 import { POWER_TABLE } from '../../lib/formulas/power-table';
 import {
@@ -1007,6 +1008,129 @@ export function InfusionsReference() {
           })}
         </div>
       ))}
+    </section>
+  );
+}
+
+export function SectionsReference() {
+  const { t } = useTranslation();
+  const levels = Array.from({ length: HERITOR_MAX_LEVEL + 1 }, (_, level) => level);
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-sections">
+      <div className={styles.panelHead}>
+        <h3 id="reference-sections">{t('reference.tab.sections')}</h3>
+        <p className={styles.note}>{t('reference.sectionsNote')}</p>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.sectionForms')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('creation.race')}</th>
+                <th>{t('sheet.forms.section')}</th>
+                <th>{t('sheet.forms.innate')}</th>
+                <th>{t('sheet.forms.weakPoint')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FORMS.map((form) => (
+                <tr key={form.raceId}>
+                  <th scope="row" className={styles.rowName}>
+                    {form.raceId}
+                  </th>
+                  <td>{form.sections.map((entry) => `${t(`sheet.forms.sections.${entry.id.replace(/-\d$/, '')}`)}${entry.main ? '*' : ''}`).join(' / ')}</td>
+                  <td>{form.sections.map((entry) => (entry.weapon ? INNATE_WEAPONS[entry.weapon].B.name : '—')).join(' / ')}</td>
+                  <td>{t(`sheet.forms.weak.${form.raceId}`)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.sectionValues')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th rowSpan={2}>Heritor</th>
+                {SECTION_COLUMNS.map((column) => (
+                  <th key={column} colSpan={3}>
+                    {t(`reference.sectionColumn.${column}`)}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                {SECTION_COLUMNS.map((column) => (
+                  <Fragment key={column}>
+                    <th>HP</th>
+                    <th>MP</th>
+                    <th>Def</th>
+                  </Fragment>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {levels.map((level) => (
+                <tr key={level}>
+                  <th scope="row">{level}</th>
+                  {SECTION_COLUMNS.map((column) => {
+                    const values = basicValues(column, level);
+                    return (
+                      <Fragment key={column}>
+                        <td>{values.hp}</td>
+                        <td>{values.mp}</td>
+                        <td>{values.defense}</td>
+                      </Fragment>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <h4>{t('reference.innateWeapons')}</h4>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('sheet.name')}</th>
+                <th>{t('sheet.rank')}</th>
+                <th>{t('sheet.stance')}</th>
+                <th>{t('sheet.accuracyBonus')}</th>
+                <th>{t('sheet.power')}</th>
+                <th>{t('sheet.criticalValue')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {INNATE_RANKS.flatMap((rank) =>
+                INNATE_KINDS.map((kind) => {
+                  const weapon = INNATE_WEAPONS[kind][rank];
+                  return (
+                    <tr key={`${rank}-${kind}`}>
+                      <th scope="row" className={styles.rowName}>
+                        {weapon.name}
+                      </th>
+                      <td>{rank}</td>
+                      <td>{weapon.stance}</td>
+                      <td>{weapon.accuracy > 0 ? `+${weapon.accuracy}` : weapon.accuracy === 0 ? '—' : weapon.accuracy}</td>
+                      <td>{weapon.power}</td>
+                      <td>{weapon.criticalValue}</td>
+                    </tr>
+                  );
+                }),
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   );
 }

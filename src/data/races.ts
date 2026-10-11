@@ -1097,6 +1097,102 @@ export const RACES: RaceDefinition[] = [
       ],
     },
   },
+  // Barbarous Rage pp. 11-22 and 39-42 - the four Barbarous races with several sections (docs/sheet-content/43-barbarous-rage-multi-section-races.md).
+  // "Restricted Classes: None" is printed for every one of them. Diablos, Drakes and Basilisks gain their
+  // sections by shapeshifting; the Scissorscorpion has three from the start. What the sections are worth,
+  // and how they transform, is data/sections.ts.
+  {
+    id: 'diablo',
+    name: 'Diablo',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d', '2d', '2d+6', '2d', '1d', '1d+6'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [10, 9, 9], 2500),
+        bg('5-6', 'Boxer', ['grappler'], [11, 10, 7], 2000),
+        bg('7', 'Warrior', ['fighter'], [10, 10, 8], 2000),
+        bg('8-9', 'Agile Warrior', ['fencer'], [12, 8, 8], 2500),
+        bg('10-12', 'Shapeshifter', ['heritor'], [9, 10, 9], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Warlock', ['daemonologist'], [9, 9, 10], 2000),
+        bg('5-6', 'Archer', ['marksman'], [12, 7, 9], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [11, 11, 6], 2000),
+        bg('8-9', 'Officer', ['tactician'], [9, 10, 9], 2500),
+        bg('10-12', 'Sage', ['sage'], [8, 10, 10], 2500),
+      ],
+    },
+  },
+  {
+    id: 'drake',
+    name: 'Drake',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('1d', '1d', '2d', '2d', '2d+6', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [13, 12, 7], 2500),
+        bg('5-6', 'Conjurer', ['conjurer'], [11, 12, 9], 2000),
+        bg('7', 'Warrior', ['fighter'], [12, 15, 5], 2000),
+        bg('8-9', 'Shapeshifter', ['heritor'], [12, 14, 6], 2500),
+        bg('10-12', 'Sage', ['sage'], [11, 13, 8], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Warlock', ['daemonologist'], [12, 12, 8], 2000),
+        bg('5-6', 'Sorcerer', ['sorcerer'], [12, 11, 9], 2000),
+        bg('7', 'Dancer', ['battle-dancer'], [14, 13, 5], 2000),
+        bg('8-9', 'Boxer', ['grappler'], [13, 13, 6], 2000),
+        bg('10-12', 'Tactician', ['tactician'], [11, 14, 7], 2500),
+      ],
+    },
+  },
+  {
+    id: 'basilisk',
+    name: 'Basilisk',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('1d+6', '2d', '2d', '2d', '1d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [7, 13, 13], 2500),
+        bg('5-6', 'Sorcerer', ['sorcerer'], [6, 12, 15], 2000),
+        bg('7', 'Warrior', ['fighter'], [9, 12, 12], 2000),
+        bg('8-9', 'Shapeshifter', ['heritor'], [8, 11, 14], 2500),
+        bg('10-12', 'Sage', ['sage'], [7, 10, 16], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Warlock', ['daemonologist'], [6, 11, 16], 2000),
+        bg('5-6', 'Priest', ['priest'], [6, 13, 14], 2000),
+        bg('7', 'Boxer', ['grappler'], [8, 13, 12], 2000),
+        bg('8-9', 'Dancer', ['battle-dancer'], [9, 13, 11], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [7, 12, 14], 2500),
+      ],
+    },
+  },
+  {
+    id: 'scissorscorpion',
+    name: 'Scissorscorpion',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('1d+6', '1d', '2d', '2d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Artificer', ['artificer'], [10, 8, 8], 2000),
+        bg('5-6', 'Archer', ['marksman'], [12, 8, 6], 2500),
+        bg('7', 'Warrior', ['fighter'], [10, 10, 6], 2000),
+        bg('8-9', 'Shapeshifter', ['heritor'], [10, 9, 7], 2500),
+        bg('10-12', 'Hunter', ['ranger'], [11, 9, 6], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Sorcerer', ['sorcerer'], [8, 9, 9], 2000),
+        bg('5-6', 'Sage', ['sage'], [9, 9, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [11, 10, 5], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [9, 9, 8], 2500),
+        bg('10-12', 'Alchemist', ['alchemist'], [10, 7, 9], 2500),
+      ],
+    },
+  },
 ];
 
 export function getRace(id: string): RaceDefinition | undefined {
@@ -1113,7 +1209,7 @@ export function getRace(id: string): RaceDefinition | undefined {
  */
 export interface RacialAbility {
   name: string;
-  fromLevel: 0 | 6 | 11;
+  fromLevel: 0 | 6 | 8 | 9 | 11 | 13;
 }
 
 const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
@@ -1402,6 +1498,43 @@ const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
     { name: 'Abominable Blood', fromLevel: 6 },
     { name: 'Abominable Blood', fromLevel: 11 },
     { name: 'Weakening', fromLevel: 0 },
+  ],
+  // Barbarous Rage pp. 12, 16, 20, 40. The enhancement steps are not the usual 6/11: a Diablo's [Daemonshift]
+  // is enhanced at 6 and made a Minor Action at 8, [Flying II] comes at 11 for a Diablo and at 13 for a Drake,
+  // a Basilisk's [Poisonous Blood] grows at 9. "Weak Point" is not bracketed (as for every race here): it is
+  // printed with the form's data in data/sections.ts.
+  diablo: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Flying', fromLevel: 0 },
+    { name: 'Daemon Skin', fromLevel: 0 },
+    { name: 'Daemonshift', fromLevel: 0 },
+    { name: 'Daemonshift', fromLevel: 6 },
+    { name: 'Daemonshift', fromLevel: 8 },
+    { name: 'Flying II', fromLevel: 11 },
+  ],
+  drake: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Magic Sword', fromLevel: 0 },
+    { name: 'Flying', fromLevel: 0 },
+    { name: 'Dragonification', fromLevel: 0 },
+    { name: 'Dragonification', fromLevel: 6 },
+    { name: 'Dragonification', fromLevel: 11 },
+    { name: 'Flying II', fromLevel: 13 },
+  ],
+  basilisk: [
+    { name: 'Evil Eyes and Petrifying Gaze', fromLevel: 0 },
+    { name: 'Poisonous Blood', fromLevel: 0 },
+    { name: 'Monstrous Form', fromLevel: 0 },
+    { name: 'Monstrous Form', fromLevel: 6 },
+    { name: 'Poisonous Blood', fromLevel: 9 },
+    { name: 'Monstrous Form', fromLevel: 11 },
+  ],
+  scissorscorpion: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Scorpion Body', fromLevel: 0 },
+    { name: 'Scorpion Body Art', fromLevel: 0 },
+    { name: 'Scorpion Body', fromLevel: 6 },
+    { name: 'Scorpion Body Art', fromLevel: 11 },
   ],
 };
 

@@ -18,6 +18,17 @@ function rowFor(name: string): HTMLElement {
 }
 
 describe('ReferenceView', () => {
+  it('shows the sections tab: the Heritor table and the innate weapons', async () => {
+    const user = userEvent.setup();
+    renderReference();
+    await user.click(screen.getByRole('button', { name: 'Sections' }));
+
+    expect(screen.getByRole('heading', { name: 'Sections' })).toBeInTheDocument();
+    expect(rowFor('Steel Rending Bite')).toHaveTextContent('SS');
+    expect(screen.getByRole('heading', { name: 'Basic Values of Multiple Sections' })).toBeInTheDocument();
+    expect(rowFor('diablo')).toHaveTextContent('Head* / Body');
+  });
+
   it('opens on the races catalog', () => {
     renderReference();
 

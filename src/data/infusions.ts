@@ -10,8 +10,9 @@
  *
  * The list is 20 Infusions open to every Heritor and 40 "Exclusive Infusions" for the four races with
  * several sections (Diablo 13, Drake 8, Basilisk 13, Scissorscorpion 6) — the totals the book's own
- * table on p. 58 gives. The catalogue does not enforce the race: those four races are not in the
- * races catalogue, and every section of such a character is bookkeeping done by hand.
+ * table on p. 58 gives. The catalogue does not enforce the race: the pick is grouped and labelled by race, not forbidden. The four races and their
+ * sections are in data/races.ts and data/sections.ts; a few Infusions (Tenacious, Section Quick Reaction) feed the section
+ * values by themselves, the rest stay text.
  *
  * The English text is the book's, in reference.infusionSummary / reference.infusionEffect; the Russian
  * is the digest in files/Вливания Наследника for the 33 it covers (common and Basilisk), our own

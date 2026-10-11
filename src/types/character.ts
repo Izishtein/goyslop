@@ -390,6 +390,28 @@ export const KnownInfusionSchema = z.object({
 });
 export type KnownInfusion = z.infer<typeof KnownInfusionSchema>;
 
+/**
+ * The sections of a Barbarous character with several (Diablo, Drake, Basilisk, Scissorscorpion) - see
+ * data/sections.ts and lib/forms.ts. Only the other sections are kept here: the Main Section's HP and MP are
+ * the sheet's own. `bonus` is what the player adds by hand to a section's maxima (Infusions that are not plain
+ * numbers, items), over what the learned Infusions add by themselves.
+ */
+export const FormPartStateSchema = z.object({
+  hp: z.number().int(),
+  mp: z.number().int().min(0),
+  /** Out cold at 0 HP after a Death Check, or disabled for good (Barbarous Rage p. 55). */
+  status: z.enum(['ok', 'unconscious', 'disabled']).default('ok'),
+  bonus: z
+    .object({ hp: z.number().int().default(0), mp: z.number().int().default(0), defense: z.number().int().default(0) })
+    .default(() => ({ hp: 0, mp: 0, defense: 0 })),
+});
+export type FormPartState = z.infer<typeof FormPartStateSchema>;
+export const FormStateSchema = z.object({
+  transformed: z.boolean().default(false),
+  parts: z.record(z.string(), FormPartStateSchema).default(() => ({})),
+});
+export type FormState = z.infer<typeof FormStateSchema>;
+
 /** Battle Mastery Schools (pp. 44-77) — see data/schools.ts. Not tied to any class level:
  *  entry and every Secret are bought with Reputation alone, so unlike Stunts/Aspects there is
  *  no slot count to track, only a free list (the same shape as Combat Feats). */
@@ -594,6 +616,8 @@ export const CharacterSchema = z.object({
   essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
   /** Heritor Infusions — see KnownInfusionSchema. One slot per Heritor level. */
   infusions: z.array(KnownInfusionSchema).default(() => []),
+  /** The sections of a Diablo, Drake, Basilisk or Scissorscorpion — see FormStateSchema. Absent until first used. */
+  form: FormStateSchema.optional(),
   /** Battle Mastery School membership and Secrets — see KnownSchoolSchema/KnownSchoolSecretSchema.
    *  No slot count: both are bought with Reputation alone, like Combat Feats. */
   schools: z.array(KnownSchoolSchema).default(() => []),

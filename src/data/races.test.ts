@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getRace, racialAbilitiesFor, RACES } from './races';
+import { ABILITY_IDS } from '../lib/formulas/abilities';
+import { formatDiceNotation } from '../lib/formulas/ability-base';
 
 const RARE_SPECIES_CATEGORIES: [string, string][] = [
   ['snow-elf', 'mist-elf'],
@@ -32,9 +34,9 @@ describe('races catalog', () => {
     expect(alv?.usesVagrantSystem).toBe(true);
   });
 
-  it('has 44 races with unique ids', () => {
-    expect(RACES).toHaveLength(44);
-    expect(new Set(RACES.map((race) => race.id)).size).toBe(44);
+  it('has 48 races with unique ids', () => {
+    expect(RACES).toHaveLength(48);
+    expect(new Set(RACES.map((race) => race.id)).size).toBe(48);
   });
 
   it('races with ability dice also have background tables, and vice versa', () => {
@@ -49,7 +51,8 @@ describe('races catalog', () => {
         if (!entry.stats) continue;
         const sum = entry.stats[0] + entry.stats[1] + entry.stats[2];
         expect(sum).toBeGreaterThanOrEqual(18);
-        expect(sum).toBeLessThanOrEqual(32);
+        // the Barbarous Rage Basilisk's starting split is the largest the books print: 33
+        expect(sum).toBeLessThanOrEqual(33);
       }
     }
   });
@@ -251,6 +254,53 @@ describe('races catalog', () => {
         }
         expect([...covered].sort((a, b) => a - b), id).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
       }
+    });
+  });
+
+  describe('Barbarous Rage races with several sections (Diablo, Drake, Basilisk, Scissorscorpion)', () => {
+    const IDS = ['diablo', 'drake', 'basilisk', 'scissorscorpion'];
+
+    it('have full dice, two five-row background tables and no restricted classes', () => {
+      for (const id of IDS) {
+        const race = getRace(id);
+        expect(race?.abilityDice, id).not.toBeNull();
+        expect(race?.backgroundTables?.primary, id).toHaveLength(5);
+        expect(race?.backgroundTables?.additional, id).toHaveLength(5);
+        expect(race?.restrictedClasses, id).toEqual([]);
+        expect(race?.sourceBook, id).toBe('Barbarous Rage');
+      }
+    });
+
+    it('prints the corrections of pp. 12, 16, 20 and 40', () => {
+      const notation = (id: string) => ABILITY_IDS.map((ability) => formatDiceNotation(getRace(id)!.abilityDice![ability])).join(' ');
+      expect(notation('diablo')).toBe('2d6 2d6 2d6+6 2d6 1d6 1d6+6');
+      expect(notation('drake')).toBe('1d6 1d6 2d6 2d6 2d6+6 2d6');
+      expect(notation('basilisk')).toBe('1d6+6 2d6 2d6 2d6 1d6 1d6');
+      expect(notation('scissorscorpion')).toBe('1d6+6 1d6 2d6 2d6 2d6 2d6');
+    });
+
+    it("sums every row's Skill+Body+Mind to one total per race: 28, 32, 33 and 26", () => {
+      const totals: Record<string, number> = { diablo: 28, drake: 32, basilisk: 33, scissorscorpion: 26 };
+      for (const id of IDS) {
+        const race = getRace(id);
+        const rows = [...(race?.backgroundTables?.primary ?? []), ...(race?.backgroundTables?.additional ?? [])];
+        for (const row of rows) expect(row.stats![0] + row.stats![1] + row.stats![2], `${id} ${row.name}`).toBe(totals[id]);
+      }
+    });
+
+    it('open the Shapeshifter (Heritor) background in the primary table', () => {
+      for (const id of IDS) {
+        const row = getRace(id)?.backgroundTables?.primary.find((entry) => entry.name === 'Shapeshifter');
+        expect(row?.startingClasses?.classIds, id).toEqual(['heritor']);
+      }
+    });
+
+    it('name the abilities with the enhancement steps the books print (6/8/11, 6/11/13, 6/9/11, 6/11)', () => {
+      const steps = (id: string) => racialAbilitiesFor(id).map((ability) => `${ability.name}@${ability.fromLevel}`);
+      expect(steps('diablo')).toEqual(['Darkvision@0', 'Flying@0', 'Daemon Skin@0', 'Daemonshift@0', 'Daemonshift@6', 'Daemonshift@8', 'Flying II@11']);
+      expect(steps('drake')).toEqual(['Darkvision@0', 'Magic Sword@0', 'Flying@0', 'Dragonification@0', 'Dragonification@6', 'Dragonification@11', 'Flying II@13']);
+      expect(steps('basilisk')).toEqual(['Evil Eyes and Petrifying Gaze@0', 'Poisonous Blood@0', 'Monstrous Form@0', 'Monstrous Form@6', 'Poisonous Blood@9', 'Monstrous Form@11']);
+      expect(steps('scissorscorpion')).toEqual(['Darkvision@0', 'Scorpion Body@0', 'Scorpion Body Art@0', 'Scorpion Body@6', 'Scorpion Body Art@11']);
     });
   });
 

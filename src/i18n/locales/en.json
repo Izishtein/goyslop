@@ -1988,7 +1988,69 @@
     "useTechnique": "Use ({{mp}} MP)",
     "makoStoneUseTechnique": "MP drawn from it for the next Technique (one stone at a time)",
     "techniqueLog": "Techniques used this session",
-    "useUndo": "Undo last use"
+    "useUndo": "Undo last use",
+    "forms": {
+      "title": "Forms and sections",
+      "always": "In its sections from the start (Scorpion Body)",
+      "formName": {
+        "diablo": "Daemon Form (Daemonshift)",
+        "drake": "Dragon Form (Dragonification)",
+        "basilisk": "Monstrous Form"
+      },
+      "enterMajor": "Shapeshift: {{form}} (Major Action)",
+      "enterMinor": "Shapeshift: {{form}} (Minor Action)",
+      "leave": "Return to the original form",
+      "item": "Needs: {{item}}",
+      "lock": "cannot return for {{hours}} h",
+      "cooldown": "once every {{hours}} h",
+      "weakPoint": "Weak Point",
+      "weak": {
+        "diablo": "energy-type damage +3",
+        "drake": "magic damage +2",
+        "basilisk": "water/ice damage +3",
+        "scissorscorpion": "physical damage +2"
+      },
+      "intPenalty": "Intelligence −{{points}} in this form",
+      "section": "Section",
+      "main": "Main Section",
+      "mainVitals": "the sheet’s own HP and MP",
+      "armor": "armor",
+      "innate": "Innate weapon",
+      "accuracy": "Accuracy",
+      "evasion": "Evasion",
+      "straight": "straight roll",
+      "wake": "Wake",
+      "restore": "Restore",
+      "bonus": "Extra",
+      "bonusField": {
+        "hp": "Max HP",
+        "mp": "Max MP",
+        "defense": "Defense"
+      },
+      "status": {
+        "unconscious": "unconscious",
+        "disabled": "disabled"
+      },
+      "sections": {
+        "head": "Head",
+        "body": "Body",
+        "wing": "Wing",
+        "evil-eye": "Evil Eye",
+        "upper-body": "Upper Body",
+        "scorpion": "Scorpion",
+        "pincers": "Pincers"
+      },
+      "rulesTitle": "Rules of transformation",
+      "rules": {
+        "hands": "Items held in hand (Stance 1H/2H) fall to the ground when the number of sections changes; collect them later.",
+        "accessories": "Every accessory except “Accessory: Ears” falls off; a Scissorscorpion cannot wear Waist or Feet accessories at all.",
+        "armor": "Metal armor stops the shapeshift; non-metallic armor may be torn or lost. Denudation lets armor fall and be reused.",
+        "mount": "A shapeshift that changes the number of sections ends the ride; characters with several sections cannot ride.",
+        "narrow": "In a place only one section can enter, the shapeshift cannot be made.",
+        "noHands": "A Main Section that lost its hands takes −4 on skill checks that need them.",
+        "heritor": "Other sections make Accuracy and Evasion checks on Heritor level + DEX/AGI modifier (a straight roll without the class); Fortitude and Willpower are the Main Section’s."
+      }
+    }
   },
   "io": {
     "export": "Download JSON",
@@ -2068,7 +2130,8 @@
       "advancedCombat": "Advanced Combat",
       "powerTable": "Power Table",
       "monsters": "Monsters",
-      "infusions": "Heritor Infusions"
+      "infusions": "Heritor Infusions",
+      "sections": "Sections"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -4211,6 +4274,18 @@
       "deadly-poison": "The [Poisonous Tail] effect given by the Scorpion section's innate weapon Scorpion Tail gets a +1 bonus (+2 total) to its Success Value, and the damage given becomes \"2d\" points."
     },
     "infusionsNote": "All {{count}} Infusions of the Heritor class (Barbarous Rage pp. 57-63): 20 open to every Heritor and the Exclusive Infusions of the four races with several sections. One Infusion per Heritor level; the 5th and 10th tier need that Heritor level.",
-    "infusionInferred": "The book lists this Infusion in its table (p. 58) but does not print its entry on p. 59; the fields and wording follow the other Diablo Infusions that grant a unique skill."
+    "infusionInferred": "The book lists this Infusion in its table (p. 58) but does not print its entry on p. 59; the fields and wording follow the other Diablo Infusions that grant a unique skill.",
+    "sectionsNote": "Characters with several sections (Barbarous Rage pp. 53-57, 63-64): what each section is worth by the level of the Heritor class, and the innate weapons. * marks the Main Section; its Defense alone is read from the table (the Scissorscorpion Upper Body wears armor instead).",
+    "sectionForms": "Races with sections",
+    "sectionValues": "Basic Values of Multiple Sections",
+    "innateWeapons": "Innate weapons",
+    "sectionColumn": {
+      "head": "Head",
+      "body": "Body / Upper Body",
+      "wing": "Wing",
+      "evilEye": "Evil Eye",
+      "scorpion": "Scorpion",
+      "pincers": "Pincers"
+    }
   }
 }
