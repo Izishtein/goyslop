@@ -1188,7 +1188,12 @@
       "landfall": "Land in the new country",
       "landfallWarn": "This replaces the land map with a fresh one around the harbour town; the old land stays behind.",
       "landfallConfirm": "Go ashore",
-      "landfallCancel": "Stay aboard"
+      "landfallCancel": "Stay aboard",
+      "quayCrew": "Sailors on the quay today: {{count}}.",
+      "quayEmpty": "Nobody on the quay is looking for work — wait a day in port.",
+      "returnHome": "Back ashore at home (hex {{hex}})",
+      "returnHomeWarn": "The voyage ends here: the party steps ashore on hex {{hex}} of the land map it sailed from, fed and rested; the ships and cargo stay behind.",
+      "returnHomeConfirm": "Step ashore"
     },
     "dungeon": {
       "title": "Dungeon",

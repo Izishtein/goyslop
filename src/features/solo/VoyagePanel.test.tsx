@@ -7,6 +7,7 @@ import raw from '../../data/monsters/monsters.json';
 import type { Monster } from '../../data/monsters/types';
 import { EMPTY_CAMPAIGN } from '../../lib/campaign';
 import { EMPTY_ENCOUNTER } from '../../lib/encounter';
+import { generateHexMap } from '../../lib/hexmap';
 import { HULL, setSail, type Voyage } from '../../lib/voyage';
 import { dungeonAtom } from '../../state/dungeon';
 import { hexMapAtom } from '../../state/hexmap';
@@ -218,7 +219,7 @@ describe('VoyagePanel', () => {
 describe('VoyagePanel crew and landfall', () => {
   it('shows the crew, and a ship bought at the quay is short-handed until sailors are hired', async () => {
     const user = userEvent.setup();
-    const store = renderPanel(setSail('cog', 1), { ...hero(), currency: { cash: 5000, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    const store = renderPanel({ ...setSail('cog', 1), recruits: 6 }, { ...hero(), currency: { cash: 5000, savings: 0, debt: 0, spendingLog: '' } } as Character);
     expect(screen.getByText(/Crew 6\/6\./)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
 
@@ -236,9 +237,47 @@ describe('VoyagePanel crew and landfall', () => {
   });
 
   it('will not hire what the purse cannot pay', () => {
-    renderPanel({ ...setSail('cog', 1), crew: 3 }, { ...hero(), currency: { cash: 40, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 6 }, { ...hero(), currency: { cash: 40, savings: 0, debt: 0, spendingLog: '' } } as Character);
     expect(screen.getByRole('button', { name: 'Hire a sailor (25 G)' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Hire 3 to a full crew (75 G)' })).toBeDisabled();
+  });
+
+  it('offers only the sailors the quay has today', () => {
+    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 2 }, { ...hero(), currency: { cash: 500, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    expect(screen.getByText(/Sailors on the quay today: 2/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Hire 2 to a full crew (50 G)' })).toBeEnabled();
+  });
+
+  it('hires nobody from an empty quay and says to wait a day', () => {
+    renderPanel({ ...setSail('cog', 1), crew: 3, recruits: 0 }, hero());
+    expect(screen.getByText(/Nobody on the quay is looking for work/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
+  });
+
+  it('steps back ashore at the home harbour, onto the hex the party sailed from, and ends the voyage; it asks first', async () => {
+    const user = userEvent.setup();
+    const land = generateHexMap({ level: 1, monsters });
+    const hexes = land.hexes.map((hex) => (hex.q === 1 && hex.r === 0 ? { ...hex, feature: { kind: 'settlement' as const, settlement: 'village' as const } } : hex));
+    const store = renderPanel({ ...setSail('cog', 1, Math.random, { homeHex: '1,0', homeSettlement: 'village' }) });
+    act(() => store.set(hexMapAtom, { ...land, hexes, rations: 1, fatigue: 3 }));
+
+    await user.click(screen.getByRole('button', { name: 'Back ashore at home (hex 1,0)' }));
+    expect(store.get(voyageAtom)).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Stay aboard' }));
+    await user.click(screen.getByRole('button', { name: 'Back ashore at home (hex 1,0)' }));
+    await user.click(screen.getByRole('button', { name: 'Step ashore' }));
+
+    expect(store.get(voyageAtom)).toBeNull();
+    const back = store.get(hexMapAtom);
+    expect(back.party).toEqual({ q: 1, r: 0 });
+    expect(back.rations).toBe(7);
+    expect(back.fatigue).toBe(0);
+    expect(back.hexes).toHaveLength(land.hexes.length);
+  });
+
+  it('has no way home once the land map was replaced and the hex is gone', () => {
+    renderPanel({ ...setSail('cog', 1, Math.random, { homeHex: '9,9', homeSettlement: 'village' }) });
+    expect(screen.queryByRole('button', { name: /Back ashore at home/ })).not.toBeInTheDocument();
   });
 
   it('lands in a new country: a fresh land map around the harbour town, the voyage put away; it asks first', async () => {

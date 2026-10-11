@@ -266,6 +266,21 @@ export function landfall(options: GenerateOptions, settlement: SettlementKind): 
   return { ...map, hexes: map.hexes.map((hex) => (hex.q === 0 && hex.r === 0 ? { ...hex, feature: { kind: 'settlement' as const, settlement } } : hex)) };
 }
 
+/**
+ * The party comes back ashore at a hex of the land map it sailed from ("q,r", as a voyage keeps it): the
+ * hex is theirs again, fed and rested as after any stay in a harbour town. Null when the key is not a hex of this map
+ * (the land was replaced in the meantime).
+ */
+export function returnToHex(map: HexMap, key: string): HexMap | null {
+  const match = /^(-?\d+),(-?\d+)$/.exec(key);
+  if (!match) return null;
+  const q = Number(match[1]);
+  const r = Number(match[2]);
+  if (!hexAt(map, q, r)) return null;
+  const hexes = map.hexes.map((hex) => (hex.q === q && hex.r === r ? { ...hex, visited: true, seen: true } : hex));
+  return { ...map, hexes, party: { q, r }, rations: Math.max(map.rations, START_RATIONS), fatigue: 0 };
+}
+
 // ---- growing the map ----
 
 /** Where the next patch of 19 sits from a patch's centre: five hexes away, so the patches fit edge to edge. */

@@ -49,6 +49,8 @@ export interface Voyage {
   homeHex: string | null;
   /** Sailors aboard; null = every ship fully manned (an old voyage, or one that has not lost anyone). */
   crew: number | null;
+  /** Sailors on the quay looking for work today: rolled on arrival and each day in port; null at sea (and in an old save, where the quay never runs dry). */
+  recruits: number | null;
 }
 
 export interface FleetShip {
@@ -76,12 +78,22 @@ export function loseCrew(voyage: Voyage, count = 1): Voyage {
   return { ...voyage, crew: Math.max(0, crewAboard(voyage) - Math.max(0, count)) };
 }
 
-/** Signs sailors on in a harbour, never past what the fleet needs; the fee is the caller's affair. Null when nothing can be hired. */
+/** How many sailors can be signed on at this quay today: all that are missing, or fewer when the quay is thin. */
+export function hireable(voyage: Voyage): number {
+  return Math.max(0, Math.min(crewNeeded(voyage) - crewAboard(voyage), voyage.recruits ?? Infinity));
+}
+
+/** Sailors who come looking for work on a day in port: a hamlet or village has few, a town d6, a fortress's garrison town more. Our own table. */
+export function quayRecruits(settlement: string | undefined, rng: Rng = Math.random): number {
+  if (settlement === 'hamlet' || settlement === 'village') return die(3, rng);
+  return settlement === 'fortress' ? die(6, rng) + 2 : die(6, rng);
+}
+
+/** Signs sailors on in a harbour, never past what the fleet needs or the quay has today; the fee is the caller's affair. Null when nothing can be hired. */
 export function hireCrew(voyage: Voyage, count: number): Voyage | null {
-  const room = crewNeeded(voyage) - crewAboard(voyage);
-  const hired = Math.min(Math.floor(count), room);
+  const hired = Math.min(Math.floor(count), hireable(voyage));
   if (!inPort(voyage) || voyage.wrecked || voyage.arrived || hired <= 0) return null;
-  return { ...voyage, crew: crewAboard(voyage) + hired };
+  return { ...voyage, crew: crewAboard(voyage) + hired, recruits: voyage.recruits === null ? null : voyage.recruits - hired };
 }
 
 /** Crates the holds of the living ships take. */
@@ -153,7 +165,8 @@ export function pickSeaMonster(monsters: Monster[], level: number, rng: Rng = Ma
 export function setSail(ship: Ship, level: number, rng: Rng = Math.random, from?: { homeHex?: string; homeSettlement?: string }): Voyage {
   const sea = generateSeaMap(rng, from?.homeSettlement);
   const distance = hexDistance(sea.origin, sea.destination);
-  return { ship, distance, progress: 0, day: 0, hull: HULL[ship], supplies: FULL_SUPPLIES, weather: null, encounter: null, arrived: false, wrecked: false, level, sea, moves: 0, hunger: 0, escorts: [], cargo: GOODS.map(() => 0), pursuit: null, homeHex: from?.homeHex ?? null, crew: null };
+  const recruits = quayRecruits(from?.homeSettlement, rng);
+  return { ship, distance, progress: 0, day: 0, hull: HULL[ship], supplies: FULL_SUPPLIES, weather: null, encounter: null, arrived: false, wrecked: false, level, sea, moves: 0, hunger: 0, escorts: [], cargo: GOODS.map(() => 0), pursuit: null, homeHex: from?.homeHex ?? null, crew: null, recruits };
 }
 
 export interface DayReport {
@@ -222,7 +235,8 @@ export function sailTo(voyage: Voyage, q: number, r: number, rng: Rng = Math.ran
   if (!voyage.sea || voyage.moves <= 0 || voyage.arrived || voyage.wrecked) return { voyage, event: null, reefDamage: 0 };
   const step = stepShip(voyage.sea, q, r);
   if (!step) return { voyage, event: null, reefDamage: 0 };
-  let next: Voyage = { ...voyage, sea: step.map, moves: voyage.moves - 1, encounter: null };
+  // leaving a quay leaves its sailors behind; a harbour entered has its own
+  let next: Voyage = { ...voyage, sea: step.map, moves: voyage.moves - 1, encounter: null, recruits: null };
   if (step.hex.kind === 'reef') {
     const reefDamage = die(3, rng);
     next = hullBlow(next, reefDamage);
@@ -230,9 +244,10 @@ export function sailTo(voyage: Voyage, q: number, r: number, rng: Rng = Math.ran
     return { voyage: next, event: 'reef', reefDamage };
   }
   if (step.hex.kind === 'port') {
-    if (isDestination(step.map, step.hex)) return { voyage: { ...next, arrived: true, moves: 0 }, event: 'arrived', reefDamage: 0 };
+    const recruits = quayRecruits(step.hex.settlement, rng);
+    if (isDestination(step.map, step.hex)) return { voyage: { ...next, arrived: true, moves: 0, recruits }, event: 'arrived', reefDamage: 0 };
     const home = hexDistance(step.hex, step.map.origin) === 0;
-    return { voyage: { ...next, moves: 0 }, event: home ? 'home' : 'port', reefDamage: 0 };
+    return { voyage: { ...next, moves: 0, recruits }, event: home ? 'home' : 'port', reefDamage: 0 };
   }
   return { voyage: next, event: 'open', reefDamage: 0 };
 }
@@ -243,10 +258,16 @@ export function inPort(voyage: Voyage): boolean {
   return here?.kind === 'port';
 }
 
+/** Whether the ship lies in the harbour it sailed from, which has a land hex behind it to step back onto. */
+export function atHomePort(voyage: Voyage): boolean {
+  const sea = voyage.sea;
+  return !!sea && voyage.homeHex !== null && !voyage.wrecked && !voyage.arrived && sea.ship.q === sea.origin.q && sea.ship.r === sea.origin.r;
+}
+
 /** A day alongside: the hull is mended, the hold filled and the crew fed, but no headway is made. */
 export function dayInPort(voyage: Voyage, rng: Rng = Math.random): Voyage {
   if (!inPort(voyage) || voyage.wrecked || voyage.arrived) return voyage;
-  return { ...voyage, sea: voyage.sea ? driftMarkets(voyage.sea, rng) : voyage.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
+  return { ...voyage, recruits: quayRecruits(harbourHere(voyage)?.settlement, rng), sea: voyage.sea ? driftMarkets(voyage.sea, rng) : voyage.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
 }
 
 export interface IslandReport {

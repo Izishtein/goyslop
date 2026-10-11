@@ -4,7 +4,7 @@ import type { Monster } from '../data/monsters/types';
 import { generateHexMap, hexDistance, landfall } from './hexmap';
 import { driftMarkets } from './seamap';
 import { CARGO, CREW_NEEDED, FLEET_MAX, GOODS, GOOD_PRICE, goodPrice, HULL, priceFactor } from './ships';
-import { addShip, attackShip, cargoCapacity, cargoLoad, claimPrize, crewAboard, crewModifier, crewNeeded, dayInPort, fleetOf, harbourHere, hireCrew, hullBlow, loadGoods, loseCrew, repairDay, sailDay, sailTo, setSail, undermanned, unloadGoods, withFleet } from './voyage';
+import { addShip, attackShip, cargoCapacity, cargoLoad, claimPrize, crewAboard, crewModifier, crewNeeded, dayInPort, fleetOf, harbourHere, hireable, hireCrew, hullBlow, loadGoods, loseCrew, quayRecruits, repairDay, sailDay, sailTo, setSail, undermanned, unloadGoods, withFleet } from './voyage';
 
 const monsters = raw as unknown as Monster[];
 const faces = (...values: number[]) => () => (values.shift()! - 1) / 6;
@@ -207,12 +207,51 @@ describe('the crew', () => {
   });
 
   it('hires in a harbour, never past what the fleet needs, and nowhere else', () => {
-    const short = loseCrew(docked(), 4);
+    const short = { ...loseCrew(docked(), 4), recruits: 20 };
     expect(crewAboard(hireCrew(short, 2)!)).toBe(CREW_NEEDED.cog - 2);
     expect(crewAboard(hireCrew(short, 99)!)).toBe(CREW_NEEDED.cog);
     expect(hireCrew(docked(), 1)).toBeNull(); // nobody is missing
     const atSea = { ...short, sea: { ...short.sea!, ship: { q: 0, r: 0 } } };
     expect(hireCrew(atSea, 1)).toBeNull();
+  });
+
+  it('hires only as many as the quay has today, and the quay runs down', () => {
+    const short = { ...loseCrew(docked(), 4), recruits: 3 };
+    expect(hireable(short)).toBe(3);
+    const hired = hireCrew(short, 99)!;
+    expect(crewAboard(hired)).toBe(CREW_NEEDED.cog - 1);
+    expect(hired.recruits).toBe(0);
+    expect(hireCrew(hired, 1)).toBeNull();
+  });
+
+  it('lets an old save, with no quay roll, hire freely', () => {
+    const short = { ...loseCrew(docked(), 4), recruits: null };
+    expect(hireable(short)).toBe(4);
+    expect(hireCrew(short, 4)!.recruits).toBeNull();
+  });
+
+  it('rolls the sailors on the quay by the size of the town: d3 in a village, d6 in a town, d6+2 in a fortress', () => {
+    expect(quayRecruits('village', faces(6))).toBe(3);
+    expect(quayRecruits('hamlet', faces(1))).toBe(1);
+    expect(quayRecruits('town', faces(6))).toBe(6);
+    expect(quayRecruits('fortress', faces(6))).toBe(8);
+  });
+
+  it('starts a voyage with the home quay rolled, and rolls a new quay each day in port', () => {
+    expect(start().recruits).toBeGreaterThanOrEqual(1);
+    expect(start().recruits).toBeLessThanOrEqual(3); // a village
+    const next = dayInPort({ ...docked(), recruits: 0 }, faces(6, 6, 6, 6, 6, 6));
+    expect(next.recruits).toBeGreaterThan(0);
+  });
+
+  it('leaves the quay behind at sea, and finds a new one on entering a harbour', () => {
+    const voyage = docked();
+    const sea = voyage.sea!;
+    const water = sea.hexes.find((hex) => hex.kind === 'water' && Math.max(Math.abs(hex.q - sea.origin.q), Math.abs(hex.r - sea.origin.r), Math.abs(hex.q + hex.r - sea.origin.q - sea.origin.r)) === 1)!;
+    const out = sailTo({ ...voyage, moves: 1, recruits: 2 }, water.q, water.r, faces(6)).voyage;
+    expect(out.recruits).toBeNull();
+    const back = sailTo({ ...out, moves: 1 }, sea.origin.q, sea.origin.r, faces(6)).voyage;
+    expect(back.recruits).toBe(3); // a village's d3, the top face
   });
 
   it('makes a storm cost a short-handed fleet one more point of hull', () => {

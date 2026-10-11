@@ -63,6 +63,7 @@ const VoyageSchema = z
       .default(null),
     homeHex: z.string().nullable().default(null),
     crew: z.number().int().min(0).max(60).nullable().default(null),
+    recruits: z.number().int().min(0).max(20).nullable().default(null),
   })
   .nullable();
 

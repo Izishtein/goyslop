@@ -8,11 +8,12 @@ import { addEntry, setDay } from '../../lib/campaign';
 import { generateSettlement } from '../../lib/dungeon';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { upsertManagedEffect } from '../../lib/formulas/status-effects';
-import { hexDistance, landfall, PENALTY_FIELDS, SETTLEMENT_KINDS, type SettlementKind } from '../../lib/hexmap';
+import { hexDistance, landfall, PENALTY_FIELDS, returnToHex, SETTLEMENT_KINDS, type SettlementKind } from '../../lib/hexmap';
 import { canSailTo, seaHexAt, type SeaHex } from '../../lib/seamap';
 import { FLEET_MAX, GOODS, HIRE_FEE, SHIP_PRICE, goodPrice } from '../../lib/ships';
 import {
   addShip,
+  atHomePort,
   attackShip,
   cargoCapacity,
   cargoLoad,
@@ -23,6 +24,7 @@ import {
   dayInPort,
   fleetOf,
   harbourHere,
+  hireable,
   hireCrew,
   loadGoods,
   loseCrew,
@@ -78,8 +80,9 @@ export function VoyagePanel() {
   const setEncounter = useSetAtom(encounterAtom);
   const setCampaign = useSetAtom(campaignAtom);
   const setDungeon = useSetAtom(dungeonAtom);
-  const setHexMap = useSetAtom(hexMapAtom);
+  const [hexMap, setHexMap] = useAtom(hexMapAtom);
   const [landing, setLanding] = useState(false);
+  const [returning, setReturning] = useState(false);
   const characters = useAtomValue(charactersAtom);
   const activeId = useAtomValue(activeCharacterIdAtom);
   const updateCharacter = useUpdateCharacter(activeId ?? '');
@@ -298,8 +301,7 @@ export function VoyagePanel() {
   /** Signs sailors on at the quay: a fee each, up to what the fleet needs. */
   function hire(count: number) {
     if (!voyage) return;
-    const room = crewNeeded(voyage) - crewAboard(voyage);
-    const hired = Math.min(count, room);
+    const hired = Math.min(count, hireable(voyage));
     if (hired <= 0 || cash < hired * HIRE_FEE) return;
     const next = hireCrew(voyage, hired);
     if (!next) return;
@@ -314,6 +316,16 @@ export function VoyagePanel() {
     setHexMap(landfall({ level, monsters }, kind));
     setVoyage(null);
     setLanding(false);
+  }
+
+  /** Back down the gangway at the harbour the ship sailed from: the party stands on the hex it left, on the same land map, and the voyage ends. */
+  function returnHome() {
+    if (!voyage?.homeHex) return;
+    const back = returnToHex(hexMap, voyage.homeHex);
+    if (!back) return;
+    setHexMap(back);
+    setVoyage(null);
+    setReturning(false);
   }
 
   function buyShip() {
@@ -493,12 +505,38 @@ export function VoyagePanel() {
           <p className={styles.note}>{t('solo.voyage.holds', { load: cargoLoad(voyage), capacity: cargoCapacity(voyage), cash })}</p>
           {undermanned(voyage) && (
             <p>
-              <button type="button" onClick={() => hire(1)} disabled={cash < HIRE_FEE}>
-                {t('solo.voyage.hireOne', { fee: HIRE_FEE })}
-              </button>{' '}
-              <button type="button" onClick={() => hire(crewNeeded(voyage) - crewAboard(voyage))} disabled={cash < (crewNeeded(voyage) - crewAboard(voyage)) * HIRE_FEE}>
-                {t('solo.voyage.hireAll', { count: crewNeeded(voyage) - crewAboard(voyage), fee: (crewNeeded(voyage) - crewAboard(voyage)) * HIRE_FEE })}
-              </button>
+              <span className={styles.note}>{voyage.recruits === null ? '' : t('solo.voyage.quayCrew', { count: voyage.recruits })} </span>
+              {hireable(voyage) === 0 ? (
+                <span className={styles.note}>{t('solo.voyage.quayEmpty')}</span>
+              ) : (
+                <>
+                  <button type="button" onClick={() => hire(1)} disabled={cash < HIRE_FEE}>
+                    {t('solo.voyage.hireOne', { fee: HIRE_FEE })}
+                  </button>{' '}
+                  <button type="button" onClick={() => hire(hireable(voyage))} disabled={cash < hireable(voyage) * HIRE_FEE}>
+                    {t('solo.voyage.hireAll', { count: hireable(voyage), fee: hireable(voyage) * HIRE_FEE })}
+                  </button>
+                </>
+              )}
+            </p>
+          )}
+          {atHomePort(voyage) && voyage.homeHex && returnToHex(hexMap, voyage.homeHex) && (
+            <p>
+              {!returning ? (
+                <button type="button" onClick={() => setReturning(true)}>
+                  {t('solo.voyage.returnHome', { hex: voyage.homeHex })}
+                </button>
+              ) : (
+                <>
+                  <span className={styles.note}>{t('solo.voyage.returnHomeWarn', { hex: voyage.homeHex })}</span>{' '}
+                  <button type="button" onClick={returnHome}>
+                    {t('solo.voyage.returnHomeConfirm')}
+                  </button>{' '}
+                  <button type="button" onClick={() => setReturning(false)}>
+                    {t('solo.voyage.landfallCancel')}
+                  </button>
+                </>
+              )}
             </p>
           )}
           <div className={styles.tableWrap}>
