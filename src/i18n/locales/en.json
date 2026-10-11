@@ -175,7 +175,8 @@
       "twist": {
         "expected": "goes as expected",
         "altered": "altered — something differs from what you planned",
-        "interrupted": "interrupted — an event breaks in"
+        "interrupted": "interrupted — an event breaks in",
+        "bonusEvent": "goes as written — but an extra event comes with it"
       },
       "focus": {
         "1": "A new character appears",
@@ -188,7 +189,8 @@
         "8": "A loss",
         "9": "An omen in the surroundings",
         "10": "Something personal to your hero",
-        "11": "The current situation develops"
+        "11": "The current situation develops",
+        "12": "A feature of the adventure"
       },
       "action": {
         "1": "reveal",
@@ -1013,6 +1015,59 @@
         "track": "Track +{{points}}: nothing useful, but the trying moves you along.",
         "strengthen": "Strengthened +{{points}}: earlier progress is reinforced — tie it to what you learned before."
       }
+    },
+    "adventure": {
+      "title": "Keyed scenes and prepared adventures",
+      "note": "Write down what should happen and what sets it off; every new scene the oracle checks the triggers. For a ready-made module switch to “prepared”: scenes are never bent, the check only brings an extra event, and events draw on the module’s own features.",
+      "keyedFired": "Scene {{scene}}: keyed scene fired —",
+      "prepared": "Prepared adventure",
+      "keyedHead": "Keyed scenes",
+      "template": "Template",
+      "noTemplate": "Own event",
+      "templates": {
+        "wanderers": "Wandering monsters appear",
+        "trap": "The party meets a trap",
+        "boss": "The boss shows up",
+        "calm": "A quiet moment: a rest, a chance to talk"
+      },
+      "eventTitle": "What happens",
+      "trigger": "Trigger",
+      "triggers": {
+        "counter": "every N scenes",
+        "random": "each scene on a d10",
+        "milestone": "from scene N on, on a d10"
+      },
+      "every": "Every … scenes",
+      "chance": "On a d10 of … or less",
+      "at": "From scene …",
+      "repeat": "Repeats",
+      "add": "Add keyed scene",
+      "empty": "No keyed scenes yet.",
+      "status": {
+        "counter": "scene {{count}} of {{every}}",
+        "random": "1–{{chance}} on a d10 each scene",
+        "milestone": "from scene {{at}}, 1–{{chance}} on a d10"
+      },
+      "done": "fired",
+      "ownAccord": "It happened by itself",
+      "remove": "Remove {{title}}",
+      "featuresHead": "Features of the adventure",
+      "featuresNote": "Wandering monsters, visions, special rules of the module: events with the “feature” focus draw one of them.",
+      "featureLabel": "Feature",
+      "addFeature": "Add feature",
+      "removeFeature": "Remove feature {{text}}",
+      "noFeatures": "No features: the “feature” focus becomes the current situation.",
+      "diminisher": "One hero against a party",
+      "diminisherLabel": "Hero’s strength compared with the party the module is written for",
+      "diminisherOptions": {
+        "25": "a quarter (1/4)",
+        "33": "a third (1/3)",
+        "50": "half (1/2)",
+        "75": "3/4",
+        "100": "equal (1)"
+      },
+      "enemies": "Enemies in the module",
+      "keep": "Field {{count}} of them (the rest: weaker, or fewer HP and damage)."
     }
   },
   "guide": {

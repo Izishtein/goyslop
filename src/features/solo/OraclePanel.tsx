@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isEventSource, raiseWeights } from '../../lib/campaign';
+import { advanceScene } from '../../lib/keyed';
 import {
   askOracle,
   CHAOS_MODES,
@@ -12,6 +13,7 @@ import {
   EMPTY_ORACLE,
   eventChance,
   FOCUS_COUNT,
+  FOCUS_FEATURE,
   interruptScene,
   LIKELIHOODS,
   pushEntry,
@@ -31,14 +33,16 @@ import {
   type SceneCheck,
   type SceneEnd,
   type EventEntry,
+  type KeyedEntry,
   type SceneAdjustment,
   type WordsEntry,
 } from '../../lib/oracle';
+import { adventureAtom } from '../../state/adventure';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
-type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry;
+type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry;
 
 function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
   const { t } = useTranslation();
@@ -54,7 +58,8 @@ function EventLine({ event }: { event: RandomEvent }) {
   return (
     <p>
       <strong>{t('solo.oracle.eventLabel')}:</strong> {t(`solo.oracle.focus.${event.focus}`)}
-      {event.ref && ` — ${event.ref.title} (${t(`solo.campaign.kinds.${event.ref.kind}`)})`} — {t(`solo.oracle.action.${event.action}`)} /{' '}
+      {event.ref && ` — ${event.ref.title} (${t(`solo.campaign.kinds.${event.ref.kind}`)})`}
+      {event.note && ` — ${event.note}`} — {t(`solo.oracle.action.${event.action}`)} /{' '}
       {t(`solo.oracle.subject.${event.subject}`)}
     </p>
   );
@@ -103,6 +108,15 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
       </li>
     );
   }
+  if (entry.kind === 'keyed') {
+    return (
+      <li>
+        <p>
+          <strong>{t('solo.adventure.keyedFired', { scene: entry.scene })}</strong> {entry.titles.join('; ')}
+        </p>
+      </li>
+    );
+  }
   if (entry.kind === 'adjustment') {
     return (
       <li>
@@ -148,7 +162,25 @@ export function OraclePanel() {
   const [controlled, setControlled] = useState(true);
   const [present, setPresent] = useState<string[]>([]);
 
-  const eventOptions = (): EventOptions => ({ journal: campaign.entries, focus: focus || null });
+  const [adventure, setAdventure] = useAtom(adventureAtom);
+  const eventOptions = (): EventOptions => ({
+    journal: campaign.entries,
+    focus: focus || null,
+    prepared: adventure.prepared,
+    features: adventure.features,
+  });
+
+  /** A new scene: check it, tick the keyed scenes, and say which of them fired. */
+  function startScene(stuck: boolean) {
+    const scene = oracle.scene + 1;
+    const check = stuck ? interruptScene(scene, oracle.chaos, Math.random, eventOptions()) : checkScene(scene, oracle.chaos, Math.random, eventOptions());
+    const { scenes, fired } = advanceScene(adventure.keyed, scene);
+    if (adventure.keyed.length > 0) setAdventure((current) => ({ ...current, keyed: scenes }));
+    setOracle((state) => {
+      const next = add(check)({ ...state, scene });
+      return fired.length > 0 ? add({ kind: 'keyed', scene, titles: fired.map((keyed) => keyed.title) })(next) : next;
+    });
+  }
   const setChaos = (chaos: number) => setOracle((current) => ({ ...current, chaos: clampChaos(chaos) }));
   const add = (entry: NewEntry) => (state: OracleState) => pushEntry(state, { ...entry, id: crypto.randomUUID() } as OracleEntry);
 
@@ -217,7 +249,7 @@ export function OraclePanel() {
           {t('solo.oracle.focusLabel')}
           <select value={focus} onChange={(e) => setFocus(Number(e.target.value))}>
             <option value={0}>{t('solo.oracle.focusRoll')}</option>
-            {Array.from({ length: FOCUS_COUNT }, (_, i) => i + 1).map((entry) => (
+            {[...Array.from({ length: FOCUS_COUNT }, (_, i) => i + 1), ...(adventure.prepared ? [FOCUS_FEATURE] : [])].map((entry) => (
               <option key={entry} value={entry}>
                 {t(`solo.oracle.focus.${entry}`)}
               </option>
@@ -229,20 +261,10 @@ export function OraclePanel() {
 
       <div className={styles.toolbar}>
         <span className={styles.numeric}>{t('solo.oracle.scene', { scene: oracle.scene })}</span>
-        <button
-          type="button"
-          onClick={() =>
-            setOracle((state) => add(checkScene(state.scene + 1, state.chaos, Math.random, eventOptions()))({ ...state, scene: state.scene + 1 }))
-          }
-        >
+        <button type="button" onClick={() => startScene(false)}>
           {t('solo.oracle.newScene')}
         </button>
-        <button
-          type="button"
-          onClick={() =>
-            setOracle((state) => add(interruptScene(state.scene + 1, state.chaos, Math.random, eventOptions()))({ ...state, scene: state.scene + 1 }))
-          }
-        >
+        <button type="button" onClick={() => startScene(true)}>
           {t('solo.oracle.interruptScene')}
         </button>
         <button type="button" onClick={() => setOracle((state) => add({ kind: 'event', event: rollEvent(Math.random, eventOptions()) })(state))}>

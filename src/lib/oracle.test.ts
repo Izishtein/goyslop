@@ -6,6 +6,7 @@ import {
   checkScene,
   clampChaos,
   eventChance,
+  FOCUS_FEATURE,
   FOCUS_SITUATION,
   interruptScene,
   pickFromJournal,
@@ -184,5 +185,30 @@ describe('oracle as a rule', () => {
     expect(answer).toMatchObject({ chaos: 9, answer: 'exceptionalYes' });
     expect(answer.event).not.toBeNull();
     expect(answer.asRule).toBeUndefined();
+  });
+});
+
+describe('prepared adventures', () => {
+  it('roll the focus from the shorter table', () => {
+    // d6 index 0 → the adventure feature; with no features it falls back to the current situation
+    expect(rollEvent(sequence(0, 0, 0), { prepared: true }).focus).toBe(FOCUS_SITUATION);
+    expect(rollEvent(sequence(0, 0, 0, 0), { prepared: true, features: ['Fog'] })).toMatchObject({ focus: FOCUS_FEATURE, note: 'Fog' });
+    expect(rollEvent(sequence(0.99, 0, 0), { prepared: true }).focus).toBe(FOCUS_SITUATION);
+    expect(rollEvent(sequence(0.5, 0, 0), { prepared: true }).focus).toBe(7); // d6 = 4: luck
+  });
+
+  it('allow the feature focus only in a prepared adventure', () => {
+    expect(rollEvent(sequence(0.9, 0, 0), { focus: FOCUS_FEATURE }).focus).toBe(10);
+    expect(rollEvent(sequence(0.9, 0, 0, 0), { focus: FOCUS_FEATURE, prepared: true, features: ['Fog'] }).note).toBe('Fog');
+  });
+
+  it('never bend a scene: the check only brings an extra event', () => {
+    expect(sceneTwist(1, 5, true)).toBe('bonusEvent');
+    expect(sceneTwist(2, 5, true)).toBe('bonusEvent');
+    expect(sceneTwist(4, 5, true)).toBe('expected');
+    const check = checkScene(1, 5, sequence(0.05, 0.2, 0, 0), { prepared: true });
+    expect(check.twist).toBe('bonusEvent');
+    expect(check.event).not.toBeNull();
+    expect(check.adjustment).toBeNull();
   });
 });

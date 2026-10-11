@@ -9,7 +9,7 @@ import {
   CHAOS_MIN,
   CHAOS_START,
   EMPTY_ORACLE,
-  FOCUS_COUNT,
+  FOCUS_MAX,
   LIKELIHOODS,
   LOG_LIMIT,
   WORD_COUNT,
@@ -17,10 +17,11 @@ import {
 } from '../lib/oracle';
 
 const EventSchema = z.object({
-  focus: z.number().int().min(1).max(FOCUS_COUNT),
+  focus: z.number().int().min(1).max(FOCUS_MAX),
   action: z.number().int().min(1).max(WORD_COUNT),
   subject: z.number().int().min(1).max(WORD_COUNT),
   ref: z.object({ kind: z.enum(ENTRY_KINDS), title: z.string() }).nullable().optional(),
+  note: z.string().nullable().optional(),
 });
 
 const AdjustmentSchema = z.object({
@@ -44,11 +45,12 @@ const EntrySchema = z.discriminatedUnion('kind', [
     ...base,
     kind: z.literal('scene'),
     scene: z.number().int(),
-    twist: z.enum(['expected', 'altered', 'interrupted']),
+    twist: z.enum(['expected', 'altered', 'interrupted', 'bonusEvent']),
     event: EventSchema.nullable(),
     adjustment: AdjustmentSchema.nullable().optional(),
   }),
   z.object({ id: z.string(), kind: z.literal('adjustment'), ...AdjustmentSchema.shape }),
+  z.object({ id: z.string(), kind: z.literal('keyed'), scene: z.number().int(), titles: z.array(z.string()) }),
   z.object({
     ...base,
     kind: z.literal('discovery'),

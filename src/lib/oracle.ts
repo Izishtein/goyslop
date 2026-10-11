@@ -70,11 +70,18 @@ export interface RandomEvent {
   action: number;
   subject: number;
   ref?: EventRef | null;
+  /** The adventure feature a "feature" event points at. */
+  note?: string | null;
 }
 
 export const FOCUS_COUNT = 11;
 /** "The current situation develops": the fallback focus when the journal has nobody to point at. */
 export const FOCUS_SITUATION = 11;
+/** Prepared adventures only: the event points at one of the adventure's own features. */
+export const FOCUS_FEATURE = 12;
+export const FOCUS_MAX = 12;
+/** The shorter table of a prepared adventure: its feature, a known character, a threat, luck, loss, the situation. */
+export const PREPARED_FOCI = [FOCUS_FEATURE, 2, 3, 7, 8, FOCUS_SITUATION];
 export const WORD_COUNT = 20;
 
 /** Foci that name someone from the campaign journal. */
@@ -92,8 +99,12 @@ export interface JournalEntry {
 export interface EventOptions {
   /** The campaign journal: events draw their subject from it. */
   journal?: JournalEntry[];
-  /** A focus the player chose instead of rolling for it (1–FOCUS_COUNT). */
+  /** A focus the player chose instead of rolling for it (1–FOCUS_COUNT, or FOCUS_FEATURE in a prepared adventure). */
   focus?: number | null;
+  /** A prepared adventure: the shorter focus table, and no altered or interrupted scenes. */
+  prepared?: boolean;
+  /** The adventure's own features, for the "feature" focus. */
+  features?: string[];
 }
 
 /** Weighted draw among the entries of one kind that are still in play; nothing to draw from gives null. */
@@ -115,10 +126,17 @@ export function pickFromJournal(journal: JournalEntry[], kind: EntryKind, rng: R
  * with nobody to draw, the event becomes "the current situation".
  */
 export function rollEvent(rng: Rng = Math.random, options: EventOptions = {}): RandomEvent {
-  const rolled = rollDie(FOCUS_COUNT, rng);
+  const rolled = options.prepared ? PREPARED_FOCI[rollDie(PREPARED_FOCI.length, rng) - 1] : rollDie(FOCUS_COUNT, rng);
   const action = rollDie(WORD_COUNT, rng);
   const subject = rollDie(WORD_COUNT, rng);
-  let focus = options.focus && options.focus >= 1 && options.focus <= FOCUS_COUNT ? options.focus : rolled;
+  const chosen = options.focus ?? 0;
+  const allowed = (chosen >= 1 && chosen <= FOCUS_COUNT) || (chosen === FOCUS_FEATURE && !!options.prepared);
+  let focus = allowed ? chosen : rolled;
+  if (focus === FOCUS_FEATURE) {
+    const features = options.features ?? [];
+    if (features.length === 0) return { focus: FOCUS_SITUATION, action, subject };
+    return { focus, action, subject, note: features[Math.floor(rng() * features.length)] };
+  }
   const source = FOCUS_SOURCE[focus];
   if (!source) return { focus, action, subject };
   const picked = options.journal ? pickFromJournal(options.journal, source, rng) : null;
@@ -198,7 +216,8 @@ export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math
   };
 }
 
-export type SceneTwist = 'expected' | 'altered' | 'interrupted';
+/** "bonusEvent": a prepared adventure's scene is never bent, but the check still brings an extra event. */
+export type SceneTwist = 'expected' | 'altered' | 'interrupted' | 'bonusEvent';
 
 export interface SceneCheck {
   kind: 'scene';
@@ -212,21 +231,22 @@ export interface SceneCheck {
 }
 
 /** d10 against half the chaos (rounded up): above it the scene goes as planned; at or below, odd bends it, even breaks in. */
-export function sceneTwist(roll: number, chaos: number): SceneTwist {
+export function sceneTwist(roll: number, chaos: number, prepared = false): SceneTwist {
   if (roll > Math.ceil(clampChaos(chaos) / 2)) return 'expected';
+  if (prepared) return 'bonusEvent';
   return roll % 2 === 1 ? 'altered' : 'interrupted';
 }
 
 export function checkScene(scene: number, chaos: number, rng: Rng = Math.random, options: EventOptions = {}): SceneCheck {
   const roll = rollDie(10, rng);
-  const twist = sceneTwist(roll, chaos);
+  const twist = sceneTwist(roll, chaos, options.prepared);
   return {
     kind: 'scene',
     scene,
     chaos: clampChaos(chaos),
     roll,
     twist,
-    event: twist === 'interrupted' ? rollEvent(rng, options) : null,
+    event: twist === 'interrupted' || twist === 'bonusEvent' ? rollEvent(rng, options) : null,
     adjustment: twist === 'altered' ? rollAdjustment(rng) : null,
   };
 }
@@ -271,6 +291,13 @@ export interface DiscoveryEntry {
   event: RandomEvent | null;
 }
 
+/** Keyed scenes that fired as a new scene began. */
+export interface KeyedEntry {
+  kind: 'keyed';
+  scene: number;
+  titles: string[];
+}
+
 export interface EventEntry {
   kind: 'event';
   event: RandomEvent;
@@ -286,7 +313,7 @@ export interface SceneEnd {
   controlled: boolean | null;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry) & { id: string };
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry) & { id: string };
 
 export interface OracleState {
   chaos: number;
