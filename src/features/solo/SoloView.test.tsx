@@ -545,3 +545,82 @@ describe('SoloView Fellow spells', () => {
     expect(within(card).getByRole('status')).toHaveTextContent('HP restored');
   });
 });
+
+describe('SoloView monster skills', () => {
+  it('Charge strikes with its own number and damage, from the section that charges', async () => {
+    const user = userEvent.setup();
+    renderSolo();
+    await addMonster(user, 'Centaur');
+    await user.click(screen.getByLabelText('Fixed values instead of rolls'));
+    const card = await screen.findByRole('article', { name: 'Centaur' });
+
+    await user.click(within(card).getByRole('button', { name: 'Centaur Weapon Charge' }));
+
+    // Charge/5 (12) hits Evasion 1+7; fixed damage 7 + 7 = 14, no Defense on the character.
+    const report = within(card).getByRole('status');
+    expect(report).toHaveTextContent('[Charge]');
+    expect(report).toHaveTextContent('hit');
+    expect(report).toHaveTextContent('= 14');
+  });
+
+  it('Poison: a hit makes the character resist with Fortitude, and what lands is taken with the damage', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo();
+    await addMonster(user, 'Quepala’ula');
+    await user.click(screen.getByLabelText('Fixed values instead of rolls'));
+    const card = await screen.findByRole('article', { name: 'Quepala’ula' });
+
+    await user.click(within(card).getByRole('button', { name: 'Quepala’ula Bite Attack' }));
+
+    // Fixed Poison 14 against a Fortitude of 1+1+7 = 9: poisoned for 6 on top of 14+... 7+7 = 14 damage.
+    const report = within(card).getByRole('status');
+    expect(report).toHaveTextContent('Fixed Value 14 against Fortitude');
+    expect(report).toHaveTextContent('poisoned, 6 extra magic damage');
+    await user.click(within(card).getByRole('button', { name: /Take 20 HP from Test Hero/ }));
+    expect(store.get(charactersAtom)[0].hp.current).toBe(10);
+  });
+
+  it('Tough Skin takes 3 off bludgeoning damage once ticked', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo();
+    await addMonster(user, 'Diablo Cadet (Human Form)'); // Defense 4, HP 42
+    const card = await screen.findByRole('article', { name: 'Diablo Cadet (Human Form)' });
+
+    await user.type(within(card).getByLabelText('Weapon Amount'), '10');
+    await user.click(within(card).getByLabelText('Damage dealt is bludgeoning (Tough Skin)'));
+    await user.click(within(card).getByRole('button', { name: 'Damage' }));
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBe(39);
+  });
+
+  it('Cleave: one Accuracy check, a separate Evasion check and damage for each character reached', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo(true, [makeCharacter({ id: 'char-2', name: 'Friend' })]);
+    store.set(partyAtom, ['char-2']);
+    await addMonster(user, 'Minotaur');
+    await user.click(screen.getByLabelText('Fixed values instead of rolls'));
+    const card = await screen.findByRole('article', { name: 'Minotaur' });
+    const group = within(card).getByRole('group', { name: 'Several targets' });
+
+    await user.click(within(group).getByLabelText('Test Hero'));
+    await user.click(within(group).getByLabelText('Friend'));
+    await user.click(within(group).getByRole('button', { name: 'Cleave I' }));
+
+    // Fixed 16 beats both Evasions (1+7); each takes fixed 7+12 = 19, less the Cleave I -3.
+    const report = within(group).getByRole('status');
+    expect(report.textContent?.match(/hit/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(report).toHaveTextContent('Test Hero');
+    expect(report).toHaveTextContent('Friend');
+    expect(report).toHaveTextContent('→ 16');
+    await user.click(within(group).getAllByRole('button', { name: /Take 16 HP/ })[1]);
+    expect(store.get(charactersAtom).find((c) => c.id === 'char-2')!.hp.current).toBe(14);
+    expect(store.get(charactersAtom).find((c) => c.id === 'char-1')!.hp.current).toBe(30);
+  });
+
+  it('offers no area attack with a single character to hit', async () => {
+    const user = userEvent.setup();
+    renderSolo();
+    await addMonster(user, 'Minotaur');
+    const card = await screen.findByRole('article', { name: 'Minotaur' });
+    expect(within(card).queryByRole('group', { name: 'Several targets' })).toBeNull();
+  });
+});

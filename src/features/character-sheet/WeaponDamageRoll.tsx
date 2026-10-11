@@ -21,6 +21,8 @@ export interface DamageOptions {
   snipe?: boolean;
   /** [Repeated Strike II] declared: offer +4 damage for a hit on the first Accuracy check. */
   repeatedStrikeII?: boolean;
+  /** The weapon's blows are bludgeoning: a target with [Tough Skin] starts with it ticked. */
+  bludgeoning?: boolean;
   /** The Accuracy check has been made against this target (key of the table row): it is preselected. */
   presetTarget?: string;
   /** [Snipe] decided by the Success Values of an automatic Accuracy check, not by a checkbox. */
@@ -118,6 +120,7 @@ export function WeaponDamageRoll({
                   damage={(roll.calculatedDamage + bonus + repeatBonus) * (doubledNow ? 2 : 1)}
                   critical={roll.steps.length > 1}
                   initialTarget={options.presetTarget}
+                  bludgeoning={options.bludgeoning}
                 />
               )}
             </>

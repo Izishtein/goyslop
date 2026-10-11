@@ -33,7 +33,8 @@ import {
   type MonsterDamageRoll,
 } from '../../lib/encounter';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
-import { characterDefense, characterEvasion } from '../../lib/formulas/character-defense';
+import { characterDefense, characterEvasion, characterFortitude } from '../../lib/formulas/character-defense';
+import { chargeOf, damageTraitsOf, poisonRiderOf, resolvePoison, rollChargeAttack, traitAdjustment, type ChargeAttack, type PoisonResult } from '../../lib/monster-skills';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { initiative } from '../../lib/formulas/derived-stats';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
@@ -45,6 +46,7 @@ import { GeneratorsPanel } from './GeneratorsPanel';
 import { HexMapPanel } from './HexMapPanel';
 import { VoyagePanel } from './VoyagePanel';
 import { AdventurePanel } from './AdventurePanel';
+import { MonsterAreaAttack } from './MonsterAreaAttack';
 import { MonsterIntent } from './MonsterIntent';
 import { OraclePanel } from './OraclePanel';
 import { PartyPanel } from './PartyPanel';
@@ -58,12 +60,16 @@ function levelOf(character: Character, classId: string): number {
 interface AttackReport {
   sectionIndex: number;
   declaration?: string;
+  /** A special attack of its own ([Charge]) instead of the section's ordinary one. */
+  special?: string;
   attack: MonsterAttackRoll;
   evasion: EvasionRoll;
   hit: boolean;
   damage: MonsterDamageRoll | null;
   /** Damage left after the target's Defense; what the character loses if the player applies it. */
   landed: number;
+  /** The Poison rider of the section: resisted by Fortitude or landing as extra magic damage. */
+  poison?: PoisonResult;
 }
 
 function MonsterCard({
@@ -87,6 +93,9 @@ function MonsterCard({
   const updateCharacter = useUpdateCharacter(character?.id ?? '');
   const [amounts, setAmounts] = useState<string[]>([]);
   const [magic, setMagic] = useState(false);
+  /** The damage typed in by hand is of a type the monster reacts to ([Tough Skin], [Fire Vulnerability]). */
+  const [blunt, setBlunt] = useState(false);
+  const [fire, setFire] = useState(false);
   const [report, setReport] = useState<AttackReport | null>(null);
   const [applied, setApplied] = useState(false);
   const [sucked, setSucked] = useState(false);
@@ -122,7 +131,8 @@ function MonsterCard({
     const amount = Number(amounts[index]) || 0;
     if (amount <= 0) return;
     const section = monster.sections[index];
-    onChange(damageSection(instance, index, amount, numberOf(section.defense), !magic).instance);
+    const adjust = traitAdjustment(damageTraitsOf(monster, index), { bludgeoning: blunt, fire });
+    onChange(damageSection(instance, index, amount, numberOf(section.defense), !magic, adjust).instance);
     setAmounts((list) => list.map((value, i) => (i === index ? '' : value)));
   }
 
@@ -135,9 +145,11 @@ function MonsterCard({
 
   /** One monster attack against the active character: the monster's Accuracy check against the
    *  character's Evasion check (rolled here, or the Fixed Value), then damage less Defense. */
-  function attack(index: number) {
-    const section = monster.sections[index];
-    const base = rollMonsterAttack(section, fixed);
+  function attack(index: number, charge?: ChargeAttack) {
+    const ordinary = monster.sections[index];
+    // [Charge] strikes with a number and damage of its own, from the same section.
+    const section = charge ? { ...ordinary, accuracy: { value: charge.accuracy, fixed: charge.fixed }, damage: charge.damage } : ordinary;
+    const base = charge ? rollChargeAttack(charge, fixed) : rollMonsterAttack(section, fixed);
     if (!base) return;
     // A declared attack (Power Strike, Decoy Attack, …) changes this one attack, then is spent.
     const declaration = declarationsOf(monster, index).find((entry) => entry.name === declared[index]);
@@ -148,13 +160,23 @@ function MonsterCard({
     const rolled = struck ? withPainfulStrike(struck, painfulStrikeOf(monster)) : null;
     const damage = rolled && declaration ? { ...rolled, total: Math.max(0, rolled.total + declaration.damage) } : rolled;
     const landed = damage ? Math.max(0, damage.total - (character ? characterDefense(character) : 0)) : 0;
-    setReport({ sectionIndex: index, declaration: declaration?.name, attack: roll, evasion, hit, damage, landed });
+    // Poison: a hit that did damage makes the target resist with Fortitude or take extra magic damage (no Defense).
+    const rider = poisonRiderOf(monster, index);
+    const poison =
+      rider && hit && character && (!rider.needsDamage || landed > 0)
+        ? resolvePoison(rider, rollEvasion(characterFortitude(character), fixed), fixed)
+        : undefined;
+    setReport({ sectionIndex: index, declaration: declaration?.name, special: charge?.name, attack: roll, evasion, hit, damage, landed, poison });
     setDeclared((current) => ({ ...current, [index]: '' }));
     setApplied(false);
     setSucked(false);
   }
 
   const bloodsucking = bloodsuckingOf(monster);
+  const charge = chargeOf(monster);
+  const traitsOfAny = monster.sections.map((_, index) => damageTraitsOf(monster, index));
+  const hasToughSkin = traitsOfAny.some((traits) => traits.bludgeoningReduction > 0);
+  const hasFireVulnerability = traitsOfAny.some((traits) => traits.fireBonus > 0);
 
   /** Bloodsucking: the damage that landed comes back to the monster, to the section that struck or the most wounded one. */
   function suck() {
@@ -173,7 +195,8 @@ function MonsterCard({
 
   function applyToCharacter() {
     if (!character || !report) return;
-    updateCharacter((c) => ({ ...c, hp: { current: c.hp.current - report.landed } }));
+    const total = report.landed + (report.poison?.dealt ?? 0);
+    updateCharacter((c) => ({ ...c, hp: { current: c.hp.current - total } }));
     setApplied(true);
   }
 
@@ -289,6 +312,11 @@ function MonsterCard({
                   ))}
                 </select>
               )}
+              {attackable && charge && charge.sectionIndex === index && (
+                <button type="button" onClick={() => attack(index, charge)} aria-label={`${instance.label} ${section.style} ${charge.name}`}>
+                  {charge.name} ({charge.accuracy} ({charge.fixed}) · {charge.damage})
+                </button>
+              )}
               {attackable && (
                 <button type="button" onClick={() => attack(index)} aria-label={`${instance.label} ${section.style} ${t('solo.attack')}`}>
                   {t('solo.attack')} ({formatValue(section.accuracy)} · {section.damage})
@@ -299,17 +327,31 @@ function MonsterCard({
         );
       })}
 
+      {!defeated && <MonsterAreaAttack monster={monster} fixed={fixed} />}
+
       {!defeated && <MonsterIntent label={instance.label} />}
 
       <label className={styles.inline}>
         <input type="checkbox" checked={magic} onChange={(e) => setMagic(e.target.checked)} />
         {t('solo.magicDamage')}
       </label>
+      {hasToughSkin && (
+        <label className={styles.inline}>
+          <input type="checkbox" checked={blunt} onChange={(e) => setBlunt(e.target.checked)} />
+          {t('solo.toughSkin')}
+        </label>
+      )}
+      {hasFireVulnerability && (
+        <label className={styles.inline}>
+          <input type="checkbox" checked={fire} onChange={(e) => setFire(e.target.checked)} />
+          {t('solo.fireVulnerability')}
+        </label>
+      )}
 
       {report && (
         <div className={styles.report} role="status" aria-live="polite">
           <p>
-            {monster.sections[report.sectionIndex].style}: {report.declaration && `[${report.declaration}] `}{t('solo.attackLine', {
+            {monster.sections[report.sectionIndex].style}: {report.special && `[${report.special}] `}{report.declaration && `[${report.declaration}] `}{t('solo.attackLine', {
               roll: report.attack.dice[0] ? `${report.attack.dice[0]}+${report.attack.dice[1]}` : t('solo.fixed'),
               value: report.attack.successValue,
             })}
@@ -335,14 +377,20 @@ function MonsterCard({
             </p>
           )}
           {report.damage?.painful && <p>{t('solo.painfulStrike', { points: report.damage.painful })}</p>}
+          {report.poison && (
+            <p>
+              {report.poison.check.dice[0] ? t('solo.poisonRolled', { roll: `${report.poison.check.dice[0]}+${report.poison.check.dice[1]}`, value: report.poison.check.value }) : t('solo.poisonFixed', { value: report.poison.check.value })}{' '}
+              — {report.poison.resisted ? t('solo.poisonResisted') : t('solo.poisonLanded', { points: report.poison.dealt })}
+            </p>
+          )}
           {report.hit && report.landed > 0 && bloodsucking && (
             <button type="button" onClick={suck} disabled={sucked}>
               {sucked ? t('solo.bloodsuckingDone') : t('solo.bloodsucking', { landed: report.landed })}
             </button>
           )}
-          {report.hit && character && report.landed > 0 && (
+          {report.hit && character && report.landed + (report.poison?.dealt ?? 0) > 0 && (
             <button type="button" onClick={applyToCharacter} disabled={applied}>
-              {applied ? t('solo.applied') : t('solo.applyDamage', { landed: report.landed, name: character.name })}
+              {applied ? t('solo.applied') : t('solo.applyDamage', { landed: report.landed + (report.poison?.dealt ?? 0), name: character.name })}
             </button>
           )}
         </div>

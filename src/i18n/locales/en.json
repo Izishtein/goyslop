@@ -1405,7 +1405,20 @@
     "painfulStrike": "Painful Strike: the damage dice came to 10 or more — +{{points}} damage.",
     "bloodsucking": "Bloodsucking: restore {{landed}} HP",
     "bloodsuckingDone": "Bloodsucking applied",
-    "sunlight": "In sunlight (Dark Regeneration does not work)"
+    "sunlight": "In sunlight (Dark Regeneration does not work)",
+    "toughSkin": "Damage dealt is bludgeoning (Tough Skin)",
+    "fireVulnerability": "Damage dealt is fire (Fire Vulnerability)",
+    "poisonRolled": "Poison: {{roll}} → {{value}} against Fortitude",
+    "poisonFixed": "Poison: Fixed Value {{value}} against Fortitude",
+    "poisonResisted": "resisted",
+    "poisonLanded": "poisoned, {{points}} extra magic damage",
+    "areaAttack": {
+      "title": "Several targets",
+      "skill": "Skill",
+      "reach": "up to {{max}} characters{{damage}}",
+      "consecutive": "not in consecutive rounds",
+      "attack": "{{name}}"
+    }
   },
   "guide": {
     "open": "Guide",
@@ -1957,7 +1970,9 @@
       "evaded": "evaded",
       "noHits": "Nobody was hit.",
       "damageFor": "Damage to {{name}}:"
-    }
+    },
+    "toughSkin": "Tough Skin: bludgeoning damage (−{{points}})",
+    "fireVulnerability": "Fire Vulnerability: fire damage (+{{points}})"
   },
   "io": {
     "export": "Download JSON",

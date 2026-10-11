@@ -51,7 +51,8 @@ export function spawnMonster(monster: Monster, taken: string[], id: string): Enc
  * Damage dealt to one section. Physical damage is reduced by the section's Defense, magic
  * is not (CR I p. 135); HP may go below zero — the section is then down, and a Death Check
  * (or the GM's word) says whether it dies. Returns the new instance and the damage that
- * actually landed.
+ * actually landed. `adjust` is what the damage's type does to a hit that got through ([Tough Skin] -3,
+ * [Fire Vulnerability] +3): it never turns a fully absorbed hit into damage.
  */
 export function damageSection(
   instance: EncounterMonster,
@@ -59,8 +60,10 @@ export function damageSection(
   amount: number,
   defense: number,
   physical: boolean,
+  adjust = 0,
 ): { instance: EncounterMonster; dealt: number } {
-  const dealt = Math.max(0, amount - (physical ? defense : 0));
+  const net = Math.max(0, amount - (physical ? defense : 0));
+  const dealt = net > 0 ? Math.max(0, net + adjust) : 0;
   return {
     dealt,
     instance: {
@@ -364,6 +367,7 @@ export function tableTargets(encounter: Encounter, byId: Map<string, Monster>) {
             {
               key: `${instance.id}:${sectionIndex}`,
               monsterIndex,
+              monster,
               sectionIndex,
               defense: numberOf(section.defense),
               evasion: typeof section.evasion === 'object' && section.evasion !== null && 'value' in section.evasion ? section.evasion.value : 0,

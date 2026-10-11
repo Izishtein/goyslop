@@ -1,7 +1,8 @@
 import { getClass } from '../../data/classes';
 import type { Character } from '../../types/character';
 import { abilityModifier, abilityTotal } from './abilities';
-import { evasion as baseEvasion } from './derived-stats';
+import { adventurerLevel } from './character-levels';
+import { evasion as baseEvasion, fortitude as baseFortitude } from './derived-stats';
 import { sumModifiersForField } from './status-effects';
 import { totalDefense, totalEvasion } from './weapon-stats';
 
@@ -31,4 +32,9 @@ export function characterEvasion(character: Pick<Character, 'classes' | 'abiliti
       character.equipment.shield?.evasionBonus ?? 0,
     ) + sumModifiersForField(character.statusEffects, 'evasion')
   );
+}
+
+/** Fortitude: Adventurer Level + VIT modifier, with status effects — the Standard Value of a Fortitude check (poison, disease). */
+export function characterFortitude(character: Pick<Character, 'classes' | 'abilities' | 'statusEffects'>): number {
+  return baseFortitude(adventurerLevel(character.classes), abilityModifier(abilityTotal(character.abilities.VIT))) + sumModifiersForField(character.statusEffects, 'fortitude');
 }

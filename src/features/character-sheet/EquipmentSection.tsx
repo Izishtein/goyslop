@@ -45,6 +45,7 @@ import { useTurnFeats } from '../../state/turn';
 import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
+import { isBludgeoningCategory } from '../../lib/monster-skills';
 import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
@@ -212,6 +213,7 @@ export function EquipmentSection({ character }: { character: Character }) {
         weapon.criticalValue,
         attackMods.criticalValue + (attackClass?.classId === 'fencer' ? FENCER_CRITICAL_MODIFIER : 0),
       ),
+      bludgeoning: isBludgeoningCategory(getWeapon(equipmentId(weapon.name))?.category),
     };
   }
 
@@ -472,7 +474,7 @@ export function EquipmentSection({ character }: { character: Character }) {
                       criticalValue={numbers.criticalValue}
                       extraDamage={numbers.extraDamage}
                       label={weapon.name || t('sheet.unnamedItem')}
-                      options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
+                      options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII, bludgeoning: numbers.bludgeoning }}
                     />
                   </td>
                   <td>
@@ -539,7 +541,7 @@ export function EquipmentSection({ character }: { character: Character }) {
         <AttackPanel
           weapons={character.equipment.weapons.map((weapon) => {
             const numbers = weaponNumbers(weapon);
-            return { id: weapon.id, label: weapon.name || t('sheet.unnamedItem'), accuracy: numbers.accuracy, power: weapon.power, criticalValue: numbers.criticalValue, extraDamage: numbers.extraDamage };
+            return { id: weapon.id, label: weapon.name || t('sheet.unnamedItem'), accuracy: numbers.accuracy, power: weapon.power, criticalValue: numbers.criticalValue, extraDamage: numbers.extraDamage, bludgeoning: numbers.bludgeoning };
           })}
           options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
           targetLimit={attackMods.targets}

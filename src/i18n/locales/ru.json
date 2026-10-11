@@ -1405,7 +1405,20 @@
     "painfulStrike": "Painful Strike: кубики урона дали 10 и больше — +{{points}} к урону.",
     "bloodsucking": "Кровососание: вернуть {{landed}} HP",
     "bloodsuckingDone": "Кровососание применено",
-    "sunlight": "На солнце (Dark Regeneration не работает)"
+    "sunlight": "На солнце (Dark Regeneration не работает)",
+    "toughSkin": "Наносимый урон дробящий (Tough Skin)",
+    "fireVulnerability": "Наносимый урон огненный (Fire Vulnerability)",
+    "poisonRolled": "Яд: {{roll}} → {{value}} против Стойкости",
+    "poisonFixed": "Яд: фикс. значение {{value}} против Стойкости",
+    "poisonResisted": "сопротивление удалось",
+    "poisonLanded": "отравлен, +{{points}} магического урона",
+    "areaAttack": {
+      "title": "Несколько целей",
+      "skill": "Умение",
+      "reach": "до {{max}} персонажей{{damage}}",
+      "consecutive": "не в соседние раунды",
+      "attack": "{{name}}"
+    }
   },
   "guide": {
     "open": "Гид",
@@ -1957,7 +1970,9 @@
       "evaded": "уклонился",
       "noHits": "Никто не задет.",
       "damageFor": "Урон по цели {{name}}:"
-    }
+    },
+    "toughSkin": "Tough Skin: дробящий урон (−{{points}})",
+    "fireVulnerability": "Fire Vulnerability: огненный урон (+{{points}})"
   },
   "io": {
     "export": "Скачать JSON",

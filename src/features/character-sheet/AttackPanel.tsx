@@ -16,6 +16,7 @@ export interface PanelWeapon {
   power: number;
   criticalValue: number;
   extraDamage: number;
+  bludgeoning?: boolean;
 }
 
 interface Played {
@@ -151,6 +152,7 @@ export function AttackPanel({
                 options={{
                   ...options,
                   presetTarget: hit.key,
+                  bludgeoning: playedWeapon.bludgeoning,
                   snipeAuto: options.snipe ? snipeDoubles(hit.margin) : undefined,
                   firstHitAuto: options.repeatedStrikeII ? hit.key === firstBonusKey : undefined,
                 }}

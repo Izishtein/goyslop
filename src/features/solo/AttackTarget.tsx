@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isValuePair } from '../../data/monsters';
 import { damageSection, rollEvasion, tableTargets, type EvasionRoll } from '../../lib/encounter';
+import { damageTraitsOf, traitAdjustment } from '../../lib/monster-skills';
 import { halveRoundUp, spellResisted, type SpellcastingCheck } from '../../lib/spell-check';
 import { armorPiercerDefense } from '../../lib/formulas/attack-modifiers';
 import { encounterAtom } from '../../state/encounter';
@@ -21,6 +22,8 @@ export interface SpellAim {
   firstDamage: number;
 }
 
+const NO_TRAITS = { bludgeoningReduction: 0, fireBonus: 0 };
+
 export function AttackTarget({
   tier,
   damage,
@@ -28,6 +31,7 @@ export function AttackTarget({
   magic = false,
   spell,
   initialTarget = '',
+  bludgeoning = false,
 }: {
   tier: 0 | 1 | 2 | 3;
   damage: number;
@@ -36,6 +40,8 @@ export function AttackTarget({
   spell?: SpellAim;
   /** A target already chosen by the Accuracy check that led here. */
   initialTarget?: string;
+  /** The weapon's blows are of the bludgeoning type (mace, staff, flail, hammer, fists): [Tough Skin] starts ticked. */
+  bludgeoning?: boolean;
 }) {
   const { t } = useTranslation();
   const [encounter, setEncounter] = useAtom(encounterAtom);
@@ -45,6 +51,8 @@ export function AttackTarget({
   const [appliedTo, setAppliedTo] = useState('');
   const [fixed, setFixed] = useState(false);
   const [save, setSave] = useState<EvasionRoll | null>(null);
+  const [blunt, setBlunt] = useState(bludgeoning);
+  const [fire, setFire] = useState(false);
 
   const targets = tableTargets(encounter, byId);
   const target = targets.find((entry) => entry.key === choice);
@@ -54,8 +62,11 @@ export function AttackTarget({
   const failed = spell?.check?.outcome === 'fumble';
   const resisted = !!spell && !!spell.check && !!save && spellResisted(spell.check, save);
   const rolled = resisted ? halveRoundUp(critical ? spell!.firstDamage : damage) : damage;
-  const dealt = failed ? 0 : Math.max(0, rolled - defense);
-  const applyKey = target ? `${target.key}:${damage}:${critical}:${save?.value ?? ''}` : '';
+  const traits = target ? damageTraitsOf(target.monster, target.sectionIndex) : NO_TRAITS;
+  const adjust = traitAdjustment(traits, { bludgeoning: blunt, fire });
+  const net = Math.max(0, rolled - defense);
+  const dealt = failed ? 0 : net > 0 ? Math.max(0, net + adjust) : 0;
+  const applyKey = target ? `${target.key}:${damage}:${critical}:${save?.value ?? ''}:${adjust}` : '';
 
   function willpowerOf(monsterId: string): number {
     const willpower = byId.get(monsterId)?.willpower;
@@ -65,7 +76,7 @@ export function AttackTarget({
   function apply() {
     if (!target) return;
     const instance = encounter.monsters[target.monsterIndex];
-    const result = damageSection(instance, target.sectionIndex, rolled, defense, !magic);
+    const result = damageSection(instance, target.sectionIndex, rolled, defense, !magic, adjust);
     setEncounter((current) => ({ ...current, monsters: current.monsters.map((entry) => (entry.id === result.instance.id ? result.instance : entry)) }));
     setAppliedTo(applyKey);
   }
@@ -84,6 +95,18 @@ export function AttackTarget({
           ))}
         </select>
       </label>
+      {traits.bludgeoningReduction > 0 && (
+        <label>
+          {' '}
+          <input type="checkbox" checked={blunt} onChange={(event) => setBlunt(event.target.checked)} /> {t('sheet.toughSkin', { points: traits.bludgeoningReduction })}
+        </label>
+      )}
+      {traits.fireBonus > 0 && (
+        <label>
+          {' '}
+          <input type="checkbox" checked={fire} onChange={(event) => setFire(event.target.checked)} /> {t('sheet.fireVulnerability', { points: traits.fireBonus })}
+        </label>
+      )}
       {!target && !magic && (
         <>
           {' '}
