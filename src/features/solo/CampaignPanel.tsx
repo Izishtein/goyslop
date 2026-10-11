@@ -157,6 +157,11 @@ export function CampaignPanel() {
                     </button>
                   </>
                 )}
+                {!isSettleable(entry.kind) && entry.closed && (
+                  <button type="button" onClick={() => setCampaign((current) => updateEntry(current, entry.id, { closed: false }))}>
+                    {t('solo.campaign.reopen')}
+                  </button>
+                )}
                 {isSettleable(entry.kind) && (
                   <button
                     type="button"

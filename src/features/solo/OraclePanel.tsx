@@ -1,7 +1,8 @@
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isEventSource, raiseWeights } from '../../lib/campaign';
+import { isEventSource, raiseWeights, updateEntry } from '../../lib/campaign';
+import { plotArmor } from '../../lib/thread';
 import { advanceScene } from '../../lib/keyed';
 import {
   askOracle,
@@ -17,12 +18,15 @@ import {
   FOCUS_FEATURE,
   interruptScene,
   LIKELIHOODS,
+  PLAY_STYLES,
   pushEntry,
   rollAdjustment,
   rollEvent,
   rollThemed,
   rollWords,
+  STRATEGIES,
   THEMES,
+  type PlayStyle,
   type Theme,
   type ThemedEntry,
   yesChance,
@@ -61,12 +65,28 @@ function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
 
 function EventLine({ event }: { event: RandomEvent }) {
   const { t } = useTranslation();
+  const [campaign, setCampaign] = useAtom(campaignAtom);
+  /** "I do not know": an event about someone the story cannot fit may drop them from the log (not a thread under plot armor). */
+  const target = event.ref ? campaign.entries.find((entry) => entry.kind === event.ref?.kind && entry.title === event.ref.title && !entry.closed) : undefined;
+  const droppable = target !== undefined && !plotArmor(target);
   return (
     <p>
       <strong>{t('solo.oracle.eventLabel')}:</strong> {t(`solo.oracle.focus.${event.focus}`)}
       {event.ref && ` — ${event.ref.title} (${t(`solo.campaign.kinds.${event.ref.kind}`)})`}
       {event.note && ` — ${event.note}`} — {t(`solo.oracle.action.${event.action}`)} /{' '}
       {t(`solo.oracle.subject.${event.subject}`)}
+      {droppable && (
+        <>
+          {' '}
+          <button
+            type="button"
+            aria-label={t('solo.oracle.dontKnowFor', { title: target.title })}
+            onClick={() => setCampaign((current) => updateEntry(current, target.id, { closed: true }))}
+          >
+            {t('solo.oracle.dontKnow')}
+          </button>
+        </>
+      )}
     </p>
   );
 }
@@ -233,7 +253,7 @@ export function OraclePanel() {
         <span className={styles.numeric}>{t('solo.oracle.eventChance', { chance: eventChance(oracle.chaos, oracle.chaosFlavor) })}</span>
         <button
           type="button"
-          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, ruleMode: state.ruleMode }))}
+          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, style: state.style, ruleMode: state.ruleMode }))}
           disabled={oracle.log.length === 0 && oracle.scene === 0 && oracle.chaos === 5}
         >
           {t('solo.oracle.reset')}
@@ -319,6 +339,16 @@ export function OraclePanel() {
             ))}
           </select>
         </label>
+        <label>
+          {t('solo.oracle.style')}
+          <select value={oracle.style} onChange={(e) => setOracle((state) => ({ ...state, style: e.target.value as PlayStyle }))}>
+            {PLAY_STYLES.map((entry) => (
+              <option key={entry} value={entry}>
+                {t(`solo.oracle.styles.${entry}`)}
+              </option>
+            ))}
+          </select>
+        </label>
         <button type="button" onClick={() => setEnding((open) => !open)} aria-expanded={ending} disabled={oracle.scene === 0}>
           {t('solo.oracle.endScene')}
         </button>
@@ -347,6 +377,12 @@ export function OraclePanel() {
               {t('solo.oracle.wasInControl')}
             </label>
           )}
+          <p className={styles.note}>{t('solo.oracle.strategiesHead')}</p>
+          <ul>
+            {STRATEGIES[oracle.style].map((strategy) => (
+              <li key={strategy}>{t(`solo.oracle.strategies.${strategy}`)}</li>
+            ))}
+          </ul>
           <p className={styles.note}>{t('solo.oracle.whoTookPart')}</p>
           {candidates.length === 0 ? (
             <p className={styles.note}>{t('solo.oracle.nobodyToRaise')}</p>
@@ -371,7 +407,7 @@ export function OraclePanel() {
       <details>
         <summary>{t('solo.oracle.tipsTitle')}</summary>
         <ul>
-          {['dontKnow', 'twoQuestions', 'yes', 'no', 'exceptional', 'tension', 'connectors'].map((tip) => (
+          {['dontKnow', 'twoQuestions', 'yes', 'no', 'exceptional', 'tension', 'connectors', 'verify', 'reliable', 'goWithIt', 'extraKnowledge'].map((tip) => (
             <li key={tip}>{t(`solo.oracle.tips.${tip}`)}</li>
           ))}
         </ul>

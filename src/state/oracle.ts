@@ -5,6 +5,7 @@ import {
   ADJUSTMENT_COUNT,
   CONNECTOR_COUNT,
   CHAOS_FLAVORS,
+  PLAY_STYLES,
   THEME_WORDS,
   THEMES,
   CHAOS_MODES,
@@ -101,6 +102,7 @@ const OracleSchema = z.object({
   scene: z.number().int().min(0).default(0),
   chaosMode: z.enum(CHAOS_MODES).default('normal'),
   chaosFlavor: z.enum(CHAOS_FLAVORS).default('full'),
+  style: z.enum(PLAY_STYLES).default('simulation'),
   ruleMode: z.boolean().default(false),
   log: z.array(EntrySchema).max(LOG_LIMIT).default(() => []),
 });

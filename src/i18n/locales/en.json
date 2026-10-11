@@ -292,7 +292,11 @@
         "no": "No — not “the opposite” but the next likeliest thing. Exceptional no — the opposite, or the next thing, stronger.",
         "exceptional": "In “as a rule” mode exceptional answers and events are off: use it to fill a gap in the rules, not to steer the story.",
         "tension": "Ask about tension, not about what would kill the plot outright.",
-        "connectors": "Two words say nothing? Join them with a connector, or dig deeper for a second pair."
+        "connectors": "Two words say nothing? Join them with a connector, or dig deeper for a second pair.",
+        "verify": "Check → ask → then it is real: what the hero thinks they know is true only once a check or a question says so.",
+        "reliable": "Separate reliable from unreliable information: a rumour, a prisoner’s word and a map in the hero’s own hand are not equal.",
+        "goWithIt": "When you, the player, know more than the hero: go with it if it makes a better story, or let the extra knowledge become a reason to check.",
+        "extraKnowledge": "Knowledge the hero cannot have is not a secret weapon: turn it into a suspicion to test, not a fact to act on."
       },
       "flavor": "Weight of chaos",
       "flavors": {
@@ -544,7 +548,22 @@
       },
       "themeLabel": "Theme",
       "rollTheme": "Words on the theme",
-      "themedLabel": "On the theme “{{theme}}”"
+      "themedLabel": "On the theme “{{theme}}”",
+      "dontKnow": "I do not know: drop",
+      "dontKnowFor": "I do not know — drop {{title}} from the log",
+      "style": "Style of play",
+      "styles": {
+        "simulation": "Simulation",
+        "drama": "Drama"
+      },
+      "strategiesHead": "Ways to close this scene:",
+      "strategies": {
+        "interest": "Interest: stop where the scene stops being interesting, and move to the next point of interest.",
+        "timePlace": "Time or place: stop when the time passes or the heroes move somewhere else.",
+        "plotShift": "Plot shift: stop on a turn of the story — a reveal, a decision, a reversal.",
+        "mood": "Mood: stop when the mood changes — tension breaks, or a calm falls.",
+        "autoInterrupt": "Stuck? Make the next scene an interrupted one, with no chaos check."
+      }
     },
     "campaign": {
       "title": "Campaign log",

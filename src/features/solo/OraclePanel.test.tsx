@@ -4,7 +4,7 @@ import { Provider, createStore } from 'jotai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import { EMPTY_ORACLE } from '../../lib/oracle';
-import { addEntry, EMPTY_CAMPAIGN } from '../../lib/campaign';
+import { addEntry, EMPTY_CAMPAIGN, updateEntry } from '../../lib/campaign';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import { OraclePanel } from './OraclePanel';
@@ -216,5 +216,54 @@ describe('OraclePanel themed words', () => {
     await user.click(screen.getByRole('button', { name: 'Words on the theme' }));
 
     expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('On the theme “Creature”: hunger / claws');
+  });
+});
+
+describe('OraclePanel "I do not know"', () => {
+  it('drops the person an event pointed at, and the journal can bring them back', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.15); // a known character acts
+    const store = renderPanel();
+    act(() => {
+      store.set(campaignAtom, addEntry(EMPTY_CAMPAIGN, { kind: 'npc', title: 'Marta', text: '', scene: 0 }, 'm'));
+    });
+    await user.click(screen.getByRole('button', { name: 'Random event' }));
+
+    await user.click(screen.getByRole('button', { name: 'I do not know — drop Marta from the log' }));
+
+    expect(store.get(campaignAtom).entries[0].closed).toBe(true);
+    expect(screen.queryByRole('button', { name: 'I do not know — drop Marta from the log' })).not.toBeInTheDocument();
+  });
+
+  it('keeps a thread under plot armor', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.45); // d11 = 5: a clue, from a thread
+    const store = renderPanel();
+    act(() => {
+      let log = addEntry(EMPTY_CAMPAIGN, { kind: 'thread', title: 'Find the sister', text: '', scene: 0 }, 't');
+      log = updateEntry(log, 't', { trackSize: 10, progress: 2 });
+      store.set(campaignAtom, log);
+    });
+    await user.click(screen.getByRole('button', { name: 'Random event' }));
+
+    expect(screen.getByRole('list', { name: 'Oracle log' })).toHaveTextContent('Find the sister');
+    expect(screen.queryByRole('button', { name: /I do not know/ })).not.toBeInTheDocument();
+  });
+});
+
+describe('OraclePanel style of play', () => {
+  it('suggests ways to close a scene that suit the style', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel();
+    await user.click(screen.getByRole('button', { name: 'New scene (check)' }));
+    await user.click(screen.getByRole('button', { name: 'End the scene' }));
+    expect(screen.getByText(/Interest: stop where/)).toBeInTheDocument();
+    expect(screen.queryByText(/Plot shift/)).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Style of play'), 'drama');
+
+    expect(store.get(oracleAtom).style).toBe('drama');
+    expect(screen.getByText(/Plot shift: stop on a turn/)).toBeInTheDocument();
+    expect(screen.getByText(/Stuck\? Make the next scene/)).toBeInTheDocument();
   });
 });

@@ -177,6 +177,18 @@ export function rollAdjustment(rng: Rng = Math.random): SceneAdjustment {
   return { roll, edits: [first, second] };
 }
 
+/**
+ * Play style: which ways of closing a scene to suggest. A simulation follows what is interesting
+ * and what time and place demand; a drama follows the plot and the mood.
+ */
+export const PLAY_STYLES = ['simulation', 'drama'] as const;
+export type PlayStyle = (typeof PLAY_STYLES)[number];
+
+export const STRATEGIES: Record<PlayStyle, string[]> = {
+  simulation: ['interest', 'timePlace', 'autoInterrupt'],
+  drama: ['plotShift', 'mood', 'autoInterrupt'],
+};
+
 /** Words that join two prompt words when the pair says nothing by itself. */
 export const CONNECTOR_COUNT = 6;
 
@@ -352,12 +364,13 @@ export interface OracleState {
   scene: number;
   chaosMode: ChaosMode;
   chaosFlavor: ChaosFlavor;
+  style: PlayStyle;
   /** Questions are answered as a rule substitute (neutral chaos, no exceptional answers, no events). */
   ruleMode: boolean;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', ruleMode: false, log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', style: 'simulation', ruleMode: false, log: [] };
 
 /** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
 export const CHOOSE_FOCUS_EVERY = 5;
