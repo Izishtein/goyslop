@@ -1172,7 +1172,15 @@
       "buyShip": "Buy the ship",
       "sail": "Put out to sea",
       "sailHint": "Leaves from this port; the voyage days count on the calendar.",
-      "underway": "A voyage is already under way (see the Sea voyage panel)."
+      "underway": "A voyage is already under way (see the Sea voyage panel).",
+      "crewLine": "Crew {{crew}}/{{needed}}.",
+      "shortHanded": "Short-handed: −2 to volleys and grapples, and a storm tears one more point off every hull. Hire sailors in a harbour.",
+      "hireOne": "Hire a sailor ({{fee}} G)",
+      "hireAll": "Hire {{count}} to a full crew ({{fee}} G)",
+      "landfall": "Land in the new country",
+      "landfallWarn": "This replaces the land map with a fresh one around the harbour town; the old land stays behind.",
+      "landfallConfirm": "Go ashore",
+      "landfallCancel": "Stay aboard"
     },
     "dungeon": {
       "title": "Dungeon",

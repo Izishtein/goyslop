@@ -8,19 +8,24 @@ import { addEntry, setDay } from '../../lib/campaign';
 import { generateSettlement } from '../../lib/dungeon';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { upsertManagedEffect } from '../../lib/formulas/status-effects';
-import { hexDistance, PENALTY_FIELDS } from '../../lib/hexmap';
+import { hexDistance, landfall, PENALTY_FIELDS, SETTLEMENT_KINDS, type SettlementKind } from '../../lib/hexmap';
 import { canSailTo, seaHexAt, type SeaHex } from '../../lib/seamap';
-import { FLEET_MAX, GOODS, SHIP_PRICE, goodPrice } from '../../lib/ships';
+import { FLEET_MAX, GOODS, HIRE_FEE, SHIP_PRICE, goodPrice } from '../../lib/ships';
 import {
   addShip,
   attackShip,
   cargoCapacity,
   cargoLoad,
   claimPrize,
+  crewAboard,
+  crewModifier,
+  crewNeeded,
   dayInPort,
   fleetOf,
   harbourHere,
+  hireCrew,
   loadGoods,
+  loseCrew,
   unloadGoods,
   type Voyage,
   exploreIsland,
@@ -35,10 +40,12 @@ import {
   SHIPS,
   type Ship,
   type ShipAttack,
+  undermanned,
 } from '../../lib/voyage';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
 import { campaignAtom } from '../../state/campaign';
 import { dungeonAtom } from '../../state/dungeon';
+import { hexMapAtom } from '../../state/hexmap';
 import { encounterAtom } from '../../state/encounter';
 import { voyageAtom } from '../../state/voyage';
 import styles from './SoloView.module.css';
@@ -71,6 +78,8 @@ export function VoyagePanel() {
   const setEncounter = useSetAtom(encounterAtom);
   const setCampaign = useSetAtom(campaignAtom);
   const setDungeon = useSetAtom(dungeonAtom);
+  const setHexMap = useSetAtom(hexMapAtom);
+  const [landing, setLanding] = useState(false);
   const characters = useAtomValue(charactersAtom);
   const activeId = useAtomValue(activeCharacterIdAtom);
   const updateCharacter = useUpdateCharacter(activeId ?? '');
@@ -229,13 +238,13 @@ export function VoyagePanel() {
     if (!base.pursuit || base.pursuit.state !== 'closing') return { voyage: base, line: '' };
     const index = Math.floor(Math.random() * fleetOf(base).length);
     const shot = theirVolley(base.pursuit, fleetOf(base)[index].ship);
-    const hit = shot.hit ? hullBlow(base, shot.damage, index) : base;
+    const hit = shot.hit ? loseCrew(hullBlow(base, shot.damage, index), 1) : base;
     return { voyage: hit, line: t('solo.voyage.theirVolley', { value: shot.value, target: shot.target, outcome: shot.hit ? t('solo.voyage.volleyHit', { damage: shot.damage }) : t('solo.voyage.volleyMiss') }) };
   }
 
   function broadside() {
     if (!voyage?.pursuit || !hunted) return;
-    const ours = ourVolley(voyage.pursuit, voyage.ship, level);
+    const ours = ourVolley(voyage.pursuit, voyage.ship, level + crewModifier(voyage));
     let next: Voyage = { ...voyage, pursuit: ours.pursuit };
     const lines = [t('solo.voyage.ourVolley', { value: ours.exchange.value, target: ours.exchange.target, outcome: ours.exchange.hit ? t('solo.voyage.volleyHit', { damage: ours.exchange.damage }) : t('solo.voyage.volleyMiss') })];
     if (ours.pursuit.state === 'sunk') lines.push(t('solo.voyage.theirSunk'));
@@ -250,7 +259,7 @@ export function VoyagePanel() {
 
   function grappleHooks() {
     if (!voyage?.pursuit || voyage.pursuit.state !== 'closing') return;
-    const result = grapple(voyage.pursuit, level, voyage.weather);
+    const result = grapple(voyage.pursuit, level + crewModifier(voyage), voyage.weather);
     let next: Voyage = { ...voyage, pursuit: result.pursuit };
     const lines = [t('solo.voyage.grappleRoll', { value: result.contest.value, target: result.contest.target, outcome: t(result.contest.success ? 'solo.voyage.grappled' : 'solo.voyage.grappleFail') })];
     if (result.contest.success && crew) spawn(crew, voyage.pursuit.crewCount);
@@ -284,6 +293,27 @@ export function VoyagePanel() {
     setVoyage(claimPrize(voyage, prize));
     pay(prize.gold);
     setFightLog([t('solo.voyage.prize', { gold: prize.gold, crates: prize.goods.reduce((sum, units) => sum + units, 0), ship: prize.ship ? t(`solo.voyage.ships.${prize.ship.ship}`, { hull: prize.ship.hull }) : '—' })]);
+  }
+
+  /** Signs sailors on at the quay: a fee each, up to what the fleet needs. */
+  function hire(count: number) {
+    if (!voyage) return;
+    const room = crewNeeded(voyage) - crewAboard(voyage);
+    const hired = Math.min(count, room);
+    if (hired <= 0 || cash < hired * HIRE_FEE) return;
+    const next = hireCrew(voyage, hired);
+    if (!next) return;
+    pay(-hired * HIRE_FEE);
+    setVoyage(next);
+  }
+
+  /** Steps ashore in the new land: a fresh land map centred on the harbour town, the sea chart put away. */
+  function landHere() {
+    if (!voyage?.arrived || !monsters) return;
+    const kind = SETTLEMENT_KINDS.find((entry) => entry === here?.settlement) ?? ('town' satisfies SettlementKind);
+    setHexMap(landfall({ level, monsters }, kind));
+    setVoyage(null);
+    setLanding(false);
   }
 
   function buyShip() {
@@ -447,6 +477,10 @@ export function VoyagePanel() {
           </div>
         </div>
       )}
+      <p className={styles.note} role="status">
+        {t('solo.voyage.crewLine', { crew: crewAboard(voyage), needed: crewNeeded(voyage) })}
+        {undermanned(voyage) && ` ${t('solo.voyage.shortHanded')}`}
+      </p>
       {docked && !over && harbour && (
         <div className={styles.report}>
           <p>
@@ -457,6 +491,16 @@ export function VoyagePanel() {
             </button>
           </p>
           <p className={styles.note}>{t('solo.voyage.holds', { load: cargoLoad(voyage), capacity: cargoCapacity(voyage), cash })}</p>
+          {undermanned(voyage) && (
+            <p>
+              <button type="button" onClick={() => hire(1)} disabled={cash < HIRE_FEE}>
+                {t('solo.voyage.hireOne', { fee: HIRE_FEE })}
+              </button>{' '}
+              <button type="button" onClick={() => hire(crewNeeded(voyage) - crewAboard(voyage))} disabled={cash < (crewNeeded(voyage) - crewAboard(voyage)) * HIRE_FEE}>
+                {t('solo.voyage.hireAll', { count: crewNeeded(voyage) - crewAboard(voyage), fee: (crewNeeded(voyage) - crewAboard(voyage)) * HIRE_FEE })}
+              </button>
+            </p>
+          )}
           <div className={styles.tableWrap}>
             <table>
               <thead>
@@ -558,6 +602,22 @@ export function VoyagePanel() {
             </label>
             <button type="button" onClick={() => setVoyage(hullBlow(voyage, Math.floor(Number(blow)) || 0, aimed))}>
               {t('solo.voyage.hit')}
+            </button>
+          </>
+        )}
+        {voyage.arrived && !landing && (
+          <button type="button" onClick={() => setLanding(true)} disabled={!monsters}>
+            {t('solo.voyage.landfall')}
+          </button>
+        )}
+        {voyage.arrived && landing && (
+          <>
+            <span className={styles.note}>{t('solo.voyage.landfallWarn')}</span>
+            <button type="button" onClick={landHere}>
+              {t('solo.voyage.landfallConfirm')}
+            </button>
+            <button type="button" onClick={() => setLanding(false)}>
+              {t('solo.voyage.landfallCancel')}
             </button>
           </>
         )}

@@ -3,8 +3,8 @@ import { sightPursuit, type Pursuit } from './boarding';
 import { hoard } from './dungeon';
 import { attackHits, resolveAttack, rollEvasion, rollMonsterAttack, rollMonsterDamage, type EvasionRoll, type MonsterAttackRoll, type MonsterDamageRoll, type Rng } from './encounter';
 import { hexDistance } from './hexmap';
-import { generateSeaMap, isDestination, islandOutcome, markExplored, seaHexAt, stepShip, type IslandOutcome, type SeaMap } from './seamap';
-import { CARGO, FLEET_MAX, GOODS, HULL, SHIP_EVASION, SHIPS, type Ship } from './ships';
+import { driftMarkets, generateSeaMap, isDestination, islandOutcome, markExplored, seaHexAt, stepShip, type IslandOutcome, type SeaMap } from './seamap';
+import { CARGO, CREW_NEEDED, FLEET_MAX, GOODS, HULL, SHIP_EVASION, SHIPS, type Ship } from './ships';
 
 export { HULL, SHIP_EVASION, SHIPS, type Ship };
 
@@ -47,6 +47,8 @@ export interface Voyage {
   pursuit: Pursuit | null;
   /** The hex of the land map the voyage left from ("q,r"), when it began at a settlement. */
   homeHex: string | null;
+  /** Sailors aboard; null = every ship fully manned (an old voyage, or one that has not lost anyone). */
+  crew: number | null;
 }
 
 export interface FleetShip {
@@ -56,6 +58,31 @@ export interface FleetShip {
 
 /** Every ship of the voyage, the flagship first. */
 export const fleetOf = (voyage: Voyage): FleetShip[] => [{ ship: voyage.ship, hull: voyage.hull }, ...voyage.escorts];
+
+/** Sailors the living ships need between them. */
+export function crewNeeded(voyage: Voyage): number {
+  return fleetOf(voyage).reduce((sum, entry) => (entry.hull > 0 ? sum + CREW_NEEDED[entry.ship] : sum), 0);
+}
+
+export const crewAboard = (voyage: Voyage): number => voyage.crew ?? crewNeeded(voyage);
+
+export const undermanned = (voyage: Voyage): boolean => crewAboard(voyage) < crewNeeded(voyage);
+
+/** A short-handed fleet fights and sails worse (−2); a full complement gives a steady hand (+1). */
+export const crewModifier = (voyage: Voyage): number => (undermanned(voyage) ? -2 : 1);
+
+/** Sailors lost in a fight; the fleet is short-handed until it hires more. */
+export function loseCrew(voyage: Voyage, count = 1): Voyage {
+  return { ...voyage, crew: Math.max(0, crewAboard(voyage) - Math.max(0, count)) };
+}
+
+/** Signs sailors on in a harbour, never past what the fleet needs; the fee is the caller's affair. Null when nothing can be hired. */
+export function hireCrew(voyage: Voyage, count: number): Voyage | null {
+  const room = crewNeeded(voyage) - crewAboard(voyage);
+  const hired = Math.min(Math.floor(count), room);
+  if (!inPort(voyage) || voyage.wrecked || voyage.arrived || hired <= 0) return null;
+  return { ...voyage, crew: crewAboard(voyage) + hired };
+}
 
 /** Crates the holds of the living ships take. */
 export function cargoCapacity(voyage: Voyage): number {
@@ -126,7 +153,7 @@ export function pickSeaMonster(monsters: Monster[], level: number, rng: Rng = Ma
 export function setSail(ship: Ship, level: number, rng: Rng = Math.random, from?: { homeHex?: string; homeSettlement?: string }): Voyage {
   const sea = generateSeaMap(rng, from?.homeSettlement);
   const distance = hexDistance(sea.origin, sea.destination);
-  return { ship, distance, progress: 0, day: 0, hull: HULL[ship], supplies: FULL_SUPPLIES, weather: null, encounter: null, arrived: false, wrecked: false, level, sea, moves: 0, hunger: 0, escorts: [], cargo: GOODS.map(() => 0), pursuit: null, homeHex: from?.homeHex ?? null };
+  return { ship, distance, progress: 0, day: 0, hull: HULL[ship], supplies: FULL_SUPPLIES, weather: null, encounter: null, arrived: false, wrecked: false, level, sea, moves: 0, hunger: 0, escorts: [], cargo: GOODS.map(() => 0), pursuit: null, homeHex: from?.homeHex ?? null, crew: null };
 }
 
 export interface DayReport {
@@ -142,8 +169,10 @@ export interface DayReport {
 export function sailDay(voyage: Voyage, monsters: Monster[], rng: Rng = Math.random): DayReport {
   if (voyage.arrived || voyage.wrecked) return { voyage, stormDamage: 0 };
   const weather = weatherFor(die(6, rng));
-  const stormDamage = weather === 'storm' ? die(3, rng) : 0;
-  const stormed = fleetOf(voyage).map((entry, index) => ({ ...entry, hull: weather === 'storm' ? entry.hull - (index === 0 ? stormDamage : die(3, rng)) : entry.hull }));
+  // a short-handed crew cannot trim the sails in a storm: one more point off every hull
+  const handsShort = undermanned(voyage) ? 1 : 0;
+  const stormDamage = weather === 'storm' ? die(3, rng) + handsShort : 0;
+  const stormed = fleetOf(voyage).map((entry, index) => ({ ...entry, hull: weather === 'storm' ? entry.hull - (index === 0 ? stormDamage : die(3, rng) + handsShort) : entry.hull }));
   const progress = voyage.sea ? voyage.progress : Math.min(voyage.distance, voyage.progress + headway(weather));
   const hunger = voyage.supplies === 0 ? Math.min(HUNGER_MAX, voyage.hunger + 1) : voyage.hunger;
   let encounter: Voyage['encounter'] = null;
@@ -160,7 +189,7 @@ export function sailDay(voyage: Voyage, monsters: Monster[], rng: Rng = Math.ran
   const fleeted = withFleet(voyage, stormed);
   return {
     stormDamage,
-    voyage: { ...fleeted, day: voyage.day + 1, weather, progress, supplies: Math.max(0, voyage.supplies - 1), hunger, moves: voyage.sea ? headway(weather) : 0, encounter, pursuit, arrived: !voyage.sea && !fleeted.wrecked && progress >= voyage.distance },
+    voyage: { ...fleeted, sea: fleeted.sea ? driftMarkets(fleeted.sea, rng) : fleeted.sea, day: voyage.day + 1, weather, progress, supplies: Math.max(0, voyage.supplies - 1), hunger, moves: voyage.sea ? headway(weather) : 0, encounter, pursuit, arrived: !voyage.sea && !fleeted.wrecked && progress >= voyage.distance },
   };
 }
 
@@ -169,7 +198,7 @@ export function repairDay(voyage: Voyage, rng: Rng = Math.random): Voyage {
   if (voyage.arrived || voyage.wrecked) return voyage;
   const hunger = voyage.supplies === 0 ? Math.min(HUNGER_MAX, voyage.hunger + 1) : voyage.hunger;
   const mended = withFleet(voyage, fleetOf(voyage).map((entry) => ({ ...entry, hull: entry.hull > 0 ? Math.min(HULL[entry.ship], entry.hull + die(3, rng)) : 0 })));
-  return { ...mended, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hunger, supplies: Math.max(0, voyage.supplies - 1) };
+  return { ...mended, sea: mended.sea ? driftMarkets(mended.sea, rng) : mended.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hunger, supplies: Math.max(0, voyage.supplies - 1) };
 }
 
 /** A hull takes a blow (from a monster, a reef or a broadside); the ship is lost at 0. `target` is its place in the fleet, the flagship being 0. */
@@ -215,9 +244,9 @@ export function inPort(voyage: Voyage): boolean {
 }
 
 /** A day alongside: the hull is mended, the hold filled and the crew fed, but no headway is made. */
-export function dayInPort(voyage: Voyage): Voyage {
+export function dayInPort(voyage: Voyage, rng: Rng = Math.random): Voyage {
   if (!inPort(voyage) || voyage.wrecked || voyage.arrived) return voyage;
-  return { ...voyage, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
+  return { ...voyage, sea: voyage.sea ? driftMarkets(voyage.sea, rng) : voyage.sea, day: voyage.day + 1, weather: null, encounter: null, moves: 0, hull: HULL[voyage.ship], escorts: voyage.escorts.map((entry) => ({ ...entry, hull: HULL[entry.ship] })), supplies: FULL_SUPPLIES, hunger: 0 };
 }
 
 export interface IslandReport {
@@ -272,7 +301,7 @@ export function attackShip(voyage: Voyage, section: MonsterSection, fixed: boole
   const hit = fixed ? attackHits(attack, evasion.value) : resolveAttack(attack, evasion);
   const damage = hit ? rollMonsterDamage(section, fixed, rng) : null;
   const hullLost = damage ? hullDamageFrom(damage.total) : 0;
-  return { attack, evasion, hit, damage, hullLost, voyage: hullLost > 0 ? hullBlow(voyage, hullLost, target) : voyage };
+  return { attack, evasion, hit, damage, hullLost, voyage: hullLost > 0 ? loseCrew(hullBlow(voyage, hullLost, target), 1) : voyage };
 }
 
 // ---- a fleet and its cargo ----
@@ -286,7 +315,8 @@ export function harbourHere(voyage: Voyage) {
 /** A hull bought at the quay joins the fleet at full strength; the fleet holds FLEET_MAX ships at most. */
 export function addShip(voyage: Voyage, ship: Ship): Voyage | null {
   if (!inPort(voyage) || voyage.wrecked || voyage.arrived || voyage.escorts.length + 1 >= FLEET_MAX) return null;
-  return { ...voyage, escorts: [...voyage.escorts, { ship, hull: HULL[ship] }] };
+  // the new hull comes without sailors: pin the crew at what it is now, and the fleet is short-handed until it hires
+  return { ...voyage, crew: crewAboard(voyage), escorts: [...voyage.escorts, { ship, hull: HULL[ship] }] };
 }
 
 /** Loads crates of one good (GOODS index) if the holds take them; the price is the caller's affair. */
@@ -304,7 +334,7 @@ export function unloadGoods(voyage: Voyage, good: number, units: number): Voyage
 /** A ship taken in a boarding joins the fleet if there is room; the crates found are stowed as far as the holds allow. */
 export function claimPrize(voyage: Voyage, prize: { goods: number[]; ship: FleetShip | null }): Voyage {
   let next: Voyage = voyage.pursuit ? { ...voyage, pursuit: { ...voyage.pursuit, state: 'taken' } } : voyage;
-  if (prize.ship && next.escorts.length + 1 < FLEET_MAX) next = { ...next, escorts: [...next.escorts, prize.ship] };
+  if (prize.ship && next.escorts.length + 1 < FLEET_MAX) next = { ...next, crew: crewAboard(next), escorts: [...next.escorts, prize.ship] };
   prize.goods.forEach((units, good) => {
     const room = cargoCapacity(next) - cargoLoad(next);
     if (units > 0 && room > 0) next = loadGoods(next, good, Math.min(units, room)) ?? next;

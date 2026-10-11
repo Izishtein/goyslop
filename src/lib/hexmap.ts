@@ -253,6 +253,15 @@ export function generateHexMap(options: GenerateOptions): HexMap {
   return { hexes: placed, party: { q: 0, r: 0 }, rations: START_RATIONS, fatigue: 0, patches: [{ q: 0, r: 0 }], level: options.level, factions: [], relations: [] };
 }
 
+/**
+ * Landfall: the party steps ashore in a new land. A fresh patch of 19 hexes whose centre is the harbour town
+ * (of the kind the quay belonged to), with the party in it, fed and rested. The old land stays behind.
+ */
+export function landfall(options: GenerateOptions, settlement: SettlementKind): HexMap {
+  const map = generateHexMap(options);
+  return { ...map, hexes: map.hexes.map((hex) => (hex.q === 0 && hex.r === 0 ? { ...hex, feature: { kind: 'settlement' as const, settlement } } : hex)) };
+}
+
 // ---- growing the map ----
 
 /** Where the next patch of 19 sits from a patch's centre: five hexes away, so the patches fit edge to edge. */

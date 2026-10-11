@@ -21,6 +21,12 @@ export const CARGO: Record<Ship, number> = { boat: 4, cog: 10, galleon: 24 };
 /** What a shipwright asks for a hull, in G. */
 export const SHIP_PRICE: Record<Ship, number> = { boat: 3000, cog: 15000, galleon: 60000 };
 
+/** Sailors a ship needs to be sailed properly. */
+export const CREW_NEEDED: Record<Ship, number> = { boat: 2, cog: 6, galleon: 14 };
+
+/** What a sailor asks to sign on, in G (paid once). */
+export const HIRE_FEE = 25;
+
 /** A fleet never grows past this many ships. */
 export const FLEET_MAX = 3;
 

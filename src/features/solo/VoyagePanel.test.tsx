@@ -9,6 +9,7 @@ import { EMPTY_CAMPAIGN } from '../../lib/campaign';
 import { EMPTY_ENCOUNTER } from '../../lib/encounter';
 import { HULL, setSail, type Voyage } from '../../lib/voyage';
 import { dungeonAtom } from '../../state/dungeon';
+import { hexMapAtom } from '../../state/hexmap';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { campaignAtom } from '../../state/campaign';
 import { encounterAtom } from '../../state/encounter';
@@ -211,5 +212,53 @@ describe('VoyagePanel', () => {
 
     await user.click(screen.getByRole('button', { name: 'Finish' }));
     expect(store.get(voyageAtom)).toBeNull();
+  });
+});
+
+describe('VoyagePanel crew and landfall', () => {
+  it('shows the crew, and a ship bought at the quay is short-handed until sailors are hired', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel(setSail('cog', 1), { ...hero(), currency: { cash: 5000, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    expect(screen.getByText(/Crew 6\/6\./)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Buy the ship' }));
+    expect(screen.getByText(/Crew 6\/8\. Short-handed/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Hire a sailor (25 G)' }));
+    expect(store.get(voyageAtom)!.crew).toBe(7);
+    expect(store.get(charactersAtom)[0].currency.cash).toBe(2000 - 25);
+
+    await user.click(screen.getByRole('button', { name: 'Hire 1 to a full crew (25 G)' }));
+    expect(store.get(voyageAtom)!.crew).toBe(8);
+    expect(screen.queryByText(/Short-handed/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Hire a sailor/ })).not.toBeInTheDocument();
+  });
+
+  it('will not hire what the purse cannot pay', () => {
+    renderPanel({ ...setSail('cog', 1), crew: 3 }, { ...hero(), currency: { cash: 40, savings: 0, debt: 0, spendingLog: '' } } as Character);
+    expect(screen.getByRole('button', { name: 'Hire a sailor (25 G)' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Hire 3 to a full crew (75 G)' })).toBeDisabled();
+  });
+
+  it('lands in a new country: a fresh land map around the harbour town, the voyage put away; it asks first', async () => {
+    const user = userEvent.setup();
+    const voyage = setSail('cog', 2);
+    const arrived = { ...voyage, arrived: true, sea: { ...voyage.sea!, ship: { ...voyage.sea!.destination } } };
+    const store = renderPanel(arrived);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Land in the new country' })).toBeEnabled());
+
+    await user.click(screen.getByRole('button', { name: 'Land in the new country' }));
+    expect(store.get(voyageAtom)).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Stay aboard' }));
+    expect(screen.getByRole('button', { name: 'Land in the new country' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Land in the new country' }));
+    await user.click(screen.getByRole('button', { name: 'Go ashore' }));
+
+    expect(store.get(voyageAtom)).toBeNull();
+    const land = store.get(hexMapAtom);
+    expect(land.party).toEqual({ q: 0, r: 0 });
+    expect(land.hexes.find((hex) => hex.q === 0 && hex.r === 0)?.feature.kind).toBe('settlement');
   });
 });

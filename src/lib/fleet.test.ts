@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import raw from '../data/monsters/monsters.json';
 import type { Monster } from '../data/monsters/types';
-import { hexDistance } from './hexmap';
-import { CARGO, FLEET_MAX, GOODS, GOOD_PRICE, goodPrice, HULL, priceFactor } from './ships';
-import { addShip, attackShip, cargoCapacity, cargoLoad, claimPrize, fleetOf, harbourHere, hullBlow, loadGoods, repairDay, sailDay, sailTo, setSail, unloadGoods, withFleet } from './voyage';
+import { generateHexMap, hexDistance, landfall } from './hexmap';
+import { driftMarkets } from './seamap';
+import { CARGO, CREW_NEEDED, FLEET_MAX, GOODS, GOOD_PRICE, goodPrice, HULL, priceFactor } from './ships';
+import { addShip, attackShip, cargoCapacity, cargoLoad, claimPrize, crewAboard, crewModifier, crewNeeded, dayInPort, fleetOf, harbourHere, hireCrew, hullBlow, loadGoods, loseCrew, repairDay, sailDay, sailTo, setSail, undermanned, unloadGoods, withFleet } from './voyage';
 
 const monsters = raw as unknown as Monster[];
 const faces = (...values: number[]) => () => (values.shift()! - 1) / 6;
@@ -78,7 +79,7 @@ describe('a fleet', () => {
 
     // weather 1 (storm), flagship d3 = 1, encounter d6 = 6 (nothing), escort d3 rolled before that
     const gale = sailDay(addShip(start(), 'boat')!, monsters, faces(1, 1, 3, 6)).voyage;
-    expect(gale.hull).toBe(HULL.cog - 1);
+    expect(gale.hull).toBe(HULL.cog - 2); // the new boat has no sailors: the short-handed fleet loses one point more
     expect(gale.escorts[0].hull).toBeLessThan(HULL.boat);
   });
 
@@ -155,3 +156,80 @@ describe('a sail in the day', () => {
   });
 });
 
+
+describe('markets drift', () => {
+  const harbourMarket = (voyage: ReturnType<typeof start>) => voyage.sea!.hexes.filter((hex) => hex.market).map((hex) => hex.market!);
+  const constant = (value: number) => () => (value - 0.5) / 6;
+
+  it('slips a price down on a die of 1, up on a 6, and leaves it on 2–5', () => {
+    const sea = { ...start().sea!, hexes: [{ q: 0, r: 0, kind: 'port' as const, seen: true, visited: true, market: [3, 3, 3, 1, 6, 3] }] };
+    expect(driftMarkets(sea, constant(1)).hexes[0].market).toEqual([2, 2, 2, 1, 5, 2]);
+    expect(driftMarkets(sea, constant(6)).hexes[0].market).toEqual([4, 4, 4, 2, 6, 4]);
+    expect(driftMarkets(sea, constant(3)).hexes[0].market).toEqual([3, 3, 3, 1, 6, 3]);
+  });
+
+  it('moves every harbour every day at sea, in a day of repairs and in a day alongside', () => {
+    const voyage = start();
+    const before = harbourMarket(voyage);
+    const afterRepair = repairDay({ ...voyage, hull: 3 }, constant(6));
+    expect(harbourMarket(afterRepair)).not.toEqual(before);
+    expect(harbourMarket(afterRepair).every((market) => market.every((roll) => roll >= 1 && roll <= 6))).toBe(true);
+    const home = { ...voyage, sea: { ...voyage.sea!, ship: { ...voyage.sea!.origin } } };
+    expect(harbourMarket(dayInPort(home, constant(1)))).not.toEqual(before);
+  });
+});
+
+describe('the crew', () => {
+  const docked = () => {
+    const voyage = start();
+    return { ...voyage, sea: { ...voyage.sea!, ship: { ...voyage.sea!.origin } } };
+  };
+
+  it('starts fully manned, and a new hull comes without sailors', () => {
+    const voyage = docked();
+    expect(crewAboard(voyage)).toBe(CREW_NEEDED.cog);
+    expect(undermanned(voyage)).toBe(false);
+    const bigger = addShip(voyage, 'boat')!;
+    expect(crewNeeded(bigger)).toBe(CREW_NEEDED.cog + CREW_NEEDED.boat);
+    expect(crewAboard(bigger)).toBe(CREW_NEEDED.cog);
+    expect(undermanned(bigger)).toBe(true);
+  });
+
+  it('steadies a full crew (+1) and hampers a short one (−2)', () => {
+    const voyage = docked();
+    expect(crewModifier(voyage)).toBe(1);
+    expect(crewModifier(loseCrew(voyage, 1))).toBe(-2);
+  });
+
+  it('loses sailors but never below none', () => {
+    expect(crewAboard(loseCrew(docked(), 2))).toBe(CREW_NEEDED.cog - 2);
+    expect(crewAboard(loseCrew(docked(), 99))).toBe(0);
+  });
+
+  it('hires in a harbour, never past what the fleet needs, and nowhere else', () => {
+    const short = loseCrew(docked(), 4);
+    expect(crewAboard(hireCrew(short, 2)!)).toBe(CREW_NEEDED.cog - 2);
+    expect(crewAboard(hireCrew(short, 99)!)).toBe(CREW_NEEDED.cog);
+    expect(hireCrew(docked(), 1)).toBeNull(); // nobody is missing
+    const atSea = { ...short, sea: { ...short.sea!, ship: { q: 0, r: 0 } } };
+    expect(hireCrew(atSea, 1)).toBeNull();
+  });
+
+  it('makes a storm cost a short-handed fleet one more point of hull', () => {
+    const full = sailDay(docked(), monsters, faces(1, 2, 6, 1, 1, 1, 1, 1, 1, 1)).voyage;
+    const short = sailDay(loseCrew(docked(), 3), monsters, faces(1, 2, 6, 1, 1, 1, 1, 1, 1, 1)).voyage;
+    expect(short.hull).toBe(full.hull - 1);
+  });
+});
+
+describe('landfall', () => {
+  it('puts the party in a fresh land, in the town of the harbour, with food in the packs', () => {
+    const map = landfall({ level: 4, monsters, rng: seeded(11) }, 'fortress');
+    const centre = map.hexes.find((hex) => hex.q === 0 && hex.r === 0)!;
+    expect(centre.feature).toEqual({ kind: 'settlement', settlement: 'fortress' });
+    expect(map.party).toEqual({ q: 0, r: 0 });
+    expect(map.hexes).toHaveLength(generateHexMap({ level: 4, monsters, rng: seeded(11) }).hexes.length);
+    expect(map.rations).toBeGreaterThan(0);
+    expect(map.level).toBe(4);
+  });
+});

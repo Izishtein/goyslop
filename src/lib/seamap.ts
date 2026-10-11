@@ -52,6 +52,26 @@ function harbour(rng: Rng, settlement?: string): Partial<SeaHex> {
   return { kind: 'port', name: die(SEA_NAME_COUNT, rng), settlement: settlement ?? harbourTown(die(6, rng)), market: GOODS.map(() => die(6, rng)) };
 }
 
+/**
+ * A day passes in the markets: each good's d6 slips one step with a die of 1 (cheaper) or 6 (dearer), and
+ * stays put otherwise, so prices wander slowly and a trader can profit from a long haul.
+ */
+export function driftMarkets(map: SeaMap, rng: Rng = Math.random): SeaMap {
+  return {
+    ...map,
+    hexes: map.hexes.map((hex) => {
+      if (!hex.market) return hex;
+      return {
+        ...hex,
+        market: hex.market.map((roll) => {
+          const d = die(6, rng);
+          return d === 1 ? Math.max(1, roll - 1) : d === 6 ? Math.min(6, roll + 1) : roll;
+        }),
+      };
+    }),
+  };
+}
+
 export function seaHexAt(map: SeaMap, q: number, r: number): SeaHex | undefined {
   return map.hexes.find((hex) => hex.q === q && hex.r === r);
 }
