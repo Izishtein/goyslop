@@ -41,6 +41,7 @@ import { GeneratorsPanel } from './GeneratorsPanel';
 import { HexMapPanel } from './HexMapPanel';
 import { VoyagePanel } from './VoyagePanel';
 import { AdventurePanel } from './AdventurePanel';
+import { MonsterIntent } from './MonsterIntent';
 import { OraclePanel } from './OraclePanel';
 import { PartyPanel } from './PartyPanel';
 import styles from './SoloView.module.css';
@@ -273,6 +274,8 @@ function MonsterCard({
           </div>
         );
       })}
+
+      {!defeated && <MonsterIntent label={instance.label} />}
 
       <label className={styles.inline}>
         <input type="checkbox" checked={magic} onChange={(e) => setMagic(e.target.checked)} />

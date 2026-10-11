@@ -1088,6 +1088,32 @@
       },
       "enemies": "Enemies in the module",
       "keep": "Field {{count}} of them (the rest: weaker, or fewer HP and damage)."
+    },
+    "intent": {
+      "button": "What does it do now?",
+      "ask": "What does {{label}} do now?",
+      "harder": "and harder",
+      "extra": "an extra action",
+      "answer": {
+        "exceptionalYes": "It carries on, fiercely",
+        "yes": "It carries on",
+        "no": "It changes its plan",
+        "exceptionalNo": "It does something quite different"
+      },
+      "actions": {
+        "1": "attacks whoever is nearest",
+        "2": "goes for the weakest or wounded",
+        "3": "goes for the spellcaster",
+        "4": "uses a special ability",
+        "5": "holds its ground and defends",
+        "6": "moves to flank or take cover",
+        "7": "calls for help",
+        "8": "taunts or frightens",
+        "9": "grabs, trips or disarms",
+        "10": "falls back a step",
+        "11": "flees",
+        "12": "ignores the heroes and goes for its goal"
+      }
     }
   },
   "guide": {
