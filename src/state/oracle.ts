@@ -5,6 +5,7 @@ import {
   ADJUSTMENT_COUNT,
   CONNECTOR_COUNT,
   CHAOS_FLAVORS,
+  ORACLE_METHODS,
   PLAY_STYLES,
   THEME_WORDS,
   THEMES,
@@ -44,6 +45,13 @@ const EntrySchema = z.discriminatedUnion('kind', [
     answer: z.enum(['exceptionalYes', 'yes', 'no', 'exceptionalNo']),
     event: EventSchema.nullable(),
     asRule: z.boolean().optional(),
+    fate: z
+      .object({
+        dice: z.tuple([z.number().int(), z.number().int()]),
+        modifier: z.number().int(),
+        total: z.number().int(),
+      })
+      .optional(),
   }),
   z.object({
     ...base,
@@ -115,6 +123,7 @@ const OracleSchema = z.object({
   scene: z.number().int().min(0).default(0),
   chaosMode: z.enum(CHAOS_MODES).default('normal'),
   chaosFlavor: z.enum(CHAOS_FLAVORS).default('full'),
+  method: z.enum(ORACLE_METHODS).default('table'),
   style: z.enum(PLAY_STYLES).default('simulation'),
   ruleMode: z.boolean().default(false),
   log: z.array(EntrySchema).max(LOG_LIMIT).default(() => []),

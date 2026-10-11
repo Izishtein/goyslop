@@ -245,6 +245,38 @@ export interface AskOptions extends EventOptions {
   flavor?: ChaosFlavor;
 }
 
+/**
+ * The other way to answer: two d10 and a sum. The likelihood and the chaos each add a modifier;
+ * 11 or more is a yes, 18 or more an exceptional yes, 4 or less an exceptional no. Doubles whose
+ * digit is within the chaos bring an event. Quicker than a table, and the extremes come up more often.
+ */
+export const ORACLE_METHODS = ['table', 'fate'] as const;
+export type OracleMethod = (typeof ORACLE_METHODS)[number];
+
+const FATE_LIKELIHOOD: Record<Likelihood, number> = { impossible: -5, veryUnlikely: -3, unlikely: -2, even: 0, likely: 2, veryLikely: 3, certain: 5 };
+const FATE_CHAOS_SCALE: Record<ChaosFlavor, number> = { full: 1, mild: 0.6, none: 0 };
+export const FATE_YES = 11;
+export const FATE_EXCEPTIONAL_YES = 18;
+export const FATE_EXCEPTIONAL_NO = 4;
+
+export interface FateRoll {
+  dice: [number, number];
+  /** Likelihood plus chaos. */
+  modifier: number;
+  total: number;
+}
+
+export function fateModifier(likelihood: Likelihood, chaos: number, flavor: ChaosFlavor = 'full'): number {
+  return FATE_LIKELIHOOD[likelihood] + Math.round((clampChaos(chaos) - CHAOS_START) * FATE_CHAOS_SCALE[flavor]);
+}
+
+export function fateAnswer(total: number): Answer {
+  if (total >= FATE_EXCEPTIONAL_YES) return 'exceptionalYes';
+  if (total >= FATE_YES) return 'yes';
+  if (total <= FATE_EXCEPTIONAL_NO) return 'exceptionalNo';
+  return 'no';
+}
+
 export interface OracleAnswer {
   kind: 'question';
   likelihood: Likelihood;
@@ -256,6 +288,8 @@ export interface OracleAnswer {
   event: RandomEvent | null;
   /** Asked as a rule substitute: chaos 5, plain yes/no, no event. */
   asRule?: boolean;
+  /** Present when the answer came from two d10 rather than the table. */
+  fate?: FateRoll;
 }
 
 export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: AskOptions = {}): OracleAnswer {
@@ -279,6 +313,31 @@ export function askOracle(likelihood: Likelihood, chaos: number, rng: Rng = Math
 }
 
 /** "bonusEvent": a prepared adventure's scene is never bent, but the check still brings an extra event. */
+/** The two-d10 way (see ORACLE_METHODS). Rule mode and the weight of chaos apply as they do for the table. */
+export function askFate(likelihood: Likelihood, chaos: number, rng: Rng = Math.random, options: AskOptions = {}): OracleAnswer {
+  const used = options.asRule ? CHAOS_START : chaos;
+  const flavor = options.flavor ?? 'full';
+  const first = rollDie(10, rng);
+  const second = rollDie(10, rng);
+  const modifier = fateModifier(likelihood, used, flavor);
+  const total = first + second + modifier;
+  let answer = fateAnswer(total);
+  if (options.asRule) answer = answer === 'exceptionalYes' ? 'yes' : answer === 'exceptionalNo' ? 'no' : answer;
+  const eventDigit = flavor === 'none' ? CHAOS_START : clampChaos(used);
+  const event = !options.asRule && first === second && first <= eventDigit ? rollEvent(rng, options) : null;
+  return {
+    kind: 'question',
+    likelihood,
+    chaos: clampChaos(used),
+    chance: 0,
+    roll: first + second,
+    answer,
+    event,
+    fate: { dice: [first, second], modifier, total },
+    ...(options.asRule ? { asRule: true } : {}),
+  };
+}
+
 export type SceneTwist = 'expected' | 'altered' | 'interrupted' | 'bonusEvent';
 
 export interface SceneCheck {
@@ -382,13 +441,14 @@ export interface OracleState {
   scene: number;
   chaosMode: ChaosMode;
   chaosFlavor: ChaosFlavor;
+  method: OracleMethod;
   style: PlayStyle;
   /** Questions are answered as a rule substitute (neutral chaos, no exceptional answers, no events). */
   ruleMode: boolean;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', style: 'simulation', ruleMode: false, log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', method: 'table', style: 'simulation', ruleMode: false, log: [] };
 
 /** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
 export const CHOOSE_FOCUS_EVERY = 5;

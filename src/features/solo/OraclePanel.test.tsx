@@ -285,3 +285,20 @@ describe('OraclePanel opening', () => {
     expect(screen.queryByRole('button', { name: /Begin the adventure/ })).not.toBeInTheDocument();
   });
 });
+
+describe('OraclePanel two-d10 answers', () => {
+  it('switches the method, shows the modifier and logs the dice', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.55); // each d10 = 6 → 12, no doubles event (6 > 5? 6 is within no: chaos 5)
+    const store = renderPanel();
+
+    await user.selectOptions(screen.getByLabelText('Answer by'), 'fate');
+    expect(store.get(oracleAtom).method).toBe('fate');
+    expect(screen.getByText(/modifier 0; yes at 11\+/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Ask the oracle' }));
+
+    const log = screen.getByRole('list', { name: 'Oracle log' });
+    expect(log).toHaveTextContent('2d10 = 6+6, modifier 0 → 12');
+    expect(log).toHaveTextContent('Yes');
+  });
+});

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   answerFor,
+  askFate,
   askOracle,
+  fateAnswer,
+  fateModifier,
   chaosAfterScene,
   checkScene,
   clampChaos,
@@ -269,5 +272,43 @@ describe('opening an adventure', () => {
 
   it('starts the first scene with no check', () => {
     expect(openingScene(7)).toMatchObject({ scene: 1, chaos: 7, roll: 0, twist: 'expected', event: null });
+  });
+});
+
+describe('answering with two d10', () => {
+  /** The fraction that makes a d10 land on `n`. */
+  const d10 = (n: number) => (n - 0.5) / 10;
+
+  it('adds the likelihood and the chaos to the sum', () => {
+    expect(fateModifier('even', 5)).toBe(0);
+    expect(fateModifier('likely', 9)).toBe(6);
+    expect(fateModifier('unlikely', 1)).toBe(-6);
+    expect(fateModifier('likely', 9, 'none')).toBe(2);
+    expect(fateModifier('even', 9, 'mild')).toBe(2);
+  });
+
+  it('reads the total: 11 yes, 18 exceptional yes, 4 exceptional no', () => {
+    expect(fateAnswer(10)).toBe('no');
+    expect(fateAnswer(11)).toBe('yes');
+    expect(fateAnswer(17)).toBe('yes');
+    expect(fateAnswer(18)).toBe('exceptionalYes');
+    expect(fateAnswer(5)).toBe('no');
+    expect(fateAnswer(4)).toBe('exceptionalNo');
+  });
+
+  it('keeps the dice, the modifier and the total in the answer', () => {
+    const answer = askFate('likely', 5, sequence(d10(4), d10(8)));
+    expect(answer).toMatchObject({ answer: 'yes', roll: 12, fate: { dice: [4, 8], modifier: 2, total: 14 }, event: null });
+  });
+
+  it('brings an event on doubles within the chaos', () => {
+    expect(askFate('even', 5, sequence(d10(3), d10(3), 0, 0, 0)).event).not.toBeNull();
+    expect(askFate('even', 5, sequence(d10(7), d10(7), 0, 0, 0)).event).toBeNull(); // 7 is above the chaos
+    expect(askFate('even', 5, sequence(d10(3), d10(4), 0, 0, 0)).event).toBeNull(); // not doubles
+  });
+
+  it('as a rule: neutral chaos, no exceptional answers, no events', () => {
+    const answer = askFate('even', 9, sequence(d10(10), d10(10), 0, 0, 0), { asRule: true });
+    expect(answer).toMatchObject({ answer: 'yes', event: null, asRule: true, chaos: 5 });
   });
 });

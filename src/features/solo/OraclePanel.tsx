@@ -5,6 +5,7 @@ import { isEventSource, raiseWeights, updateEntry } from '../../lib/campaign';
 import { plotArmor } from '../../lib/thread';
 import { advanceScene } from '../../lib/keyed';
 import {
+  askFate,
   askOracle,
   CHAOS_FLAVORS,
   CHAOS_MODES,
@@ -14,11 +15,14 @@ import {
   clampChaos,
   EMPTY_ORACLE,
   eventChance,
+  fateModifier,
   FOCUS_COUNT,
   FOCUS_FEATURE,
   interruptScene,
   LIKELIHOODS,
   openingScene,
+  ORACLE_METHODS,
+  type OracleMethod,
   rollOpening,
   type OpeningEntry,
   PLAY_STYLES,
@@ -56,6 +60,8 @@ import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
 type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry | OpeningEntry;
+
+const signed = (value: number): string => (value > 0 ? `+${value}` : String(value));
 
 function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
   const { t } = useTranslation();
@@ -101,7 +107,9 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
       <li>
         <p>
           <strong>{t(`solo.oracle.answer.${entry.answer}`)}</strong> · {t(`solo.oracle.likelihood.${entry.likelihood}`)}, {t('solo.oracle.chaos', { chaos: entry.chaos })},{' '}
-          {t('solo.oracle.rollLine', { roll: entry.roll, chance: entry.chance })}
+          {entry.fate
+            ? t('solo.oracle.fateLine', { a: entry.fate.dice[0], b: entry.fate.dice[1], modifier: signed(entry.fate.modifier), total: entry.fate.total })
+            : t('solo.oracle.rollLine', { roll: entry.roll, chance: entry.chance })}
           {entry.asRule && ` · ${t('solo.oracle.asRuleTag')}`}
         </p>
         {entry.event && <EventLine event={entry.event} />}
@@ -277,7 +285,7 @@ export function OraclePanel() {
         <span className={styles.numeric}>{t('solo.oracle.eventChance', { chance: eventChance(oracle.chaos, oracle.chaosFlavor) })}</span>
         <button
           type="button"
-          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, style: state.style, ruleMode: state.ruleMode }))}
+          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, method: state.method, style: state.style, ruleMode: state.ruleMode }))}
           disabled={oracle.log.length === 0 && oracle.scene === 0 && oracle.chaos === 5}
         >
           {t('solo.oracle.reset')}
@@ -295,12 +303,26 @@ export function OraclePanel() {
             ))}
           </select>
         </label>
-        <span className={styles.numeric}>{t('solo.oracle.yesChance', { chance: yesChance(likelihood, oracle.chaos, oracle.chaosFlavor) })}</span>
+        <label>
+          {t('solo.oracle.method')}
+          <select value={oracle.method} onChange={(e) => setOracle((state) => ({ ...state, method: e.target.value as OracleMethod }))}>
+            {ORACLE_METHODS.map((entry) => (
+              <option key={entry} value={entry}>
+                {t(`solo.oracle.methods.${entry}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <span className={styles.numeric}>
+          {oracle.method === 'fate'
+            ? t('solo.oracle.fateModifier', { modifier: signed(fateModifier(likelihood, oracle.chaos, oracle.chaosFlavor)) })
+            : t('solo.oracle.yesChance', { chance: yesChance(likelihood, oracle.chaos, oracle.chaosFlavor) })}
+        </span>
         <label>
           <input type="checkbox" checked={oracle.ruleMode} onChange={(e) => setOracle((state) => ({ ...state, ruleMode: e.target.checked }))} />
           {t('solo.oracle.asRule')}
         </label>
-        <button type="button" onClick={() => setOracle((state) => add(askOracle(likelihood, state.chaos, Math.random, { ...eventOptions(), asRule: state.ruleMode, flavor: state.chaosFlavor }))(state))}>
+        <button type="button" onClick={() => setOracle((state) => add((state.method === 'fate' ? askFate : askOracle)(likelihood, state.chaos, Math.random, { ...eventOptions(), asRule: state.ruleMode, flavor: state.chaosFlavor }))(state))}>
           {t('solo.oracle.ask')}
         </button>
       </div>

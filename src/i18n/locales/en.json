@@ -571,7 +571,14 @@
         "1": "What",
         "2": "Where",
         "3": "Why"
-      }
+      },
+      "method": "Answer by",
+      "methods": {
+        "table": "Table (d100)",
+        "fate": "Two d10"
+      },
+      "fateLine": "2d10 = {{a}}+{{b}}, modifier {{modifier}} → {{total}}",
+      "fateModifier": "modifier {{modifier}}; yes at 11+, strongly at 18+, “no, and badly” at 4−"
     },
     "campaign": {
       "title": "Campaign log",
