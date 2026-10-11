@@ -21,8 +21,12 @@ import { HexMapPanel } from './HexMapPanel';
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 
+/** The store of the panel just rendered: generating a map there drops its rivers, which would otherwise make a step cost a random extra day. */
+let current: ReturnType<typeof createStore> | null = null;
+
 function renderPanel() {
   const store = createStore();
+  current = store;
   store.set(hexMapAtom, EMPTY_HEXMAP);
   store.set(campaignAtom, EMPTY_CAMPAIGN);
   store.set(encounterAtom, EMPTY_ENCOUNTER);
@@ -38,6 +42,7 @@ async function generate(user: ReturnType<typeof userEvent.setup>) {
   const button = screen.getByRole('button', { name: 'Generate a map' });
   await waitFor(() => expect(button).toBeEnabled());
   await user.click(button);
+  if (current) current.set(hexMapAtom, { ...current.get(hexMapAtom), hexes: current.get(hexMapAtom).hexes.map((hex) => ({ ...hex, river: undefined })) });
 }
 
 describe('HexMapPanel', () => {
@@ -59,7 +64,10 @@ describe('HexMapPanel', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter on the road
 
     const reachable = container.querySelectorAll('[data-reachable]');
-    expect(reachable).toHaveLength(6);
+    // the sea beside the village cannot be walked
+    const land = store.get(hexMapAtom).hexes.filter((hex) => Math.max(Math.abs(hex.q), Math.abs(hex.r), Math.abs(-hex.q - hex.r)) === 1 && hex.biome !== 'sea');
+    expect(reachable).toHaveLength(land.length);
+    expect(land.length).toBeLessThan(6);
     await user.click(reachable[0] as Element);
 
     const map = store.get(hexMapAtom);

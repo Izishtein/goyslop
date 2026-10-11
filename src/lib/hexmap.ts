@@ -12,10 +12,15 @@ import type { Faction, RelationEntry } from './factions';
  * monster catalogue (Monstrous Lore) for what lives there, at the party's level.
  */
 
-export const BIOMES = ['grassland', 'forest', 'hills', 'marsh', 'mountains'] as const;
+export const BIOMES = ['grassland', 'forest', 'hills', 'marsh', 'mountains', 'sea'] as const;
 export type Biome = (typeof BIOMES)[number];
 
-export type FeatureKind = 'landmark' | 'settlement' | 'lair' | 'dungeon' | 'empty';
+/** The biomes a party walks on; the sea is crossed by ship. */
+export const LAND_BIOMES = ['grassland', 'forest', 'hills', 'marsh', 'mountains'] as const;
+export const isWater = (biome: Biome): boolean => biome === 'sea';
+
+/** 'island' and 'reef' are features of the sea: a landing to search, a rock that tears a hull. */
+export type FeatureKind = 'landmark' | 'settlement' | 'lair' | 'dungeon' | 'empty' | 'island' | 'reef';
 export const SETTLEMENT_KINDS = ['hamlet', 'village', 'town', 'fortress', 'tower', 'monastery'] as const;
 export type SettlementKind = (typeof SETTLEMENT_KINDS)[number];
 
@@ -47,6 +52,12 @@ export interface Hex {
   camp?: boolean;
   /** The name the campaign log knows this hex by: what the journal's "where the story is" is set to here. */
   place?: string;
+  /** A river runs through the hex: a ford costs the party an extra day unless a settlement stands on it (a bridge). */
+  river?: boolean;
+  /** A harbour's market: one d6 per good (GOODS order), made when a ship first calls and drifting daily. */
+  market?: number[];
+  /** An island already searched. */
+  explored?: boolean;
 }
 
 export interface HexMap {
@@ -122,10 +133,22 @@ export function startBiome(roll: number): Biome {
   return 'mountains';
 }
 
-/** Every further hex tends to continue the land it grows from (d10: 1–4 and 10 the same, then one biome per number). */
+/**
+ * Every further hex tends to continue what it grows from (d10: 1–4 and 10 the same, then one land biome per number).
+ * Water clings together more: out of the sea d10 1–7 stays sea, 8 a grassland shore, 9 a marsh, 10 hills.
+ */
 export function nextBiome(roll: number, previous: Biome): Biome {
+  if (previous === 'sea') return roll <= 7 ? 'sea' : roll === 8 ? 'grassland' : roll === 9 ? 'marsh' : 'hills';
   if (roll <= 4 || roll === 10) return previous;
   return BIOMES[roll - 5];
+}
+
+/** Land that, on a d6 of 6, gives way to sea: about one hex in six becomes water, mostly in clusters since the sea keeps itself. */
+export const SEA_ROLL = 6;
+
+/** What a hex of open water holds: d6, 1 a reef, 2 an island, otherwise nothing but waves. */
+export function seaFeature(roll: number): FeatureKind {
+  return roll === 1 ? 'reef' : roll === 2 ? 'island' : 'empty';
 }
 
 // ---- features ----
@@ -152,6 +175,7 @@ const HABITAT_WORDS: Record<Biome, RegExp> = {
   hills: /hill|highland|wasteland|barren|wilderness|cold region/i,
   marsh: /swamp|marsh|wetland|shallow|river|lake|pond/i,
   mountains: /mountain|cave|alpine|volcano|cold region/i,
+  sea: /sea|ocean|coast|water|reef|deep/i,
 };
 /** Where lairs and dungeons hide, whatever the biome. */
 const UNDERGROUND = /ruin|labyrinth|cave|cemetery|tomb|underground/i;
@@ -208,6 +232,7 @@ function cells(): { q: number; r: number; from: number }[] {
 }
 
 function makeFeature(kind: FeatureKind, biome: Biome, options: GenerateOptions, rng: Rng): HexFeature {
+  if (isWater(biome)) return { kind: seaFeature(die(6, rng)) };
   if (kind === 'landmark') return { kind, landmark: die(LANDMARK_COUNT, rng) };
   if (kind === 'settlement') return { kind, settlement: settlementKind(die(6, rng)) };
   if (kind === 'lair' || kind === 'dungeon') {
@@ -230,17 +255,73 @@ function buildPatch(centre: { q: number; r: number }, options: GenerateOptions, 
   const placed: Hex[] = [];
   for (const cell of cells()) {
     const centreCell = cell.from < 0;
-    const biome = centreCell ? (patch.from ? nextBiome(die(10, rng), patch.from) : startBiome(die(6, rng))) : nextBiome(die(10, rng), placed[cell.from].biome);
+    const parent: Biome | undefined = centreCell ? patch.from : placed[cell.from].biome;
+    let biome = parent === undefined ? startBiome(die(6, rng)) : nextBiome(die(10, rng), parent);
+    // the start of the first patch is always land: it holds the village the party sets out from
     const village = centreCell && patch.start;
+    if (!village && parent !== undefined && !isWater(parent) && !isWater(biome) && die(6, rng) === SEA_ROLL) biome = 'sea';
     const feature: HexFeature = village ? { kind: 'settlement', settlement: 'village' } : makeFeature(featureKind(die(12, rng)), biome, options, rng);
     placed.push({ q: centre.q + cell.q, r: centre.r + cell.r, biome, feature, visited: village, seen: village });
   }
+  if (patch.start) ensureHarbour(placed, options, rng);
   if (!placed.some((hex) => hex.feature.kind === 'dungeon')) {
-    const candidates = placed.filter((hex) => hex.feature.kind === 'landmark' || hex.feature.kind === 'empty');
-    const hex = candidates[Math.floor(rng() * candidates.length)] ?? placed[placed.length - 1];
+    const candidates = placed.filter((hex) => !isWater(hex.biome) && (hex.feature.kind === 'landmark' || hex.feature.kind === 'empty'));
+    const hex = candidates[Math.floor(rng() * candidates.length)] ?? placed.find((entry) => !isWater(entry.biome)) ?? placed[placed.length - 1];
     hex.feature = makeFeature('dungeon', hex.biome, options, rng);
   }
+  if (die(6, rng) <= RIVER_ON) addRiver(placed, rng);
   return placed;
+}
+
+/** A patch has a river on a d6 of this or less. */
+export const RIVER_ON = 4;
+
+/** The start village always has water beside it: if the dice left none, a bay is cut from the ring around it. */
+function ensureHarbour(placed: Hex[], options: GenerateOptions, rng: Rng): void {
+  const centre = placed[0];
+  const ring = placed.filter((hex) => hexDistance(hex, centre) === 1);
+  if (ring.some((hex) => isWater(hex.biome))) return;
+  const shore = ring[Math.floor(rng() * ring.length)];
+  const bay = [shore, ...placed.filter((hex) => hexDistance(hex, centre) === 2 && hexDistance(hex, shore) === 1)];
+  for (const hex of bay) {
+    hex.biome = 'sea';
+    hex.feature = makeFeature('empty', 'sea', options, rng);
+  }
+}
+
+/**
+ * A river for the patch: from the hills or mountains (any land failing those) down to the nearest water of the
+ * patch, one hex at a time, or — with no water in the patch — straight across it in one direction. The hexes it
+ * passes are marked; sea and the start village's hex are not.
+ */
+function addRiver(placed: Hex[], rng: Rng): void {
+  const land = placed.filter((hex) => !isWater(hex.biome));
+  if (land.length === 0) return;
+  const high = land.filter((hex) => hex.biome === 'mountains' || hex.biome === 'hills');
+  const sources = high.length > 0 ? high : land;
+  let at = sources[Math.floor(rng() * sources.length)];
+  const water = placed.filter((hex) => isWater(hex.biome));
+  const target = water.length > 0 ? [...water].sort((a, b) => hexDistance(a, at) - hexDistance(b, at))[0] : undefined;
+  const heading = DIRECTIONS[Math.floor(rng() * 6)];
+  at.river = true;
+  for (let step = 0; step < 8; step += 1) {
+    const options = neighbours(at.q, at.r)
+      .map(([q, r]) => placed.find((hex) => hex.q === q && hex.r === r))
+      .filter((hex): hex is Hex => hex !== undefined && !hex.river);
+    if (options.length === 0) return;
+    let next: Hex | undefined;
+    if (target) {
+      const best = Math.min(...options.map((hex) => hexDistance(hex, target)));
+      const nearest = options.filter((hex) => hexDistance(hex, target) === best);
+      next = nearest[Math.floor(rng() * nearest.length)];
+    } else {
+      const goal = { q: at.q + heading[0] * 3, r: at.r + heading[1] * 3 };
+      next = [...options].sort((a, b) => hexDistance(a, goal) - hexDistance(b, goal))[0];
+    }
+    if (!next || isWater(next.biome)) return;
+    next.river = true;
+    at = next;
+  }
 }
 
 /**
@@ -331,9 +412,19 @@ export function hexAt(map: HexMap, q: number, r: number): Hex | undefined {
   return map.hexes.find((hex) => hex.q === q && hex.r === r);
 }
 
-/** Whether the party can step onto this hex: it is on the map and next to where they stand. */
-export function canMoveTo(map: HexMap, q: number, r: number): boolean {
-  return hexDistance(map.party, { q, r }) === 1 && hexAt(map, q, r) !== undefined;
+/**
+ * Whether the party can walk onto this hex: it is on the map, next to where they stand and land — the sea is
+ * crossed in a ship (lib/voyage.ts), which the party may also step back aboard from the shore (`ship`).
+ */
+export function canMoveTo(map: HexMap, q: number, r: number, ship?: { q: number; r: number } | null): boolean {
+  const target = hexAt(map, q, r);
+  if (!target || hexDistance(map.party, { q, r }) !== 1) return false;
+  return !isWater(target.biome) || (!!ship && ship.q === q && ship.r === r);
+}
+
+/** Whether a river here must be forded: the hex has one and no settlement to bridge it. */
+export function needsFord(hex: Hex | undefined): boolean {
+  return !!hex?.river && hex.feature.kind !== 'settlement';
 }
 
 export interface MoveResult {
@@ -344,6 +435,10 @@ export interface MoveResult {
   hungry: boolean;
   /** A day went by: false for a forced march, which spends fatigue instead of a day. */
   dayPassed: boolean;
+  /** Days the step took: 1, or 2 when a river had to be forded (0 on a forced march). */
+  days: number;
+  /** A river was forded on this step. */
+  forded: boolean;
 }
 
 export interface MoveOptions {
@@ -351,6 +446,8 @@ export interface MoveOptions {
   force?: boolean;
   /** A wandering encounter on a d6 of this or less (the calendar raises it at a full moon). */
   encounterOn?: number;
+  /** Where the party's ship lies: the one water hex it may step onto. */
+  ship?: { q: number; r: number } | null;
 }
 
 /**
@@ -359,7 +456,7 @@ export interface MoveOptions {
  * route. A forced march takes the step without the day: it costs a point of fatigue instead.
  */
 export function moveParty(map: HexMap, q: number, r: number, rng: Rng = Math.random, options: MoveOptions = {}): MoveResult | null {
-  if (!canMoveTo(map, q, r)) return null;
+  if (!canMoveTo(map, q, r, options.ship)) return null;
   if (options.force && map.fatigue >= MAX_FATIGUE) return null;
   const next = neighbours(q, r);
   const hexes = map.hexes.map((hex) => {
@@ -369,18 +466,23 @@ export function moveParty(map: HexMap, q: number, r: number, rng: Rng = Math.ran
   });
   const camped = hexAt(map, q, r)?.camp === true;
   const forced = options.force === true;
-  const hungry = !forced && map.rations <= 0;
+  // A river without a bridge is a day lost at the ford; on a forced march it is a second point of fatigue.
+  const forded = needsFord(hexAt(map, q, r)) && !(options.ship && options.ship.q === q && options.ship.r === r);
+  const days = forced ? 0 : forded ? 2 : 1;
+  const hungry = !forced && map.rations < days;
   return {
     map: {
       ...map,
       hexes,
       party: { q, r },
-      rations: forced ? map.rations : Math.max(0, map.rations - 1),
-      fatigue: forced ? map.fatigue + 1 : map.fatigue,
+      rations: Math.max(0, map.rations - days),
+      fatigue: forced ? Math.min(MAX_FATIGUE, map.fatigue + (forded ? 2 : 1)) : map.fatigue,
     },
     encounter: !camped && die(6, rng) <= (options.encounterOn ?? 1),
     hungry,
     dayPassed: !forced,
+    days,
+    forded,
   };
 }
 

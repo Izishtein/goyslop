@@ -51,7 +51,7 @@ const corners = (x: number, y: number) =>
   }).join(' ');
 
 /** One letter on a visited hex says what is there. */
-const GLYPH: Record<string, string> = { landmark: '◆', settlement: '⌂', lair: '☠', dungeon: '▼', empty: '·' };
+const GLYPH: Record<string, string> = { landmark: '◆', settlement: '⌂', lair: '☠', dungeon: '▼', empty: '·', island: '▲', reef: '≋' };
 
 interface Wandering {
   monster: Monster;
@@ -110,11 +110,11 @@ export function HexMapPanel() {
     const result = moveParty(map, hex.q, hex.r, Math.random, { force, encounterOn: encounterThreshold(date) });
     if (!result) return;
     setMap(result.map);
-    if (result.dayPassed) setCampaign((current) => setDay(current, current.day + 1));
+    if (result.dayPassed) setCampaign((current) => setDay(current, current.day + result.days));
     setLooked(null);
     const entered = hexAt(result.map, hex.q, hex.r);
     if (result.map.followJournal && entered) followJournal(result.map, entered);
-    const parts = [result.hungry ? t('solo.hex.hungry') : ''];
+    const parts = [result.forded ? t(force ? 'solo.hex.fordedForced' : 'solo.hex.forded') : '', result.hungry ? t('solo.hex.hungry') : ''];
     setPatrol(null);
     const holders = entered ? factionsAt(result.map.factions, entered.q, entered.r) : [];
     if (result.encounter && holders.length > 0 && Math.floor(Math.random() * PATROL_IN) === 0) {
@@ -255,7 +255,8 @@ export function HexMapPanel() {
     const what = featureLabel(hex);
     const holders = factionsAt(map.factions, hex.q, hex.r);
     const realm = holders.length > 0 ? ` — ${holders.map(factionName).join(' / ')}` : '';
-    return `${hex.place ? `«${hex.place}» — ` : ''}${t(`solo.hex.biomes.${hex.biome}`)}: ${what}${realm}`;
+    const river = hex.river ? ` — ${t(hex.feature.kind === 'settlement' ? 'solo.hex.riverBridge' : 'solo.hex.river')}` : '';
+    return `${hex.place ? `«${hex.place}» — ` : ''}${t(`solo.hex.biomes.${hex.biome}`)}: ${what}${river}${realm}`;
   };
 
   return (
@@ -360,6 +361,7 @@ export function HexMapPanel() {
                 }}
               >
                 <polygon points={corners(x, y)} />
+                {hex.seen && hex.river && <path d={`M ${x - 16} ${y + 8} q 8 -14 16 -2 t 16 -2`} className={styles.hexRiver} aria-hidden="true" />}
                 <text x={x} y={y + 5} textAnchor="middle" aria-hidden="true">
                   {hex.visited ? GLYPH[hex.feature.kind] : hex.seen ? '' : '?'}
                 </text>
@@ -383,7 +385,7 @@ export function HexMapPanel() {
             </li>
           ))}
           <li>
-            ⌂ {t('solo.hex.features.settlement')} · ◆ {t('solo.hex.features.landmark')} · ☠ {t('solo.hex.features.lair')} · ▼ {t('solo.hex.features.dungeon')}
+            ⌂ {t('solo.hex.features.settlement')} · ◆ {t('solo.hex.features.landmark')} · ☠ {t('solo.hex.features.lair')} · ▼ {t('solo.hex.features.dungeon')} · ▲ {t('solo.hex.features.island')} · ≋ {t('solo.hex.features.reef')} · ~ {t('solo.hex.river')}
           </li>
         </ul>
       )}

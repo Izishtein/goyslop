@@ -3,6 +3,10 @@ import raw from '../data/monsters/monsters.json';
 import type { Monster } from '../data/monsters/types';
 import {
   canMoveTo,
+  isWater,
+  needsFord,
+  seaFeature,
+  SEA_ROLL,
   expandMap,
   featureKind,
   forage,
@@ -16,6 +20,7 @@ import {
   landmarkOutcome,
   livesIn,
   makeCamp,
+  neighbours,
   MAX_FATIGUE,
   moveParty,
   restDay,
@@ -274,4 +279,85 @@ describe('returnToHex', () => {
     expect(returnToHex(map, '40,40')).toBeNull();
     expect(returnToHex(map, 'home')).toBeNull();
   });
+});
+
+describe('water and rivers', () => {
+  it('lets the sea keep itself, and reads what a sea hex holds', () => {
+    expect([1, 7].map((roll) => nextBiome(roll, 'sea'))).toEqual(['sea', 'sea']);
+    expect([8, 9, 10].map((roll) => nextBiome(roll, 'sea'))).toEqual(['grassland', 'marsh', 'hills']);
+    expect([1, 2, 3, 6].map(seaFeature)).toEqual(['reef', 'island', 'empty', 'empty']);
+    expect(SEA_ROLL).toBe(6);
+  });
+
+  it('always puts water beside the start village, whatever the dice', () => {
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      const around = neighbours(0, 0).map(([q, r]) => hexAt(map, q, r)!);
+      expect(around.some((hex) => isWater(hex.biome)), `seed ${seed}`).toBe(true);
+      expect(isWater(hexAt(map, 0, 0)!.biome)).toBe(false);
+    }
+  });
+
+  it('holds only reefs, islands and open water in the sea, and never a dungeon, lair or settlement', () => {
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      for (const hex of map.hexes.filter((entry) => isWater(entry.biome))) expect(['empty', 'island', 'reef'], `seed ${seed}`).toContain(hex.feature.kind);
+      for (const hex of map.hexes.filter((entry) => !isWater(entry.biome))) expect(['island', 'reef'], `seed ${seed}`).not.toContain(hex.feature.kind);
+      expect(map.hexes.some((hex) => hex.feature.kind === 'dungeon' && isWater(hex.biome))).toBe(false);
+      expect(map.hexes.some((hex) => hex.feature.kind === 'dungeon')).toBe(true);
+    }
+  });
+
+  it('runs rivers over land only, in a connected line, in some of the patches', () => {
+    let withRiver = 0;
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      const river = map.hexes.filter((hex) => hex.river);
+      expect(river.every((hex) => !isWater(hex.biome)), `seed ${seed}`).toBe(true);
+      if (river.length > 0) {
+        withRiver += 1;
+        // every river hex touches another one of the river
+        if (river.length > 1) for (const hex of river) expect(river.some((other) => other !== hex && hexDistance(hex, other) === 1), `seed ${seed}`).toBe(true);
+      }
+    }
+    expect(withRiver).toBeGreaterThan(10);
+    expect(withRiver).toBeLessThan(40);
+  });
+
+  it('cannot be walked into the sea, except to step back aboard the ship that lies there', () => {
+    const map = generateHexMap({ level: 2, monsters, rng: seeded(3) });
+    const sea = neighbours(0, 0).map(([q, r]) => hexAt(map, q, r)!).find((hex) => isWater(hex.biome))!;
+    expect(canMoveTo(map, sea.q, sea.r)).toBe(false);
+    expect(canMoveTo(map, sea.q, sea.r, { q: sea.q, r: sea.r })).toBe(true);
+    expect(canMoveTo(map, sea.q, sea.r, { q: 9, r: 9 })).toBe(false);
+    expect(moveParty(map, sea.q, sea.r, seeded(1))).toBeNull();
+  });
+
+  it('makes a ford cost a second day and a second ration, unless a settlement bridges the river', () => {
+    const base = generateHexMap({ level: 2, monsters, rng: seeded(5) });
+    const land = neighbours(0, 0).map(([q, r]) => hexAt(base, q, r)!).find((hex) => !isWater(hex.biome))!;
+    const withRiver = (feature: { kind: 'empty' } | { kind: 'settlement'; settlement: 'village' }) => ({
+      ...base,
+      hexes: base.hexes.map((hex) => (hex === land ? { ...hex, river: true, feature } : hex)),
+    });
+    const ford = moveParty(withRiver({ kind: 'empty' }), land.q, land.r, () => 0.99)!;
+    expect(ford).toMatchObject({ days: 2, forded: true, dayPassed: true });
+    expect(ford.map.rations).toBe(START_RATIONS - 2);
+    const bridge = moveParty(withRiver({ kind: 'settlement', settlement: 'village' }), land.q, land.r, () => 0.99)!;
+    expect(bridge).toMatchObject({ days: 1, forded: false });
+    expect(needsFord(hexAt(withRiver({ kind: 'empty' }), land.q, land.r))).toBe(true);
+    const forced = moveParty(withRiver({ kind: 'empty' }), land.q, land.r, () => 0.99, { force: true })!;
+    expect(forced).toMatchObject({ days: 0, dayPassed: false });
+    expect(forced.map.fatigue).toBe(2);
+    expect(forced.map.rations).toBe(START_RATIONS);
+  });
+
+  it('grows more map from the edge, whose sea may continue the sea beside it', () => {
+    const map = generateHexMap({ level: 2, monsters, rng: seeded(9) });
+    const grown = expandMap({ ...map, party: { q: 2, r: 0 } }, { level: 2, monsters, rng: seeded(10) });
+    expect(grown?.added).toHaveLength(19);
+    expect(grown!.added.every((hex) => !hex.visited)).toBe(true);
+    for (const hex of grown!.added.filter((entry) => isWater(entry.biome))) expect(['empty', 'island', 'reef']).toContain(hex.feature.kind);
+  });
+
 });

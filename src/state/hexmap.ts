@@ -1,10 +1,11 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { z } from 'zod';
 import { RELATIONS } from '../lib/factions';
+import { GOODS } from '../lib/ships';
 import { BIOMES, EMPTY_HEXMAP, HEX_PLACE_LIMIT, LANDMARK_COUNT, SETTLEMENT_KINDS, type HexMap } from '../lib/hexmap';
 
 const FeatureSchema = z.object({
-  kind: z.enum(['landmark', 'settlement', 'lair', 'dungeon', 'empty']),
+  kind: z.enum(['landmark', 'settlement', 'lair', 'dungeon', 'empty', 'island', 'reef']),
   settlement: z.enum(SETTLEMENT_KINDS).optional(),
   landmark: z.number().int().min(1).max(LANDMARK_COUNT).optional(),
   monsterId: z.string().optional(),
@@ -23,6 +24,9 @@ const HexMapSchema = z.object({
         seen: z.boolean(),
         camp: z.boolean().optional(),
         place: z.string().max(HEX_PLACE_LIMIT).optional(),
+        river: z.boolean().optional(),
+        market: z.array(z.number().int().min(1).max(6)).max(GOODS.length).optional(),
+        explored: z.boolean().optional(),
       }),
     )
     .max(800)

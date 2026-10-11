@@ -681,14 +681,17 @@
         "forest": "Forest",
         "hills": "Hills",
         "marsh": "Marsh",
-        "mountains": "Mountains"
+        "mountains": "Mountains",
+        "sea": "Sea"
       },
       "features": {
         "landmark": "a landmark",
         "settlement": "a settlement",
         "lair": "a lair",
         "dungeon": "a dungeon",
-        "empty": "nothing to speak of"
+        "empty": "nothing to speak of",
+        "island": "an island",
+        "reef": "a reef"
       },
       "settlements": {
         "hamlet": "a hamlet",
@@ -819,7 +822,11 @@
       "dungeonEntered": "You enter the dungeon: see the Dungeon panel.",
       "placeName": "Name of this place",
       "journalHere": "Journal: the story is here",
-      "journalFollows": "Journal follows the party"
+      "journalFollows": "Journal follows the party",
+      "river": "a river (ford: an extra day)",
+      "riverBridge": "a river, bridged here",
+      "forded": "The river had to be forded: it cost an extra day.",
+      "fordedForced": "The river had to be forded: two points of fatigue."
     },
     "gen": {
       "nameStart": {
