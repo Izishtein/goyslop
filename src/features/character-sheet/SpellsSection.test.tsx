@@ -1,9 +1,9 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
-import { charactersAtom } from '../../state/characters';
+import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { encounterAtom } from '../../state/encounter';
 import { CharacterSchema, type Character, EMPTY_INVENTORY, EMPTY_PERFORMANCE, EMPTY_FELLOW, EMPTY_GEOMANCER_QI } from '../../types/character';
 import { SpellsSection } from './SpellsSection';
@@ -349,10 +349,12 @@ describe('SpellsSection cast log', () => {
 });
 
 describe('SpellsSection Power roll', () => {
+  afterEach(() => vi.restoreAllMocks());
   const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
 
   it('offers the Power roll for a damaging spell after it is cast and ignores Defense', async () => {
     const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.5); // no snake eyes by chance: 1 in 36 would fail the test
     renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
 
     expect(screen.queryByRole('button', { name: /^Damage: Power/ })).toBeNull();
@@ -410,5 +412,51 @@ describe('SpellsSection Resistance', () => {
     const hp = store.get(encounterAtom).monsters[0].sections[0].hp;
     expect(hp).toBeLessThan(19);
     expect(hp).toBeGreaterThanOrEqual(19 - 5);
+  });
+});
+
+describe('SpellsSection fumble experience', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+  afterEach(() => vi.restoreAllMocks());
+
+  it('pays 50 XP for snake eyes on the casting check, once per fumble', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0); // 1 + 1
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+    act(() => store.set(activeCharacterIdAtom, 'char-1'));
+    const before = store.get(charactersAtom)[0].experience.total;
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+
+    await user.click(screen.getByRole('button', { name: '+50 XP' }));
+
+    expect(store.get(charactersAtom)[0].experience.total).toBe(before + 50);
+    expect(screen.getByRole('button', { name: '+50 XP added' })).toBeDisabled();
+    // a fresh fumble is a fresh payment
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+    expect(screen.getByRole('button', { name: '+50 XP' })).toBeEnabled();
+  });
+
+  it('pays 50 XP for a double 1 on the first Power roll of a spell', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+    act(() => store.set(activeCharacterIdAtom, 'char-1'));
+    const before = store.get(charactersAtom)[0].experience.total;
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    await user.click(screen.getByRole('button', { name: 'Damage: Power 10 + 3' }));
+
+    await user.click(screen.getByRole('button', { name: '+50 XP' }));
+
+    expect(store.get(charactersAtom)[0].experience.total).toBe(before + 50);
+  });
+
+  it('offers nothing when no character is open', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 } }));
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
+    expect(screen.queryByRole('button', { name: '+50 XP' })).not.toBeInTheDocument();
   });
 });

@@ -4,11 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { rollWeaponDamage, type DamageRoll } from '../../lib/formulas/damage-roll';
 import { encounterAtom } from '../../state/encounter';
 import { AttackTarget } from '../solo/AttackTarget';
-import { activeCharacterIdAtom, useUpdateCharacter } from '../../state/characters';
+import { FumbleXpButton } from './FumbleXp';
 import styles from './DiceRoll.module.css';
-
-/** A double 1 on the first Power Table roll earns the roller 50 experience points (CR I pp. 134, 169). */
-const FUMBLE_XP = 50;
 
 /** What declared feats add to one attack — see lib/formulas/attack-modifiers.ts. */
 export interface DamageOptions {
@@ -42,19 +39,11 @@ export function WeaponDamageRoll({
   const bonus = options.bonusDamage ?? 0;
   const { t } = useTranslation();
   const [roll, setRoll] = useState<DamageRoll | null>(null);
-  const [xpGiven, setXpGiven] = useState(false);
   const tier = options.armorPiercer ?? 0;
   const [doubled, setDoubled] = useState(false);
   const [firstHit, setFirstHit] = useState(false);
   const repeatBonus = options.repeatedStrikeII && firstHit ? 4 : 0;
   const hasMonsters = useAtomValue(encounterAtom).monsters.length > 0;
-  const activeId = useAtomValue(activeCharacterIdAtom);
-  const updateCharacter = useUpdateCharacter(activeId ?? '');
-
-  function award() {
-    updateCharacter((c) => ({ ...c, experience: { ...c.experience, total: c.experience.total + FUMBLE_XP } }));
-    setXpGiven(true);
-  }
 
   return (
     <span className={styles.wrap}>
@@ -63,7 +52,6 @@ export function WeaponDamageRoll({
         className={styles.button}
         onClick={() => {
           setRoll(rollWeaponDamage(power, criticalValue, extraDamage, options.lethal));
-          setXpGiven(false);
         }}
         aria-label={t('sheet.damageRollAria', { label })}
       >
@@ -74,11 +62,7 @@ export function WeaponDamageRoll({
           {roll.fumble ? (
             <span className={styles.fumble}>
               {t('sheet.damageRollStep', { ...roll.steps[0] })} — {t('sheet.damageRollFumble')}
-              {activeId && (
-                <button type="button" className={styles.button} onClick={award} disabled={xpGiven}>
-                  {xpGiven ? t('sheet.damageRollXpGiven') : t('sheet.damageRollXp')}
-                </button>
-              )}
+              <FumbleXpButton roll={roll} />
             </span>
           ) : (
             <>

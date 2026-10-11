@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
+import { Provider, createStore } from 'jotai';
+import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { DiceRoll } from './DiceRoll';
 
 /** Math.random() -> 1 + Math.floor(random * 6) needs a value in [n/6, (n+1)/6) to land on
@@ -74,5 +76,40 @@ describe('DiceRoll', () => {
 
     expect(screen.getAllByRole('status')).toHaveLength(1);
     expect(screen.getByRole('status')).toHaveTextContent('5 + 6 + 0 = 11');
+  });
+});
+
+describe('DiceRoll fumble experience', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('offers 50 XP on snake eyes to the open character, and not without one', async () => {
+    const user = userEvent.setup();
+    const store = createStore();
+    store.set(charactersAtom, [{ id: 'h', experience: { total: 100 } } as never]);
+    store.set(activeCharacterIdAtom, 'h');
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    render(
+      <Provider store={store}>
+        <DiceRoll modifier={0} label="Accuracy" />
+      </Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Accuracy/ }));
+    await user.click(screen.getByRole('button', { name: '+50 XP' }));
+
+    expect((store.get(charactersAtom)[0] as { experience: { total: number } }).experience.total).toBe(150);
+    expect(screen.getByRole('button', { name: '+50 XP added' })).toBeDisabled();
+  });
+
+  it('shows no button when nobody is open', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    render(
+      <Provider store={createStore()}>
+        <DiceRoll modifier={0} label="Accuracy" />
+      </Provider>,
+    );
+    await user.click(screen.getByRole('button', { name: /Accuracy/ }));
+    expect(screen.queryByRole('button', { name: '+50 XP' })).not.toBeInTheDocument();
   });
 });

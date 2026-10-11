@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FumbleXpButton } from './FumbleXp';
 import styles from './DiceRoll.module.css';
 
 /** SW 2.5's universal check: 2d6 + Standard Value vs a Target Number the table sets on the
@@ -31,7 +32,12 @@ export function DiceRoll({ modifier, label }: { modifier: number; label: string 
       {roll && total !== null && (
         <span className={styles.result} role="status">
           {t('sheet.rollResult', { d1: roll.d1, d2: roll.d2, sign, modAbs: Math.abs(modifier), total })}
-          {roll.outcome === 'fumble' && <span className={styles.fumble}> — {t('sheet.rollFumble')}</span>}
+          {roll.outcome === 'fumble' && (
+            <span className={styles.fumble}>
+              {' '}
+              — {t('sheet.rollFumble')} <FumbleXpButton roll={roll} />
+            </span>
+          )}
           {roll.outcome === 'critical' && <span className={styles.critical}> — {t('sheet.rollCritical')}</span>}
         </span>
       )}

@@ -10,6 +10,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character } from '../../types/character';
 import { rollSpellcastingCheck, type SpellcastingCheck } from '../../lib/spell-check';
 import { AttackTarget } from '../solo/AttackTarget';
+import { FumbleXpButton } from './FumbleXp';
 import styles from './DiceRoll.module.css';
 
 /** The most targets one casting is offered against; the book's area spells go further, but a table seldom needs more. */
@@ -38,7 +39,12 @@ export function SpellEffectRoll({ character, school, spell }: { character: Chara
       <button type="button" className={styles.button} onClick={() => setCheck(rollSpellcastingCheck(bonus))}>
         {t('sheet.spellCheckButton', { bonus })}
       </button>
-      {check && <span className={styles.result}>{checkText}</span>}
+      {check && (
+        <span className={styles.result}>
+          {checkText}
+          {check.outcome === 'fumble' && <FumbleXpButton roll={check} />}
+        </span>
+      )}
       {!heal && (
         <>
           <label>
@@ -112,7 +118,7 @@ function PowerRoll({
       {roll && (
         <span className={styles.result} role="status">
           {roll.fumble
-            ? t('sheet.damageRollFumble')
+            ? <>{t('sheet.damageRollFumble')} <FumbleXpButton roll={roll} /></>
             : t('sheet.damageRollTotal', { total: roll.powerTableTotal, extraDamage: bonus, calculated: roll.calculatedDamage })}
           {!roll.fumble && roll.steps.length > 1 && <span className={styles.critical}> ({t('sheet.damageRollCritical')})</span>}
           {heal ? (
