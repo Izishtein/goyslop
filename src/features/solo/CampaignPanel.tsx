@@ -7,7 +7,10 @@ import {
   filterEntries,
   isEventSource,
   isSettleable,
+  PLACE_LIMIT,
+  placesOf,
   removeEntry,
+  setActivePlace,
   setDay,
   TEXT_LIMIT,
   TITLE_LIMIT,
@@ -33,6 +36,7 @@ export function CampaignPanel() {
   const [kind, setKind] = useState<EntryKind>('scene');
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [place, setPlace] = useState('');
   const [filter, setFilter] = useState<KindFilter>('all');
   const [search, setSearch] = useState('');
 
@@ -41,7 +45,7 @@ export function CampaignPanel() {
 
   function add() {
     if (!title.trim()) return;
-    setCampaign((current) => addEntry(current, { kind, title, text, scene: oracle.scene }, crypto.randomUUID()));
+    setCampaign((current) => addEntry(current, { kind, title, text, scene: oracle.scene, place }, crypto.randomUUID()));
     setTitle('');
     setText('');
   }
@@ -76,6 +80,25 @@ export function CampaignPanel() {
 
       <div className={styles.toolbar}>
         <label>
+          {t('solo.campaign.activePlace')}
+          <input
+            type="text"
+            list="campaign-places"
+            value={campaign.activePlace}
+            maxLength={PLACE_LIMIT}
+            onChange={(e) => setCampaign((current) => setActivePlace(current, e.target.value))}
+          />
+        </label>
+        <datalist id="campaign-places">
+          {placesOf(campaign).map((entry) => (
+            <option key={entry} value={entry} />
+          ))}
+        </datalist>
+        <span className={styles.note}>{t('solo.campaign.activePlaceNote')}</span>
+      </div>
+
+      <div className={styles.toolbar}>
+        <label>
           {t('solo.campaign.kind')}
           <select value={kind} onChange={(e) => setKind(e.target.value as EntryKind)}>
             {ENTRY_KINDS.map((entry) => (
@@ -88,6 +111,10 @@ export function CampaignPanel() {
         <label>
           {t('solo.campaign.entryTitle')}
           <input type="text" value={title} maxLength={TITLE_LIMIT} onChange={(e) => setTitle(e.target.value)} />
+        </label>
+        <label>
+          {t('solo.campaign.entryPlace')}
+          <input type="text" list="campaign-places" value={place} maxLength={PLACE_LIMIT} onChange={(e) => setPlace(e.target.value)} />
         </label>
         <label>
           {t('solo.campaign.entryText')}
@@ -134,6 +161,16 @@ export function CampaignPanel() {
                 rows={2}
                 onChange={(e) => setCampaign((current) => updateEntry(current, entry.id, { text: e.target.value }))}
               />
+              <label>
+                {t('solo.campaign.placeOf', { title: entry.title })}
+                <input
+                  type="text"
+                  list="campaign-places"
+                  value={entry.place}
+                  maxLength={PLACE_LIMIT}
+                  onChange={(e) => setCampaign((current) => updateEntry(current, entry.id, { place: e.target.value }))}
+                />
+              </label>
               {entry.kind === 'thread' && <ThreadTrack entry={entry} />}
               <div className={styles.controls}>
                 {isEventSource(entry.kind) && (

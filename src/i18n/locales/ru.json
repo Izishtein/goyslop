@@ -620,7 +620,11 @@
         "settled": "закрыто",
         "scene": "сцена {{scene}}",
         "open": "Пока открыто"
-      }
+      },
+      "activePlace": "Где сейчас история",
+      "activePlaceNote": "Если место задано, события оракула берут только записи оттуда и «отовсюду» (без места).",
+      "entryPlace": "Место (пусто = везде)",
+      "placeOf": "Место: {{title}}"
     },
     "knowledgeCheck": "Знание монстров",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",

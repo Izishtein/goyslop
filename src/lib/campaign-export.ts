@@ -8,6 +8,7 @@ const inline = (text: string): string => text.replace(/[\r\n]+/g, ' ').trim();
 
 function entryLine(entry: CampaignEntry, t: Translate): string {
   const marks: string[] = [t(`solo.campaign.kinds.${entry.kind}`)];
+  if (entry.place) marks.push(entry.place);
   if (entry.kind === 'thread' && entry.trackSize > 0) marks.push(t('solo.campaign.export.progress', { progress: entry.progress, size: entry.trackSize }));
   if (entry.closed) marks.push(t('solo.campaign.export.settled'));
   const head = `- **${inline(entry.title)}** (${marks.join(', ')}; ${t('solo.campaign.export.scene', { scene: entry.scene })})`;

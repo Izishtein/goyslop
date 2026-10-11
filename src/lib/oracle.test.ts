@@ -312,3 +312,25 @@ describe('answering with two d10', () => {
     expect(answer).toMatchObject({ answer: 'yes', event: null, asRule: true, chaos: 5 });
   });
 });
+
+describe('places', () => {
+  const placed = (...items: Array<[string, string]>) =>
+    items.map(([title, place]) => ({ id: title, kind: 'npc' as const, title, weight: 1, closed: false, place }));
+
+  it('leaves out entries tied to other places, keeps those of the place and those of everywhere', () => {
+    const entries = placed(['Harbour clerk', 'Port'], ['Hermit', 'Mountains'], ['Wanderer', '']);
+    const titles = new Set<string | undefined>();
+    for (const roll of [0, 0.4, 0.99]) titles.add(pickFromJournal(entries, 'npc', () => roll, 'Port')?.title);
+    expect([...titles].sort()).toEqual(['Harbour clerk', 'Wanderer']);
+  });
+
+  it('plays everything when no place is set', () => {
+    const entries = placed(['Hermit', 'Mountains']);
+    expect(pickFromJournal(entries, 'npc', () => 0, '')?.title).toBe('Hermit');
+  });
+
+  it('gives an event about the situation when the place has nobody', () => {
+    const entries = placed(['Hermit', 'Mountains']);
+    expect(rollEvent(sequence(0.15, 0, 0, 0), { journal: entries, place: 'Port' })).toMatchObject({ focus: FOCUS_SITUATION, ref: null });
+  });
+});

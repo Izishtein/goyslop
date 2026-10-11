@@ -180,3 +180,29 @@ describe('CampaignPanel export', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('CampaignPanel places', () => {
+  it('writes an entry with a place, and sets the place the story is in', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel();
+    await user.type(screen.getByLabelText('Place (empty = everywhere)'), 'Port');
+    await user.type(screen.getByLabelText('Title'), 'Harbour clerk');
+    await user.click(screen.getByRole('button', { name: 'Add to the log' }));
+    await user.type(screen.getByLabelText('Where the story is now'), 'Port');
+
+    expect(store.get(campaignAtom).entries[0].place).toBe('Port');
+    expect(store.get(campaignAtom).activePlace).toBe('Port');
+    expect(screen.getByLabelText('Place of Harbour clerk')).toHaveValue('Port');
+  });
+
+  it('reads an old saved log, written before places, as "everywhere"', () => {
+    localStorage.setItem('sw25.campaign', JSON.stringify({ day: 2, entries: [{ id: 'a', kind: 'npc', title: 'Marta', text: '', closed: false, day: 1, scene: 0 }] }));
+    render(
+      <Provider store={createStore()}>
+        <CampaignPanel />
+      </Provider>,
+    );
+    expect(screen.getByLabelText('Place of Marta')).toHaveValue('');
+    expect(screen.getByLabelText('Where the story is now')).toHaveValue('');
+  });
+});

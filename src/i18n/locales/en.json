@@ -620,7 +620,11 @@
         "settled": "settled",
         "scene": "scene {{scene}}",
         "open": "Still open"
-      }
+      },
+      "activePlace": "Where the story is now",
+      "activePlaceNote": "With a place set, the oracle’s events draw only on entries from there and from “everywhere” (no place).",
+      "entryPlace": "Place (empty = everywhere)",
+      "placeOf": "Place of {{title}}"
     },
     "knowledgeCheck": "Monster Knowledge",
     "knowledgeTargets": "Rep/Weak: {{rep}}/{{weak}}",

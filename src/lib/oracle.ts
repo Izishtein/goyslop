@@ -107,11 +107,15 @@ export interface JournalEntry {
   title: string;
   closed: boolean;
   weight: number;
+  /** "" = everywhere. */
+  place?: string;
 }
 
 export interface EventOptions {
   /** The campaign journal: events draw their subject from it. */
   journal?: JournalEntry[];
+  /** The place the story is in; entries tied to other places stay out of the draw ("" or absent: everything is in play). */
+  place?: string;
   /** A focus the player chose instead of rolling for it (1–FOCUS_COUNT, or FOCUS_FEATURE in a prepared adventure). */
   focus?: number | null;
   /** A prepared adventure: the shorter focus table, and no altered or interrupted scenes. */
@@ -121,8 +125,8 @@ export interface EventOptions {
 }
 
 /** Weighted draw among the entries of one kind that are still in play; nothing to draw from gives null. */
-export function pickFromJournal(journal: JournalEntry[], kind: EntryKind, rng: Rng = Math.random): JournalEntry | null {
-  const pool = journal.filter((entry) => entry.kind === kind && !entry.closed);
+export function pickFromJournal(journal: JournalEntry[], kind: EntryKind, rng: Rng = Math.random, place = ''): JournalEntry | null {
+  const pool = journal.filter((entry) => entry.kind === kind && !entry.closed && (!place || !entry.place || entry.place === place));
   const total = pool.reduce((sum, entry) => sum + Math.max(1, entry.weight), 0);
   if (total === 0) return null;
   let point = Math.floor(rng() * total);
@@ -152,7 +156,7 @@ export function rollEvent(rng: Rng = Math.random, options: EventOptions = {}): R
   }
   const source = FOCUS_SOURCE[focus];
   if (!source) return { focus, action, subject };
-  const picked = options.journal ? pickFromJournal(options.journal, source, rng) : null;
+  const picked = options.journal ? pickFromJournal(options.journal, source, rng, options.place) : null;
   if (!picked) focus = FOCUS_SITUATION;
   return { focus, action, subject, ref: picked ? { kind: picked.kind, title: picked.title } : null };
 }

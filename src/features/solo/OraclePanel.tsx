@@ -227,6 +227,7 @@ export function OraclePanel() {
   const [adventure, setAdventure] = useAtom(adventureAtom);
   const eventOptions = (): EventOptions => ({
     journal: campaign.entries,
+    place: campaign.activePlace,
     focus: focus || null,
     prepared: adventure.prepared,
     features: adventure.features,

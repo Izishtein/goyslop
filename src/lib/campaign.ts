@@ -19,6 +19,8 @@ export interface CampaignEntry {
   scene: number;
   /** 1–3: how often the oracle's events pick this entry. Rises when it takes part in a scene. */
   weight: number;
+  /** Where it belongs ("" = everywhere): with a place active, the oracle draws only from it and from "everywhere". */
+  place: string;
   /** Threads only: 0 = no progress track, else 10, 15 or 20 points (see lib/thread.ts). */
   trackSize: number;
   /** Points earned on the track. */
@@ -30,9 +32,20 @@ export interface CampaignEntry {
 export interface Campaign {
   day: number;
   entries: CampaignEntry[];
+  /** The place the story is in now; "" = no filter, every entry is in play. */
+  activePlace: string;
 }
 
-export const EMPTY_CAMPAIGN: Campaign = { day: 1, entries: [] };
+export const EMPTY_CAMPAIGN: Campaign = { day: 1, entries: [], activePlace: '' };
+
+export const PLACE_LIMIT = 40;
+
+/** Places in use, for suggestions. */
+export const placesOf = (campaign: Campaign): string[] => [...new Set(campaign.entries.map((entry) => entry.place).filter(Boolean))].sort();
+
+export function setActivePlace(campaign: Campaign, place: string): Campaign {
+  return { ...campaign, activePlace: place.trim().slice(0, PLACE_LIMIT) };
+}
 
 /** Notes live in localStorage, which has a small quota — the log is bounded rather than trusted. */
 export const ENTRY_LIMIT = 300;
@@ -51,7 +64,7 @@ export const isSettleable = (kind: EntryKind): boolean => kind === 'threat' || k
 
 export function addEntry(
   campaign: Campaign,
-  input: { kind: EntryKind; title: string; text: string; scene: number },
+  input: { kind: EntryKind; title: string; text: string; scene: number; place?: string },
   id: string,
 ): Campaign {
   const title = input.title.trim().slice(0, TITLE_LIMIT);
@@ -65,6 +78,7 @@ export function addEntry(
     day: campaign.day,
     scene: input.scene,
     weight: WEIGHT_MIN,
+    place: (input.place ?? '').trim().slice(0, PLACE_LIMIT),
     trackSize: 0,
     progress: 0,
     flashpoints: 0,
@@ -75,7 +89,7 @@ export function addEntry(
 export function updateEntry(
   campaign: Campaign,
   id: string,
-  patch: Partial<Pick<CampaignEntry, 'text' | 'closed' | 'weight' | 'trackSize' | 'progress' | 'flashpoints'>>,
+  patch: Partial<Pick<CampaignEntry, 'text' | 'closed' | 'weight' | 'place' | 'trackSize' | 'progress' | 'flashpoints'>>,
 ): Campaign {
   return {
     ...campaign,
@@ -86,6 +100,7 @@ export function updateEntry(
             ...patch,
             text: patch.text === undefined ? entry.text : patch.text.slice(0, TEXT_LIMIT),
             weight: patch.weight === undefined ? entry.weight : clampWeight(patch.weight),
+            place: patch.place === undefined ? entry.place : patch.place.trim().slice(0, PLACE_LIMIT),
           }
         : entry,
     ),

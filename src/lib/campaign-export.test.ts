@@ -36,3 +36,10 @@ describe('campaignToMarkdown', () => {
     expect(campaignFileName(7)).toBe('campaign-day-7.md');
   });
 });
+
+describe('campaignToMarkdown places', () => {
+  it('names the place of an entry that has one', () => {
+    const log = addEntry(EMPTY_CAMPAIGN, { kind: 'npc', title: 'Clerk', text: '', scene: 0, place: 'Port' }, 'a');
+    expect(campaignToMarkdown(log, t)).toContain('Port');
+  });
+});

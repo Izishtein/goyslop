@@ -1,6 +1,6 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { z } from 'zod';
-import { EMPTY_CAMPAIGN, ENTRY_KINDS, ENTRY_LIMIT, TEXT_LIMIT, TITLE_LIMIT, WEIGHT_MAX, WEIGHT_MIN, type Campaign } from '../lib/campaign';
+import { EMPTY_CAMPAIGN, ENTRY_KINDS, ENTRY_LIMIT, PLACE_LIMIT, TEXT_LIMIT, TITLE_LIMIT, WEIGHT_MAX, WEIGHT_MIN, type Campaign } from '../lib/campaign';
 
 const CampaignSchema = z.object({
   day: z.number().int().min(1).default(1),
@@ -15,6 +15,7 @@ const CampaignSchema = z.object({
         day: z.number().int().min(1).default(1),
         scene: z.number().int().min(0).default(0),
         weight: z.number().int().min(WEIGHT_MIN).max(WEIGHT_MAX).default(WEIGHT_MIN),
+        place: z.string().max(PLACE_LIMIT).default(''),
         trackSize: z.number().int().min(0).max(20).default(0),
         progress: z.number().int().min(0).max(20).default(0),
         flashpoints: z.number().int().min(0).max(15).default(0),
@@ -22,6 +23,7 @@ const CampaignSchema = z.object({
     )
     .max(ENTRY_LIMIT)
     .default(() => []),
+  activePlace: z.string().max(PLACE_LIMIT).default(''),
 });
 
 const raw = createJSONStorage<Campaign>(() => localStorage);

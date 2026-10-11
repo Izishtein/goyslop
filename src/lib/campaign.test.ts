@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addEntry, EMPTY_CAMPAIGN, ENTRY_LIMIT, filterEntries, isEventSource, raiseWeights, removeEntry, setDay, TEXT_LIMIT, updateEntry } from './campaign';
+import { addEntry, EMPTY_CAMPAIGN, ENTRY_LIMIT, filterEntries, isEventSource, PLACE_LIMIT, placesOf, raiseWeights, removeEntry, setActivePlace, setDay, TEXT_LIMIT, updateEntry } from './campaign';
 
 const note = (title: string, kind: 'scene' | 'npc' | 'threat' | 'thread' = 'scene') => ({ kind, title, text: '', scene: 2 });
 
@@ -65,5 +65,26 @@ describe('entry weight', () => {
   it('is a subject for events unless it is a scene', () => {
     expect(isEventSource('npc')).toBe(true);
     expect(isEventSource('scene')).toBe(false);
+  });
+});
+
+describe('places', () => {
+  it('ties an entry to a place, trimmed and bounded, and lists the places in use', () => {
+    let log = addEntry(EMPTY_CAMPAIGN, { kind: 'npc', title: 'Clerk', text: '', scene: 0, place: '  Port ' }, 'a');
+    log = addEntry(log, { kind: 'npc', title: 'Hermit', text: '', scene: 0, place: 'x'.repeat(100) }, 'b');
+    log = addEntry(log, { kind: 'npc', title: 'Wanderer', text: '', scene: 0 }, 'c');
+    expect(log.entries.find((e) => e.id === 'a')?.place).toBe('Port');
+    expect(log.entries.find((e) => e.id === 'b')?.place).toHaveLength(PLACE_LIMIT);
+    expect(log.entries.find((e) => e.id === 'c')?.place).toBe('');
+    expect(placesOf(log)).toHaveLength(2);
+  });
+
+  it('moves the story to a place and moves an entry', () => {
+    let log = addEntry(EMPTY_CAMPAIGN, { kind: 'npc', title: 'Clerk', text: '', scene: 0 }, 'a');
+    log = setActivePlace(log, ' Port ');
+    expect(log.activePlace).toBe('Port');
+    log = updateEntry(log, 'a', { place: 'Port' });
+    expect(log.entries[0].place).toBe('Port');
+    expect(setDay(log, 5).activePlace).toBe('Port');
   });
 });
