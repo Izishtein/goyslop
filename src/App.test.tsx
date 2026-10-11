@@ -59,6 +59,7 @@ function makeCharacter(id: string, name: string): Character {
     essenceWeavings: [],
     schools: [],
     schoolSecrets: [],
+    makoStone: 0,
   };
 }
 

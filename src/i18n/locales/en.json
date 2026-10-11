@@ -1908,7 +1908,10 @@
     },
     "damageRollXp": "+50 XP",
     "damageRollXpGiven": "+50 XP added",
-    "spellResistedNoDamage": "resisted: “Resistance: Neg” cancels the effect, “Half” weakens it"
+    "spellResistedNoDamage": "resisted: “Resistance: Neg” cancels the effect, “Half” weakens it",
+    "makoStone": "Mako stone (MP stored)",
+    "makoStoneUse": "MP drawn from it for the next spell",
+    "castSpentStone": "spent {{mp}} MP, {{stone}} of them from the mako stone ({{before}} → {{after}})"
   },
   "io": {
     "export": "Download JSON",

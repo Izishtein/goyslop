@@ -26,7 +26,12 @@ export function SpellsSection({ character }: { character: Character }) {
   const [spellId, setSpellId] = useState('');
   const [search, setSearch] = useState('');
   // What was cast this session, newest last — so a click is never a silent MP drop.
-  const [casts, setCasts] = useState<{ id: string; spell: KnownSpell; before: number; after: number }[]>([]);
+  const [casts, setCasts] = useState<{ id: string; spell: KnownSpell; before: number; after: number; fromStone: number }[]>([]);
+  /** MP the next casting takes from the mako stone instead of the caster's own pool. */
+  const [stoneUse, setStoneUse] = useState(0);
+  const stone = character.makoStone;
+  /** What the next spell of this cost draws from the stone: what was asked, no more than the stone holds or the spell costs. */
+  const drawFor = (cost: number): number => Math.max(0, Math.min(stoneUse, stone, cost));
 
   const activeSchool = school || pickableSchools[0] || '';
   const known = new Set(character.spells.map((spell) => spell.name));
@@ -51,17 +56,18 @@ export function SpellsSection({ character }: { character: Character }) {
    *  pay for, does nothing rather than driving MP below zero. */
   function cast(spell: KnownSpell) {
     const before = character.mp.current;
-    const left = mpAfterCast(before, spell.mp);
+    const fromStone = drawFor(spell.mp);
+    const left = mpAfterCast(before, spell.mp - fromStone);
     if (left === null) return;
-    update((c) => ({ ...c, mp: { current: left } }));
-    setCasts((list) => [...list, { id: crypto.randomUUID(), spell, before, after: left }]);
+    update((c) => ({ ...c, mp: { current: left }, makoStone: c.makoStone - fromStone }));
+    setCasts((list) => [...list, { id: crypto.randomUUID(), spell, before, after: left, fromStone }]);
   }
 
   /** Undo the latest cast: hands its MP back. Only the last one, so the log stays honest. */
   function undoLastCast() {
     const last = casts[casts.length - 1];
     if (!last) return;
-    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) } }));
+    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) }, makoStone: c.makoStone + last.fromStone }));
     setCasts((list) => list.slice(0, -1));
   }
 
@@ -110,6 +116,38 @@ export function SpellsSection({ character }: { character: Character }) {
         </p>
       </summary>
 
+      {(schools.length > 0 || stone > 0) && (
+        <div className={styles.inlineRow}>
+          <label>
+            {t('sheet.makoStone')}{' '}
+            <input
+              type="number"
+              min={0}
+              value={stone}
+              onChange={(e) => {
+                const points = Math.max(0, Math.floor(Number(e.target.value)) || 0);
+                update((c) => ({ ...c, makoStone: points }));
+                setStoneUse((use) => Math.min(use, points));
+              }}
+              style={{ width: '4.5em' }}
+            />
+          </label>
+          {stone > 0 && (
+            <label className={styles.controlRow}>
+              {t('sheet.makoStoneUse')}{' '}
+              <input
+                type="number"
+                min={0}
+                max={stone}
+                value={Math.min(stoneUse, stone)}
+                onChange={(e) => setStoneUse(Math.max(0, Math.floor(Number(e.target.value)) || 0))}
+                style={{ width: '4.5em' }}
+              />
+            </label>
+          )}
+        </div>
+      )}
+
       <div className={styles.subsection} data-print-empty={character.spells.length === 0 || undefined}>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
@@ -127,7 +165,7 @@ export function SpellsSection({ character }: { character: Character }) {
             <tbody>
               {character.spells.map((spell) => {
                 const problems = spellProblems(character, spell);
-                const lacksMp = spell.mp > character.mp.current;
+                const lacksMp = spell.mp - drawFor(spell.mp) > character.mp.current;
                 return (
                 <tr key={spell.id} data-problem={problems.length > 0 || undefined}>
                   <td>
@@ -194,7 +232,10 @@ export function SpellsSection({ character }: { character: Character }) {
               const power = catalog ? getSpellPower(catalog.id) : undefined;
               return (
                 <li key={entry.id}>
-                  <strong>{entry.spell.name}</strong> — {t('sheet.castSpent', { mp: entry.spell.mp, before: entry.before, after: entry.after })}
+                  <strong>{entry.spell.name}</strong> —{' '}
+                  {entry.fromStone > 0
+                    ? t('sheet.castSpentStone', { mp: entry.spell.mp, stone: entry.fromStone, before: entry.before, after: entry.after })
+                    : t('sheet.castSpent', { mp: entry.spell.mp, before: entry.before, after: entry.after })}
                   {power && power.power > 0 ? (
                     <>
                       {' '}

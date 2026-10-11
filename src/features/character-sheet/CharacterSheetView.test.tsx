@@ -67,6 +67,7 @@ function makeCharacter(): Character {
     essenceWeavings: [],
     schools: [],
     schoolSecrets: [],
+    makoStone: 0,
   };
 }
 

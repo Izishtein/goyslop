@@ -1908,7 +1908,10 @@
     },
     "damageRollXp": "+50 XP",
     "damageRollXpGiven": "+50 XP записано",
-    "spellResistedNoDamage": "сопротивление: при «Resistance: Neg» эффект отменяется, при «Half» ослабляется"
+    "spellResistedNoDamage": "сопротивление: при «Resistance: Neg» эффект отменяется, при «Half» ослабляется",
+    "makoStone": "Мако-камень (MP в камне)",
+    "makoStoneUse": "MP из камня на следующее заклинание",
+    "castSpentStone": "потрачено {{mp}} MP, из них {{stone}} из мако-камня ({{before}} → {{after}})"
   },
   "io": {
     "export": "Скачать JSON",

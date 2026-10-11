@@ -60,6 +60,7 @@ function makeCharacter(overrides: Partial<Character> = {}): Character {
     essenceWeavings: [],
     schools: [],
     schoolSecrets: [],
+    makoStone: 0,
     ...overrides,
   };
 }
@@ -492,5 +493,69 @@ describe('SpellsSection resistance of a spell with no Power', () => {
     await user.click(screen.getByRole('button', { name: 'Thorn Bind Cast' }));
     await user.click(screen.getByRole('button', { name: 'Spellcasting check: 2d6 + 3' }));
     expect(screen.queryByRole('button', { name: 'Target Willpower' })).not.toBeInTheDocument();
+  });
+});
+
+describe('SpellsSection mako stone', () => {
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+
+  async function setStoneUse(user: ReturnType<typeof userEvent.setup>, value: string) {
+    const field = screen.getByLabelText('MP drawn from it for the next spell');
+    await user.tripleClick(field);
+    await user.keyboard(value);
+  }
+
+  it('pays part of a spell from the stone, and the stone loses what it gave', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 }, makoStone: 5 }));
+
+    await setStoneUse(user, '2');
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    expect(store.get(charactersAtom)[0].mp.current).toBe(7); // 3 − 2 from the stone = 1 of its own
+    expect(store.get(charactersAtom)[0].makoStone).toBe(3);
+    expect(screen.getByTestId('cast-log')).toHaveTextContent('2 of them from the mako stone');
+  });
+
+  it('never draws more than the spell costs or the stone holds', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 }, makoStone: 2 }));
+
+    await setStoneUse(user, '9');
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    expect(store.get(charactersAtom)[0].makoStone).toBe(0);
+    expect(store.get(charactersAtom)[0].mp.current).toBe(7); // only 2 came from the stone
+  });
+
+  it('lets a caster with too little MP of their own cast on the stone', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 1 }, makoStone: 5 }));
+    expect(screen.getByRole('button', { name: 'Energy Bolt Cast' })).toBeDisabled();
+
+    await setStoneUse(user, '2');
+    expect(screen.getByRole('button', { name: 'Energy Bolt Cast' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+
+    expect(store.get(charactersAtom)[0].mp.current).toBe(0);
+  });
+
+  it('gives the stone its points back when the cast is undone', async () => {
+    const user = userEvent.setup();
+    const store = renderSection(makeCharacter({ spells: [bolt], mp: { current: 8 }, makoStone: 5 }));
+    await setStoneUse(user, '3');
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    expect(store.get(charactersAtom)[0].makoStone).toBe(2);
+
+    await user.click(screen.getByRole('button', { name: /Undo/ }));
+
+    expect(store.get(charactersAtom)[0]).toMatchObject({ makoStone: 5, mp: { current: 8 } });
+  });
+
+  it('keeps the stone on the character: a card in the roster reads back with its points', () => {
+    const parsed = CharacterSchema.parse({ ...makeCharacter({ makoStone: 7 }) });
+    expect(parsed.makoStone).toBe(7);
+    const { makoStone: _ignored, ...older } = makeCharacter();
+    expect(CharacterSchema.parse(older).makoStone).toBe(0);
   });
 });

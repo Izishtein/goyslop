@@ -563,6 +563,8 @@ export const CharacterSchema = z.object({
   currency: CurrencySchema.default(() => ({ cash: 0, savings: 0, debt: 0, spendingLog: '' })),
   combatFeats: z.array(CombatFeatSchema).default(() => []),
   experience: ExperienceSchema.default(() => ({ total: 0, spent: 0 })),
+  /** MP stored in the mako stone the character carries (CR I p. 132): one stone at a time, 0 = none. */
+  makoStone: z.number().int().min(0).max(999).default(0),
   spells: z.array(KnownSpellSchema).default(() => []),
   /** Enhancer Techniques and Bard Spellsongs/Finales — see KnownArtSchema. */
   arts: z.array(KnownArtSchema).default(() => []),
