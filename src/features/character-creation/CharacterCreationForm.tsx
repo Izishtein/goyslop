@@ -167,6 +167,7 @@ export function CharacterCreationForm({ onCreated }: { onCreated: (id: string) =
       schools: [],
       schoolSecrets: [],
       makoStone: 0,
+      infusions: [],
     };
 
     const parsed = CharacterSchema.parse(character);

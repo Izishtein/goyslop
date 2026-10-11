@@ -73,6 +73,12 @@ export function essenceWeavingSlots(darkHunterLevel: number): number {
   return Math.max(0, darkHunterLevel);
 }
 
+/** Heritor Infusions: "Each time he raises the Heritor class by 1 level, he can learn one Infusion"
+ *  (Barbarous Rage pp. 56-57) — one slot per Heritor level, the same shape as Essence Weavings. */
+export function infusionSlots(heritorLevel: number): number {
+  return Math.max(0, heritorLevel);
+}
+
 /** Battle Dancer Bonus Active Combat Feat: "Upon reaching the first level of the Battle
  *  Dancer class, you gain one Combat Feat through the 'Bonus Active Combat Feat' class
  *  feature. As a result, a newly created character can learn two Combat Feats" (Battle

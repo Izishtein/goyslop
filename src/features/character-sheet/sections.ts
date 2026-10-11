@@ -12,6 +12,10 @@ export function riderLevel(character: Character): number {
   return character.classes.filter((entry) => entry.classId === 'rider').reduce((max, entry) => Math.max(max, entry.level), 0);
 }
 
+export function heritorLevel(character: Character): number {
+  return character.classes.filter((entry) => entry.classId === 'heritor').reduce((max, entry) => Math.max(max, entry.level), 0);
+}
+
 /** Without Rider levels a character may still ride a Horse, War Horse, Mini Manabike or
  *  Manabike (Core III p. 88) — so Mounts is not for the class alone. It stays hidden for
  *  everyone else, and a mount already recorded keeps it reachable after a class change. */

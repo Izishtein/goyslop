@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ABYSS_CURSES, ADDITIONAL_ABYSS_CURSES, abyssSkillsFor, enhancementsFor, type AbyssTarget } from '../../data/abyss';
 import { listAspectsByLevel } from '../../data/aspects';
@@ -12,6 +12,7 @@ import { listArtsByKind, type ArtKind } from '../../data/arts';
 import { COMBAT_FEATS } from '../../data/combat-feats';
 import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import { listEssenceWeavingsByLevel } from '../../data/essence-weavings';
+import { getInfusion, INFUSION_RACES, INFUSION_TIERS, INFUSIONS } from '../../data/infusions';
 import { POWER_TABLE } from '../../lib/formulas/power-table';
 import {
   ARMORS,
@@ -942,6 +943,68 @@ export function EssenceWeavingReference() {
               </tbody>
             </table>
           </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+export function InfusionsReference() {
+  const { t, i18n } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-infusions">
+      <div className={styles.panelHead}>
+        <h3 id="reference-infusions">{t('reference.tab.infusions')}</h3>
+        <p className={styles.note}>{t('reference.infusionsNote', { count: INFUSIONS.length })}</p>
+      </div>
+
+      {INFUSION_RACES.map((race) => (
+        <div key={race} className={styles.group}>
+          <h4>{t(`sheet.infusionRace.${race}`)}</h4>
+          {INFUSION_TIERS.map((level) => {
+            const rows = INFUSIONS.filter((entry) => entry.race === race && entry.requiredLevel === level);
+            if (rows.length === 0) return null;
+            return (
+              <div key={level} className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <caption>{t('sheet.levelRequired', { level })}</caption>
+                  <thead>
+                    <tr>
+                      <th>{t('sheet.name')}</th>
+                      <th>{t('sheet.infusionSection')}</th>
+                      <th>{t('sheet.infusionHumanForm')}</th>
+                      <th>{t('sheet.stuntPrerequisite')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((entry) => {
+                      const prerequisites = [...entry.requires.map((id) => getInfusion(id)?.name ?? id), ...(entry.otherPrerequisite ? [entry.otherPrerequisite] : [])];
+                      return (
+                        <Fragment key={entry.id}>
+                          <tr>
+                            <th scope="row" className={styles.rowName}>
+                              {entry.name}
+                            </th>
+                            <td>{t(`sheet.infusionSections.${entry.section}`)}</td>
+                            <td>{entry.humanForm === null ? '—' : t(entry.humanForm ? 'sheet.infusionHuman.yes' : 'sheet.infusionHuman.no')}</td>
+                            <td>{prerequisites.length > 0 ? prerequisites.join(' & ') : '—'}</td>
+                          </tr>
+                          <tr>
+                            <td colSpan={4}>
+                              <strong>{t(`reference.infusionSummary.${entry.id}`)}</strong>
+                              {i18n.exists(`reference.infusionEffect.${entry.id}`) && <p>{t(`reference.infusionEffect.${entry.id}`)}</p>}
+                              {entry.inferred && <p className={styles.note}>{t('reference.infusionInferred')}</p>}
+                            </td>
+                          </tr>
+                        </Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
         </div>
       ))}
     </section>

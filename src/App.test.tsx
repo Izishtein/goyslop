@@ -60,6 +60,7 @@ function makeCharacter(id: string, name: string): Character {
     schools: [],
     schoolSecrets: [],
     makoStone: 0,
+    infusions: [],
   };
 }
 

@@ -25,6 +25,7 @@ import { MountsSection } from './MountsSection';
 import { GeomancerSection } from './GeomancerSection';
 import { TacticianSection } from './TacticianSection';
 import { EssenceWeavingSection } from './EssenceWeavingSection';
+import { InfusionSection } from './InfusionSection';
 import { SchoolsSection } from './SchoolsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
@@ -327,6 +328,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
           <Panel id="skills" activeTab={activeTab}>
             <ArtsSection character={character} />
             <TacticianSection character={character} />
+            <InfusionSection character={character} />
             <WorkSkillsSection character={character} />
           </Panel>
 

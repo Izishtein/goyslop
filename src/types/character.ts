@@ -383,6 +383,13 @@ export const KnownEssenceWeavingSchema = z.object({
 });
 export type KnownEssenceWeaving = z.infer<typeof KnownEssenceWeavingSchema>;
 
+/** Heritor Infusions (Barbarous Rage pp. 57-63) — see data/infusions.ts. One slot per Heritor class level. */
+export const KnownInfusionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type KnownInfusion = z.infer<typeof KnownInfusionSchema>;
+
 /** Battle Mastery Schools (pp. 44-77) — see data/schools.ts. Not tied to any class level:
  *  entry and every Secret are bought with Reputation alone, so unlike Stunts/Aspects there is
  *  no slot count to track, only a free list (the same shape as Combat Feats). */
@@ -585,6 +592,8 @@ export const CharacterSchema = z.object({
   /** Dark Hunter Essence Weavings — see KnownEssenceWeavingSchema. One slot per Dark Hunter
    *  class level, same shape as Rider Stunts. */
   essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
+  /** Heritor Infusions — see KnownInfusionSchema. One slot per Heritor level. */
+  infusions: z.array(KnownInfusionSchema).default(() => []),
   /** Battle Mastery School membership and Secrets — see KnownSchoolSchema/KnownSchoolSecretSchema.
    *  No slot count: both are bought with Reputation alone, like Combat Feats. */
   schools: z.array(KnownSchoolSchema).default(() => []),

@@ -85,6 +85,7 @@ function makeCharacter(): Character {
     schools: [],
     schoolSecrets: [],
     makoStone: 0,
+    infusions: [],
   };
 }
 
