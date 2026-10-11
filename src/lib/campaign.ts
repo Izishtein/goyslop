@@ -19,6 +19,12 @@ export interface CampaignEntry {
   scene: number;
   /** 1–3: how often the oracle's events pick this entry. Rises when it takes part in a scene. */
   weight: number;
+  /** Threads only: 0 = no progress track, else 10, 15 or 20 points (see lib/thread.ts). */
+  trackSize: number;
+  /** Points earned on the track. */
+  progress: number;
+  /** Bit per five-point phase of the track: set when a flashpoint happened in it. */
+  flashpoints: number;
 }
 
 export interface Campaign {
@@ -59,6 +65,9 @@ export function addEntry(
     day: campaign.day,
     scene: input.scene,
     weight: WEIGHT_MIN,
+    trackSize: 0,
+    progress: 0,
+    flashpoints: 0,
   };
   return { ...campaign, entries: [entry, ...campaign.entries] };
 }
@@ -66,7 +75,7 @@ export function addEntry(
 export function updateEntry(
   campaign: Campaign,
   id: string,
-  patch: Partial<Pick<CampaignEntry, 'text' | 'closed' | 'weight'>>,
+  patch: Partial<Pick<CampaignEntry, 'text' | 'closed' | 'weight' | 'trackSize' | 'progress' | 'flashpoints'>>,
 ): Campaign {
   return {
     ...campaign,

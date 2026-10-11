@@ -988,6 +988,31 @@
         "slum": "The poor quarter",
         "keep": "The keep"
       }
+    },
+    "thread": {
+      "track": "Progress track",
+      "trackFor": "Progress track of {{title}}",
+      "noTrack": "none",
+      "points": "{{count}} points",
+      "progressOf": "Progress of {{title}}",
+      "progress": "Progress {{progress}}/{{size}}",
+      "step": "Step toward the goal (+{{points}}): {{title}}",
+      "flashpoint": "Flashpoint (+{{points}}): {{title}}",
+      "flashpointDue": "Flashpoint is due (+{{points}}): {{title}}",
+      "discover": "Discovery check: {{title}}",
+      "conclusion": "The track is full: the thread may be settled, ideally in a dramatic concluding scene.",
+      "dueNote": "No flashpoint in a finished five-point phase: one is owed — a dramatic event about the current situation.",
+      "armorHint": "Plot armor: the thread cannot be settled until the track is full.",
+      "deadEnd": "Dead end: no more searching in this scene.",
+      "session": "A finished main thread counts as a session for experience.",
+      "discoveryLine": "Discovery: {{title}}",
+      "progressWord": "progress",
+      "found": {
+        "progress": "Progress +{{points}}: you find something that brings the goal closer.",
+        "flashpoint": "Flashpoint +{{points}}: a dramatic, important find about the thread.",
+        "track": "Track +{{points}}: nothing useful, but the trying moves you along.",
+        "strengthen": "Strengthened +{{points}}: earlier progress is reinforced — tie it to what you learned before."
+      }
     }
   },
   "guide": {

@@ -258,6 +258,19 @@ export interface AdjustmentEntry extends SceneAdjustment {
   kind: 'adjustment';
 }
 
+/** A discovery check on a thread's progress track (see lib/thread.ts). */
+export interface DiscoveryEntry {
+  kind: 'discovery';
+  title: string;
+  chaos: number;
+  chance: number;
+  roll: number;
+  answer: Answer;
+  deadEnd: boolean;
+  finds: Array<{ d10: number; total: number; result: 'progress' | 'flashpoint' | 'track' | 'strengthen'; points: number }>;
+  event: RandomEvent | null;
+}
+
 export interface EventEntry {
   kind: 'event';
   event: RandomEvent;
@@ -273,7 +286,7 @@ export interface SceneEnd {
   controlled: boolean | null;
 }
 
-export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry) & { id: string };
+export type OracleEntry = (OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry) & { id: string };
 
 export interface OracleState {
   chaos: number;
@@ -295,3 +308,6 @@ export const LOG_LIMIT = 50;
 export function pushEntry(state: OracleState, entry: OracleEntry): OracleState {
   return { ...state, log: [entry, ...state.log].slice(0, LOG_LIMIT) };
 }
+
+/** An entry before it gets its id (Omit does not distribute over the union, this does). */
+export type NewOracleEntry = OracleEntry extends infer E ? (E extends unknown ? Omit<E, 'id'> : never) : never;

@@ -50,6 +50,23 @@ const EntrySchema = z.discriminatedUnion('kind', [
   }),
   z.object({ id: z.string(), kind: z.literal('adjustment'), ...AdjustmentSchema.shape }),
   z.object({
+    ...base,
+    kind: z.literal('discovery'),
+    title: z.string(),
+    chance: z.number(),
+    answer: z.enum(['exceptionalYes', 'yes', 'no', 'exceptionalNo']),
+    deadEnd: z.boolean(),
+    finds: z.array(
+      z.object({
+        d10: z.number().int(),
+        total: z.number().int(),
+        result: z.enum(['progress', 'flashpoint', 'track', 'strengthen']),
+        points: z.number().int(),
+      }),
+    ),
+    event: EventSchema.nullable(),
+  }),
+  z.object({
     id: z.string(),
     kind: z.literal('words'),
     action: z.number().int().min(1).max(WORD_COUNT),

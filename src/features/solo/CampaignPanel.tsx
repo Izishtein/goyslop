@@ -20,6 +20,8 @@ import {
 import { calendarOf } from '../../lib/calendar';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
+import { ThreadTrack } from './ThreadTrack';
+import { plotArmor } from '../../lib/thread';
 import styles from './SoloView.module.css';
 
 export function CampaignPanel() {
@@ -123,6 +125,7 @@ export function CampaignPanel() {
                 rows={2}
                 onChange={(e) => setCampaign((current) => updateEntry(current, entry.id, { text: e.target.value }))}
               />
+              {entry.kind === 'thread' && <ThreadTrack entry={entry} />}
               <div className={styles.controls}>
                 {isEventSource(entry.kind) && (
                   <>
@@ -146,7 +149,11 @@ export function CampaignPanel() {
                   </>
                 )}
                 {isSettleable(entry.kind) && (
-                  <button type="button" onClick={() => setCampaign((current) => updateEntry(current, entry.id, { closed: !entry.closed }))}>
+                  <button
+                    type="button"
+                    disabled={!entry.closed && plotArmor(entry)}
+                    title={!entry.closed && plotArmor(entry) ? t('solo.thread.armorHint') : undefined}
+                    onClick={() => setCampaign((current) => updateEntry(current, entry.id, { closed: !entry.closed }))}>
                     {t(entry.closed ? 'solo.campaign.reopen' : entry.kind === 'threat' ? 'solo.campaign.settleThreat' : 'solo.campaign.settleThread')}
                   </button>
                 )}

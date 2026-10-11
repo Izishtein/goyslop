@@ -23,6 +23,7 @@ import {
   type EventOptions,
   type Likelihood,
   type AdjustmentEntry,
+  type DiscoveryEntry,
   type OracleAnswer,
   type OracleEntry,
   type OracleState,
@@ -37,7 +38,7 @@ import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
 import styles from './SoloView.module.css';
 
-type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry;
+type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry;
 
 function AdjustmentLine({ adjustment }: { adjustment: SceneAdjustment }) {
   const { t } = useTranslation();
@@ -82,6 +83,23 @@ function EntryLine({ entry }: { entry: OracleEntry }) {
         </p>
         {entry.event && <EventLine event={entry.event} />}
         {entry.adjustment && <AdjustmentLine adjustment={entry.adjustment} />}
+      </li>
+    );
+  }
+  if (entry.kind === 'discovery') {
+    return (
+      <li>
+        <p>
+          <strong>{t('solo.thread.discoveryLine', { title: entry.title })}</strong> · {t(`solo.oracle.answer.${entry.answer}`)},{' '}
+          {t('solo.oracle.rollLine', { roll: entry.roll, chance: entry.chance })}
+        </p>
+        {entry.finds.map((find, index) => (
+          <p key={index}>
+            {t(`solo.thread.found.${find.result}`, { points: find.points })} (d10 + {t('solo.thread.progressWord')} = {find.total})
+          </p>
+        ))}
+        {entry.deadEnd && <p>{t('solo.thread.deadEnd')}</p>}
+        {entry.event && <EventLine event={entry.event} />}
       </li>
     );
   }
