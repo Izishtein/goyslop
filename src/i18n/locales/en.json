@@ -2122,7 +2122,8 @@
       "powerTable": "Power Table",
       "monsters": "Monsters",
       "infusions": "Heritor Infusions",
-      "sections": "Sections"
+      "sections": "Sections",
+      "uniqueSkills": "Unique skills"
     },
     "classDescription": {
       "fighter": "Heavy weapons and armour — the party's front line and its main damage dealer.",
@@ -4277,6 +4278,149 @@
       "evilEye": "Evil Eye",
       "scorpion": "Scorpion",
       "pincers": "Pincers"
-    }
+    },
+    "uniqueSkill": {
+      "daemonic-roar": {
+        "any": "Everyone within a 6 m radius of the Diablo gets −2 to Fortitude and Willpower for 3 minutes (18 rounds)."
+      },
+      "raw-deal": {
+        "any": "Range 2 (30 m), an area of 6 m radius, up to 20 targets: for 10 seconds (1 round) they take a weak point of +3 damage from poison, disease and curse types. Once per round."
+      },
+      "daemonic-eyes": {
+        "any": "Range 1 (10 m), any number of targets: 2 points of curse magic damage to each; afterwards the Diablo recovers HP equal to the damage dealt in all (the Main Section, when transformed)."
+      },
+      "soul-absorption": {
+        "any": "Range 1 (10 m), a shot at any number of targets: Power 40 + Heritor level + INT modifier curse magic damage to HP and MP. For each target that fails to resist the user (the section using it) recovers 10 HP and 10 MP."
+      },
+      "chain-of-curses": {
+        "any": "Range 1 (10 m), any number of targets: Power 20 + Heritor level + INT modifier (Crit 10) curse magic damage to each. The HP is paid once, from the Main Section when transformed."
+      },
+      "erosive-poisonous-breath": {
+        "any": "Range 1 (10 m), a shot into an area of 4 m radius, up to 10 targets: Power 10 + Heritor level + VIT modifier (Crit 10) poison magic damage."
+      },
+      "breath-of-light": {
+        "any": "Range 2 (30 m), a shot at one character: Power 20 + Adventurer level + VIT modifier energy magic damage. No stray shot if the Drake has [Targeting]. Once per round, not on consecutive turns. Needs no Infusion; [Shining Light Breath] and [Radiant Breath] strengthen it."
+      },
+      "evil-eye-of-petrification": {
+        "B": "Taken automatically at creation. Range 1 (10 m), one character: Petrification (Dexterity or Agility / −6). A mirror can turn it back on the Basilisk (p. 73).",
+        "A": "As B, range 2 (30 m); +1 to the Success Value the first time.",
+        "S": "As A, range 2 (50 m); Petrification (Dexterity or Intelligence / −6) or (Agility or Intelligence / −6), changeable each use.",
+        "SS": "As S, but the score drops by −12; the three accumulations a monster-data character needs for full petrification stay the same."
+      },
+      "evil-eye-of-destruction": {
+        "B": "On learning, the type and Eye Of Stone colour are chosen once: earth/yellow, water-ice/blue, fire/red, wind/green, lightning/purple, energy/white, slashing/silver or bludgeoning/black. Range 1 (10 m), one character: Power 10 + Adventurer level + SPR modifier (Crit 10).",
+        "A": "As B, range 2 (30 m).",
+        "S": "As A, Power 20, range 2 (50 m).",
+        "SS": "As S, Power 30, any point in range."
+      },
+      "evil-eye-of-unlocking": {
+        "B": "Eye Of Stone turns yellow. Range 1 (10 m), one object: destroys its locks (a magical lock: Success Values are compared).",
+        "A": "As B, range 2 (30 m).",
+        "S": "Destroys every mechanical fastening (screws, nails, clasps; glue and welds hold). May target a character: on a failed Willpower check all fastenings of what they wear or hold go. Magical gear: a separate comparison, as Truespeech 15 [Perfect Cancellation].",
+        "SS": "Destroys a structure of 100 HP or less whatever its material or Defense, optionally only a simple shape big enough to pass through. Magical protection: Success Values are compared."
+      },
+      "evil-eye-of-revitalization": {
+        "B": "Eye Of Stone turns blue. Stare 1 minute (one resistance check at the end): for the next 12 hours the target’s HP recovery from sleep equals the MP ratio (50% per 3 hours). Range 1 (10 m).",
+        "A": "A Minor Action: cancels every Technique on the target and restores 1 MP for each cancelled.",
+        "S": "Halves the remaining duration of poison and disease effects that are not permanent (rounded up in rounds), with no comparison of Success Values.",
+        "SS": "Rejuvenates the target to half its physical age; the second time on the same target to 1 year old (it then loses its memory, a Runefolk excepted)."
+      },
+      "evil-eye-of-exaltation": {
+        "B": "Eye Of Stone turns red. Range 1 (10 m), one character: +6 to Agility or Strength for 10 seconds (1 round).",
+        "A": "As B, range 2 (30 m).",
+        "S": "As A, and the target is immune to psychic effects for the duration.",
+        "SS": "Lasts 3 minutes (18 rounds), +12 to the chosen score, with psychic immunity; different scores may be raised on the same target."
+      },
+      "evil-eye-of-dissipation": {
+        "B": "Eye Of Stone turns green. Range 1 (10 m), one character: one temporary effect (magic, Technique, Spellsong, Evocation, Stratagem…) lost at random, among those the Success Value can remove.",
+        "A": "As B, range 2 (30 m).",
+        "S": "As A, and every temporary effect the Basilisk wins the comparison against is lost.",
+        "SS": "Use it first as A or S (paying that cost); then the Basilisk recovers 3 HP and 3 MP per effect lost (one section of the Eye in monstrous form)."
+      },
+      "evil-eye-of-revivification": {
+        "B": "Eye Of Stone turns green. Stare 10 minutes (one Willpower check at the end), range 1 (10 m), one character: an unconscious target at 0 HP or less wakes with 1 HP.",
+        "A": "Usable as a Minor Action, range 2 (30 m).",
+        "S": "Also restores a disabled section (CR III p. 99).",
+        "SS": "Resistance becomes Neg, and the target is resurrected by force like [Resurrection] (CR II p. 135) without losing its memory; a curse type, so it works against the target’s will if Willpower fails. The target’s soulscar grows."
+      },
+      "all-seeing-evil-eye": {
+        "B": "Eye Of Stone turns purple. Always on, no MP: the Basilisk sees everything within 2–3 areas (10 m radius) as in plain sight, is not caught from behind, and gets +2 to Danger Sense checks against Hide or the like; it also sees through invisibility there.",
+        "A": "Within all areas (30 m radius) the Basilisk senses and sees the invisible, with no action restrictions or penalties for invisibility.",
+        "S": "A Minor Action, once per round: marks an invisible character in range 2 (30 m) for 1 minute (6 rounds) — its outline is plain to all, and invisibility gives no benefit. Resistance: Can’t.",
+        "SS": "Automatically sees through every [Mimicry] in range."
+      },
+      "evil-eye-of-manipulation": {
+        "B": "Eye Of Stone turns white or colourless. Range 1 (10 m), one character: it cannot make a Full Move.",
+        "A": "As B, and for 10 seconds (1 round) no special movement by magic, items or unique skills, and no abilities that assist movement ([Shadow Sneak]); only walking or flying with its own body.",
+        "S": "As A, range 2 (50 m).",
+        "SS": "Range 2 (20 m): transfers the target where the Basilisk wishes (in Simplified Combat any area it can see; otherwise any point within 20 m, in the air too — a target that cannot fly takes fall damage)."
+      },
+      "evil-eye-of-stagnation": {
+        "B": "Eye Of Stone turns black. Range 1 (10 m), one character: no Minor Actions for 10 seconds (1 round); what a Minor Action does can still be done as a Major Action.",
+        "A": "As B, range 2 (30 m).",
+        "S": "As A, and +1 to the Success Value.",
+        "SS": "For 1 round the target loses one Major Action and all Minor Actions (with several Major Actions the count drops by one; extra actions such as [Haste] are not cut, but no Minor Action is possible)."
+      },
+      "evil-eye-of-the-soul-transfer": {
+        "B": "Eye Of Stone turns silver. Stare 1 minute (one Willpower check at the end), range 1 (10 m): the Basilisk possesses the target for 1 minute (6 rounds) and controls its body (physical abilities are the target’s); the target is unconscious and perceives nothing. The Basilisk’s own body (all sections) turns to mineral meanwhile.",
+        "A": "As B, range 2 (50 m).",
+        "S": "As B, but it lasts through the night (18:00 to 6:00); no effect if begun before 18:00, and it ends at 6:00.",
+        "SS": "Two targets, both failing Willpower: their consciousnesses are exchanged and fused, permanently, range as A. The one who holds the body switches between night and day; the body whose mind was moved turns to mineral."
+      },
+      "fire-weapon": {
+        "any": "Range: caster, area of 3 m radius, up to 5 targets: for 3 minutes (18 rounds) their melee and ranged attacks are fire-type attacks with a magical weapon and deal +2 physical damage. Treated as Spiritualism [Fire Weapon]. Level 6: a Minor Action; level 11: +2 more (+4)."
+      },
+      "fire-shield": {
+        "any": "Range: caster, area of 3 m radius, up to 5 targets: +2 Defense for 3 minutes (18 rounds); whoever attacks them in melee or with a Range: Touch effect takes 1 point of fire magic damage afterwards. Level 6: that damage +2 (3); level 11: Defense +3 more (+5)."
+      },
+      "poisonous-tail": {
+        "any": "Rides on the Scorpion Tail: a target hit by the Scorpion Tail attack also takes 1d poison magic damage unless the Fortitude check negates it. The Infusions Weakening Venom, Stronger Poison and Deadly Poison strengthen it."
+      }
+    },
+    "uniqueSkillUi": {
+      "tab": "Unique skills",
+      "note": "Barbarous Rage pp. 65–68: what the Barbarous races do instead of casting spells. The Success Value is 2d6 plus the Standard Value; the target answers with the save named. Costs are as printed — “—” means the rank prints none of its own. A lower rank can always be used instead of the one learned.",
+      "standard": "Standard Value",
+      "resistance": "Resistance",
+      "save": "Save",
+      "cost": {
+        "mp": "{{mp}} MP",
+        "mpTarget": "{{mp}} MP per target",
+        "hpMpTarget": "{{hp}} HP + {{mp}} MP per target (the HP once)"
+      },
+      "rank": "Rank",
+      "none": "—",
+      "race": {
+        "diablo": "Diablo — learned through the Infusion of the same name",
+        "drake": "Drake",
+        "basilisk": "Basilisk — Petrification at rank B from creation, the rest through Infusions",
+        "arbor": "Arbor — one of the two at creation",
+        "scissorscorpion": "Scissorscorpion"
+      },
+      "basis": {
+        "heritor": "Heritor level",
+        "adventurer": "Adventurer level",
+        "INT": "INT modifier",
+        "VIT": "VIT modifier",
+        "SPR": "SPR modifier"
+      },
+      "resist": {
+        "neg": "Negated",
+        "half": "Halved",
+        "temporary": "Temporary",
+        "optional": "Optional",
+        "cant": "Can’t",
+        "none": "none"
+      },
+      "section": "Unique skills",
+      "sectionNote": "Pick the skills the character has learned; each rolls 2d6 + its Standard Value. Cost and effect are in the Reference.",
+      "add": "Add a skill",
+      "addButton": "Add",
+      "empty": "No skills picked yet.",
+      "useRank": "Rank used",
+      "roll": "Success Value",
+      "costHeader": "Cost"
+    },
+    "uniqueSkillsNote": "Barbarous Rage pp. 65–68: what the Barbarous races do instead of casting spells. The Success Value is 2d6 plus the Standard Value; the target answers with the save named. Costs are as printed — “—” means the rank prints none of its own. A lower rank can always be used instead of the one learned."
   }
 }

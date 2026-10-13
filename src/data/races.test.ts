@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getRace, racialAbilitiesFor, RACES } from './races';
+import { classLevelCap, getRace, racialAbilitiesFor, RACES } from './races';
+import { getClass } from './classes';
 import { ABILITY_IDS } from '../lib/formulas/abilities';
 import { formatDiceNotation } from '../lib/formulas/ability-base';
 
@@ -34,9 +35,9 @@ describe('races catalog', () => {
     expect(alv?.usesVagrantSystem).toBe(true);
   });
 
-  it('has 48 races with unique ids', () => {
-    expect(RACES).toHaveLength(48);
-    expect(new Set(RACES.map((race) => race.id)).size).toBe(48);
+  it('has 54 races with unique ids', () => {
+    expect(RACES).toHaveLength(54);
+    expect(new Set(RACES.map((race) => race.id)).size).toBe(54);
   });
 
   it('races with ability dice also have background tables, and vice versa', () => {
@@ -301,6 +302,74 @@ describe('races catalog', () => {
       expect(steps('drake')).toEqual(['Darkvision@0', 'Magic Sword@0', 'Flying@0', 'Dragonification@0', 'Dragonification@6', 'Dragonification@11', 'Flying II@13']);
       expect(steps('basilisk')).toEqual(['Evil Eyes and Petrifying Gaze@0', 'Poisonous Blood@0', 'Monstrous Form@0', 'Monstrous Form@6', 'Poisonous Blood@9', 'Monstrous Form@11']);
       expect(steps('scissorscorpion')).toEqual(['Darkvision@0', 'Scorpion Body@0', 'Scorpion Body Art@0', 'Scorpion Body@6', 'Scorpion Body Art@11']);
+    });
+  });
+
+  describe('Barbarous Rage races with one section (Dark Troll, Arbor, Baba Yaga, Centaur, Dawn, Kobold)', () => {
+    const IDS = ['dark-troll', 'arbor', 'baba-yaga', 'centaur', 'dawn', 'kobold'];
+
+    it('have full dice and two five-row background tables that cover 2-12 each', () => {
+      for (const id of IDS) {
+        const race = getRace(id);
+        expect(race?.abilityDice, id).not.toBeNull();
+        expect(race?.sourceBook, id).toBe('Barbarous Rage');
+        for (const table of [race?.backgroundTables?.primary ?? [], race?.backgroundTables?.additional ?? []]) {
+          expect(table, id).toHaveLength(5);
+          const covered = new Set<number>();
+          for (const row of table) {
+            const [lo, hi] = row.rollRange.includes('-') ? row.rollRange.split('-').map(Number) : [Number(row.rollRange), Number(row.rollRange)];
+            for (let n = lo; n <= hi; n += 1) covered.add(n);
+          }
+          expect([...covered].sort((a, b) => a - b), id).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+        }
+      }
+    });
+
+    it('prints the corrections of pp. 24, 28, 32, 36, 44 and 48', () => {
+      const notation = (id: string) => ABILITY_IDS.map((ability) => formatDiceNotation(getRace(id)!.abilityDice![ability])).join(' ');
+      expect(notation('dark-troll')).toBe('2d6 1d6 2d6 2d6+6 1d6 2d6');
+      expect(notation('arbor')).toBe('2d6 2d6 1d6 1d6+3 2d6 2d6');
+      expect(notation('baba-yaga')).toBe('2d6 1d6 1d6 1d6 2d6 1d6+6');
+      expect(notation('centaur')).toBe('2d6+6 1d6 2d6 2d6 1d6 2d6');
+      expect(notation('dawn')).toBe('2d6+6 2d6 1d6 2d6 2d6 1d6');
+      expect(notation('kobold')).toBe('2d6 2d6 1d6 1d6 2d6 2d6');
+    });
+
+    it("sums every row's Skill+Body+Mind to one total per race: 30, 30, 26, 26, 27 and 18", () => {
+      const totals: Record<string, number> = { 'dark-troll': 30, arbor: 30, 'baba-yaga': 26, centaur: 26, dawn: 27, kobold: 18 };
+      for (const id of IDS) {
+        const race = getRace(id);
+        const rows = [...(race?.backgroundTables?.primary ?? []), ...(race?.backgroundTables?.additional ?? [])];
+        for (const row of rows) expect(row.stats![0] + row.stats![1] + row.stats![2], `${id} ${row.name}`).toBe(totals[id]);
+      }
+    });
+
+    it('start only classes that exist, and offer the Kobold Hobbyist as a choice of Sage or Bard', () => {
+      for (const id of IDS) {
+        const race = getRace(id);
+        for (const row of [...(race?.backgroundTables?.primary ?? []), ...(race?.backgroundTables?.additional ?? [])]) {
+          for (const classId of row.startingClasses?.classIds ?? []) expect(getClass(classId), `${id} ${row.name}: ${classId}`).toBeDefined();
+        }
+      }
+      const hobbyist = getRace('kobold')?.backgroundTables?.primary.find((row) => row.name === 'Hobbyist');
+      expect(hobbyist?.startingClasses).toEqual({ classIds: ['sage', 'bard'], joiner: 'or' });
+    });
+
+    it('bars the Centaur from Grappler only, and the Kobold from nothing but level 5', () => {
+      expect(IDS.filter((id) => getRace(id)!.restrictedClasses.length > 0)).toEqual(['centaur']);
+      expect(getRace('centaur')?.restrictedClasses).toEqual(['grappler']);
+      expect(classLevelCap('kobold', 15)).toBe(5);
+      expect(classLevelCap('human', 15)).toBe(15);
+    });
+
+    it('name the abilities with the enhancement steps the books print', () => {
+      const steps = (id: string) => racialAbilitiesFor(id).map((ability) => `${ability.name}@${ability.fromLevel}`);
+      expect(steps('dark-troll')).toEqual(['Darkvision@0', 'Weakened@0', 'Troll Physique@0', 'Limited Regeneration@6', 'Limited Regeneration@11']);
+      expect(steps('arbor')).toEqual(['Flame of Anger@0', 'Flame of Anger@6', 'Flame of Anger@11']);
+      expect(steps('baba-yaga')).toEqual(['Witch Transformation@0', "Witch's Fire@0", "Witch's Fire@6", "Witch's Fire@11"]);
+      expect(steps('centaur')).toEqual(['Half-Horse, Half-Human@0', 'Martial Art of the Horse People@0', 'Martial Art of the Horse People@6', 'Martial Art of the Horse People@11']);
+      expect(steps('dawn')).toEqual(['Darkvision@0', 'Assassination Skills@0', 'Familiar Darkness@0', 'Assassination Skills@6', 'Assassination Skills@11', 'Familiar Darkness@11']);
+      expect(steps('kobold')).toEqual(['Species Limit@0', 'Disregard@0', 'Attention to Detail@0']);
     });
   });
 

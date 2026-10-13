@@ -14,6 +14,8 @@ import { CONSUMABLE_PRESETS } from '../../data/consumables';
 import { listEssenceWeavingsByLevel } from '../../data/essence-weavings';
 import { basicValues, FORMS, INNATE_KINDS, INNATE_RANKS, INNATE_WEAPONS, SECTION_COLUMNS, HERITOR_MAX_LEVEL } from '../../data/sections';
 import { getInfusion, INFUSION_RACES, INFUSION_TIERS, INFUSIONS } from '../../data/infusions';
+import { UNIQUE_SKILL_RACES, uniqueSkillsOf, type UniqueSkillDefinition } from '../../data/unique-skills';
+import { costParts } from '../../lib/unique-skills';
 import { POWER_TABLE } from '../../lib/formulas/power-table';
 import {
   ARMORS,
@@ -1006,6 +1008,68 @@ export function InfusionsReference() {
               </div>
             );
           })}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+/** What a skill's Success Value is made of, in words: "Adventurer level + SPR modifier". */
+function standardValueWords(skill: UniqueSkillDefinition, t: (key: string) => string): string {
+  if (!skill.standard) return t('reference.uniqueSkillUi.none');
+  return `${t(`reference.uniqueSkillUi.basis.${skill.standard.level}`)} + ${t(`reference.uniqueSkillUi.basis.${skill.standard.ability}`)}`;
+}
+
+export function UniqueSkillsReference() {
+  const { t } = useTranslation();
+
+  return (
+    <section className={styles.panel} aria-labelledby="reference-unique-skills">
+      <div className={styles.panelHead}>
+        <h3 id="reference-unique-skills">{t('reference.tab.uniqueSkills')}</h3>
+        <p className={styles.note}>{t('reference.uniqueSkillsNote')}</p>
+      </div>
+
+      {UNIQUE_SKILL_RACES.map((race) => (
+        <div key={race} className={styles.group}>
+          <h4>{t(`reference.uniqueSkillUi.race.${race}`)}</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('sheet.name')}</th>
+                  <th>{t('reference.uniqueSkillUi.standard')}</th>
+                  <th>{t('reference.uniqueSkillUi.resistance')}</th>
+                  <th>{t('reference.uniqueSkillUi.rank')}</th>
+                  <th>{t('reference.uniqueSkillUi.costHeader')}</th>
+                  <th>{t('sheet.itemNote')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uniqueSkillsOf(race).map((skill) =>
+                  skill.ranks.map((entry, index) => (
+                    <tr key={`${skill.id}-${entry.rank}`}>
+                      {index === 0 && (
+                        <>
+                          <th scope="row" className={styles.rowName} rowSpan={skill.ranks.length}>
+                            {skill.name}
+                          </th>
+                          <td rowSpan={skill.ranks.length}>{standardValueWords(skill, t)}</td>
+                          <td rowSpan={skill.ranks.length}>
+                            {t(`reference.uniqueSkillUi.resist.${skill.resistance}`)}
+                            {skill.resistSave && ` (${skill.resistSave})`}
+                          </td>
+                        </>
+                      )}
+                      <td>{entry.rank === 'any' ? '—' : entry.rank}</td>
+                      <td>{entry.cost ? t(`reference.uniqueSkillUi.cost.${costParts(entry.cost).key}`, costParts(entry.cost).values) : '—'}</td>
+                      <td>{t(`reference.uniqueSkill.${skill.id}.${entry.rank}`)}</td>
+                    </tr>
+                  )),
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </section>

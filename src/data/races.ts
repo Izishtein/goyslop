@@ -1193,6 +1193,147 @@ export const RACES: RaceDefinition[] = [
       ],
     },
   },
+  // Barbarous Rage pp. 23-38 and 43-50 - the six Barbarous races with a single section (docs/sheet-content/44-barbarous-rage-single-section-races.md).
+  // They keep one body: no Heritor background, no sections table. Their data is the dice, two tables and the
+  // racial abilities below; the Kobold's level ceiling is CLASS_LEVEL_CAPS, the Centaur's "Grappler" ban is the only class restriction among them.
+  {
+    id: 'dark-troll',
+    name: 'Dark Troll',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d', '1d', '2d', '2d+6', '1d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [9, 13, 8], 2500),
+        bg('5-6', 'Boxer', ['grappler'], [10, 14, 6], 2000),
+        bg('7', 'Warrior', ['fighter'], [9, 14, 7], 2000),
+        bg('8-9', 'Priest', ['priest'], [8, 13, 9], 2000),
+        bg('10-12', 'Spy', ['scout'], [10, 13, 7], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Tactician', ['tactician'], [9, 12, 9], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [10, 12, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [11, 14, 5], 2000),
+        bg('8-9', 'Jockey', ['rider'], [11, 12, 7], 2500),
+        bg('10-12', 'Hunter', ['ranger'], [11, 13, 6], 2500),
+      ],
+    },
+  },
+  {
+    id: 'arbor',
+    name: 'Arbor',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d', '2d', '1d', '1d+3', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Fairy Tamer', ['fairy-tamer'], [9, 7, 14], 2000),
+        bg('5-6', 'Sorcerer', ['sorcerer'], [10, 7, 13], 2000),
+        bg('7', 'Conjurer', ['conjurer'], [11, 7, 12], 2000),
+        bg('8-9', 'Priest', ['priest'], [11, 8, 11], 2000),
+        bg('10-12', 'Spy', ['scout'], [12, 8, 10], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Warlock', ['daemonologist'], [9, 8, 13], 2000),
+        bg('5-6', 'Geomancer', ['geomancer'], [10, 9, 11], 2500),
+        bg('7', 'Druid', ['druid'], [11, 7, 12], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [10, 10, 10], 2500),
+        bg('10-12', 'Sage', ['sage'], [10, 8, 12], 2500),
+      ],
+    },
+  },
+  {
+    id: 'baba-yaga',
+    name: 'Baba Yaga',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d', '1d', '1d', '1d', '2d', '1d+6'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Sage', ['sage'], [9, 8, 9], 2500),
+        bg('5-6', 'Conjurer', ['conjurer'], [8, 8, 10], 2000),
+        bg('7', 'Sorcerer', ['sorcerer'], [7, 8, 11], 2000),
+        bg('8-9', 'Priest', ['priest'], [7, 10, 9], 2000),
+        bg('10-12', 'Fairy Tamer', ['fairy-tamer'], [7, 9, 10], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Hunter', ['ranger'], [10, 6, 10], 2500),
+        bg('5-6', 'Tactician', ['tactician'], [8, 9, 9], 2500),
+        bg('7', 'Warlock', ['daemonologist'], [7, 7, 12], 2000),
+        bg('8-9', 'Druid', ['druid'], [9, 6, 11], 2000),
+        bg('10-12', 'Geomancer', ['geomancer'], [10, 8, 8], 2500),
+      ],
+    },
+  },
+  {
+    id: 'centaur',
+    name: 'Centaur',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d+6', '1d', '2d', '2d', '1d', '2d'),
+    restrictedClasses: ['grappler'],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Bodybuilder', ['enhancer'], [8, 9, 9], 2500),
+        bg('5-6', 'Fairy Tamer', ['fairy-tamer'], [7, 9, 10], 2000),
+        bg('7', 'Warrior', ['fighter'], [8, 10, 8], 2000),
+        bg('8-9', 'Sorcerer', ['sorcerer'], [7, 8, 11], 2000),
+        bg('10-12', 'Hunter', ['ranger'], [9, 8, 9], 2500),
+      ],
+      additional: [
+        bg('2-4', 'Druid', ['druid'], [8, 7, 11], 2000),
+        bg('5-6', 'Agile Warrior', ['fencer'], [10, 8, 8], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [9, 10, 7], 2000),
+        bg('8-9', 'Tactician', ['tactician'], [9, 9, 8], 2500),
+        bg('10-12', 'Geomancer', ['geomancer'], [8, 8, 10], 2500),
+      ],
+    },
+  },
+  {
+    id: 'dawn',
+    name: 'Dawn',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d+6', '2d', '1d', '2d', '2d', '1d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Sorcerer', ['sorcerer'], [9, 6, 12], 2000),
+        bg('5-6', 'Boxer', ['grappler'], [11, 5, 11], 2000),
+        bg('7', 'Assassin', ['fencer'], [12, 6, 9], 2500),
+        bg('8-9', 'Spy', ['scout'], [11, 6, 10], 2500),
+        bg('10-12', 'Priest', ['priest'], [10, 7, 10], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Geomancer', ['geomancer'], [11, 7, 9], 2500),
+        bg('5-6', 'Archer', ['marksman'], [12, 4, 11], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [10, 7, 10], 2000),
+        bg('8-9', 'Warrior', ['fighter'], [11, 8, 8], 2000),
+        bg('10-12', 'Warlock', ['daemonologist'], [11, 5, 11], 2000),
+      ],
+    },
+  },
+  {
+    id: 'kobold',
+    name: 'Kobold',
+    sourceBook: 'Barbarous Rage',
+    abilityDice: dice('2d', '2d', '1d', '1d', '2d', '2d'),
+    restrictedClasses: [],
+    backgroundTables: {
+      primary: [
+        bg('2-4', 'Hobbyist', ['sage', 'bard'], [7, 4, 7], 2500, 'or'),
+        bg('5-6', 'Scout', ['scout'], [9, 4, 5], 2500),
+        bg('7', 'Agile Warrior', ['fencer'], [8, 5, 5], 2500),
+        bg('8-9', 'Hunter', ['ranger'], [7, 5, 6], 2500),
+        bg('10-12', 'Sorcerer', ['sorcerer'], [6, 4, 8], 2000),
+      ],
+      additional: [
+        bg('2-4', 'Officer', ['tactician'], [8, 4, 6], 2500),
+        bg('5-6', 'Geomancer', ['geomancer'], [6, 6, 6], 2500),
+        bg('7', 'Dancer', ['battle-dancer'], [7, 6, 5], 2000),
+        bg('8-9', 'Archer', ['marksman'], [9, 5, 4], 2500),
+        bg('10-12', 'Artificer', ['artificer'], [8, 3, 7], 2000),
+      ],
+    },
+  },
 ];
 
 export function getRace(id: string): RaceDefinition | undefined {
@@ -1536,8 +1677,57 @@ const RACIAL_ABILITIES: Record<string, RacialAbility[]> = {
     { name: 'Scorpion Body', fromLevel: 6 },
     { name: 'Scorpion Body Art', fromLevel: 11 },
   ],
+  // Barbarous Rage pp. 24, 28, 32, 36, 44, 48. [Flame of Anger] and [Witch's Fire] each grow at 6 and 11; the Dark Troll's
+  // [Limited Regeneration] is a new ability at 6 and a Minor Action at 11; the Dawn's [Assassination Skills] steps to
+  // A-rank Talons at 6 and S-rank Piercing Claws at 11. The Kobold has no enhancements, and a ceiling instead (CLASS_LEVEL_CAPS).
+  'dark-troll': [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Weakened', fromLevel: 0 },
+    { name: 'Troll Physique', fromLevel: 0 },
+    { name: 'Limited Regeneration', fromLevel: 6 },
+    { name: 'Limited Regeneration', fromLevel: 11 },
+  ],
+  arbor: [
+    { name: 'Flame of Anger', fromLevel: 0 },
+    { name: 'Flame of Anger', fromLevel: 6 },
+    { name: 'Flame of Anger', fromLevel: 11 },
+  ],
+  'baba-yaga': [
+    { name: 'Witch Transformation', fromLevel: 0 },
+    { name: "Witch's Fire", fromLevel: 0 },
+    { name: "Witch's Fire", fromLevel: 6 },
+    { name: "Witch's Fire", fromLevel: 11 },
+  ],
+  centaur: [
+    { name: 'Half-Horse, Half-Human', fromLevel: 0 },
+    { name: 'Martial Art of the Horse People', fromLevel: 0 },
+    { name: 'Martial Art of the Horse People', fromLevel: 6 },
+    { name: 'Martial Art of the Horse People', fromLevel: 11 },
+  ],
+  dawn: [
+    { name: 'Darkvision', fromLevel: 0 },
+    { name: 'Assassination Skills', fromLevel: 0 },
+    { name: 'Familiar Darkness', fromLevel: 0 },
+    { name: 'Assassination Skills', fromLevel: 6 },
+    { name: 'Assassination Skills', fromLevel: 11 },
+    { name: 'Familiar Darkness', fromLevel: 11 },
+  ],
+  kobold: [
+    { name: 'Species Limit', fromLevel: 0 },
+    { name: 'Disregard', fromLevel: 0 },
+    { name: 'Attention to Detail', fromLevel: 0 },
+  ],
 };
 
 export function racialAbilitiesFor(raceId: string): RacialAbility[] {
   return RACIAL_ABILITIES[raceId] ?? [];
 }
+
+/**
+ * The highest level a race lets a class reach, where it is lower than the game's own ceiling: the Kobold's
+ * [Species Limit] ("can only advance to the 5th level in any adventurer class", Barbarous Rage p. 48).
+ */
+export const CLASS_LEVEL_CAPS: Record<string, number> = { kobold: 5 };
+
+/** A class level cap for this race, or `fallback` when it has none. */
+export const classLevelCap = (raceId: string, fallback: number): number => Math.min(fallback, CLASS_LEVEL_CAPS[raceId] ?? fallback);

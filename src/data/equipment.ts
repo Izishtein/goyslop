@@ -20,6 +20,7 @@
 import type { EquipmentRank } from '../types/character';
 
 const CORE3 = 'Core Rulebook III';
+const BARBAROUS_RAGE = 'Barbarous Rage';
 const AGE_OF_GRIMOIRE = 'Age of Grimoire (SW 2.0)';
 const MAGUS_ARTS = 'Magus Arts';
 const BARBAROUS_SAGA = 'Barbarous Saga';
@@ -161,6 +162,11 @@ export const WEAPONS: WeaponDefinition[] = [
 
   // Wrestling — p. 214
   weapon('wrestling', 'B', 'Bite', [row('2H#', 1, 0, 11, 10, 0)], { notes: 'Bite is needed' }),
+  // Barbarous Rage p. 64 (innate weapons, no price) and p. 44 ([Assassination Skills]: +1 Accuracy and +2/+3/+4 Extra Damage on top of the table, S-rank Accuracy +2 more).
+  weapon('wrestling', 'B', 'Hoof', [row('1H#', 1, 0, 11, 10, 0)], { sourceBook: BARBAROUS_RAGE, notes: 'Centaur innate weapon' }),
+  weapon('wrestling', 'B', 'Claws (Dawn)', [row('1HW', 1, 1, 6, 10, 2)], { sourceBook: BARBAROUS_RAGE, notes: 'Dawn innate weapon: Assassination Skills' }),
+  weapon('wrestling', 'A', 'Talons (Dawn)', [row('1HW', 1, 1, 16, 10, 3)], { sourceBook: BARBAROUS_RAGE, notes: 'Dawn innate weapon at level 6' }),
+  weapon('wrestling', 'S', 'Piercing Claws (Dawn)', [row('1HW', 1, 3, 21, 10, 4)], { sourceBook: BARBAROUS_RAGE, notes: 'Dawn innate weapon at level 11' }),
   weapon('wrestling', 'SS', 'Whirl Catcher', [row('2H', 5, 2, 20, 11, 3)], { price: 40000, notes: 'Grappler only; improves Throw' }),
   weapon('wrestling', 'SS', 'Hands Of Glory', [row('1HW', 10, 1, 30, 11, 1)], {
     price: 45000,
@@ -451,6 +457,29 @@ export const GENERAL_ITEMS: GeneralItemDefinition[] = [
   // Ammunition — p. 217
   item('ammunition', 'Kaburaya', '5', 'Whistles when shot from a bow'),
   item('ammunition', 'Dragon Arrow/Quarrel', '44,800', 'Fire magic damage in "Area: Line"; always recoverable'),
+
+  // Barbarous Rage pp. 69-72 — items for Barbarous PCs and anyone with a "soulscar". The three that are
+  // "not an item" (Drake's Magic Sword, Eye Of Stone, Diablo Core) are listed as class items so the sheet can name them.
+  item('classItem', "Drake's Magic Sword", 'Cannot be traded', 'Drake only: one B-rank melee weapon of any category, chosen at creation; a magical implement; enhanced only by Infusions; [Dragonification] takes it into the body', { stance: '-', sourceBook: BARBAROUS_RAGE }),
+  item('classItem', 'Eye Of Stone', 'Cannot be traded', "Basilisk's Evil Eye itself: changes colour with the Evil Eye used; a magical implement; cannot be handed over or discarded", { stance: '-', sourceBook: BARBAROUS_RAGE }),
+  item('classItem', 'Diablo Core', 'Cannot be traded', 'Diablo only: the gem of transformation and flight; holds items for [Core of Holding]; cannot be handed over or discarded', { stance: '-', sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Barbarous Portable Set', '100', 'The Adventurer Set (CR I p. 290) for Barbarous', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Soulscar Shackles', '3,000', 'Binds those with few soulscars: 0–1 soulscars: speed 1 and all skill checks −4; 2: all skill checks −2; 3: no restriction; 4+: no effect', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Humanoid Blood', '50', 'A vial holding 1 HP of fresh Humanoid blood', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Residual Chalk', '100', 'Writing visible only to characters with at least one soulscar; fades after 12 hours', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Ignis Charm', '1,000 + 10 reputation', 'Break right after a Fortitude or Willpower check: bonus equal to the user’s soulscars', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Wrath Cloaker', '1,000 + 10 reputation', 'Break right after the Weakness check at combat start: bonus equal to the user’s soulscars', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Camouflage of Soulscars', '1,100', 'One hour unseen by characters with 0 soulscars (Limited Move only; any action or sound ends it)', { sourceBook: BARBAROUS_RAGE }),
+  item('adventure', 'Blessed Bead of Ignis', '5,000 + 30 reputation', 'Break after a Death Check: the roll counts as double 6, awaken at 1 HP; once per day', { sourceBook: BARBAROUS_RAGE }),
+  item('potion', 'Tinted Potion', '500', 'Heals Power 20 + Ranger level + INT modifier + soulscars; with 0 soulscars a Fortitude check (13) or the same amount as magic damage', { sourceBook: BARBAROUS_RAGE }),
+  item('potion', 'Jet Black Revitalizing Wine', '2,000', 'Max HP + soulscars × 5 for 3 minutes; once a day', { sourceBook: BARBAROUS_RAGE }),
+  item('potion', 'Soulscarred Dried Meat', '1,000', '+1 to the checks of one random ability for 10 minutes (soulscar 1+); with 0 soulscars 5 poison magic damage', { sourceBook: BARBAROUS_RAGE }),
+  item('accessory', 'Soulscar Night Visor', '600', 'Darkvision for 1 hour per soulscar; disposable', { slot: 'Face', sourceBook: BARBAROUS_RAGE }),
+  item('accessory', 'Stone Dance Earrings', '1,000', 'Main Section Defense +1 for 3 minutes (Minor Action after transforming; shatters after); Diablo, Drake and Basilisk only', { slot: 'Ears', sourceBook: BARBAROUS_RAGE }),
+  item('accessory', 'Numerous Earrings', '1,000 + 50 reputation', 'A modification: one more non-earring accessory can be worn in the Ears slot', { slot: 'Ears', sourceBook: BARBAROUS_RAGE }),
+  item('accessory', "Hell's Earrings", '2,000', 'Listen checks + the wearer’s soulscars', { slot: 'Ears', sourceBook: BARBAROUS_RAGE }),
+  item('accessory', 'Untrue Collar: Thin', '100', 'With 1+ soulscar: a human physique about 170 cm for 10 minutes; ends when excited, as in combat', { slot: 'Neck', sourceBook: BARBAROUS_RAGE }),
+  item('accessory', 'Untrue Collar: Thick', '1,000', 'The same for 1 hour', { slot: 'Neck', sourceBook: BARBAROUS_RAGE }),
 ];
 
 /**
@@ -461,6 +490,18 @@ export const GENERAL_ITEMS: GeneralItemDefinition[] = [
 export const CORE3_ENHANCEMENT_PRICES = {
   ignidite: { B: 5000, A: 10000, S: 20000, SS: 40000 },
   extraManatite: { B: 5000, A: 10000, S: 20000, SS: 30000 },
+} as const;
+
+/**
+ * Weapon and armor enhancements of Barbarous Rage p. 69, by the item's rank (B / A / S / SS): Magic Weapon +2 (on a Magic
+ * Weapon +1, an SS weapon or a weapon with the SS mark: Accuracy and Extra Damage +1 more), Soulscar Processing (Extra Damage
+ * equal to the wielder's soulscars, at the same cost in HP; once per 10 minutes; a month's work) and Denudation (armor comes
+ * off with a Minor Action; a week's work, 10 minutes to put it back on).
+ */
+export const BARBAROUS_ENHANCEMENT_PRICES = {
+  magicWeaponPlus2: { B: 20000, A: 40000, S: 80000, SS: 160000 },
+  soulscarProcessing: { B: 3000, A: 6000, S: 12000, SS: 24000 },
+  denudation: { B: 1000, A: 2000, S: 4000, SS: 8000 },
 } as const;
 
 export function listWeaponsByCategory(category: WeaponCategory): WeaponDefinition[] {

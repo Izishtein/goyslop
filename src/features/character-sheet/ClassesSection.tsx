@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CLASSES, getClass } from '../../data/classes';
-import { getRace } from '../../data/races';
+import { classLevelCap, getRace } from '../../data/races';
 import { rankForReputation, reputationToNextRank } from '../../lib/formulas/adventurer-rank';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { classLevelXpCost, MAX_CLASS_LEVEL } from '../../lib/formulas/xp-cost';
@@ -24,6 +24,8 @@ export function ClassesSection({ character }: { character: Character }) {
   const [classToAdd, setClassToAdd] = useState('');
 
   const race = getRace(character.raceId);
+  // a Kobold's [Species Limit] holds every class to level 5
+  const levelCap = classLevelCap(character.raceId, MAX_CLASS_LEVEL);
   const taken = new Set(character.classes.map((classLevel) => classLevel.classId));
   const available = CLASSES.filter(
     (classDef) => !taken.has(classDef.id) && !(race?.restrictedClasses ?? []).includes(classDef.id),
@@ -50,7 +52,7 @@ export function ClassesSection({ character }: { character: Character }) {
     const current = character.classes.find((classLevel) => classLevel.classId === classId);
     if (!classDef || !current) return;
     const nextLevel = current.level + delta;
-    if (nextLevel < 1 || nextLevel > MAX_CLASS_LEVEL) return;
+    if (nextLevel < 1 || nextLevel > levelCap) return;
     // Charge the level gained; refund the level given up.
     spend(delta === 1 ? classLevelXpCost(classDef.rank, nextLevel) : -classLevelXpCost(classDef.rank, current.level));
     update((c) => ({
@@ -141,7 +143,7 @@ export function ClassesSection({ character }: { character: Character }) {
             <tbody>
               {character.classes.map((classLevel) => {
                 const classDef = getClass(classLevel.classId);
-                const atCap = classLevel.level >= MAX_CLASS_LEVEL;
+                const atCap = classLevel.level >= levelCap;
                 const name = classDef?.name ?? classLevel.classId;
                 return (
                   <tr key={classLevel.classId}>

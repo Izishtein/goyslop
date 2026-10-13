@@ -130,6 +130,23 @@ describe('ClassesSection', () => {
     expect(options.some((label) => label?.startsWith('Fencer — 500 XP'))).toBe(true);
   });
 
+  it("holds a Kobold's classes to level 5 (Species Limit), however much XP there is", async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ raceId: 'kobold', classes: [{ classId: 'scout', level: 4 }], experience: { total: 20000, spent: 0 } }));
+
+    await user.click(screen.getByRole('button', { name: 'Scout level up' }));
+    expect(screen.getByRole('button', { name: 'Scout level up' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Scout level down' }));
+    expect(screen.getByRole('button', { name: 'Scout level up' })).toBeEnabled();
+  });
+
+  it('keeps a Centaur out of the Grappler class', async () => {
+    renderSection(makeCharacter({ raceId: 'centaur' }));
+    const options = within(screen.getByLabelText('Add a class')).getAllByRole('option').map((option) => option.textContent);
+    expect(options.some((label) => label?.startsWith('Grappler'))).toBe(false);
+    expect(options.some((label) => label?.startsWith('Fencer'))).toBe(true);
+  });
+
   it('stops levelling at the Adventurer Level cap of 15', async () => {
     const user = userEvent.setup();
     renderSection(makeCharacter({ classes: [{ classId: 'fighter', level: 15 }], experience: { total: 0, spent: 0 } }));

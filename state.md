@@ -1,6 +1,6 @@
 # Состояние проекта — SW 2.5 Character Sheet
 
-Дата: 2026-10-13. **Новая сессия — начинай с раздела «Итог сессии 2026-10-13 (хвосты карты и боя) — читать первой», затем «Итог сессии 2026-10-11 (после «делай все» и «вариант A») — порядок чтения» (ближе к концу файла, ищи по заголовку); хронология ниже — журнал.**
+Дата: 2026-10-13. **Новая сессия — начинай с раздела «Итог сессии 2026-10-13, вторая часть (Barbarous Rage)», затем «Итог сессии 2026-10-13 (хвосты карты и боя)», затем «Итог сессии 2026-10-11 (после «делай все» и «вариант A») — порядок чтения» (ближе к концу файла, ищи по заголовку); хронология ниже — журнал.**
 
 (Прежняя отметка: 2026-09-13, § 1.10 — Barbarous Saga (Races & Gods Only), 3 расы + 3 бога.)
 
@@ -1504,7 +1504,19 @@
 - Тесты: `calendar.test.ts`, `hexmap.test.ts` (усталость, лагерь, соединение), `factions.test.ts` (участок позже), `generators.test.ts`, `dungeon.test.ts`, панели `HexMapPanel/GeneratorsPanel/DungeonPanel.test.tsx`. Проверено в Edge, консоль пустая.
 - **Не сделано в 6.6:** мелкая детализация подземелья по образцу Sandbox Generator (профили комнат с «уровнями ловушек», двери и замки, вторичные фракции подземелья), логово и поселение отдельными картами, морские приключения, карточки событий календаря кроме текстовой пометки праздника, учёт усталости в бросках листа автоматически.
 
-## Итог сессии 2026-10-13 (хвосты карты и боя) — читать первой
+## Итог сессии 2026-10-13, вторая часть (Barbarous Rage) — читать первой
+
+Источник нашёлся локально: `E:\НРИ\Sword World Rus\SW 2.5 - Translated Books\Supplements\Rulebooks\Sword World 2.5 - Barbarous Rage.pdf` (Scribd не нужен; `pdftotext` без `-layout` читает таблицы предысторий). Разбор — `docs/sheet-content/44-barbarous-rage-single-section-races.md`. Закрыт список «Открыто» по Barbarous Rage целиком.
+
+- **Шесть рас** (`data/races.ts`, 54 расы всего): Dark Troll, Arbor, Baba Yaga, Centaur, Dawn, Kobold — кости, две таблицы предысторий по пять строк (Kobold Hobbyist — «Sage или Bard»), язык, способности по уровням 0/6/11. Centaur не может быть Grappler. **Kobold: потолок 5-го уровня любого класса** (`CLASS_LEVEL_CAPS`, `classLevelCap`, `ClassesSection`). Природное оружие в каталоге: Hoof (Centaur), Claws/Talons/Piercing Claws (Dawn) с бонусами Assassination Skills.
+- **Уникальные навыки** (`data/unique-skills.ts`, `lib/unique-skills.ts`): 21 навык / 54 ранга — Diablo ×6, Drake ×1, Basilisk ×11 глаз по четыре ранга, Arbor ×2, Scissorscorpion ×1; цена структурой (`UniqueSkillCost`, MP/HP/за цель), тексты рангов — `reference.uniqueSkill.<id>.<rank>` (краткий пересказ, EN и RU); вкладка справочника «Уникальные навыки»; секция листа `UniqueSkillsSection` (вкладка «Умения») — `Character.uniqueSkills` (необязательное поле), Standard Value = уровень Heritor/авантюриста + модификатор, бросок 2d6 + SV. Где книга не печатает цену ранга — `null` («—»).
+- **Предметы pp. 69–72** — 20 строк в `GENERAL_ITEMS` (Drake's Magic Sword, Eye Of Stone, Diablo Core, зелья, расходники, аксессуары лица/ушей/шеи); цены усилений (Magic Weapon +2, Soulscar Processing, Denudation) — константа `BARBAROUS_ENHANCEMENT_PRICES`.
+- **Не считается автоматически:** Witch's Fire, Limited Regeneration, Weakened на солнце, Disregard, второй слот Waist у Centaur, Stunts для самого кентавра, зеркало против Petrification, эффекты Soulscar Shackles и прочих предметов.
+- Проверки: `tsc -b`, `oxlint src` чисто; основной прогон 1125+ тестов зелёный.
+
+---
+
+## Итог сессии 2026-10-13 (хвосты карты и боя)
 
 Закрыт весь список «Открыто» из итога 2026-10-11, кроме решений владельца и рас Barbarous Rage. Проверки: `npx tsc -b` и `npx oxlint src` чисто; 1106 тестов в основном прогоне (`npx vitest run --exclude "**/CharacterSheetView.test.tsx" --exclude "**/App.test.tsx"`) + `CharacterSheetView` (16) и `App` (13) отдельно.
 

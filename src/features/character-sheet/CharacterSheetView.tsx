@@ -27,6 +27,7 @@ import { TacticianSection } from './TacticianSection';
 import { EssenceWeavingSection } from './EssenceWeavingSection';
 import { FormsSection } from './FormsSection';
 import { InfusionSection } from './InfusionSection';
+import { UniqueSkillsSection } from './UniqueSkillsSection';
 import { SchoolsSection } from './SchoolsSection';
 import { NotesSection } from './NotesSection';
 import { StatusEffectsSection } from './StatusEffectsSection';
@@ -331,6 +332,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
             <ArtsSection character={character} />
             <TacticianSection character={character} />
             <InfusionSection character={character} />
+            <UniqueSkillsSection character={character} />
             <WorkSkillsSection character={character} />
           </Panel>
 

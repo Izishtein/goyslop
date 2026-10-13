@@ -390,6 +390,13 @@ export const KnownInfusionSchema = z.object({
 });
 export type KnownInfusion = z.infer<typeof KnownInfusionSchema>;
 
+/** A unique skill of a Barbarous race (Barbarous Rage pp. 65-68) — see data/unique-skills.ts; `rank` is the rank in use ('any' for a skill with one). */
+export const KnownUniqueSkillSchema = z.object({
+  id: z.string(),
+  rank: z.enum(['any', 'B', 'A', 'S', 'SS']).default('any'),
+});
+export type KnownUniqueSkill = z.infer<typeof KnownUniqueSkillSchema>;
+
 /**
  * The sections of a Barbarous character with several (Diablo, Drake, Basilisk, Scissorscorpion) - see
  * data/sections.ts and lib/forms.ts. Only the other sections are kept here: the Main Section's HP and MP are
@@ -616,6 +623,8 @@ export const CharacterSchema = z.object({
   essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
   /** Heritor Infusions — see KnownInfusionSchema. One slot per Heritor level. */
   infusions: z.array(KnownInfusionSchema).default(() => []),
+  /** The unique skills a Barbarous character has learned — see KnownUniqueSkillSchema. Absent until first used. */
+  uniqueSkills: z.array(KnownUniqueSkillSchema).optional(),
   /** The sections of a Diablo, Drake, Basilisk or Scissorscorpion — see FormStateSchema. Absent until first used. */
   form: FormStateSchema.optional(),
   /** Battle Mastery School membership and Secrets — see KnownSchoolSchema/KnownSchoolSecretSchema.
