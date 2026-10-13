@@ -14,7 +14,7 @@ import {
   type MonsterDamageRoll,
 } from '../../lib/encounter';
 import { characterDefense, characterEvasion } from '../../lib/formulas/character-defense';
-import { areaAttacksOf } from '../../lib/monster-skills';
+import { areaAttacksOf, areaDeclarationsOf, declarationRecipient } from '../../lib/monster-skills';
 import { activeCharacterIdAtom, charactersAtom } from '../../state/characters';
 import { partyAtom } from '../../state/party';
 import styles from './SoloView.module.css';
@@ -28,11 +28,16 @@ interface Row {
   total: number;
   defense: number;
   landed: number;
+  /** The declaration's damage bonus fell on this one of those hit. */
+  boosted: boolean;
 }
 
 interface Report {
   section: string;
   skill: string;
+  declaration: string | null;
+  /** What the declared feat adds to the one target it fell on. */
+  bonus: number;
   attack: MonsterAttackRoll;
   rows: Row[];
 }
@@ -49,6 +54,7 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
   const party = useAtomValue(partyAtom);
   const [skill, setSkill] = useState('');
   const [picked, setPicked] = useState<string[]>([]);
+  const [declared, setDeclared] = useState('');
   const [report, setReport] = useState<Report | null>(null);
   const [applied, setApplied] = useState<string[]>([]);
 
@@ -59,6 +65,8 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
 
   const area = attacks.find((entry) => entry.name === skill) ?? attacks[0];
   const chosen = roster.filter((entry) => picked.includes(entry.id)).slice(0, area.max);
+  const declarations = areaDeclarationsOf(monster, area.sectionIndex);
+  const declaration = declarations.find((entry) => entry.name === declared);
 
   function toggle(id: string) {
     setPicked((current) => (current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]));
@@ -66,20 +74,30 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
 
   function run() {
     const section = monster.sections[area.sectionIndex];
-    const attack = rollMonsterAttack(section, fixed);
-    if (!attack) return;
+    const base = rollMonsterAttack(section, fixed);
+    if (!base) return;
+    // a declared feat changes the one Accuracy check; its damage goes to a single target of those hit
+    const attack = declaration ? { ...base, successValue: base.successValue + declaration.accuracy } : base;
     const painful = painfulStrikeOf(monster);
-    const rows = chosen.map((target): Row => {
+    const checks = chosen.map((target) => {
       const evasion = rollEvasion(characterEvasion(target), fixed);
-      const hit = resolveAttack(attack, evasion);
+      return { target, evasion, hit: resolveAttack(attack, evasion) };
+    });
+    // chosen at random from those hit, before any damage is rolled
+    const hitIds = checks.filter((check) => check.hit).map((check) => check.target.id);
+    const recipientIndex = declaration && declaration.damage !== 0 ? declarationRecipient(hitIds.length) : null;
+    const recipient = recipientIndex === null ? null : hitIds[recipientIndex];
+    const rows = checks.map(({ target, evasion, hit }): Row => {
       const struck = hit ? rollMonsterDamage(section, fixed) : null;
       const rolled = struck ? withPainfulStrike(struck, painful) : null;
-      const total = rolled ? Math.max(0, rolled.total + area.damage) : 0;
+      const boosted = !!rolled && target.id === recipient;
+      const total = rolled ? Math.max(0, rolled.total + area.damage + (boosted && declaration ? declaration.damage : 0)) : 0;
       const defense = characterDefense(target);
-      return { id: target.id, name: target.name, evasion, hit, damage: rolled, total, defense, landed: rolled ? Math.max(0, total - defense) : 0 };
+      return { id: target.id, name: target.name, evasion, hit, damage: rolled, total, defense, landed: rolled ? Math.max(0, total - defense) : 0, boosted };
     });
-    setReport({ section: section.style, skill: area.name, attack, rows });
+    setReport({ section: section.style, skill: area.name, declaration: declaration?.name ?? null, bonus: declaration?.damage ?? 0, attack, rows });
     setApplied([]);
+    setDeclared('');
   }
 
   function apply(row: Row) {
@@ -119,6 +137,16 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
             </label>
           );
         })}
+        {declarations.length > 0 && (
+          <select aria-label={t('solo.areaAttack.declaration')} value={declared} onChange={(event) => setDeclared(event.target.value)}>
+            <option value="">{t('solo.noDeclaration')}</option>
+            {declarations.map((entry) => (
+              <option key={entry.name} value={entry.name}>
+                {entry.name} ({t('solo.declarationEffect', { accuracy: entry.accuracy >= 0 ? '+' + entry.accuracy : entry.accuracy, damage: entry.damage >= 0 ? '+' + entry.damage : entry.damage })})
+              </option>
+            ))}
+          </select>
+        )}
         <button type="button" onClick={run} disabled={chosen.length === 0}>
           {t('solo.areaAttack.attack', { name: area.name })}
         </button>
@@ -126,7 +154,7 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
       {report && (
         <div className={styles.report} role="status" aria-live="polite">
           <p>
-            {report.skill} ({report.section}): {t('solo.attackLine', { roll: dice(report.attack.dice), value: report.attack.successValue })}
+            {report.skill} ({report.section}): {report.declaration && `[${report.declaration}] `}{t('solo.attackLine', { roll: dice(report.attack.dice), value: report.attack.successValue })}
             {report.attack.outcome === 'fumble' && ` — ${t('solo.fumble')}`}
             {report.attack.outcome === 'critical' && ` — ${t('solo.autoHit')}`}
           </p>
@@ -136,7 +164,8 @@ export function MonsterAreaAttack({ monster, fixed }: { monster: Monster; fixed:
               {row.damage && (
                 <>
                   {'. '}
-                  {t('solo.damageLine', { roll: dice(row.damage.dice), modifier: row.damage.modifier + area.damage, total: row.total, defense: row.defense, landed: row.landed })}
+                  {row.boosted && `[${report.declaration}] ${t('solo.areaAttack.boosted')} `}
+                  {t('solo.damageLine', { roll: dice(row.damage.dice), modifier: row.damage.modifier + area.damage + (row.boosted ? report.bonus : 0), total: row.total, defense: row.defense, landed: row.landed })}
                   {row.landed > 0 && (
                     <>
                       {' '}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rollAccuracy, resolveAttackSequence, snipeDoubles } from './player-attack';
+import { dualWieldPenalty, isRangedCategory, rollAccuracy, resolveAttackSequence, snipeDoubles, strayTarget } from './player-attack';
 
 /** An rng that deals the given die faces in order. */
 const dice = (...faces: number[]) => {
@@ -61,5 +61,28 @@ describe('snipeDoubles', () => {
   it('needs a Success Value 3 or more above the target\'s', () => {
     expect(snipeDoubles(2)).toBe(false);
     expect(snipeDoubles(3)).toBe(true);
+  });
+});
+
+describe('stray shots', () => {
+  it('picks one participant of the skirmish at random: an enemy by index, or an ally', () => {
+    expect(strayTarget(3, 0, () => 0)).toBe(0);
+    expect(strayTarget(3, 0, () => 0.99)).toBe(2);
+    expect(strayTarget(2, 2, () => 0.74)).toBe(null); // the third of four is an ally
+    expect(strayTarget(2, 2, () => 0.49)).toBe(1);
+    expect(strayTarget(0, 0)).toBeNull();
+  });
+
+  it('knows which weapon categories shoot or throw', () => {
+    expect(['bow', 'crossbow', 'gun', 'thrown'].every(isRangedCategory)).toBe(true);
+    expect(['sword', 'spear', 'wrestling'].some(isRangedCategory)).toBe(false);
+    expect(isRangedCategory(undefined)).toBe(false);
+  });
+});
+
+describe('Dual Wielding', () => {
+  it('costs 2 Accuracy on each attack, and nothing with Dual Technique', () => {
+    expect(dualWieldPenalty(false)).toBe(2);
+    expect(dualWieldPenalty(true)).toBe(0);
   });
 });

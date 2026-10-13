@@ -2,7 +2,7 @@ import type { Monster, MonsterSection } from '../data/monsters/types';
 import { sightPursuit, type Pursuit } from './boarding';
 import { hoard } from './dungeon';
 import { attackHits, resolveAttack, rollEvasion, rollMonsterAttack, rollMonsterDamage, type EvasionRoll, type MonsterAttackRoll, type MonsterDamageRoll, type Rng } from './encounter';
-import { hexAt, hexDistance, isPort, isWater, reveal, type Hex, type HexMap } from './hexmap';
+import { hexAt, hexDistance, hexKey, isPort, isWater, neighbours, reveal, type Hex, type HexMap } from './hexmap';
 import { CARGO, CREW_NEEDED, FLEET_MAX, GOODS, HULL, SHIP_EVASION, SHIPS, type Ship } from './ships';
 
 export { HULL, SHIP_EVASION, SHIPS, type Ship };
@@ -308,6 +308,82 @@ export function goAshore(voyage: Voyage, map: HexMap): Voyage | null {
 export function goAboard(voyage: Voyage, map: HexMap): Voyage | null {
   if (voyage.aboard || voyage.wrecked || map.party.q !== voyage.at.q || map.party.r !== voyage.at.r) return null;
   return { ...voyage, aboard: true };
+}
+
+/** Hexes a ship sails in a day on her own, with the crew alone aboard and no one to press her. */
+export const CALLED_HEADWAY = 2;
+
+export interface ShipCall {
+  voyage: Voyage;
+  /** The sea hex (or quay) she comes to. */
+  to: { q: number; r: number };
+  /** Hexes sailed and days taken. */
+  steps: number;
+  days: number;
+}
+
+/**
+ * The shortest way the ship can sail by herself from where she lies to the party's coast: open water and
+ * harbours, reefs avoided. The anchorage is the party's own hex when it is a harbour, otherwise a water hex beside it.
+ */
+function routeToParty(voyage: Voyage, map: HexMap): { to: { q: number; r: number }; steps: number } | null {
+  const party = hexAt(map, map.party.q, map.party.r);
+  if (!party) return null;
+  const goals = isPort(map, party) ? [party] : neighbours(party.q, party.r).map(([q, r]) => hexAt(map, q, r)).filter((hex): hex is Hex => !!hex && isWater(hex.biome) && hex.feature.kind !== 'reef');
+  if (goals.length === 0) return null;
+  const goal = new Set(goals.map((hex) => hexKey(hex.q, hex.r)));
+  const seen = new Set([hexKey(voyage.at.q, voyage.at.r)]);
+  let frontier = [{ q: voyage.at.q, r: voyage.at.r }];
+  for (let steps = 0; frontier.length > 0; steps += 1) {
+    const hit = frontier.find((cell) => goal.has(hexKey(cell.q, cell.r)));
+    if (hit) return { to: hit, steps };
+    const next: { q: number; r: number }[] = [];
+    for (const cell of frontier) {
+      for (const [q, r] of neighbours(cell.q, cell.r)) {
+        const hex = hexAt(map, q, r);
+        if (!hex || seen.has(hexKey(q, r)) || hex.feature.kind === 'reef' || !(isWater(hex.biome) || isPort(map, hex))) continue;
+        seen.add(hexKey(q, r));
+        next.push({ q, r });
+      }
+    }
+    frontier = next;
+  }
+  return null;
+}
+
+/**
+ * The ship, left ashore, sails herself to the party's coast: the nearest anchorage by water, a hex or two a day
+ * (CALLED_HEADWAY), the days eaten out of her own stores. The party waits; the caller spends its days and rations.
+ * Null when the party is aboard, the ship is lost, she already lies beside the party or there is no water route to the coast.
+ */
+export function callShip(voyage: Voyage, map: HexMap, rng: Rng = Math.random): ShipCall | null {
+  if (voyage.aboard || voyage.wrecked || shipAtParty(voyage, map)) return null;
+  const route = routeToParty(voyage, map);
+  if (!route || route.steps === 0) return null;
+  const days = Math.max(1, Math.ceil(route.steps / CALLED_HEADWAY));
+  const arrived = hexAt(map, route.to.q, route.to.r);
+  const hungerDays = Math.max(0, days - voyage.supplies);
+  return {
+    to: route.to,
+    steps: route.steps,
+    days,
+    voyage: {
+      ...voyage,
+      at: { q: route.to.q, r: route.to.r },
+      day: voyage.day + days,
+      weather: null,
+      encounter: null,
+      moves: 0,
+      supplies: Math.max(0, voyage.supplies - days),
+      hunger: Math.min(HUNGER_MAX, voyage.hunger + hungerDays),
+      recruits: arrived && isPort(map, arrived) ? quayRecruits(arrived.feature.settlement, rng) : null,
+    },
+  };
+}
+
+/** Whether the ship lies where the party could step aboard: in the party's own hex, or on a water hex beside it. */
+export function shipAtParty(voyage: Voyage, map: HexMap): boolean {
+  return hexDistance(voyage.at, map.party) <= 1;
 }
 
 /** A day alongside: the hull is mended, the hold filled and the crew fed, a new quay of sailors, but no headway is made. */

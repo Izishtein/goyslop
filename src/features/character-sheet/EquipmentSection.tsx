@@ -46,6 +46,7 @@ import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
 import { isBludgeoningCategory } from '../../lib/monster-skills';
+import { dualWieldPenalty, isRangedCategory } from '../../lib/player-attack';
 import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
@@ -190,9 +191,12 @@ export function EquipmentSection({ character }: { character: Character }) {
     bestMagicPower,
   );
   // [Dual Wielding]: one attack with each hand in one Major Action, each at -2 Accuracy.
-  const canDualWield = character.combatFeats.some((feat) => feat.name.trim().toLowerCase() === 'dual wielding');
+  const hasFeat = (name: string) => character.combatFeats.some((feat) => feat.name.trim().toLowerCase() === name);
+  const canDualWield = hasFeat('dual wielding');
   const [dualWield, setDualWield] = useState(false);
-  const dualPenalty = canDualWield && dualWield ? -2 : 0;
+  // [Dual Technique] takes the -2 away; [Twin Strike] lets the second attack pick its own target
+  const dualPenaltyValue = dualWieldPenalty(hasFeat('dual technique'));
+  const dualPenalty = canDualWield && dualWield ? -dualPenaltyValue : 0;
   const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + dualPenalty;
   const pinpoint = passiveAccuracyBonus(character.combatFeats);
   const artificerLevel = character.classes.filter((entry) => entry.classId === 'artificer').reduce((max, entry) => Math.max(max, entry.level), 0);
@@ -214,6 +218,7 @@ export function EquipmentSection({ character }: { character: Character }) {
         attackMods.criticalValue + (attackClass?.classId === 'fencer' ? FENCER_CRITICAL_MODIFIER : 0),
       ),
       bludgeoning: isBludgeoningCategory(getWeapon(equipmentId(weapon.name))?.category),
+      ranged: !!weapon.gun || isRangedCategory(getWeapon(equipmentId(weapon.name))?.category),
     };
   }
 
@@ -378,7 +383,7 @@ export function EquipmentSection({ character }: { character: Character }) {
         <h4>{t('sheet.weapons')}</h4>
         {canDualWield && (
           <label>
-            <input type="checkbox" checked={dualWield} onChange={(event) => setDualWield(event.target.checked)} /> {t('sheet.dualWield')}
+            <input type="checkbox" checked={dualWield} onChange={(event) => setDualWield(event.target.checked)} /> {t(dualPenaltyValue > 0 ? 'sheet.dualWield' : 'sheet.dualWieldFree')}
           </label>
         )}
         <div className={styles.tableWrap}>
@@ -541,11 +546,23 @@ export function EquipmentSection({ character }: { character: Character }) {
         <AttackPanel
           weapons={character.equipment.weapons.map((weapon) => {
             const numbers = weaponNumbers(weapon);
-            return { id: weapon.id, label: weapon.name || t('sheet.unnamedItem'), accuracy: numbers.accuracy, power: weapon.power, criticalValue: numbers.criticalValue, extraDamage: numbers.extraDamage, bludgeoning: numbers.bludgeoning };
+            return {
+              id: weapon.id,
+              label: weapon.name || t('sheet.unnamedItem'),
+              // the panel takes the two-handed penalty off each of the two attacks itself
+              accuracy: numbers.accuracy - dualPenalty,
+              power: weapon.power,
+              criticalValue: numbers.criticalValue,
+              extraDamage: numbers.extraDamage,
+              bludgeoning: numbers.bludgeoning,
+              ranged: numbers.ranged,
+            };
           })}
           options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
           targetLimit={attackMods.targets}
           repeated={attackMods.repeatedStrike}
+          dual={canDualWield && dualWield ? { penalty: dualPenaltyValue, twinStrike: hasFeat('twin strike') } : undefined}
+          targeting={hasFeat('targeting')}
         />
       </div>
 

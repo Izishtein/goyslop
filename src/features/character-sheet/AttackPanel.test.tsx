@@ -121,4 +121,98 @@ describe('AttackPanel', () => {
     await user.click(screen.getByRole('button', { name: 'Attack' }));
     expect(screen.getByRole('status')).toHaveTextContent('double 1 — automatic miss');
   });
+
+  describe('with Dual Wielding', () => {
+    const dagger: PanelWeapon = { id: 'w2', label: 'Dagger', accuracy: 3, power: 10, criticalValue: 11, extraDamage: 2 };
+
+    it('makes one attack with each hand, each at the penalty, and aims the damage of each', async () => {
+      // main hand: 5+5 + (4−2) = 12 hits the fixed Evasion 10; off hand: 2+3 + (3−2) = 6 misses.
+      vi.spyOn(Math, 'random').mockReturnValueOnce(face(5)).mockReturnValueOnce(face(5)).mockReturnValueOnce(face(2)).mockReturnValueOnce(face(3));
+      const { user } = setup({ weapons: [sword, dagger], dual: { penalty: 2, twinStrike: false } });
+      await screen.findByLabelText(/Hoodling A/);
+      await user.click(screen.getByLabelText(/Hoodling A/));
+      await user.click(screen.getByLabelText('Fixed Evasion'));
+      await user.click(screen.getByRole('button', { name: /Attack twice/ }));
+
+      const status = screen.getByRole('status');
+      expect(status).toHaveTextContent('Main hand: Sword');
+      expect(status).toHaveTextContent('Accuracy: 2d6 (5+5) + 2 = 12');
+      expect(status).toHaveTextContent('Off hand: Dagger');
+      expect(status).toHaveTextContent('Accuracy: 2d6 (2+3) + 1 = 6');
+      expect(within(status).getByRole('button', { name: /Sword → Hoodling A/ })).toBeInTheDocument();
+      expect(within(status).queryByRole('button', { name: /Dagger →/ })).toBeNull();
+    });
+
+    it('takes no penalty off when Dual Technique removes it', async () => {
+      vi.spyOn(Math, 'random').mockReturnValue(face(3));
+      const { user } = setup({ weapons: [sword, dagger], dual: { penalty: 0, twinStrike: false } });
+      await screen.findByLabelText(/Hoodling A/);
+      await user.click(screen.getByLabelText(/Hoodling A/));
+      await user.click(screen.getByRole('button', { name: /Attack twice \(−0 each\)/ }));
+      expect(screen.getByRole('status')).toHaveTextContent('Accuracy: 2d6 (3+3) + 4 = 10');
+    });
+
+    it('under Twin Strike waits for the first result and lets the second attack choose another target', async () => {
+      vi.spyOn(Math, 'random').mockReturnValue(face(3));
+      const { user } = setup({ weapons: [sword, dagger], dual: { penalty: 2, twinStrike: true } });
+      await screen.findByLabelText(/Hoodling A/);
+      await user.click(screen.getByLabelText(/Hoodling A/));
+      await user.click(screen.getByLabelText('Fixed Evasion'));
+      await user.click(screen.getByRole('button', { name: /Attack twice/ }));
+      expect(screen.getByRole('status').textContent?.match(/Accuracy: 2d6/g)).toHaveLength(1);
+
+      const second = screen.getByRole('group', { name: /Second attack — target/ });
+      await user.click(within(second).getByLabelText(/Hoodling A/));
+      await user.click(within(second).getByLabelText(/Hoodling B/));
+      await user.click(within(second).getByRole('button', { name: /Second attack \(Dagger\)/ }));
+      const status = screen.getByRole('status');
+      expect(status.textContent?.match(/Accuracy: 2d6/g)).toHaveLength(2);
+      expect(status).toHaveTextContent('Off hand: Dagger');
+      expect(status).toHaveTextContent(/Hoodling B[^:]*: Evasion 10/);
+    });
+  });
+
+  describe('shooting into a skirmish', () => {
+    const bow: PanelWeapon = { id: 'b1', label: 'Bow', accuracy: 4, power: 20, criticalValue: 12, extraDamage: 2, ranged: true };
+
+    it('sends the shot to a random participant of the skirmish, the checked targets being the whole crowd', async () => {
+      // stray pick 0.9 of two enemies → Hoodling B; then Accuracy 3+3 + 4 = 10 (a tie with the fixed Evasion 10: evaded)
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.9).mockReturnValueOnce(face(3)).mockReturnValueOnce(face(3));
+      const { user } = setup({ weapons: [bow] });
+      await screen.findByLabelText(/Hoodling A/);
+      await user.click(screen.getByLabelText(/Shooting into a skirmish/));
+      await user.click(screen.getByLabelText(/Hoodling A/));
+      await user.click(screen.getByLabelText(/Hoodling B/));
+      await user.click(screen.getByLabelText('Fixed Evasion'));
+      await user.click(screen.getByRole('button', { name: 'Attack' }));
+      const status = screen.getByRole('status');
+      expect(status).toHaveTextContent(/Stray shot: the shot goes to Hoodling B/);
+      expect(status).toHaveTextContent(/Hoodling B[^:]*: Evasion 10 — evaded/);
+      expect(status).not.toHaveTextContent(/Hoodling A[^:]*: Evasion/);
+    });
+
+    it('may send it onto an ally standing in the skirmish', async () => {
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.99).mockReturnValueOnce(face(3)).mockReturnValueOnce(face(3));
+      const { user } = setup({ weapons: [bow] });
+      await screen.findByLabelText(/Hoodling A/);
+      await user.click(screen.getByLabelText(/Shooting into a skirmish/));
+      await user.clear(screen.getByLabelText('Allies in the skirmish'));
+      await user.type(screen.getByLabelText('Allies in the skirmish'), '2');
+      await user.click(screen.getByLabelText(/Hoodling A/));
+      await user.click(screen.getByRole('button', { name: 'Attack' }));
+      expect(screen.getByRole('status')).toHaveTextContent('goes to an ally in the skirmish');
+    });
+
+    it('is not offered to a melee weapon, nor to a marksman with Targeting', async () => {
+      setup();
+      await screen.findByLabelText(/Hoodling A/);
+      expect(screen.queryByLabelText(/Shooting into a skirmish/)).toBeNull();
+    });
+
+    it('hides the stray option for [Targeting]', async () => {
+      setup({ weapons: [bow], targeting: true });
+      await screen.findByLabelText(/Hoodling A/);
+      expect(screen.queryByLabelText(/Shooting into a skirmish/)).toBeNull();
+    });
+  });
 });

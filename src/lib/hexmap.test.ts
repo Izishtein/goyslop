@@ -32,6 +32,7 @@ import {
   settlementKind,
   startBiome,
   START_RATIONS,
+  type Hex,
 } from './hexmap';
 
 const monsters = raw as unknown as Monster[];
@@ -336,4 +337,47 @@ describe('water and rivers', () => {
     for (const hex of grown!.added.filter((entry) => isWater(entry.biome))) expect(['empty', 'island', 'reef']).toContain(hex.feature.kind);
   });
 
+
+  it('carries the sea across the seam: every sea hex on the old edge has sea beside it in the new patch', () => {
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      const grown = expandMap({ ...map, party: { q: 2, r: 0 } }, { level: 2, monsters, rng: seeded(seed + 100) })!;
+      for (const water of map.hexes.filter((hex) => isWater(hex.biome))) {
+        const across = grown.added.filter((hex) => hexDistance(hex, water) === 1);
+        if (across.length > 0) expect(across.some((hex) => isWater(hex.biome)), `seed ${seed} at ${water.q},${water.r}`).toBe(true);
+      }
+      expect(grown.added).toHaveLength(19);
+    }
+  });
+
+  it('carries a river on into the new patch when it leaves the old land without reaching water', () => {
+    let carried = 0;
+    for (let seed = 1; seed <= 40; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      // dry old land, the one river ending on the edge toward the next patch (centre 3,2)
+      const dry: Hex[] = map.hexes.map((hex) => ({ ...hex, biome: isWater(hex.biome) ? 'grassland' : hex.biome, river: undefined, feature: isWater(hex.biome) ? { kind: 'empty' } : hex.feature }));
+      const mouth = dry.find((hex) => hexDistance(hex, { q: 3, r: 2 }) === 3)!;
+      mouth.river = true;
+      const grown = expandMap({ ...map, hexes: dry, party: { q: 2, r: 0 } }, { level: 2, monsters, rng: seeded(seed + 200) })!;
+      const beside = grown.added.filter((hex) => hexDistance(hex, mouth) === 1 && !isWater(hex.biome));
+      if (beside.length === 0) continue;
+      expect(beside.some((hex) => hex.river), `seed ${seed}`).toBe(true);
+      const river = grown.added.filter((hex) => hex.river);
+      expect(river.every((hex) => !isWater(hex.biome))).toBe(true);
+      carried += 1;
+    }
+    expect(carried).toBeGreaterThan(20);
+  });
+
+  it('does not carry a river that ended in the sea', () => {
+    const map = generateHexMap({ level: 2, monsters, rng: seeded(4) });
+    const dry: Hex[] = map.hexes.map((hex) => ({ ...hex, river: undefined }));
+    const mouth = dry.find((hex) => hexDistance(hex, { q: 3, r: 2 }) === 3 && !isWater(hex.biome))!;
+    mouth.river = true;
+    // a sea hex beside the river's end closes it
+    const sea = dry.find((hex) => hexDistance(hex, mouth) === 1 && hexDistance(hex, { q: 3, r: 2 }) > 3)!;
+    sea.biome = 'sea';
+    const grown = expandMap({ ...map, hexes: dry, party: { q: 2, r: 0 } }, { level: 2, monsters, rng: seeded(204) })!;
+    expect(grown.added.filter((hex) => hexDistance(hex, mouth) === 1).some((hex) => hex.river)).toBe(false);
+  });
 });

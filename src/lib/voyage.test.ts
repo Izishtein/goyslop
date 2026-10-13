@@ -4,6 +4,7 @@ import type { Monster } from '../data/monsters/types';
 import { harbourMap } from '../test/harbour-map';
 import { driftMarkets, hexAt, isPort, stepAboard, withMarket } from './hexmap';
 import {
+  callShip,
   canLandAt,
   canSailTo,
   dayInPort,
@@ -21,6 +22,7 @@ import {
   sailDay,
   sailTo,
   setSail,
+  shipAtParty,
   shipHex,
   weatherFor,
 } from './voyage';
@@ -204,5 +206,47 @@ describe('markets', () => {
     expect(hexAt(drifted, 0, 0)?.market).toEqual([2, 4, 3, 3, 3, 3]);
     const edges = withMarket(harbourMap(), 0, 0, faces(1, 6, 1, 6, 1, 6));
     expect(hexAt(driftMarkets(edges, faces(1, 6, 1, 6, 1, 6)), 0, 0)?.market).toEqual([1, 6, 1, 6, 1, 6]);
+  });
+});
+
+describe('calling the ship', () => {
+  /** The cog lies at the town quay (3,-1); the party walked home to the village harbour (0,0). */
+  const waiting = () => {
+    const map = harbourMap();
+    const ship = setSail('cog', 3, { q: 3, r: -1, settlement: 'town' }, faces(1));
+    return { map, voyage: { ...goAshore(ship, map)!, supplies: 9 } };
+  };
+
+  it('sails the ship by water to the harbour the party stands in, two hexes a day on her own stores', () => {
+    const { map, voyage } = waiting();
+    const call = callShip(voyage, map, faces(6))!;
+    // (3,-1) → (2,-1) → (1,0) → (0,0): three hexes, two days
+    expect(call).toMatchObject({ to: { q: 0, r: 0 }, steps: 3, days: 2 });
+    expect(call.voyage).toMatchObject({ at: { q: 0, r: 0 }, aboard: false, day: voyage.day + 2, supplies: voyage.supplies - 2, moves: 0 });
+    expect(call.voyage.recruits).toBe(3);
+    expect(goAboard(call.voyage, map)?.aboard).toBe(true);
+  });
+
+  it('comes to open water beside the party on a beach, going round reefs', () => {
+    const { map, voyage } = waiting();
+    const call = callShip(voyage, { ...map, party: { q: -1, r: 0 } })!;
+    expect(call.to).toEqual({ q: -1, r: 1 });
+    expect(call.days).toBe(2);
+    expect(shipAtParty(call.voyage, { ...map, party: { q: -1, r: 0 } })).toBe(true);
+  });
+
+  it('counts hunger once the stores run out on the way', () => {
+    const { map, voyage } = waiting();
+    const call = callShip({ ...voyage, supplies: 1 }, map)!;
+    expect(call.voyage).toMatchObject({ supplies: 0, hunger: 1 });
+  });
+
+  it('does nothing when the party is aboard, the ship lies beside it, is lost, or has no water route', () => {
+    const { map, voyage } = waiting();
+    expect(callShip({ ...voyage, aboard: true }, map)).toBeNull();
+    expect(callShip({ ...voyage, wrecked: true }, map)).toBeNull();
+    expect(callShip({ ...voyage, at: { q: 1, r: 0 } }, map)).toBeNull();
+    const cut = { ...map, hexes: map.hexes.filter((hex) => !(hex.q === 1 && hex.r === 0) && !(hex.q === 1 && hex.r === -1) && !(hex.q === 2 && hex.r === 0)) };
+    expect(callShip(voyage, cut)).toBeNull();
   });
 });

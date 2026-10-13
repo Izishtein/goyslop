@@ -7,6 +7,8 @@ import { EMPTY_CAMPAIGN } from '../../lib/campaign';
 import { EMPTY_ENCOUNTER } from '../../lib/encounter';
 import { withFactions } from '../../lib/factions';
 import { EMPTY_HEXMAP, generateHexMap, type HexMap } from '../../lib/hexmap';
+import { goAshore, setSail } from '../../lib/voyage';
+import { harbourMap } from '../../test/harbour-map';
 import monsterData from '../../data/monsters/monsters.json';
 import type { Monster } from '../../data/monsters/types';
 import { campaignAtom } from '../../state/campaign';
@@ -238,6 +240,22 @@ describe('HexMapPanel', () => {
     await user.click(boardCell);
     expect(store.get(voyageAtom)!.aboard).toBe(true);
     expect(store.get(hexMapAtom).party).toEqual(moored);
+  });
+
+  it('calls the ship left at another quay: she sails by water to the party, who spend the days and the rations', async () => {
+    const user = userEvent.setup();
+    const { store } = renderPanel();
+    const map = harbourMap();
+    store.set(hexMapAtom, map);
+    store.set(voyageAtom, goAshore(setSail('cog', 3, { q: 3, r: -1, settlement: 'town' }, () => 0), map)!);
+
+    await user.click(await screen.findByRole('button', { name: /Call the ship \(2 d\.\)/ }));
+
+    expect(store.get(voyageAtom)).toMatchObject({ at: { q: 0, r: 0 }, aboard: false, day: 2 });
+    expect(store.get(hexMapAtom).rations).toBe(5);
+    expect(store.get(campaignAtom).day).toBe(EMPTY_CAMPAIGN.day + 2);
+    expect(screen.getByText('The ship has come to hex 0,0 after 2 days.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Call the ship/ })).toBeNull();
   });
 
   it('shows the calendar date and its festival', async () => {

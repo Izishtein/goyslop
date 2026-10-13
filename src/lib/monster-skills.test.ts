@@ -3,7 +3,7 @@ import extra from '../data/monsters/extra-monsters.json';
 import raw from '../data/monsters/monsters.json';
 import type { Monster } from '../data/monsters';
 import { damageSection, type EvasionRoll } from './encounter';
-import { areaAttacksOf, chargeOf, damageTraitsOf, isBludgeoningCategory, poisonRiderOf, resolvePoison, rollChargeAttack, traitAdjustment } from './monster-skills';
+import { areaAttacksOf, areaDeclarationsOf, chargeOf, declarationRecipient, damageTraitsOf, isBludgeoningCategory, poisonRiderOf, resolvePoison, rollChargeAttack, traitAdjustment } from './monster-skills';
 
 const all = [...(raw as unknown as Monster[]), ...(extra as unknown as Monster[])];
 const monster = (id: string): Monster => {
@@ -16,6 +16,22 @@ const dice = (...faces: number[]) => {
   let index = 0;
   return () => (faces[index++] - 1 + 0.5) / 6;
 };
+
+describe('declarations on an attack at several targets', () => {
+  it('keeps Power Strike for the Minotaur and drops Decoy Attack, which cannot be declared on several targets', () => {
+    const minotaur = monster('minotaur');
+    expect(areaDeclarationsOf(minotaur, 0).map((entry) => entry.name)).toEqual(['Power Strike I']);
+    const withDecoy = { ...minotaur, skills: [...minotaur.skills, { section: '', icons: '', name: 'Decoy Attack I', text: [] }] } as Monster;
+    expect(areaDeclarationsOf(withDecoy, 0).map((entry) => entry.name)).toEqual(['Power Strike I']);
+  });
+
+  it('gives the bonus to one of those hit, chosen at random, and to no one when nobody was hit', () => {
+    expect(declarationRecipient(0)).toBeNull();
+    expect(declarationRecipient(3, () => 0)).toBe(0);
+    expect(declarationRecipient(3, () => 0.5)).toBe(1);
+    expect(declarationRecipient(3, () => 0.999)).toBe(2);
+  });
+});
 
 describe('areaAttacksOf', () => {
   it('reads [Cleave I] as 3 targets at -3 damage', () => {

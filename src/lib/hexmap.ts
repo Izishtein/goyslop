@@ -249,29 +249,73 @@ interface PatchOptions {
   from?: Biome;
   /** The first patch starts with a village (a place to set out from), the party on it. */
   start: boolean;
+  /** The hexes already on the map: the sea and the rivers at the seam carry on into the new patch. */
+  existing?: Hex[];
 }
 
 /** One patch of 19 hexes around `centre`: biomes outward from the middle, a feature in each hex, a dungeon in every patch. */
 function buildPatch(centre: { q: number; r: number }, options: GenerateOptions, rng: Rng, patch: PatchOptions): Hex[] {
   const placed: Hex[] = [];
+  const outside = new Map((patch.existing ?? []).map((hex) => [hexKey(hex.q, hex.r), hex]));
+  const seaBeside = (q: number, r: number): boolean => neighbours(q, r).some(([nq, nr]) => outside.get(hexKey(nq, nr))?.biome === 'sea');
   for (const cell of cells()) {
     const centreCell = cell.from < 0;
     const parent: Biome | undefined = centreCell ? patch.from : placed[cell.from].biome;
     let biome = parent === undefined ? startBiome(die(6, rng)) : nextBiome(die(10, rng), parent);
     // the start of the first patch is always land: it holds the village the party sets out from
     const village = centreCell && patch.start;
-    if (!village && parent !== undefined && !isWater(parent) && !isWater(biome) && die(6, rng) === SEA_ROLL) biome = 'sea';
+    // the sea at the seam runs on into the new land, and what grows from it clings to it (nextBiome)
+    if (!village && !isWater(biome) && outside.size > 0 && seaBeside(centre.q + cell.q, centre.r + cell.r) && die(6, rng) <= SEA_CONTINUES) biome = 'sea';
+    else if (!village && parent !== undefined && !isWater(parent) && !isWater(biome) && die(6, rng) === SEA_ROLL) biome = 'sea';
     const feature: HexFeature = village ? { kind: 'settlement', settlement: 'village' } : makeFeature(featureKind(die(12, rng)), biome, options, rng);
     placed.push({ q: centre.q + cell.q, r: centre.r + cell.r, biome, feature, visited: village, seen: village });
   }
   if (patch.start) ensureHarbour(placed, options, rng);
+  else if (outside.size > 0) joinSeas(placed, outside, options, rng);
   if (!placed.some((hex) => hex.feature.kind === 'dungeon')) {
     const candidates = placed.filter((hex) => !isWater(hex.biome) && (hex.feature.kind === 'landmark' || hex.feature.kind === 'empty'));
     const hex = candidates[Math.floor(rng() * candidates.length)] ?? placed.find((entry) => !isWater(entry.biome)) ?? placed[placed.length - 1];
     hex.feature = makeFeature('dungeon', hex.biome, options, rng);
   }
-  if (die(6, rng) <= RIVER_ON) addRiver(placed, rng);
+  const mouths = outside.size > 0 ? riverMouths(placed, outside) : [];
+  const roll = die(6, rng);
+  // a river that left the old land arrives in the new; otherwise the patch may have a river of its own
+  if (mouths.length > 0) for (const mouth of mouths) addRiver(placed, rng, mouth);
+  else if (roll <= RIVER_ON) addRiver(placed, rng);
   return placed;
+}
+
+/** A hex beside sea on the old map becomes sea on a d6 of this or less. */
+export const SEA_CONTINUES = 4;
+
+/**
+ * Every stretch of sea on the old map's edge has water beside it across the seam: where the dice left only land
+ * against a sea hex, one of the new hexes next to it is turned to sea, so a ship can sail from patch to patch.
+ */
+function joinSeas(placed: Hex[], outside: Map<string, Hex>, options: GenerateOptions, rng: Rng): void {
+  const edge = [...outside.values()].filter((hex) => isWater(hex.biome) && placed.some((entry) => hexDistance(entry, hex) === 1));
+  for (const water of edge) {
+    const across = placed.filter((entry) => hexDistance(entry, water) === 1);
+    if (across.some((entry) => isWater(entry.biome))) continue;
+    const chosen = across[Math.floor(rng() * across.length)];
+    chosen.biome = 'sea';
+    chosen.feature = makeFeature('empty', 'sea', options, rng);
+  }
+}
+
+/**
+ * Where a river on the old map runs out of it: an old river hex that does not end in water (no sea beside it),
+ * with land of the new patch beside it. The new river starts on that hex and keeps heading the way the old one went.
+ */
+function riverMouths(placed: Hex[], outside: Map<string, Hex>): { hex: Hex; heading: [number, number] }[] {
+  const mouths: { hex: Hex; heading: [number, number] }[] = [];
+  for (const old of outside.values()) {
+    if (!old.river || neighbours(old.q, old.r).some(([q, r]) => outside.get(hexKey(q, r))?.biome === 'sea')) continue;
+    const entry = placed.find((hex) => !isWater(hex.biome) && hexDistance(hex, old) === 1 && !mouths.some((mouth) => mouth.hex === hex));
+    if (entry) mouths.push({ hex: entry, heading: [entry.q - old.q, entry.r - old.r] });
+  }
+  // a river is carried on twice per patch at most, however long the seam is
+  return mouths.slice(0, 2);
 }
 
 /** A patch has a river on a d6 of this or less. */
@@ -295,15 +339,15 @@ function ensureHarbour(placed: Hex[], options: GenerateOptions, rng: Rng): void 
  * patch, one hex at a time, or — with no water in the patch — straight across it in one direction. The hexes it
  * passes are marked; sea and the start village's hex are not.
  */
-function addRiver(placed: Hex[], rng: Rng): void {
+function addRiver(placed: Hex[], rng: Rng, mouth?: { hex: Hex; heading: [number, number] }): void {
   const land = placed.filter((hex) => !isWater(hex.biome));
   if (land.length === 0) return;
   const high = land.filter((hex) => hex.biome === 'mountains' || hex.biome === 'hills');
   const sources = high.length > 0 ? high : land;
-  let at = sources[Math.floor(rng() * sources.length)];
+  let at = mouth ? mouth.hex : sources[Math.floor(rng() * sources.length)];
   const water = placed.filter((hex) => isWater(hex.biome));
   const target = water.length > 0 ? [...water].sort((a, b) => hexDistance(a, at) - hexDistance(b, at))[0] : undefined;
-  const heading = DIRECTIONS[Math.floor(rng() * 6)];
+  const heading = mouth ? mouth.heading : DIRECTIONS[Math.floor(rng() * 6)];
   at.river = true;
   for (let step = 0; step < 8; step += 1) {
     const options = neighbours(at.q, at.r)
@@ -379,7 +423,7 @@ export function expandMap(map: HexMap, options: GenerateOptions): { map: HexMap;
   if (!centre) return null;
   const rng = options.rng ?? Math.random;
   const nearest = [...map.hexes].sort((a, b) => hexDistance(a, centre) - hexDistance(b, centre))[0];
-  const added = buildPatch(centre, options, rng, { start: false, from: nearest?.biome });
+  const added = buildPatch(centre, options, rng, { start: false, from: nearest?.biome, existing: map.hexes });
   return { map: { ...map, hexes: [...map.hexes, ...added], patches: [...patchCentres(map), centre] }, added };
 }
 

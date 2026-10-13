@@ -1074,49 +1074,18 @@
       "repair": "A day of repairs",
       "blow": "Blow to the hull",
       "hit": "Strike the hull",
-      "arrived": "The far port is in sight. The voyage is done.",
       "wrecked": "The hull gives way. The ship is lost.",
       "end": "Finish",
       "abandon": "Abandon the voyage",
-      "logArrived": "Reached port",
       "logWrecked": "Shipwreck",
       "logText": "{{days}} days at sea, hull {{hull}} at the end.",
       "starving": "The crew is starving. Another day like this and people will not get up.",
       "moves": "Headway today: {{moves}} hexes",
       "hungerEffect": "Hunger (voyage)",
       "deckEffect": "Pitching deck (voyage)",
-      "chartAria": "Chart of the sea",
       "shipHere": "the ship is here",
-      "unknownWater": "unknown water",
-      "kinds": {
-        "water": "open water",
-        "port": "a harbour",
-        "island": "an island",
-        "reef": "a reef"
-      },
-      "ports": {
-        "1": "Greywater",
-        "2": "Saltmarsh Quay",
-        "3": "Kestrel Haven",
-        "4": "Low Anchor",
-        "5": "Wrackpoint",
-        "6": "Old Lantern",
-        "7": "Mistral Bay",
-        "8": "Cinder Harbour"
-      },
-      "islands": {
-        "1": "Gull Rock",
-        "2": "the Sleeping Hen",
-        "3": "Thornback Isle",
-        "4": "Cairn Island",
-        "5": "Pale Shoal",
-        "6": "the Widow’s Teeth",
-        "7": "Fenwick Holm",
-        "8": "Saint Orrin’s Rest"
-      },
       "sailed": {
         "reef": "The ship scrapes a reef: the hull loses {{damage}}.",
-        "arrivedPort": "The far harbour opens ahead.",
         "harbour": "A harbour: the ship may lie alongside and take on supplies.",
         "putOut": "The ship casts off: see the Sea voyage panel."
       },
@@ -1192,20 +1161,17 @@
       "shortHanded": "Short-handed: −2 to volleys and grapples, and a storm tears one more point off every hull. Hire sailors in a harbour.",
       "hireOne": "Hire a sailor ({{fee}} G)",
       "hireAll": "Hire {{count}} to a full crew ({{fee}} G)",
-      "landfall": "Land in the new country",
-      "landfallWarn": "This replaces the land map with a fresh one around the harbour town; the old land stays behind.",
-      "landfallConfirm": "Go ashore",
-      "landfallCancel": "Stay aboard",
       "quayCrew": "Sailors on the quay today: {{count}}.",
       "quayEmpty": "Nobody on the quay is looking for work — wait a day in port.",
-      "returnHome": "Back ashore at home (hex {{hex}})",
-      "returnHomeWarn": "The voyage ends here: the party steps ashore on hex {{hex}} of the land map it sailed from, fed and rested; the ships and cargo stay behind.",
-      "returnHomeConfirm": "Step ashore",
       "needHarbour": "A ship sails from a harbour: bring the party to a settlement with water beside it on the map.",
       "waiting": "The ship waits at hex {{q}},{{r}}.",
       "goAboard": "Go aboard",
       "visitTown": "Walk the streets",
-      "boarded": "The party is back aboard."
+      "boarded": "The party is back aboard.",
+      "callShip": "Call the ship ({{days}} d.)",
+      "callShipHint": "The ship sails by herself to the coast beside the party, about two hexes a day, eating her own stores; the party waits ashore and eats rations.",
+      "shipCalled": "The ship has come to hex {{q}},{{r}} after {{days}} days.",
+      "noRoute": "No water route from the ship to this coast."
     },
     "dungeon": {
       "title": "Dungeon",
@@ -1441,7 +1407,9 @@
       "skill": "Skill",
       "reach": "up to {{max}} characters{{damage}}",
       "consecutive": "not in consecutive rounds",
-      "attack": "{{name}}"
+      "attack": "{{name}}",
+      "declaration": "Declaration",
+      "boosted": "chosen at random from those hit, the bonus falls on this one."
     }
   },
   "guide": {
@@ -1500,6 +1468,7 @@
     "damageRollStep": "{{d1}} + {{d2}} = {{sum}} → {{value}}",
     "damageRollCritical": "critical, rolled again",
     "dualWield": "Two attacks this action (Dual Wielding: −2 Accuracy)",
+    "dualWieldFree": "Two attacks this action (Dual Wielding, no penalty: Dual Technique)",
     "armorPiercerDefense": "Target Defense",
     "attackTarget": "Target",
     "attackTargetManual": "— none —",
@@ -1993,7 +1962,17 @@
       "hit": "hit (by {{margin}})",
       "evaded": "evaded",
       "noHits": "Nobody was hit.",
-      "damageFor": "Damage to {{name}}:"
+      "damageFor": "Damage to {{name}}:",
+      "mainHand": "Main hand",
+      "offHand": "Off hand",
+      "attackDual": "Attack twice (−{{penalty}} each)",
+      "secondTargets": "Second attack — target ([Twin Strike]):",
+      "attackSecond": "Second attack ({{name}})",
+      "intoSkirmish": "Shooting into a skirmish from outside (stray shot)",
+      "alliesInSkirmish": "Allies in the skirmish",
+      "skirmishTargets": "Everyone of the enemy in the skirmish",
+      "strayTo": "Stray shot: the shot goes to {{name}}.",
+      "strayAlly": "Stray shot: the shot goes to an ally in the skirmish — check its Evasion by hand."
     },
     "toughSkin": "Tough Skin: bludgeoning damage (−{{points}})",
     "fireVulnerability": "Fire Vulnerability: fire damage (+{{points}})",

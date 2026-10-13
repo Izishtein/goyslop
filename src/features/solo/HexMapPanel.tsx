@@ -42,8 +42,7 @@ import { dungeonAtom } from '../../state/dungeon';
 import { encounterAtom } from '../../state/encounter';
 import { hexMapAtom } from '../../state/hexmap';
 import { voyageAtom } from '../../state/voyage';
-import { canLandAt, canSailTo, setSail } from '../../lib/voyage';
-import { sailTo } from '../../lib/voyage';
+import { callShip, canLandAt, canSailTo, sailTo, setSail } from '../../lib/voyage';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -114,6 +113,7 @@ export function HexMapPanel() {
   /** The ship, when the party left it ashore: the one water hex it may step back onto. */
   const waiting = voyage && !voyage.wrecked && !voyage.aboard ? voyage.at : null;
   const aboard = !!voyage && !voyage.wrecked && voyage.aboard;
+  const call = voyage && waiting ? callShip(voyage, map) : null;
   /** Boarding a ship that lies on a water hex next to the party: no day passes. */
   const boardable = (hex: Hex) => !!waiting && isWater(hex.biome) && hex.q === waiting.q && hex.r === waiting.r && hexDistance(map.party, hex) === 1;
 
@@ -218,6 +218,17 @@ export function HexMapPanel() {
     setVoyage(setSail(here.feature.settlement === 'hamlet' ? 'boat' : 'cog', map.level, { q: here.q, r: here.r, settlement: here.feature.settlement }));
     setMap((current) => withMarket(current, here.q, here.r));
     setNote(t('solo.voyage.sailed.putOut'));
+  }
+
+  /** The ship left ashore sails herself to the coast beside the party; the days are the party's too (rations, calendar). */
+  function callTheShip() {
+    if (!voyage) return;
+    const call = callShip(voyage, map);
+    if (!call) return;
+    setVoyage(call.voyage);
+    setMap((current) => ({ ...withMarket(current, call.to.q, call.to.r), rations: Math.max(0, current.rations - call.days) }));
+    setCampaign((current) => setDay(current, current.day + call.days));
+    setNote([t('solo.voyage.shipCalled', { q: call.to.q, r: call.to.r, days: call.days }), map.rations < call.days ? t('solo.hex.hungry') : ''].filter(Boolean).join(' '));
   }
 
   /** Opens the next 19 hexes beyond the edge the party stands on. */
@@ -552,6 +563,14 @@ export function HexMapPanel() {
                 {t('solo.voyage.sail')}
               </button>{' '}
               <span className={styles.note}>{voyage ? t('solo.voyage.underway') : t('solo.voyage.sailHint')}</span>
+            </p>
+          )}
+          {call && (
+            <p>
+              <button type="button" onClick={callTheShip}>
+                {t('solo.voyage.callShip', { days: call.days })}
+              </button>{' '}
+              <span className={styles.note}>{t('solo.voyage.callShipHint')}</span>
             </p>
           )}
           {resident && here.feature.count && (

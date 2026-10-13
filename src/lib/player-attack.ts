@@ -69,3 +69,23 @@ export function resolveAttackSequence(
 export function snipeDoubles(margin: number): boolean {
   return margin >= 3;
 }
+
+/**
+ * A stray shot (CR I p. 128): a ranged attack aimed into a Skirmish Area from outside it, by someone without
+ * [Targeting], goes to a participant of that skirmish picked at random — friends included. Returns the index of
+ * the enemy hit (0…enemies-1), or null when the shot strays onto one of the `allies` standing in the skirmish.
+ */
+export function strayTarget(enemies: number, allies: number, rng: Rng = Math.random): number | null {
+  const total = Math.max(0, enemies) + Math.max(0, allies);
+  if (total === 0) return null;
+  const pick = Math.floor(rng() * total);
+  return pick < enemies ? pick : null;
+}
+
+/** Weapon categories that fire or throw: the attack is a ranged one, and can stray. */
+export const RANGED_CATEGORIES = ['bow', 'crossbow', 'gun', 'thrown'] as const;
+export const isRangedCategory = (category: string | undefined): boolean => !!category && (RANGED_CATEGORIES as readonly string[]).includes(category);
+
+/** [Dual Wielding]: each of the two attacks is at -2 Accuracy, and [Dual Technique] takes the penalty away. */
+export const DUAL_WIELD_PENALTY = 2;
+export const dualWieldPenalty = (hasDualTechnique: boolean): number => (hasDualTechnique ? 0 : DUAL_WIELD_PENALTY);

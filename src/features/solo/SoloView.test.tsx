@@ -616,6 +616,32 @@ describe('SoloView monster skills', () => {
     expect(store.get(charactersAtom).find((c) => c.id === 'char-1')!.hp.current).toBe(30);
   });
 
+  it('Cleave with a declared Power Strike: the +4 goes to one of those hit, picked at random', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo(true, [makeCharacter({ id: 'char-2', name: 'Friend' })]);
+    store.set(partyAtom, ['char-2']);
+    await addMonster(user, 'Minotaur');
+    await user.click(screen.getByLabelText('Fixed values instead of rolls'));
+    const card = await screen.findByRole('article', { name: 'Minotaur' });
+    const group = within(card).getByRole('group', { name: 'Several targets' });
+
+    await user.click(within(group).getByLabelText('Test Hero'));
+    await user.click(within(group).getByLabelText('Friend'));
+    await user.selectOptions(within(group).getByLabelText('Declaration'), 'Power Strike I');
+    vi.spyOn(Math, 'random').mockReturnValue(0.99); // the last of those hit: Friend
+    await user.click(within(group).getByRole('button', { name: 'Cleave I' }));
+
+    const report = within(group).getByRole('status');
+    expect(report).toHaveTextContent('[Power Strike I]');
+    const lines = [...report.querySelectorAll('p')].map((node) => node.textContent ?? '');
+    const hero = lines.find((line) => line.startsWith('Test Hero'))!;
+    const friend = lines.find((line) => line.startsWith('Friend'))!;
+    expect(hero).toContain('→ 16');
+    expect(friend).toContain('→ 20');
+    expect(friend).toContain('chosen at random from those hit');
+    vi.restoreAllMocks();
+  });
+
   it('offers no area attack with a single character to hit', async () => {
     const user = userEvent.setup();
     renderSolo();

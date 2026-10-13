@@ -1,5 +1,5 @@
 import type { Monster, MonsterSection, MonsterSkill } from '../data/monsters/types';
-import { damageModifier, rollD6, rollMonsterAttack, type EvasionRoll, type Rng } from './encounter';
+import { damageModifier, declarationsOf, rollD6, rollMonsterAttack, type Declaration, type EvasionRoll, type Rng } from './encounter';
 import { rollSpellcastingCheck, spellResisted, type SpellcastingCheck } from './spell-check';
 
 /** Whether a section can strike at all: it prints an Accuracy value and a damage formula. */
@@ -53,6 +53,23 @@ export function areaAttacksOf(monster: Monster): AreaAttack[] {
     });
   }
   return found;
+}
+
+/**
+ * The declarations a monster can make on an attack at several targets at once. [Decoy Attack] cannot be declared
+ * on one (CR I, Combat Feats); the rest can, and their bonus to Accuracy is for the single check.
+ */
+export function areaDeclarationsOf(monster: Monster, sectionIndex: number): Declaration[] {
+  return declarationsOf(monster, sectionIndex).filter((entry) => !/^Decoy Attack/.test(entry.name));
+}
+
+/**
+ * A declaration's damage bonus on an attack at several targets goes to a single one of those hit, picked at random
+ * before any damage is rolled (CR I p. 257: [Power Strike], [Lethal Strike], [Mana Strike], [Armor Piercer]).
+ * Returns the place in the list of the hit, or null when nobody was hit.
+ */
+export function declarationRecipient(hits: number, rng: Rng = Math.random): number | null {
+  return hits <= 0 ? null : Math.min(hits - 1, Math.floor(rng() * hits));
 }
 
 /** [Charge]: an attack with its own target number, usable in a round that moves, dealing its own damage. */
