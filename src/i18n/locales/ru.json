@@ -1973,7 +1973,15 @@
       "alliesInSkirmish": "Союзников в схватке",
       "skirmishTargets": "Все противники в схватке",
       "strayTo": "Шальной выстрел: выстрел уходит в {{name}}.",
-      "strayAlly": "Шальной выстрел: выстрел уходит в союзника из схватки — проверьте его Уклонение вручную."
+      "strayAlly": "Шальной выстрел: выстрел уходит в союзника из схватки — проверьте его Уклонение вручную.",
+      "chainAttack": "Chain Attack",
+      "chainWeapon": "Оружие цепной атаки",
+      "chainButton": "Chain Attack ({{name}}, без −2)",
+      "taunt": {
+        "provoked": "— спровоцирован: обязан атаковать вас 10 секунд (1 раунд).",
+        "noEffect": "— без эффекта: Intellect High.",
+        "penalty": "— Intellect High: не обязан атаковать, но −2 к его Success Value (Accuracy, Spellcasting, уникальные навыки) на 1 раунд."
+      }
     },
     "toughSkin": "Tough Skin: дробящий урон (−{{points}})",
     "fireVulnerability": "Fire Vulnerability: огненный урон (+{{points}})",
@@ -2043,7 +2051,50 @@
         "heritor": "Остальные части делают проверки Точности и Уклонения по уровню Heritor + модификатор DEX/AGI (простой бросок без класса); Стойкость и Воля — как у Основной части."
       }
     },
-    "dualWieldFree": "Две атаки за действие (Dual Wielding, без штрафа: Dual Technique)"
+    "dualWieldFree": "Две атаки за действие (Dual Wielding, без штрафа: Dual Technique)",
+    "racial": {
+      "title": "Расовые способности",
+      "note": {
+        "dark-troll": "Dark Troll (Barbarous Rage, с. 24): [Weakened] на солнце, [Limited Regeneration] с 6-го уровня.",
+        "baba-yaga": "Baba Yaga (с. 32): [Witch Transformation]; [Witch’s Fire] предлагается у сотворённого заклинания в разделе «Заклинания», пока она в облике ведьмы.",
+        "kobold": "Kobold (с. 48): [Disregard] раз за бой; [Species Limit] держит любой класс на 5-м уровне; [Attention to Detail] даёт +2 к проверкам Dexterity вне боя."
+      },
+      "weakenedEffect": "Weakened (солнце)",
+      "sunlight": "На солнце — [Weakened]: −{{penalty}} к проверкам Accuracy и Evasion",
+      "regenerate": "Limited Regeneration: восстановить {{amount}} HP",
+      "majorAction": "Основное действие",
+      "minorAction": "Малое действие",
+      "oncePerDay": "раз в день",
+      "oncePerCombat": "раз за бой",
+      "spent": "потрачено",
+      "witch": "Облик ведьмы — [Witch Transformation]",
+      "witchEffects": "Magic Power +{{power}} во всех классах; рубцы души: {{soulscars}}. Возврат — Основное действие и не раньше чем через час.",
+      "disregard": "Disregard: попросить Мастера отвести атаку от Кобольда",
+      "newCombat": "Новый бой",
+      "newDay": "Новый день"
+    },
+    "witchsFire": "Witch’s Fire (−{{cost}} MP)",
+    "witchsFireModeLabel": "Witch’s Fire: вид заклинания",
+    "witchsFireMode": {
+      "target": "Target: 1 Character (бросок 3–10 считается +2)",
+      "area": "Target: 1 Area (бросок 3–10 считается +1)"
+    },
+    "witchsFireTaken": "Witch’s Fire — {{mode}}; заплачено {{cost}} MP",
+    "accessorySlot": "Слот",
+    "accessorySlotNone": "Слот —",
+    "accessorySlots": {
+      "head": "Голова",
+      "face": "Лицо",
+      "ears": "Уши",
+      "neck": "Шея",
+      "back": "Спина",
+      "rightHand": "Правая рука",
+      "leftHand": "Левая рука",
+      "waist": "Пояс",
+      "feet": "Ступни"
+    },
+    "accessorySlotForbidden": "Эта раса ничего не может носить в слоте «{{slot}}».",
+    "accessorySlotCrowded": "В слоте «{{slot}}» {{count}} аксессуар(а); он вмещает {{capacity}}."
   },
   "io": {
     "export": "Скачать JSON",

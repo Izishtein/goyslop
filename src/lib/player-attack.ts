@@ -89,3 +89,15 @@ export const isRangedCategory = (category: string | undefined): boolean => !!cat
 /** [Dual Wielding]: each of the two attacks is at -2 Accuracy, and [Dual Technique] takes the penalty away. */
 export const DUAL_WIELD_PENALTY = 2;
 export const dualWieldPenalty = (hasDualTechnique: boolean): number => (hasDualTechnique ? 0 : DUAL_WIELD_PENALTY);
+
+/**
+ * What a hit of [Taunting Strike I/II] does to the target (CR I p. 257): I provokes it to attack the user for a round,
+ * but not a monster of Intellect "High" (nor a character of 18 or more); II gives those a -2 to the Success Value of
+ * Accuracy, Spellcasting and other unique skill checks for a round instead. The monster's Intellect is the card's word.
+ */
+export type TauntOutcome = 'provoked' | 'noEffect' | 'penalty';
+export function tauntOutcome(taunt: 1 | 2, intelligence: string | undefined): TauntOutcome {
+  const clever = /^high$/i.test((intelligence ?? '').trim());
+  if (!clever) return 'provoked';
+  return taunt === 2 ? 'penalty' : 'noEffect';
+}

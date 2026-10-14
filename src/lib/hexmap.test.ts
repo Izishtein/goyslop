@@ -369,6 +369,50 @@ describe('water and rivers', () => {
     expect(carried).toBeGreaterThan(20);
   });
 
+  /** How many separate bodies of water a map has. */
+  const seaBodies = (hexes: Hex[]): number => {
+    const water = hexes.filter((hex) => isWater(hex.biome));
+    const seen = new Set<Hex>();
+    let bodies = 0;
+    for (const start of water) {
+      if (seen.has(start)) continue;
+      bodies += 1;
+      const queue = [start];
+      seen.add(start);
+      while (queue.length > 0) {
+        const hex = queue.pop() as Hex;
+        for (const other of water) {
+          if (seen.has(other) || hexDistance(hex, other) !== 1) continue;
+          seen.add(other);
+          queue.push(other);
+        }
+      }
+    }
+    return bodies;
+  };
+
+  it('makes all the water of a patch one sea, whatever the dice, and keeps the start village dry with a dungeon to find', () => {
+    for (let seed = 1; seed <= 60; seed += 1) {
+      const map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      expect(seaBodies(map.hexes), `seed ${seed}`).toBeLessThanOrEqual(1);
+      expect(isWater(hexAt(map, 0, 0)!.biome), `seed ${seed}`).toBe(false);
+      expect(map.hexes.some((hex) => hex.feature.kind === 'dungeon' && !isWater(hex.biome)), `seed ${seed}`).toBe(true);
+    }
+  });
+
+  it('keeps the sea one sea as the map grows patch by patch', () => {
+    for (let seed = 1; seed <= 25; seed += 1) {
+      let map = generateHexMap({ level: 2, monsters, rng: seeded(seed) });
+      for (const [dq, dr] of PATCH_VECTORS) {
+        const grown = expandMap({ ...map, party: { q: Math.round(dq * 0.6), r: Math.round(dr * 0.6) } }, { level: 2, monsters, rng: seeded(seed * 31 + dq * 7 + dr) });
+        if (grown) map = grown.map;
+      }
+      expect(map.patches.length, `seed ${seed}`).toBeGreaterThan(3);
+      expect(seaBodies(map.hexes), `seed ${seed}`).toBeLessThanOrEqual(1);
+      expect(map.hexes.filter((hex) => hex.feature.kind === 'dungeon' && !isWater(hex.biome)).length, `seed ${seed}`).toBeGreaterThanOrEqual(map.patches.length);
+    }
+  });
+
   it('does not carry a river that ended in the sea', () => {
     const map = generateHexMap({ level: 2, monsters, rng: seeded(4) });
     const dry: Hex[] = map.hexes.map((hex) => ({ ...hex, river: undefined }));

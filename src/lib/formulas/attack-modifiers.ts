@@ -22,6 +22,8 @@ export interface AttackModifiers {
   applied: string[];
   /** Highest [Armor Piercer] tier declared (0 = none): it works on the target's Defense, not on a number here. */
   armorPiercer: 0 | 1 | 2 | 3;
+  /** [Taunting Strike I/II] declared (0 = none): what a hit provokes is played out by lib/player-attack.ts. */
+  taunt: 0 | 1 | 2;
 }
 
 /**
@@ -47,6 +49,7 @@ interface FeatEffect {
   repeatedStrikeII?: boolean;
   repeatedStrike?: boolean;
   targets?: 3 | 5;
+  taunt?: 1 | 2;
 }
 
 /**
@@ -76,10 +79,13 @@ const FEAT_EFFECTS: Record<string, FeatEffect> = {
   'lethal strike ii': { lethal: true },
   'lethal strike iii': { lethal: true },
   'mana strike': { magicPower: true },
+  // Taunting Strike: -2 damage whatever the target (the damage is still dealt as 0 and the taunt holds); II is the same with a milder taunt for the clever
+  'taunting strike i': { damage: -2, taunt: 1 },
+  'taunting strike ii': { damage: -2, taunt: 2 },
 };
 
 export function declaredAttackModifiers(declared: CombatFeat[], magicPower: number): AttackModifiers {
-  const result: AttackModifiers = { accuracy: 0, criticalValue: 0, damage: 0, lethal: false, snipe: false, repeatedStrikeII: false, targets: 1, repeatedStrike: false, applied: [], armorPiercer: 0 };
+  const result: AttackModifiers = { accuracy: 0, criticalValue: 0, damage: 0, lethal: false, snipe: false, repeatedStrikeII: false, targets: 1, repeatedStrike: false, applied: [], armorPiercer: 0, taunt: 0 };
   for (const feat of declared) {
     const tier = ARMOR_PIERCER_TIER[feat.name.trim().toLowerCase()];
     if (tier && tier > result.armorPiercer) result.armorPiercer = tier;
@@ -93,6 +99,7 @@ export function declaredAttackModifiers(declared: CombatFeat[], magicPower: numb
     result.repeatedStrikeII ||= effect.repeatedStrikeII === true;
     result.repeatedStrike ||= effect.repeatedStrike === true;
     if (effect.targets && effect.targets > result.targets) result.targets = effect.targets;
+    if (effect.taunt && effect.taunt > result.taunt) result.taunt = effect.taunt;
     if (effect.accuracy || effect.criticalValue || effect.damage || effect.magicPower || effect.lethal) result.applied.push(feat.name);
   }
   return result;

@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tableTargets } from '../../lib/encounter';
-import { resolveAttackSequence, rollAccuracy, snipeDoubles, strayTarget, type AttackPass, type AttackSequence } from '../../lib/player-attack';
+import { resolveAttackSequence, rollAccuracy, snipeDoubles, strayTarget, tauntOutcome, type AttackPass, type AttackSequence } from '../../lib/player-attack';
 import { encounterAtom } from '../../state/encounter';
 import { useMonsters } from '../solo/useMonsters';
 import { FumbleXpButton } from './FumbleXp';
@@ -20,6 +20,8 @@ export interface PanelWeapon {
   bludgeoning?: boolean;
   /** A bow, crossbow, gun or thrown weapon: aimed into a skirmish from outside, the shot can stray. */
   ranged?: boolean;
+  /** A wrestling weapon with "Stance: 1H": what [Chain Attack] chains from and into. */
+  wrestling1H?: boolean;
 }
 
 /** [Dual Wielding] is on: two attacks in one Major Action, one with each hand, each at -`penalty` Accuracy. */
@@ -38,6 +40,8 @@ interface Strike {
   accuracy: number;
   sequence: AttackSequence;
   stray: Stray | null;
+  /** The extra attack of [Chain Attack]. */
+  chain?: boolean;
 }
 
 interface Played {
@@ -60,6 +64,8 @@ export function AttackPanel({
   repeated,
   dual,
   targeting = false,
+  chain = false,
+  taunt = 0,
 }: {
   weapons: PanelWeapon[];
   options: DamageOptions;
@@ -68,6 +74,10 @@ export function AttackPanel({
   dual?: DualWield;
   /** The character has [Targeting] (or the like): shots never stray. */
   targeting?: boolean;
+  /** The character has [Chain Attack]: after a 1H wrestling attack, one more on the same target with a 1H wrestling weapon, at no -2. */
+  chain?: boolean;
+  /** [Taunting Strike I/II] declared (0 = none): each hit says what it provokes. */
+  taunt?: 0 | 1 | 2;
 }) {
   const { t } = useTranslation();
   const encounter = useAtomValue(encounterAtom);
@@ -80,6 +90,7 @@ export function AttackPanel({
   const [fixed, setFixed] = useState(false);
   const [intoSkirmish, setIntoSkirmish] = useState(false);
   const [allies, setAllies] = useState(0);
+  const [chainId, setChainId] = useState('');
   const [played, setPlayed] = useState<Played | null>(null);
 
   if (targets.length === 0 || weapons.length === 0) return null;
@@ -95,6 +106,10 @@ export function AttackPanel({
   const penalty = dual?.penalty ?? 0;
   const secondChosen = targets.filter((target) => (secondSelected ?? selected).includes(target.key)).slice(0, targetLimit);
   const waitingForSecond = !!dual?.twinStrike && played !== null && played.strikes.length === 1;
+  const chainWeapons = weapons.filter((entry) => entry.wrestling1H);
+  const chainWeapon = chainWeapons.find((entry) => entry.id === chainId) ?? chainWeapons[0];
+  /** [Chain Attack]: once, after an attack with a 1H wrestling weapon (either hand under Dual Wielding). */
+  const canChain = chain && !!chainWeapon && !!played && !played.strikes.some((entry) => entry.chain) && played.strikes.some((entry) => weaponOf(entry.weaponId).wrestling1H) && !waitingForSecond;
 
   function toggle(key: string) {
     setSelected((current) => {
@@ -112,8 +127,8 @@ export function AttackPanel({
   }
 
   /** One attack with one weapon: stray shots first pick who is really shot at, then the Accuracy check is made. */
-  function strike(entry: PanelWeapon, aimedAt: typeof chosen): Strike {
-    const accuracy = entry.accuracy - penalty;
+  function strike(entry: PanelWeapon, aimedAt: typeof chosen, handicap = penalty): Strike {
+    const accuracy = entry.accuracy - handicap;
     if (strays(entry)) {
       const index = strayTarget(aimedAt.length, allies);
       if (index === null) return { weaponId: entry.id, accuracy, sequence: { first: { attack: rollAccuracy(accuracy), outcomes: [] }, second: null, hits: [] }, stray: { ally: true } };
@@ -133,6 +148,13 @@ export function AttackPanel({
   function attackSecond() {
     if (!played) return;
     setPlayed({ ...played, strikes: [...played.strikes, strike(offHand, secondChosen)] });
+  }
+
+  /** The extra attack of [Chain Attack]: the same targets, a 1H wrestling weapon, no Dual Wielding penalty. */
+  function attackChain() {
+    if (!played || !chainWeapon) return;
+    const extra = strike(chainWeapon, chosen, 0);
+    setPlayed({ ...played, strikes: [...played.strikes, { ...extra, chain: true }] });
   }
 
   function renderPass(pass: AttackPass, accuracy: number) {
@@ -165,10 +187,16 @@ export function AttackPanel({
     const firstBonusKey = entry.sequence.hits.find((hit) => hit.onFirst)?.key;
     return (
       <span key={index} className={styles.pass}>
-        {dual && (
+        {entry.chain ? (
           <strong>
-            {t(index === 0 ? 'sheet.attackPanel.mainHand' : 'sheet.attackPanel.offHand')}: {used.label}
+            {t('sheet.attackPanel.chainAttack')}: {used.label}
           </strong>
+        ) : (
+          dual && (
+            <strong>
+              {t(index === 0 ? 'sheet.attackPanel.mainHand' : 'sheet.attackPanel.offHand')}: {used.label}
+            </strong>
+          )
         )}
         {entry.stray && <span className={styles.miss}>{entry.stray.ally ? t('sheet.attackPanel.strayAlly') : t('sheet.attackPanel.strayTo', { name: labelOf(entry.stray.key) })}</span>}
         {renderPass(entry.sequence.first, entry.accuracy)}
@@ -195,6 +223,7 @@ export function AttackPanel({
                 firstHitAuto: options.repeatedStrikeII ? hit.key === firstBonusKey : undefined,
               }}
             />
+            {taunt > 0 && <TauntNote taunt={taunt as 1 | 2} intelligence={targets.find((target) => target.key === hit.key)?.monster.intelligence} />}
           </span>
         ))}
       </span>
@@ -258,6 +287,25 @@ export function AttackPanel({
           {played.strikes.map((entry, index) => renderStrike(entry, index, played.id))}
         </div>
       )}
+      {canChain && (
+        <div className={styles.controls}>
+          {chainWeapons.length > 1 && (
+            <label>
+              {t('sheet.attackPanel.chainWeapon')}{' '}
+              <select value={chainWeapon.id} onChange={(event) => setChainId(event.target.value)}>
+                {chainWeapons.map((entry) => (
+                  <option key={entry.id} value={entry.id}>
+                    {entry.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button type="button" onClick={attackChain} disabled={chosen.length === 0}>
+            {t('sheet.attackPanel.chainButton', { name: chainWeapon.label })}
+          </button>
+        </div>
+      )}
       {waitingForSecond && (
         <fieldset className={styles.targets}>
           <legend>{t('sheet.attackPanel.secondTargets')}</legend>
@@ -273,4 +321,10 @@ export function AttackPanel({
       )}
     </div>
   );
+}
+
+/** What a hit of Taunting Strike does to this target: provoked, no effect on the clever (I), or -2 to its checks (II). */
+function TauntNote({ taunt, intelligence }: { taunt: 1 | 2; intelligence: string | undefined }) {
+  const { t } = useTranslation();
+  return <em className={styles.hit}> {t(`sheet.attackPanel.taunt.${tauntOutcome(taunt, intelligence)}`)}</em>;
 }

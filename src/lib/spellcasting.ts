@@ -4,6 +4,7 @@ import { DIVINE } from '../data/spells/types';
 import type { Character } from '../types/character';
 import { magicPower } from './formulas/derived-stats';
 import { abilityModifier, abilityTotal } from './formulas/abilities';
+import { witchMagicPowerBonus } from './racial-abilities';
 
 /** Highest level the character has in a given class id — 0 if they don't have it at all. */
 export function classLevel(character: Pick<Character, 'classes'>, classId: string): number {
@@ -54,11 +55,15 @@ export function deepMagicPower(character: Pick<Character, 'classes'>, intModifie
 }
 
 /** A spell's Magic Power: the level of the class that casts its school plus the INT bonus (Deep Magic: the higher of its two classes). */
-export function spellMagicPower(character: Pick<Character, 'classes' | 'abilities'>, school: string): number {
+export function spellMagicPower(character: Pick<Character, 'classes' | 'abilities'> & Partial<Pick<Character, 'raceId' | 'racial'>>, school: string): number {
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
-  if (school === DEEP_MAGIC) return deepMagicPower(character, intMod) ?? 0;
+  const witch = witchMagicPowerBonus(character);
+  if (school === DEEP_MAGIC) {
+    const deep = deepMagicPower(character, intMod);
+    return deep === null ? 0 : deep + witch;
+  }
   const level = schoolLevel(character, school);
-  return level > 0 ? magicPower(level, intMod) : 0;
+  return level > 0 ? magicPower(level, intMod) + witch : 0;
 }
 
 /** Every deity with a Specialized Divine spell in the catalog, in catalog order. */

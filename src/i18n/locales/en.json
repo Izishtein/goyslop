@@ -1972,7 +1972,15 @@
       "alliesInSkirmish": "Allies in the skirmish",
       "skirmishTargets": "Everyone of the enemy in the skirmish",
       "strayTo": "Stray shot: the shot goes to {{name}}.",
-      "strayAlly": "Stray shot: the shot goes to an ally in the skirmish — check its Evasion by hand."
+      "strayAlly": "Stray shot: the shot goes to an ally in the skirmish — check its Evasion by hand.",
+      "chainAttack": "Chain Attack",
+      "chainWeapon": "Chain weapon",
+      "chainButton": "Chain Attack ({{name}}, no −2)",
+      "taunt": {
+        "provoked": "— provoked: it must attack you for 10 seconds (1 round).",
+        "noEffect": "— no effect: Intellect High.",
+        "penalty": "— Intellect High: not forced, but −2 to its Success Values (Accuracy, Spellcasting, unique skills) for 1 round."
+      }
     },
     "toughSkin": "Tough Skin: bludgeoning damage (−{{points}})",
     "fireVulnerability": "Fire Vulnerability: fire damage (+{{points}})",
@@ -2041,7 +2049,50 @@
         "noHands": "A Main Section that lost its hands takes −4 on skill checks that need them.",
         "heritor": "Other sections make Accuracy and Evasion checks on Heritor level + DEX/AGI modifier (a straight roll without the class); Fortitude and Willpower are the Main Section’s."
       }
-    }
+    },
+    "racial": {
+      "title": "Racial abilities",
+      "note": {
+        "dark-troll": "Dark Troll (Barbarous Rage p. 24): [Weakened] under the sun, [Limited Regeneration] from level 6.",
+        "baba-yaga": "Baba Yaga (p. 32): [Witch Transformation]; [Witch’s Fire] is offered on a cast spell in the Spells section while in the witch’s shape.",
+        "kobold": "Kobold (p. 48): [Disregard] once a combat; [Species Limit] holds every class to level 5; [Attention to Detail] gives +2 to Dexterity checks outside combat."
+      },
+      "weakenedEffect": "Weakened (sunlight)",
+      "sunlight": "Under the sun — [Weakened]: −{{penalty}} to Accuracy and Evasion checks",
+      "regenerate": "Limited Regeneration: recover {{amount}} HP",
+      "majorAction": "Major Action",
+      "minorAction": "Minor Action",
+      "oncePerDay": "once per day",
+      "oncePerCombat": "once per combat",
+      "spent": "spent",
+      "witch": "Witch’s shape — [Witch Transformation]",
+      "witchEffects": "Magic Power +{{power}} in every class; soulscars {{soulscars}}. Going back takes a Major Action, and not before an hour has passed.",
+      "disregard": "Disregard: ask the GM to turn an attack away from the Kobold",
+      "newCombat": "New combat",
+      "newDay": "New day"
+    },
+    "witchsFire": "Witch’s Fire (−{{cost}} MP)",
+    "witchsFireModeLabel": "Witch’s Fire: kind of spell",
+    "witchsFireMode": {
+      "target": "Target: 1 Character (a roll of 3–10 counts +2)",
+      "area": "Target: 1 Area (a roll of 3–10 counts +1)"
+    },
+    "witchsFireTaken": "Witch’s Fire — {{mode}}; {{cost}} MP paid",
+    "accessorySlot": "Slot",
+    "accessorySlotNone": "Slot —",
+    "accessorySlots": {
+      "head": "Head",
+      "face": "Face",
+      "ears": "Ears",
+      "neck": "Neck",
+      "back": "Back",
+      "rightHand": "Right hand",
+      "leftHand": "Left hand",
+      "waist": "Waist",
+      "feet": "Feet"
+    },
+    "accessorySlotForbidden": "This race cannot wear anything in the {{slot}} slot.",
+    "accessorySlotCrowded": "The {{slot}} slot holds {{count}} accessories; it takes {{capacity}}."
   },
   "io": {
     "export": "Download JSON",

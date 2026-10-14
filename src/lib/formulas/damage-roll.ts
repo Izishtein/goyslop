@@ -30,7 +30,7 @@ export interface DamageRoll {
  *  Value, since the book clamps every Critical Value to at least 8, so the loop condition
  *  below stops on it without needing a separate check). Extra Damage is added exactly once,
  *  after every roll in the chain is in. */
-export function rollWeaponDamage(power: number, criticalValue: number, extraDamage: number, lethal = false, rng: Rng = Math.random): DamageRoll {
+export function rollWeaponDamage(power: number, criticalValue: number, extraDamage: number, lethal = false, rng: Rng = Math.random, boost: 0 | 1 | 2 = 0): DamageRoll {
   const steps: DamageStep[] = [];
   let sum = 0;
   let d1 = 0;
@@ -50,7 +50,9 @@ export function rollWeaponDamage(power: number, criticalValue: number, extraDama
       break;
     }
     // Double 1s and double 6s "work as is"; everything between goes one up (Lethal Strike).
-    const counted = lethal && sum >= 3 && sum <= 11 ? sum + 1 : sum;
+    let counted = lethal && sum >= 3 && sum <= 11 ? sum + 1 : sum;
+    // [Witch's Fire]: a roll of 3-10 counts +2 (+1 on an area spell), up to 12; double 1s and double 6s stand
+    if (boost > 0 && sum >= 3 && sum <= 10) counted = Math.min(12, counted + boost);
     const value = powerTableRoll(power, counted);
     steps.push({ d1, d2, sum, value, bumped: counted !== sum });
     powerTableTotal += value;

@@ -272,6 +272,7 @@ function buildPatch(centre: { q: number; r: number }, options: GenerateOptions, 
   }
   if (patch.start) ensureHarbour(placed, options, rng);
   else if (outside.size > 0) joinSeas(placed, outside, options, rng);
+  linkSeas(placed, outside, options, rng, patch.start);
   if (!placed.some((hex) => hex.feature.kind === 'dungeon')) {
     const candidates = placed.filter((hex) => !isWater(hex.biome) && (hex.feature.kind === 'landmark' || hex.feature.kind === 'empty'));
     const hex = candidates[Math.floor(rng() * candidates.length)] ?? placed.find((entry) => !isWater(entry.biome)) ?? placed[placed.length - 1];
@@ -300,6 +301,106 @@ function joinSeas(placed: Hex[], outside: Map<string, Hex>, options: GenerateOpt
     const chosen = across[Math.floor(rng() * across.length)];
     chosen.biome = 'sea';
     chosen.feature = makeFeature('empty', 'sea', options, rng);
+  }
+}
+
+/** What it costs to cut a channel through this hex: open country is cheap, a hex with something on it dear, the start village not at all possible. */
+function channelCost(hex: Hex, village: boolean): number {
+  if (village) return Infinity;
+  if (hex.feature.kind === 'settlement') return 6;
+  return hex.feature.kind === 'lair' || hex.feature.kind === 'dungeon' ? 4 : hex.feature.kind === 'landmark' ? 2 : 1;
+}
+
+/** The connected bodies of water of a set of hexes, largest first. */
+function seaBodies(all: Map<string, Hex>): Hex[][] {
+  const seen = new Set<string>();
+  const bodies: Hex[][] = [];
+  for (const hex of all.values()) {
+    if (!isWater(hex.biome) || seen.has(hexKey(hex.q, hex.r))) continue;
+    const body: Hex[] = [];
+    const queue = [hex];
+    seen.add(hexKey(hex.q, hex.r));
+    while (queue.length > 0) {
+      const next = queue.pop() as Hex;
+      body.push(next);
+      for (const [q, r] of neighbours(next.q, next.r)) {
+        const other = all.get(hexKey(q, r));
+        if (other && isWater(other.biome) && !seen.has(hexKey(q, r))) {
+          seen.add(hexKey(q, r));
+          queue.push(other);
+        }
+      }
+    }
+    bodies.push(body);
+  }
+  return bodies.sort((a, b) => b.length - a.length);
+}
+
+/**
+ * The sea is one sea: a lake the dice left apart from the rest — in the patch or against what was already mapped — is
+ * joined to the sea already mapped (on a first patch, the largest body of water) by a channel cut through the cheapest land of the patch (open country before
+ * landmarks, before lairs and dungeons, before settlements; never the start village). A ship can then sail from any
+ * water of a patch to any other.
+ */
+function linkSeas(placed: Hex[], outside: Map<string, Hex>, options: GenerateOptions, rng: Rng, start: boolean): void {
+  const village = start ? placed[0] : undefined;
+  for (let round = 0; round < placed.length; round += 1) {
+    const all = new Map([...outside, ...placed.map((hex): [string, Hex] => [hexKey(hex.q, hex.r), hex])]);
+    const bodies = seaBodies(all);
+    // the water already on the map is the sea the new water must reach (older patches are one body by this same rule); on a first patch, the largest
+    const main = bodies.find((body) => body.some((hex) => outside.has(hexKey(hex.q, hex.r)))) ?? bodies[0];
+    const apart = bodies.find((body) => body !== main && body.some((hex) => placed.includes(hex)));
+    if (!main || !apart) return;
+    const source = new Set(apart.map((hex) => hexKey(hex.q, hex.r)));
+    const target = new Set(main.map((hex) => hexKey(hex.q, hex.r)));
+    const touches = (hex: Hex, set: Set<string>): boolean => neighbours(hex.q, hex.r).some(([q, r]) => set.has(hexKey(q, r)));
+    // cheapest chain of the patch's land hexes from one body of water to the other (Dijkstra over at most 19 hexes)
+    const land = placed.filter((hex) => !isWater(hex.biome));
+    const cost = new Map<Hex, number>();
+    const via = new Map<Hex, Hex | null>();
+    for (const hex of land) {
+      const price = channelCost(hex, hex === village);
+      if (touches(hex, source) && price < Infinity) {
+        cost.set(hex, price);
+        via.set(hex, null);
+      }
+    }
+    const done = new Set<Hex>();
+    let end: Hex | null = null;
+    while (true) {
+      let best: Hex | null = null;
+      for (const [hex, spent] of cost) if (!done.has(hex) && (best === null || spent < (cost.get(best) as number))) best = hex;
+      if (!best) break;
+      done.add(best);
+      if (touches(best, target)) {
+        end = best;
+        break;
+      }
+      for (const [q, r] of neighbours(best.q, best.r)) {
+        const next = land.find((hex) => hex.q === q && hex.r === r);
+        if (!next || done.has(next)) continue;
+        const price = channelCost(next, next === village);
+        if (price === Infinity) continue;
+        const total = (cost.get(best) as number) + price;
+        if (total < (cost.get(next) ?? Infinity)) {
+          cost.set(next, total);
+          via.set(next, best);
+        }
+      }
+    }
+    if (!end) {
+      // no land of this patch lies between it and the sea (the pool sits against the seam): it dries up instead
+      for (const hex of apart.filter((entry) => placed.includes(entry))) {
+        const shores = neighbours(hex.q, hex.r).map(([q, r]) => all.get(hexKey(q, r))).filter((other): other is Hex => !!other && !isWater(other.biome));
+        hex.biome = shores.length > 0 ? shores[Math.floor(rng() * shores.length)].biome : 'grassland';
+        hex.feature = makeFeature('empty', hex.biome, options, rng);
+      }
+      continue;
+    }
+    for (let hex: Hex | null | undefined = end; hex; hex = via.get(hex)) {
+      hex.biome = 'sea';
+      hex.feature = makeFeature('empty', 'sea', options, rng);
+    }
   }
 }
 

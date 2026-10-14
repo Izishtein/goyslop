@@ -22,7 +22,7 @@ const MAX_TARGETS = 8;
  * Damage ignores Defense (spells are magic) and can be put on a monster at the table; healing goes onto the
  * caster's own HP (never past the maximum). Critical Value is 10 for damage and unreachable for healing.
  */
-export function SpellEffectRoll({ character, school, spell }: { character: Character; school: string; spell: SpellPower }) {
+export function SpellEffectRoll({ character, school, spell, fire = 0 }: { character: Character; school: string; spell: SpellPower; /** [Witch's Fire] on this casting: +2 (a single target) or +1 (an area) to power rolls of 3-10. */ fire?: 0 | 1 | 2 }) {
   const { t } = useTranslation();
   const [check, setCheck] = useState<SpellcastingCheck | null>(null);
   const [noResist, setNoResist] = useState(false);
@@ -64,7 +64,7 @@ export function SpellEffectRoll({ character, school, spell }: { character: Chara
         </>
       )}
       {Array.from({ length: heal ? 1 : targets }, (_, index) => (
-        <PowerRoll key={index} character={character} spell={spell} bonus={bonus} check={check} resistable={!noResist} index={index} many={!heal && targets > 1} />
+        <PowerRoll key={index} character={character} spell={spell} bonus={bonus} check={check} resistable={!noResist} index={index} many={!heal && targets > 1} fire={fire} />
       ))}
     </span>
   );
@@ -79,6 +79,7 @@ function PowerRoll({
   resistable,
   index,
   many,
+  fire,
 }: {
   character: Character;
   spell: SpellPower;
@@ -87,6 +88,7 @@ function PowerRoll({
   resistable: boolean;
   index: number;
   many: boolean;
+  fire: 0 | 1 | 2;
 }) {
   const { t } = useTranslation();
   const update = useUpdateCharacter(character.id);
@@ -108,7 +110,7 @@ function PowerRoll({
         type="button"
         className={styles.button}
         onClick={() => {
-          setRoll(rollWeaponDamage(spell.power, heal ? 13 : 10, bonus));
+          setRoll(rollWeaponDamage(spell.power, heal ? 13 : 10, bonus, false, Math.random, fire));
           setHealed(null);
         }}
       >

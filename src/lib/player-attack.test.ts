@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dualWieldPenalty, isRangedCategory, rollAccuracy, resolveAttackSequence, snipeDoubles, strayTarget } from './player-attack';
+import { dualWieldPenalty, isRangedCategory, rollAccuracy, resolveAttackSequence, snipeDoubles, strayTarget, tauntOutcome } from './player-attack';
 
 /** An rng that deals the given die faces in order. */
 const dice = (...faces: number[]) => {
@@ -84,5 +84,16 @@ describe('Dual Wielding', () => {
   it('costs 2 Accuracy on each attack, and nothing with Dual Technique', () => {
     expect(dualWieldPenalty(false)).toBe(2);
     expect(dualWieldPenalty(true)).toBe(0);
+  });
+});
+
+describe('Taunting Strike', () => {
+  it('provokes anyone but a monster of Intellect High; against those I does nothing and II costs them 2 on their checks', () => {
+    for (const intelligence of ['Low', 'Average', 'Animal', 'None', 'Servant', undefined]) {
+      expect(tauntOutcome(1, intelligence)).toBe('provoked');
+      expect(tauntOutcome(2, intelligence)).toBe('provoked');
+    }
+    expect(tauntOutcome(1, 'High')).toBe('noEffect');
+    expect(tauntOutcome(2, 'High')).toBe('penalty');
   });
 });

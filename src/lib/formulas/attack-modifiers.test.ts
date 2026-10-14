@@ -28,6 +28,14 @@ describe('declaredAttackModifiers', () => {
   });
 });
 
+describe('declaredAttackModifiers — Taunting Strike', () => {
+  it('takes 2 off the damage of either rank and flags the taunt for the panel', () => {
+    expect(declaredAttackModifiers([feat('Taunting Strike I')], 0)).toMatchObject({ damage: -2, taunt: 1, applied: ['Taunting Strike I'] });
+    expect(declaredAttackModifiers([feat('Taunting Strike II')], 0)).toMatchObject({ damage: -2, taunt: 2 });
+    expect(declaredAttackModifiers([feat('Power Strike I')], 0).taunt).toBe(0);
+  });
+});
+
 describe('declaredAttackModifiers — target-dependent feats', () => {
   it('reaches 3 targets under [Cleave I] (at -3 damage) and 5 under [Cleave II] (no reduction)', () => {
     expect(declaredAttackModifiers([feat('Cleave I')], 0)).toMatchObject({ targets: 3, damage: -3, applied: ['Cleave I'] });

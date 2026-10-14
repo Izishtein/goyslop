@@ -16,6 +16,7 @@ import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
 import { DEEP_MAGIC } from '../../data/spells';
+import { witchMagicPowerBonus } from '../../lib/racial-abilities';
 import { deepMagicPower } from '../../lib/spellcasting';
 import type { Character } from '../../types/character';
 import { DiceRoll } from './DiceRoll';
@@ -70,16 +71,18 @@ export function CombatStatsSection({ character }: { character: Character }) {
   ];
 
   const deepPower = deepMagicPower(character, intMod);
+  // a Baba Yaga in the witch's shape has +1 Magic Power in every class
+  const witch = witchMagicPowerBonus(character);
   const wizardRows = [
     ...character.classes
       .filter((classLevel) => getClass(classLevel.classId)?.type === 'wizard')
       .map((classLevel) => ({
         name: getClass(classLevel.classId)?.name ?? classLevel.classId,
-        magicPower: magicPower(classLevel.level, intMod),
+        magicPower: magicPower(classLevel.level, intMod) + witch,
       })),
     // Deep Magic belongs to no single class: it runs on the higher of Sorcerer and Conjurer
     // (Magus Arts p. 95), so it gets its own row once both are mastered.
-    ...(deepPower === null ? [] : [{ name: DEEP_MAGIC, magicPower: deepPower }]),
+    ...(deepPower === null ? [] : [{ name: DEEP_MAGIC, magicPower: deepPower + witch }]),
   ];
 
   return (

@@ -46,7 +46,9 @@ import { autoGrow } from './autoGrow';
 import { DiceRoll } from './DiceRoll';
 import { PrintableField } from './PrintableField';
 import { isBludgeoningCategory } from '../../lib/monster-skills';
+import { ACCESSORY_SLOTS, slotCapacity, slotProblems } from '../../lib/accessory-slots';
 import { dualWieldPenalty, isRangedCategory } from '../../lib/player-attack';
+import { witchMagicPowerBonus } from '../../lib/racial-abilities';
 import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
@@ -184,7 +186,7 @@ export function EquipmentSection({ character }: { character: Character }) {
   const [declaredIds] = useTurnFeats(character.id);
   const bestMagicPower = Math.max(
     0,
-    ...character.classes.filter((entry) => getClass(entry.classId)?.type === 'wizard').map((entry) => magicPower(entry.level, intMod)),
+    ...character.classes.filter((entry) => getClass(entry.classId)?.type === 'wizard').map((entry) => magicPower(entry.level, intMod) + witchMagicPowerBonus(character)),
   );
   const attackMods = declaredAttackModifiers(
     character.combatFeats.filter((feat) => declaredIds.includes(feat.id)),
@@ -219,6 +221,8 @@ export function EquipmentSection({ character }: { character: Character }) {
       ),
       bludgeoning: isBludgeoningCategory(getWeapon(equipmentId(weapon.name))?.category),
       ranged: !!weapon.gun || isRangedCategory(getWeapon(equipmentId(weapon.name))?.category),
+      // [Chain Attack] works with a "Stance: 1H" wrestling weapon
+      wrestling1H: weapon.stance === '1H' && getWeapon(equipmentId(weapon.name))?.category === 'wrestling',
     };
   }
 
@@ -556,6 +560,7 @@ export function EquipmentSection({ character }: { character: Character }) {
               extraDamage: numbers.extraDamage,
               bludgeoning: numbers.bludgeoning,
               ranged: numbers.ranged,
+              wrestling1H: numbers.wrestling1H,
             };
           })}
           options={{ lethal: attackMods.lethal, bonusDamage: attackMods.damage, appliedFeats: attackMods.applied, armorPiercer: attackMods.armorPiercer, snipe: attackMods.snipe, repeatedStrikeII: attackMods.repeatedStrikeII }}
@@ -563,6 +568,8 @@ export function EquipmentSection({ character }: { character: Character }) {
           repeated={attackMods.repeatedStrike}
           dual={canDualWield && dualWield ? { penalty: dualPenaltyValue, twinStrike: hasFeat('twin strike') } : undefined}
           targeting={hasFeat('targeting')}
+          chain={hasFeat('chain attack')}
+          taunt={attackMods.taunt}
         />
       </div>
 
@@ -740,12 +747,28 @@ export function EquipmentSection({ character }: { character: Character }) {
           {character.equipment.accessories.map((accessory) => (
             <li key={accessory.id} className={styles.inlineRow}>
               <input value={accessory.name} onChange={(e) => updateAccessory(accessory.id, { name: e.target.value })} aria-label={t('sheet.name')} />
+              <select value={accessory.slot ?? ''} onChange={(e) => updateAccessory(accessory.id, { slot: e.target.value || undefined })} aria-label={t('sheet.accessorySlot')}>
+                <option value="">{t('sheet.accessorySlotNone')}</option>
+                {ACCESSORY_SLOTS.map((slot) => (
+                  <option key={slot} value={slot} disabled={slotCapacity(character.raceId, slot) === 0}>
+                    {t(`sheet.accessorySlots.${slot}`)}
+                    {slotCapacity(character.raceId, slot) > 1 ? ` ×${slotCapacity(character.raceId, slot)}` : ''}
+                  </option>
+                ))}
+              </select>
               <button type="button" onClick={() => removeAccessory(accessory.id)}>
                 {t('sheet.remove')}
               </button>
             </li>
           ))}
         </ul>
+        {slotProblems(character.equipment.accessories, character.raceId).map((problem) => (
+          <p key={problem.slot} className={styles.overspent} role="alert">
+            {problem.kind === 'forbidden'
+              ? t('sheet.accessorySlotForbidden', { slot: t(`sheet.accessorySlots.${problem.slot}`) })
+              : t('sheet.accessorySlotCrowded', { slot: t(`sheet.accessorySlots.${problem.slot}`), count: problem.count, capacity: problem.capacity })}
+          </p>
+        ))}
         <div className={styles.rowActions}>
           <button type="button" onClick={addAccessory}>
             {t('sheet.addAccessory')}

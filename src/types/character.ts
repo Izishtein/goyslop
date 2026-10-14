@@ -150,6 +150,8 @@ export const AccessorySchema = z.object({
   id: z.string(),
   name: z.string(),
   notes: z.string().optional(),
+  /** The body slot it is worn in (see lib/accessory-slots.ts); absent on a row that never said. */
+  slot: z.string().optional(),
 });
 export type Accessory = z.infer<typeof AccessorySchema>;
 
@@ -390,6 +392,18 @@ export const KnownInfusionSchema = z.object({
 });
 export type KnownInfusion = z.infer<typeof KnownInfusionSchema>;
 
+/**
+ * What a Barbarous race's active abilities keep between rolls (Barbarous Rage): a Dark Troll's sunlight (Weakened), a
+ * Baba Yaga's witch form, and which once-a-day and once-a-combat abilities have been spent. Absent until first used.
+ */
+export const RacialStateSchema = z.object({
+  sunlight: z.boolean().default(false),
+  witch: z.boolean().default(false),
+  usedToday: z.array(z.string()).default(() => []),
+  usedInCombat: z.array(z.string()).default(() => []),
+});
+export type RacialState = z.infer<typeof RacialStateSchema>;
+
 /** A unique skill of a Barbarous race (Barbarous Rage pp. 65-68) — see data/unique-skills.ts; `rank` is the rank in use ('any' for a skill with one). */
 export const KnownUniqueSkillSchema = z.object({
   id: z.string(),
@@ -623,6 +637,8 @@ export const CharacterSchema = z.object({
   essenceWeavings: z.array(KnownEssenceWeavingSchema).default(() => []),
   /** Heritor Infusions — see KnownInfusionSchema. One slot per Heritor level. */
   infusions: z.array(KnownInfusionSchema).default(() => []),
+  /** Sunlight, witch form and spent abilities — see RacialStateSchema. Absent until first used. */
+  racial: RacialStateSchema.optional(),
   /** The unique skills a Barbarous character has learned — see KnownUniqueSkillSchema. Absent until first used. */
   uniqueSkills: z.array(KnownUniqueSkillSchema).optional(),
   /** The sections of a Diablo, Drake, Basilisk or Scissorscorpion — see FormStateSchema. Absent until first used. */

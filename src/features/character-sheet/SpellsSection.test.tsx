@@ -368,6 +368,42 @@ describe('SpellsSection Power roll', () => {
   });
 });
 
+describe("SpellsSection — a Baba Yaga's Witch's Fire", () => {
+  afterEach(() => vi.restoreAllMocks());
+  const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
+  const witch = { sunlight: false, witch: true, usedToday: [], usedInCombat: [] };
+
+  it('adds +1 Magic Power in the witch shape, and charges the spell’s circle in extra MP for Witch’s Fire', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const store = renderSection(makeCharacter({ raceId: 'baba-yaga', racial: witch, spells: [bolt], mp: { current: 8 } }));
+
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    // Sorcerer 2 + INT bonus 1 = 3, +1 for the witch's shape
+    expect(screen.getByRole('button', { name: 'Damage: Power 10 + 4' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Witch’s Fire (−1 MP)' }));
+    expect(store.get(charactersAtom)[0].mp.current).toBe(4);
+    expect(screen.getByText(/Witch’s Fire — Target: 1 Character.*1 MP paid/)).toBeInTheDocument();
+    // undoing the cast gives back the 3 MP and the 1 of the fire
+    await user.click(screen.getByRole('button', { name: 'Undo last cast' }));
+    expect(store.get(charactersAtom)[0].mp.current).toBe(8);
+  });
+
+  it('offers the area kind only from level 6', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ raceId: 'baba-yaga', racial: witch, classes: [{ classId: 'sorcerer', level: 6 }], spells: [bolt], mp: { current: 20 } }));
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    expect(within(screen.getByTestId('cast-log')).getByRole('option', { name: /Target: 1 Area/ })).toBeInTheDocument();
+  });
+
+  it('does not offer Witch’s Fire out of the witch shape', async () => {
+    const user = userEvent.setup();
+    renderSection(makeCharacter({ raceId: 'baba-yaga', spells: [bolt], mp: { current: 8 } }));
+    await user.click(screen.getByRole('button', { name: 'Energy Bolt Cast' }));
+    expect(screen.queryByRole('button', { name: /Witch’s Fire/ })).toBeNull();
+  });
+});
+
 describe('SpellsSection several targets', () => {
   const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
 

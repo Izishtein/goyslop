@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { CATALOGUED_SCHOOLS, getSpell, SPELLS, listSpellsBySchool, type SpellDefinition } from '../../data/spells';
 import { getSpellPower } from '../../data/spell-power';
 import { DIVINE } from '../../data/spells/types';
+import { adventurerLevel } from '../../lib/formulas/character-levels';
+import { witchsFireAreaFrom, witchsFireBoost, witchsFireCost, type WitchsFireMode } from '../../lib/racial-abilities';
 import { deityAllows, listDeities, magicSchoolsOf, mpAfterCast, schoolLevel, spellProblems } from '../../lib/spellcasting';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownSpell } from '../../types/character';
@@ -26,7 +28,9 @@ export function SpellsSection({ character }: { character: Character }) {
   const [spellId, setSpellId] = useState('');
   const [search, setSearch] = useState('');
   // What was cast this session, newest last — so a click is never a silent MP drop.
-  const [casts, setCasts] = useState<{ id: string; spell: KnownSpell; before: number; after: number; fromStone: number }[]>([]);
+  const [casts, setCasts] = useState<{ id: string; spell: KnownSpell; before: number; after: number; fromStone: number; /** [Witch's Fire] taken on this casting: the mode and the extra MP paid. */ fire?: { mode: WitchsFireMode; cost: number } }[]>([]);
+  /** The mode chosen for [Witch's Fire] on each cast, before it is taken. */
+  const [fireModes, setFireModes] = useState<Record<string, WitchsFireMode>>({});
   /** MP the next casting takes from the mako stone instead of the caster's own pool. */
   const [stoneUse, setStoneUse] = useState(0);
   const stone = character.makoStone;
@@ -34,6 +38,8 @@ export function SpellsSection({ character }: { character: Character }) {
   const drawFor = (cost: number): number => Math.max(0, Math.min(stoneUse, stone, cost));
 
   const activeSchool = school || pickableSchools[0] || '';
+  /** A Baba Yaga in the witch's shape may take [Witch's Fire] on a spell with a power roll. */
+  const witchShape = character.raceId === 'baba-yaga' && character.racial?.witch === true;
   const known = new Set(character.spells.map((spell) => spell.name));
   // A Priest worships one god and may only learn that god's Specialized Divine spells
   // (Core I p. 175); with no god chosen yet, only the Basic ones are offered.
@@ -63,11 +69,18 @@ export function SpellsSection({ character }: { character: Character }) {
     setCasts((list) => [...list, { id: crypto.randomUUID(), spell, before, after: left, fromStone }]);
   }
 
+  /** [Witch's Fire]: pays the extra MP for a spell just cast, and marks the casting so its power rolls are boosted. */
+  function takeWitchsFire(id: string, mode: WitchsFireMode, cost: number) {
+    if (character.mp.current < cost) return;
+    update((c) => ({ ...c, mp: { current: c.mp.current - cost } }));
+    setCasts((list) => list.map((entry) => (entry.id === id ? { ...entry, fire: { mode, cost } } : entry)));
+  }
+
   /** Undo the latest cast: hands its MP back. Only the last one, so the log stays honest. */
   function undoLastCast() {
     const last = casts[casts.length - 1];
     if (!last) return;
-    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) }, makoStone: c.makoStone + last.fromStone }));
+    update((c) => ({ ...c, mp: { current: c.mp.current + (last.before - last.after) + (last.fire?.cost ?? 0) }, makoStone: c.makoStone + last.fromStone }));
     setCasts((list) => list.slice(0, -1));
   }
 
@@ -239,7 +252,33 @@ export function SpellsSection({ character }: { character: Character }) {
                   {power && power.power > 0 ? (
                     <>
                       {' '}
-                      <SpellEffectRoll character={character} school={entry.spell.school} spell={power} />
+                      <SpellEffectRoll character={character} school={entry.spell.school} spell={power} fire={entry.fire ? witchsFireBoost(entry.fire.mode) : 0} />
+                      {witchShape && (
+                        <span>
+                          {' '}
+                          {entry.fire ? (
+                            <em>{t('sheet.witchsFireTaken', { mode: t(`sheet.witchsFireMode.${entry.fire.mode}`), cost: entry.fire.cost })}</em>
+                          ) : (
+                            <>
+                              <select
+                                aria-label={t('sheet.witchsFireModeLabel')}
+                                value={fireModes[entry.id] ?? 'target'}
+                                onChange={(event) => setFireModes((current) => ({ ...current, [entry.id]: event.target.value as WitchsFireMode }))}
+                              >
+                                <option value="target">{t('sheet.witchsFireMode.target')}</option>
+                                {adventurerLevel(character.classes) >= witchsFireAreaFrom && <option value="area">{t('sheet.witchsFireMode.area')}</option>}
+                              </select>{' '}
+                              <button
+                                type="button"
+                                disabled={character.mp.current < witchsFireCost(entry.spell.circle, adventurerLevel(character.classes))}
+                                onClick={() => takeWitchsFire(entry.id, fireModes[entry.id] ?? 'target', witchsFireCost(entry.spell.circle, adventurerLevel(character.classes)))}
+                              >
+                                {t('sheet.witchsFire', { cost: witchsFireCost(entry.spell.circle, adventurerLevel(character.classes)) })}
+                              </button>
+                            </>
+                          )}
+                        </span>
+                      )}
                     </>
                   ) : (
                     <>

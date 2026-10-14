@@ -595,3 +595,32 @@ describe('EquipmentSection weapon numbers', () => {
   });
 
 });
+
+describe('EquipmentSection accessory slots', () => {
+  const ring = (id: string, slot?: string) => ({ id, name: 'Ring ' + id, slot });
+
+  it('records the slot an accessory is worn in', async () => {
+    const user = userEvent.setup();
+    const store = renderSection({ ...makeCharacter(), equipment: { ...makeCharacter().equipment, accessories: [ring('a')] } });
+    await user.selectOptions(screen.getByLabelText('Slot'), 'neck');
+    expect(store.get(charactersAtom)[0].equipment.accessories[0].slot).toBe('neck');
+  });
+
+  it('warns when two accessories share a slot, and says nothing for a Centaur’s two waist slots', () => {
+    const base = makeCharacter();
+    const two = [ring('a', 'waist'), ring('b', 'waist')];
+    renderSection({ ...base, equipment: { ...base.equipment, accessories: two } });
+    expect(screen.getByRole('alert')).toHaveTextContent('The Waist slot holds 2 accessories; it takes 1.');
+    cleanup();
+    renderSection({ ...base, raceId: 'centaur', equipment: { ...base.equipment, accessories: two } });
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('shuts the Feet slot to a Centaur, and warns about an accessory left there', () => {
+    const base = makeCharacter();
+    renderSection({ ...base, raceId: 'centaur', equipment: { ...base.equipment, accessories: [ring('a', 'feet')] } });
+    expect(screen.getByRole('option', { name: 'Feet' })).toBeDisabled();
+    expect(screen.getByRole('option', { name: 'Waist ×2' })).toBeEnabled();
+    expect(screen.getByRole('alert')).toHaveTextContent('This race cannot wear anything in the Feet slot.');
+  });
+});

@@ -216,3 +216,86 @@ describe('AttackPanel', () => {
     });
   });
 });
+
+describe('AttackPanel — Chain Attack', () => {
+  const fist: PanelWeapon = { id: 'f1', label: 'Fist', accuracy: 4, power: 10, criticalValue: 11, extraDamage: 2, wrestling1H: true };
+  const kick: PanelWeapon = { id: 'f2', label: 'Kick', accuracy: 3, power: 15, criticalValue: 11, extraDamage: 2, wrestling1H: true };
+
+  it('offers one more attack after a 1H wrestling attack, on the same target, at the full Accuracy', async () => {
+    // first: 3+3 + 4 = 10 (a tie with the fixed 10: evaded); chain with the Kick: 4+4 + 3 = 11
+    vi.spyOn(Math, 'random').mockReturnValueOnce(face(3)).mockReturnValueOnce(face(3)).mockReturnValueOnce(face(4)).mockReturnValueOnce(face(4));
+    const { user } = setup({ weapons: [fist, kick], chain: true });
+    await screen.findByLabelText(/Hoodling A/);
+    expect(screen.queryByRole('button', { name: /^Chain Attack/ })).toBeNull();
+    await user.click(screen.getByLabelText(/Hoodling A/));
+    await user.click(screen.getByLabelText('Fixed Evasion'));
+    await user.click(screen.getByRole('button', { name: 'Attack' }));
+    await user.selectOptions(screen.getByLabelText('Chain weapon'), 'f2');
+    await user.click(screen.getByRole('button', { name: 'Chain Attack (Kick, no −2)' }));
+
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Chain Attack: Kick');
+    expect(status).toHaveTextContent('Accuracy: 2d6 (4+4) + 3 = 11');
+    expect(screen.queryByRole('button', { name: /^Chain Attack/ })).toBeNull(); // once only
+  });
+
+  it('is not offered for a weapon that is not 1H wrestling, or to someone without the feat', async () => {
+    const sword: PanelWeapon = { ...fist, id: 's1', label: 'Sword', wrestling1H: false };
+    vi.spyOn(Math, 'random').mockReturnValue(face(3));
+    const first = setup({ weapons: [sword, fist], chain: true });
+    await screen.findByLabelText(/Hoodling A/);
+    await first.user.click(screen.getByLabelText(/Hoodling A/));
+    await first.user.click(screen.getByRole('button', { name: 'Attack' }));
+    expect(screen.queryByRole('button', { name: /^Chain Attack/ })).toBeNull();
+  });
+
+  it('under Dual Wielding makes the third attack without the -2, from either hand’s wrestling weapon', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(face(3));
+    const { user } = setup({ weapons: [fist, kick], chain: true, dual: { penalty: 2, twinStrike: false } });
+    await screen.findByLabelText(/Hoodling A/);
+    await user.click(screen.getByLabelText(/Hoodling A/));
+    await user.click(screen.getByLabelText('Fixed Evasion'));
+    await user.click(screen.getByRole('button', { name: /Attack twice/ }));
+    await user.click(screen.getByRole('button', { name: /^Chain Attack \(/ }));
+    const status = screen.getByRole('status');
+    expect(status.textContent?.match(/Accuracy: 2d6/g)).toHaveLength(3);
+    expect(status).toHaveTextContent('Accuracy: 2d6 (3+3) + 2 = 8'); // the hands: 4 - 2
+    expect(status).toHaveTextContent('Accuracy: 2d6 (3+3) + 4 = 10'); // the chain: the full 4
+  });
+});
+
+describe('AttackPanel — Taunting Strike', () => {
+  const setupHigh = async (taunt: 1 | 2) => {
+    vi.spyOn(Math, 'random').mockReturnValue(face(6));
+    const store = createStore();
+    store.set(encounterAtom, {
+      round: 1,
+      monsters: [
+        { id: 'h1', monsterId: 'basilisk-human-form', label: 'Clever One', sections: [{ hp: 69, mp: 30 }] },
+        { id: 'm1', monsterId: 'shield-hoodling', label: 'Hoodling A', sections: [{ hp: 19, mp: 12 }] },
+      ],
+    });
+    render(
+      <Provider store={store}>
+        <AttackPanel weapons={[sword]} options={{}} targetLimit={3} repeated={false} taunt={taunt} />
+      </Provider>,
+    );
+    const user = userEvent.setup();
+    await screen.findByLabelText(/Hoodling A/);
+    await user.click(screen.getByLabelText(/Clever One/));
+    await user.click(screen.getByLabelText(/Hoodling A/));
+    await user.click(screen.getByRole('button', { name: 'Attack' }));
+    return screen.getByRole('status');
+  };
+
+  it('Taunting Strike I provokes the plain target and does nothing to Intellect High', async () => {
+    const status = await setupHigh(1);
+    expect(status).toHaveTextContent(/provoked: it must attack you/);
+    expect(status).toHaveTextContent(/no effect: Intellect High/);
+  });
+
+  it('Taunting Strike II gives Intellect High -2 to its checks instead', async () => {
+    const status = await setupHigh(2);
+    expect(status).toHaveTextContent(/Intellect High: not forced, but −2/);
+  });
+});
