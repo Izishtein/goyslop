@@ -5,6 +5,7 @@ import type { Character, KnownWorkSkill } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 function newWorkSkill(): KnownWorkSkill {
   return { id: crypto.randomUUID(), name: '', category: '', level: 1, notes: '' };
@@ -50,7 +51,7 @@ export function WorkSkillsSection({ character }: { character: Character }) {
   return (
     <details className={styles.section} data-collapsible open={defaultOpen}>
       <summary className={styles.sectionHead}>
-        <h3>{t('sheet.workSkills')}</h3>
+        <h3><GameIcon name="section.workSkills" />{t('sheet.workSkills')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.workSkillsLevels')}:{' '}
           <strong className={`${styles.numeric} ${overCap ? styles.overspent : ''}`}>{totalLevels} / 10</strong>

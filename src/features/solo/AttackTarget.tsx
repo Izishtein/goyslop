@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isValuePair } from '../../data/monsters';
@@ -6,7 +6,7 @@ import { damageSection, rollEvasion, tableTargets, type EvasionRoll } from '../.
 import { damageTraitsOf, traitAdjustment } from '../../lib/monster-skills';
 import { halveRoundUp, spellResisted, type SpellcastingCheck } from '../../lib/spell-check';
 import { armorPiercerDefense } from '../../lib/formulas/attack-modifiers';
-import { encounterAtom } from '../../state/encounter';
+import { encounterAtom, showMonsterHpAtom } from '../../state/encounter';
 import { useMonsters } from './useMonsters';
 
 /**
@@ -54,7 +54,8 @@ export function AttackTarget({
   const [blunt, setBlunt] = useState(bludgeoning);
   const [fire, setFire] = useState(false);
 
-  const targets = tableTargets(encounter, byId);
+  const showHp = useAtomValue(showMonsterHpAtom);
+  const targets = tableTargets(encounter, byId, showHp);
   const target = targets.find((entry) => entry.key === choice);
   const rawDefense = magic ? 0 : target ? target.defense : Math.max(0, Number(typed) || 0);
   const known = magic ? target !== undefined : target !== undefined || typed !== '';

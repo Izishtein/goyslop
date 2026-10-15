@@ -38,7 +38,7 @@ import { chargeOf, damageTraitsOf, poisonRiderOf, resolvePoison, rollChargeAttac
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { initiative } from '../../lib/formulas/derived-stats';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
-import { encounterAtom, hideUnknownAtom } from '../../state/encounter';
+import { encounterAtom, hideUnknownAtom, showMonsterHpAtom } from '../../state/encounter';
 import type { Character } from '../../types/character';
 import { CampaignPanel } from './CampaignPanel';
 import { DungeonPanel } from './DungeonPanel';
@@ -49,6 +49,7 @@ import { AdventurePanel } from './AdventurePanel';
 import { MonsterAreaAttack } from './MonsterAreaAttack';
 import { MonsterIntent } from './MonsterIntent';
 import { OraclePanel } from './OraclePanel';
+import { BattlefieldPanel } from './BattlefieldPanel';
 import { PartyPanel } from './PartyPanel';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
@@ -77,6 +78,7 @@ function MonsterCard({
   instance,
   fixed,
   hideUnknown,
+  showHp,
   character,
   onChange,
   onRemove,
@@ -85,6 +87,7 @@ function MonsterCard({
   instance: EncounterMonster;
   fixed: boolean;
   hideUnknown: boolean;
+  showHp: boolean;
   character: Character | undefined;
   onChange: (next: EncounterMonster) => void;
   onRemove: () => void;
@@ -277,12 +280,16 @@ function MonsterCard({
                 </span>
               )}
             </div>
-            <div className={styles.bar} role="meter" aria-label={`${section.style} HP`} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.max(0, state.hp)}>
-              <div className={styles.barFill} style={{ width: `${max > 0 ? Math.max(0, Math.min(100, (state.hp / max) * 100)) : 0}%` }} />
-              <span className={styles.barText}>
-                {state.hp} / {max}
-              </span>
-            </div>
+            {showHp ? (
+              <div className={styles.bar} role="meter" aria-label={`${section.style} HP`} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.max(0, state.hp)}>
+                <div className={styles.barFill} style={{ width: `${max > 0 ? Math.max(0, Math.min(100, (state.hp / max) * 100)) : 0}%` }} />
+                <span className={styles.barText}>
+                  {state.hp} / {max}
+                </span>
+              </div>
+            ) : (
+              <p className={styles.numeric}>{t('solo.hpHidden', { style: section.style })}</p>
+            )}
             <div className={styles.controls}>
               <input
                 type="number"
@@ -416,6 +423,7 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
   const { t } = useTranslation();
   const [encounter, setEncounter] = useAtom(encounterAtom);
   const [hideUnknown, setHideUnknown] = useAtom(hideUnknownAtom);
+  const [showHp, setShowHp] = useAtom(showMonsterHpAtom);
   const characters = useAtomValue(charactersAtom);
   const activeId = useAtomValue(activeCharacterIdAtom);
   const character = characters.find((entry) => entry.id === activeId);
@@ -515,6 +523,10 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
           <input type="checkbox" checked={hideUnknown} onChange={(e) => setHideUnknown(e.target.checked)} />
           {t('solo.hideUnknown')}
         </label>
+        <label className={styles.inline}>
+          <input type="checkbox" checked={showHp} onChange={(e) => setShowHp(e.target.checked)} />
+          {t('solo.showMonsterHp')}
+        </label>
         <button type="button" onClick={() => setEncounter({ round: 0, monsters: [] })} disabled={encounter.monsters.length === 0 && encounter.round === 0}>
           {t('solo.endEncounter')}
         </button>
@@ -597,6 +609,7 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
                 instance={instance}
                 fixed={fixed}
                 hideUnknown={hideUnknown}
+                showHp={showHp}
                 character={character}
                 onChange={(next) =>
                   setEncounter((current) => ({ ...current, monsters: current.monsters.map((entry) => (entry.id === next.id ? next : entry)) }))
@@ -629,6 +642,7 @@ export function SoloView({ onClose }: { onClose: () => void }) {
       </div>
       <EncounterPanel fixed={fixed} onFixedChange={setFixed} />
       <PartyPanel fixed={fixed} />
+      <BattlefieldPanel />
       <HexMapPanel />
       <DungeonPanel />
       <VoyagePanel />

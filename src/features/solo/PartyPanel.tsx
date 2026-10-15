@@ -3,14 +3,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
 import { isValuePair, type Monster } from '../../data/monsters';
-import { damageSection, isDown, numberOf, rollD6, rollEvasion, type EncounterMonster } from '../../lib/encounter';
+import { damageSection, isDown, numberOf, rollD6, rollEvasion, sectionLabel, type EncounterMonster } from '../../lib/encounter';
 import { fellowActionFor, fellowAttack, fellowHeal, fellowMpMax, fellowValue, mpCostOf } from '../../lib/fellow';
 import { rollWeaponDamage, type DamageRoll } from '../../lib/formulas/damage-roll';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { hpMax } from '../../lib/formulas/hp-mp';
 import { abilityTotal } from '../../lib/formulas/abilities';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
-import { encounterAtom } from '../../state/encounter';
+import { encounterAtom, showMonsterHpAtom } from '../../state/encounter';
 import { partyAtom } from '../../state/party';
 import type { Character, FellowAction } from '../../types/character';
 import styles from './SoloView.module.css';
@@ -55,12 +55,12 @@ interface Target {
   label: string;
 }
 
-function targetsOf(monsters: EncounterMonster[], byId: Map<string, Monster>): Target[] {
+function targetsOf(monsters: EncounterMonster[], byId: Map<string, Monster>, showHp: boolean): Target[] {
   return monsters.flatMap((instance, monsterIndex) => {
     const monster = byId.get(instance.monsterId);
     if (!monster) return [];
     return monster.sections.flatMap((section, sectionIndex) =>
-      isDown(instance.sections[sectionIndex]) ? [] : [{ key: `${instance.id}:${sectionIndex}`, monsterIndex, sectionIndex, label: `${instance.label} — ${section.style} (${instance.sections[sectionIndex].hp})` }],
+      isDown(instance.sections[sectionIndex]) ? [] : [{ key: `${instance.id}:${sectionIndex}`, monsterIndex, sectionIndex, label: sectionLabel(instance.label, section.style, instance.sections[sectionIndex].hp, showHp) }],
     );
   });
 }
@@ -88,7 +88,8 @@ function FellowCard({
   const [targetKey, setTargetKey] = useState('');
   const [dual, setDual] = useState(false);
 
-  const targets = targetsOf(encounter.monsters, byId);
+  const showHp = useAtomValue(showMonsterHpAtom);
+  const targets = targetsOf(encounter.monsters, byId, showHp);
   const target = targets.find((entry) => entry.key === targetKey) ?? targets[0];
   const updateFellow = useUpdateCharacter(fellow.id);
   const updatePc = useUpdateCharacter(pc?.id ?? '');

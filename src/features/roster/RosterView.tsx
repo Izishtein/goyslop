@@ -11,6 +11,8 @@ import { charactersAtom } from '../../state/characters';
 import { downloadCharacter } from '../character-io/downloadCharacter';
 import { downloadRoster } from '../character-io/downloadRoster';
 import { ImportCharacterButton } from '../character-io/ImportCharacterButton';
+import { Copy, Download, Trash2, X } from 'lucide-react';
+import { UI_ICON } from '../../components/icon-info';
 import styles from './RosterView.module.css';
 
 /**
@@ -64,11 +66,13 @@ export function RosterView({
         <div className={styles.headActions}>
           {characters.length > 0 && (
             <button type="button" onClick={() => downloadRoster(characters)}>
+              <Download {...UI_ICON} />
               {t('io.exportRoster')}
             </button>
           )}
           <ImportCharacterButton />
           <button type="button" onClick={onClose}>
+            <X {...UI_ICON} />
             {t('app.rosterClose')}
           </button>
         </div>
@@ -161,9 +165,11 @@ function RosterCard({
 
       <div className={styles.cardActions}>
         <button type="button" onClick={() => downloadCharacter(character)} title={t('io.export')}>
+          <Download {...UI_ICON} />
           {t('io.exportShort')}
         </button>
         <button type="button" onClick={() => onDuplicate(character)} title={t('app.duplicate')}>
+          <Copy {...UI_ICON} />
           {t('app.duplicateShort')}
         </button>
         {armed ? (
@@ -177,6 +183,7 @@ function RosterCard({
           </>
         ) : (
           <button type="button" className={styles.danger} onClick={() => onArmDelete(character.id)} title={t('app.delete')}>
+            <Trash2 {...UI_ICON} />
             {t('app.deleteShort')}
           </button>
         )}

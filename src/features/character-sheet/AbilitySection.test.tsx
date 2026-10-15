@@ -142,3 +142,15 @@ describe('AbilitySection universal check roll', () => {
     expect(screen.getByRole('status')).toHaveTextContent('3 + 4 + 4 = 11');
   });
 });
+
+describe('AbilitySection Attention to Detail', () => {
+  it('gives a Kobold a second Dexterity roll with +2 for checks outside combat', () => {
+    renderSection(makeCharacter({ raceId: 'kobold' }));
+    expect(screen.getByRole('button', { name: /Attention to Detail/ })).toBeInTheDocument();
+  });
+
+  it('gives no such roll to another race', () => {
+    renderSection(makeCharacter());
+    expect(screen.queryByRole('button', { name: /Attention to Detail/ })).not.toBeInTheDocument();
+  });
+});

@@ -6,6 +6,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, GeomancerQi, KnownAspect } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const ASPECT_LEVELS = [1, 5, 10] as const;
 
@@ -50,7 +51,7 @@ export function GeomancerSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-geomancer">
       <div className={styles.sectionHead}>
-        <h3 id="section-geomancer">{t('sheet.geomancerAspects')}</h3>
+        <h3 id="section-geomancer"><GameIcon name="section.geomancer" />{t('sheet.geomancerAspects')}</h3>
         <p className={styles.sectionNote}>
           {level > 0 ? t('sheet.geomancerLevel', { level }) : t('sheet.noGeomancerClass')}
         </p>

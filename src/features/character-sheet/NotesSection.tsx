@@ -3,6 +3,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, Connection, Notes } from '../../types/character';
 import { autoGrow } from './autoGrow';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const NOTE_FIELDS: Array<{ key: keyof Notes; label: string }> = [
   { key: 'story', label: 'sheet.noteStory' },
@@ -36,7 +37,7 @@ export function NotesSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-notes">
       <div className={styles.sectionHead}>
-        <h3 id="section-notes">{t('sheet.notes')}</h3>
+        <h3 id="section-notes"><GameIcon name="section.notes" />{t('sheet.notes')}</h3>
       </div>
 
       {NOTE_FIELDS.map((field) => (

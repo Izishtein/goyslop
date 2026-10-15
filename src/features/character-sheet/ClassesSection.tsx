@@ -8,6 +8,7 @@ import { classLevelXpCost, MAX_CLASS_LEVEL } from '../../lib/formulas/xp-cost';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character } from '../../types/character';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /**
  * Classes and the XP that buys them.
@@ -76,7 +77,7 @@ export function ClassesSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-classes">
       <div className={styles.sectionHead}>
-        <h3 id="section-classes">{t('sheet.classes')}</h3>
+        <h3 id="section-classes"><GameIcon name="section.classes" />{t('sheet.classes')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.adventurerLevel')}: <strong className={styles.numeric}>{adventurerLevel(character.classes)}</strong>
         </p>

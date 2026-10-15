@@ -17,8 +17,10 @@ import { getStunt, listStuntsByLevel, STUNTS } from '../../data/stunts';
 import { useUpdateCharacter } from '../../state/characters';
 import { MOUNT_CONTRACTS, STUNT_TYPES, type Character, type KnownMount, type MountSection, type Stunt } from '../../types/character';
 import { PrintableField } from './PrintableField';
+import { centaurStunts } from '../../lib/racial-abilities';
 import { hasMounts, riderLevel } from './sections';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const STUNT_LEVELS = [1, 5, 10] as const;
 
@@ -123,6 +125,7 @@ export function MountsSection({ character }: { character: Character }) {
   const advLevel = adventurerLevel(character.classes);
   const slots = stuntSlots(rider);
   const known = new Set(character.stunts.map((s) => s.name));
+  const ownStunts = centaurStunts(character.raceId, rider);
 
   if (!hasMounts(character)) return null;
 
@@ -197,7 +200,7 @@ export function MountsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-mounts">
       <div className={styles.sectionHead}>
-        <h3 id="section-mounts">{t('sheet.mounts')}</h3>
+        <h3 id="section-mounts"><GameIcon name="section.mounts" />{t('sheet.mounts')}</h3>
         <p className={styles.sectionNote}>
           {rider > 0 ? t('sheet.riderLevel', { level: rider }) : t('sheet.noRiderClass')}
         </p>
@@ -515,6 +518,12 @@ export function MountsSection({ character }: { character: Character }) {
               </tbody>
             </table>
           </div>
+        )}
+
+        {ownStunts.length > 0 && (
+          <p className={styles.sectionNote}>
+            {t('sheet.centaurStunts')}: {ownStunts.join(', ')}
+          </p>
         )}
 
         <datalist id={STUNTS_LIST_ID}>

@@ -8,6 +8,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownArt } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /** The duration codes the Technique table uses, in the order the book prints them. */
 const DURATIONS = ['10s', '30s', '3min', '1h', 'instant'] as const;
@@ -179,7 +180,7 @@ export function ArtsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-arts">
       <div className={styles.sectionHead}>
-        <h3 id="section-arts">{t('sheet.arts')}</h3>
+        <h3 id="section-arts"><GameIcon name="section.arts" />{t('sheet.arts')}</h3>
         <p className={styles.sectionNote}>
           {enhancerLevel > 0 && (
             <>

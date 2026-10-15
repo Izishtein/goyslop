@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { powerTableRoll } from './formulas/power-table';
 import { rollWeaponDamage } from './formulas/damage-roll';
 import {
+  attentionToDetailBonus,
   babaYagaSoulscars,
+  centaurStunts,
+  familiarDarknessBonus,
   limitedRegeneration,
   markUsed,
   newCombat,
   newDay,
   regenerate,
+  spiritDrain,
   racialStateOf,
   WEAKENED_EFFECT_ID,
   witchMagicPowerBonus,
@@ -15,6 +19,7 @@ import {
   witchsFireCost,
   withWeakened,
 } from './racial-abilities';
+import { mirrorReflects, raceSoulscars, shacklesPenalty, shacklesSlowed, soulscarsOf, soulscarSums, withShackles } from './soulscars';
 
 /** An rng that deals the given die faces in order. */
 const dice = (...faces: number[]) => {
@@ -22,7 +27,7 @@ const dice = (...faces: number[]) => {
   return () => (faces[index++] - 1 + 0.5) / 6;
 };
 
-const state = (witch: boolean) => ({ sunlight: false, witch, usedToday: [], usedInCombat: [] });
+const state = (witch: boolean) => ({ sunlight: false, witch, shackled: false, usedToday: [], usedInCombat: [] });
 
 describe('Dark Troll', () => {
   it('takes -2 to Accuracy and Evasion in sunlight, as a managed status effect that goes away again', () => {
@@ -82,5 +87,70 @@ describe('Baba Yaga', () => {
     // double 1s still deal nothing; double 6s stay 12
     expect(rollWeaponDamage(20, 13, 5, false, dice(1, 1), 2)).toMatchObject({ fumble: true, calculatedDamage: 0 });
     expect(rollWeaponDamage(20, 13, 0, false, dice(6, 6), 2).powerTableTotal).toBe(powerTableRoll(20, 12));
+  });
+});
+
+describe('Kobold, Dawn and Centaur bonuses', () => {
+  it('Attention to Detail is +2 for a Kobold only', () => {
+    expect(attentionToDetailBonus('kobold')).toBe(2);
+    expect(attentionToDetailBonus('human')).toBe(0);
+  });
+
+  it('Familiar Darkness is +2, +4 from level 11, for a Dawn only', () => {
+    expect([1, 10, 11].map((level) => familiarDarknessBonus('dawn', level))).toEqual([2, 2, 4]);
+    expect(familiarDarknessBonus('kobold', 11)).toBe(0);
+  });
+
+  it('a Centaur gets the Stunts of the Rider levels reached, free of slots', () => {
+    expect(centaurStunts('centaur', 0)).toEqual([]);
+    expect(centaurStunts('centaur', 1)).toHaveLength(6);
+    expect(centaurStunts('centaur', 5)).toContain("Lion's Fury");
+    expect(centaurStunts('centaur', 10)).toHaveLength(15);
+    expect(centaurStunts('human', 10)).toEqual([]);
+  });
+});
+
+describe('soulscars', () => {
+  it('come from the race (a Baba Yaga adds 2 in the witch shape) unless the player set a count', () => {
+    expect(raceSoulscars('dark-troll')).toBe(4);
+    expect(raceSoulscars('human')).toBe(0);
+    expect(soulscarsOf({ raceId: 'baba-yaga', racial: { ...state(true) } })).toBe(4);
+    expect(soulscarsOf({ raceId: 'baba-yaga', racial: { ...state(true), soulscars: 3 } })).toBe(3);
+    expect(soulscarsOf({ raceId: 'kobold', racial: undefined })).toBe(1);
+  });
+
+  it('Shackles: -4 and speed 1 at 0-1, -2 at 2, nothing from 3', () => {
+    expect([0, 1, 2, 3, 4].map(shacklesPenalty)).toEqual([4, 4, 2, 0, 0]);
+    expect([1, 2].map(shacklesSlowed)).toEqual([true, false]);
+    const on = withShackles([], true, 2, 'Shackles', 'all skill checks');
+    expect(on[0].modifiers).toEqual([{ field: 'custom', customLabel: 'all skill checks', value: -2 }]);
+    expect(withShackles(on, true, 3, 'Shackles', 'all skill checks')).toEqual([]);
+    expect(withShackles(on, false, 2, 'Shackles', 'all skill checks')).toEqual([]);
+  });
+
+  it('the Mirror reflects the eye at a margin of 4', () => {
+    expect(mirrorReflects(17, 13)).toBe(true);
+    expect(mirrorReflects(16, 13)).toBe(false);
+  });
+
+  it('item sums follow the count', () => {
+    expect(soulscarSums(4, 3, 2)).toEqual({ bonus: 4, tintedPower: 29, wineHp: 20, visorHours: 4 });
+  });
+});
+
+describe('Alv and the soulscars of races the books number', () => {
+  it('a Nightmare is born with one, an Alv with one, a Weakling with two, an Abyssborn or Newman with none', () => {
+    expect(raceSoulscars('nightmare')).toBe(1);
+    expect(raceSoulscars('soleilborn-nightmare')).toBe(1);
+    expect(raceSoulscars('abyssborn')).toBe(0);
+    expect(raceSoulscars('alv')).toBe(1);
+    expect(raceSoulscars('weakling')).toBe(2);
+    expect(raceSoulscars('fluorite')).toBe(0);
+  });
+
+  it('Spirit Drain takes Spirit Modifier + soulscars, +2 from level 11, as often a day as the modifier', () => {
+    expect(spiritDrain(2, 3, 1)).toEqual({ amount: 5, perDay: 2 });
+    expect(spiritDrain(2, 3, 11)).toEqual({ amount: 7, perDay: 2 });
+    expect(spiritDrain(-1, 0, 1)).toEqual({ amount: 0, perDay: 0 });
   });
 });

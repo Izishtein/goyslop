@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { abilityTotal } from '../../lib/formulas/abilities';
-import { adventurerLevel } from '../../lib/formulas/character-levels';
-import { hpMax } from '../../lib/formulas/hp-mp';
+import { abilityModifier } from '../../lib/formulas/abilities';
+import { adventurerLevel, wizardLevelSum } from '../../lib/formulas/character-levels';
+import { hpMax, mpMax } from '../../lib/formulas/hp-mp';
 import {
   babaYagaSoulscars,
   DISREGARD,
@@ -12,15 +13,19 @@ import {
   newDay,
   racialStateOf,
   regenerate,
+  SPIRIT_DRAIN,
+  spiritDrain,
   WEAKENED_PENALTY,
   WITCH_MAGIC_POWER,
   withWeakened,
 } from '../../lib/racial-abilities';
+import { raceSoulscars, soulscarsOf, withShackles } from '../../lib/soulscars';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, RacialState } from '../../types/character';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
-const RACES_WITH_ACTIVES = ['dark-troll', 'baba-yaga', 'kobold'];
+const RACES_WITH_ACTIVES = ['dark-troll', 'baba-yaga', 'kobold', 'alv'];
 
 /**
  * The active abilities of the Barbarous races with one body (Barbarous Rage pp. 24, 32, 48): a Dark Troll's
@@ -42,6 +47,24 @@ export function RacialAbilitiesSection({ character }: { character: Character }) 
     update((c) => ({ ...c, racial: { ...racialStateOf(c), sunlight }, statusEffects: withWeakened(c.statusEffects, sunlight, t('sheet.racial.weakenedEffect')) }));
   }
 
+  /* The witch's shape adds two soulscars, and the shackles' penalty follows the count. */
+  function setWitch(witch: boolean) {
+    update((c) => {
+      const racial = { ...racialStateOf(c), witch };
+      const count = racial.soulscars ?? raceSoulscars(c.raceId, witch);
+      return { ...c, racial, statusEffects: racial.shackled ? withShackles(c.statusEffects, true, count, t('sheet.soulscars.shacklesEffect'), t('sheet.soulscars.allSkillChecks')) : c.statusEffects };
+    });
+  }
+
+  /* The MP taken comes to the Alv; the target's side is the table's business. */
+  function drainNow() {
+    update((c) => {
+      const ceiling = mpMax(wizardLevelSum(c.classes), abilityTotal(c.abilities.SPR));
+      const used = racialStateOf(c).usedToday.filter((id) => id.startsWith(SPIRIT_DRAIN)).length;
+      return { ...c, mp: { current: Math.max(c.mp.current, Math.min(ceiling, c.mp.current + drain.amount)) }, racial: markUsed(racialStateOf(c), `${SPIRIT_DRAIN}-${used + 1}`, 'day') };
+    });
+  }
+
   function regenerateNow() {
     update((c) => {
       const max = hpMax(adventurerLevel(c.classes), abilityTotal(c.abilities.VIT));
@@ -49,13 +72,15 @@ export function RacialAbilitiesSection({ character }: { character: Character }) 
     });
   }
 
+  const drain = spiritDrain(abilityModifier(abilityTotal(character.abilities.SPR)), soulscarsOf(character), level);
+  const drainsUsed = state.usedToday.filter((id) => id.startsWith(SPIRIT_DRAIN)).length;
   const regeneration = limitedRegeneration(level);
   const anySpent = state.usedToday.length > 0 || state.usedInCombat.length > 0;
 
   return (
     <section className={styles.section} aria-labelledby="section-racial">
       <div className={styles.sectionHead}>
-        <h3 id="section-racial">{t('sheet.racial.title')}</h3>
+        <h3 id="section-racial"><GameIcon name="section.racial" />{t('sheet.racial.title')}</h3>
         <p className={styles.sectionNote}>{t(`sheet.racial.note.${character.raceId}`)}</p>
       </div>
 
@@ -82,10 +107,21 @@ export function RacialAbilitiesSection({ character }: { character: Character }) 
         {character.raceId === 'baba-yaga' && (
           <>
             <label>
-              <input type="checkbox" checked={state.witch} onChange={(event) => set((current) => ({ ...current, witch: event.target.checked }))} /> {t('sheet.racial.witch')}
+              <input type="checkbox" checked={state.witch} onChange={(event) => setWitch(event.target.checked)} /> {t('sheet.racial.witch')}
             </label>
             <p className={styles.sectionNote}>{t('sheet.racial.witchEffects', { power: WITCH_MAGIC_POWER, soulscars: babaYagaSoulscars(state.witch) })}</p>
           </>
+        )}
+
+        {character.raceId === 'alv' && (
+          <p>
+            <button type="button" onClick={drainNow} disabled={drainsUsed >= drain.perDay}>
+              {t('sheet.racial.spiritDrain', { amount: drain.amount })}
+            </button>{' '}
+            <span className={styles.sectionNote}>
+              {t('sheet.racial.spiritDrainUses', { left: Math.max(0, drain.perDay - drainsUsed), max: drain.perDay })} · {t(level >= 6 ? 'sheet.racial.drainRange' : 'sheet.racial.drainTouch')}
+            </span>
+          </p>
         )}
 
         {character.raceId === 'kobold' && (

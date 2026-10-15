@@ -24,6 +24,7 @@ import {
   rollMonsterAttack,
   rollMonsterDamage,
   spawnMonster,
+  sectionLabel,
 } from './encounter';
 
 const monsters = raw as unknown as Monster[];
@@ -260,5 +261,12 @@ describe('monster abilities with a number', () => {
     hurt.sections = hurt.sections.map((section, index) => (index === 0 ? { ...section, hp: section.hp - 20 } : section));
     expect(regenerate(troll, hurt).healed).toBe(5);
     expect(regenerate(troll, hurt, true).healed).toBe(0);
+  });
+});
+
+describe('sectionLabel', () => {
+  it('names the HP of a section only when it is meant to be seen', () => {
+    expect(sectionLabel('Goblin', 'Body', 7, true)).toBe('Goblin — Body (7)');
+    expect(sectionLabel('Goblin', 'Body', 7, false)).toBe('Goblin — Body');
   });
 });

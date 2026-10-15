@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CatalogIcon } from '../../components/icons';
 import { ABYSS_CURSES, ADDITIONAL_ABYSS_CURSES, abyssSkillsFor, enhancementsFor, type AbyssTarget } from '../../data/abyss';
 import { listAspectsByLevel } from '../../data/aspects';
 import {
@@ -81,6 +82,7 @@ export function SpellsReference() {
 
       <div className={styles.controlRow}>
         <label htmlFor="reference-school">{t('sheet.spellSchool')}</label>
+        <CatalogIcon kind="school" id={school} />
         <select id="reference-school" value={school} onChange={(event) => setSchool(event.target.value)}>
           {CATALOGUED_SCHOOLS.map((name) => (
             <option key={name} value={name}>
@@ -477,6 +479,7 @@ export function EquipmentReference() {
               {weapons.map((entry) => (
                 <tr key={entry.id}>
                   <th scope="row" className={styles.rowName}>
+                    <CatalogIcon kind="weapon" id={entry.category} />
                     {entry.name}
                   </th>
                   <td>{entry.rank}</td>

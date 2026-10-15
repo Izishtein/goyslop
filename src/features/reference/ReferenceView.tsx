@@ -25,6 +25,7 @@ import {
 import { ClassesReference } from './ClassesReference';
 import { MonstersReference } from './MonstersReference';
 import { RacesReference } from './RacesReference';
+import { GameIcon } from '../../components/icons';
 import styles from './ReferenceView.module.css';
 
 const TABS = [
@@ -109,6 +110,7 @@ export function ReferenceView({ onClose }: { onClose: () => void }) {
             aria-pressed={tab === name}
             onClick={() => setTab(name)}
           >
+            <GameIcon name={`reference.${name}`} />
             {t(`reference.tab.${name}`)}
           </button>
         ))}

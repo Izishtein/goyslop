@@ -143,3 +143,29 @@ describe('CombatStatsSection check packages', () => {
     expect(screen.queryByRole('row', { name: /Movement/ })).toBeNull();
   });
 });
+
+describe('CombatStatsSection Familiar Darkness', () => {
+  it('gives a Dawn Disguise, Hide and Follow rows with +2 on Adventurer Level + the modifier', () => {
+    // Core I pp. 102-104: Disguise is Scout level + DEX, Hide and Follow Scout or Ranger level + AGI (modifiers are +2 here)
+    renderSection(makeCharacter({ raceId: 'dawn', classes: [{ classId: 'scout', level: 4 }] }));
+    expect(valueOf(/^Disguise/)).toBe('8'); // 4 + 2 + 2
+    expect(valueOf(/^Hide/)).toBe('8');
+    expect(valueOf(/^Follow/)).toBe('8');
+  });
+
+  it('takes a Ranger for Hide and Follow but not for Disguise', () => {
+    renderSection(makeCharacter({ raceId: 'dawn', classes: [{ classId: 'ranger', level: 3 }] }));
+    expect(valueOf(/^Disguise/)).toBe('2'); // Straight Roll: the bonus alone
+    expect(valueOf(/^Hide/)).toBe('7'); // 3 + 2 + 2
+  });
+
+  it('is a Straight Roll with only the bonus when the Dawn has neither class', () => {
+    renderSection(makeCharacter({ raceId: 'dawn' }));
+    expect(valueOf(/^Follow/)).toBe('2');
+  });
+
+  it('leaves them out for other races', () => {
+    renderSection(makeCharacter());
+    expect(screen.queryByRole('row', { name: /^Disguise/ })).not.toBeInTheDocument();
+  });
+});

@@ -1,0 +1,201 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel h3 {
+  margin: 0;
+}
+
+.note {
+  margin: var(--sp-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  max-width: 70ch;
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.88rem;
+}
+
+.settings,
+.addRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3);
+}
+
+.settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.settings input[type='number'] {
+  width: 5.5rem;
+}
+
+.settings .inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+  align-self: center;
+}
+
+/* The frame lets a wide field scroll on a phone instead of squeezing the cells to nothing. */
+.frame {
+  overflow-x: auto;
+}
+
+.field {
+  --grid-line: rgba(128, 128, 128, 0.35);
+  position: relative;
+  width: 100%;
+  min-width: 18rem;
+  border: 1px solid var(--border-strong);
+  background-color: var(--surface-2);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  touch-action: none;
+  user-select: none;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.token {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: grab;
+  touch-action: none;
+}
+
+/* The disc is the token's own face: coloured by side, so friend and foe read at a glance on any picture. */
+.disc {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--token-color);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--token-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.party {
+  --token-color: #2f6fe0;
+}
+
+.foe {
+  --token-color: #d13b3b;
+}
+
+.custom {
+  --token-color: #7a7a8a;
+}
+
+.tokenImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tokenInitials {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.badge {
+  position: absolute;
+  right: 6%;
+  bottom: 6%;
+  min-width: 1.1em;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--token-color);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.down {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.selected .disc {
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--token-color);
+}
+
+.dragging {
+  z-index: 2;
+  cursor: grabbing;
+  opacity: 0.8;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.info p {
+  margin: 0;
+}
+
+.distances {
+  margin: 0;
+  padding-left: 1.2rem;
+  columns: 2 14rem;
+  font-size: 0.88rem;
+}
+
+@media print {
+  .settings,
+  .addRow {
+    display: none;
+  }
+}
+
+/* The app's own button states (hover, pressed, focus) would paint a plate behind the round token; `button.` outranks them. */
+button.token,
+button.token:hover:not(:disabled),
+button.token:active,
+button.token[aria-pressed='true'] {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  transition: none;
+}
+
+button.token:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+  outline: 2px solid var(--token-color);
+  outline-offset: 1px;
+}

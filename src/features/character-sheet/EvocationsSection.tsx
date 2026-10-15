@@ -17,6 +17,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownEvocation } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 function alchemistLevel(character: Character): number {
   return character.classes
@@ -94,7 +95,7 @@ export function EvocationsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-evocations">
       <div className={styles.sectionHead}>
-        <h3 id="section-evocations">{t('sheet.evocations')}</h3>
+        <h3 id="section-evocations"><GameIcon name="section.evocations" />{t('sheet.evocations')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.evocationSv')}: <strong className={styles.numeric}>{evocationPower(level, intMod)}</strong>
           {' · '}

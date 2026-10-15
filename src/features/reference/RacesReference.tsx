@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
 import { RACES, racialAbilitiesFor, type RaceDefinition } from '../../data/races';
+import { CatalogIcon } from '../../components/icons';
 import { ABILITY_IDS } from '../../lib/formulas/abilities';
 import { correctionRange, formatDiceNotation } from '../../lib/formulas/ability-base';
 import styles from './ReferenceView.module.css';
@@ -41,6 +42,7 @@ export function RacesReference() {
               <th>{t('reference.restrictedClasses')}</th>
               <th>{t('reference.racialAbilities')}</th>
               <th>{t('reference.book')}</th>
+              <th>{t('reference.raceDescriptionHeading')}</th>
             </tr>
           </thead>
           <tbody>
@@ -49,6 +51,7 @@ export function RacesReference() {
               return (
                 <tr key={race.id}>
                   <th scope="row" className={styles.rowName}>
+                    <CatalogIcon kind="race" id={race.id} />
                     {race.name}
                   </th>
                   {/* Six of the eighteen races have no dice: Vagrant-system ones roll a
@@ -80,6 +83,8 @@ export function RacesReference() {
                       : '—'}
                   </td>
                   <td>{race.sourceBook}</td>
+                  {/* Prose lives in the locale files, like the class descriptions, so both languages get it. */}
+                  <td className={styles.prose}>{t(`reference.raceDescription.${race.id}`)}</td>
                 </tr>
               );
             })}

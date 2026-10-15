@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CatalogIcon } from '../../components/icons';
 import {
   ALL_MONSTER_CATEGORIES,
   COMMON_ABILITIES,
@@ -390,6 +391,7 @@ export function MonstersReference() {
                     <span className={styles.monsterLevel}>{levelLabel(monster)}</span>
                     <span className={styles.monsterName}>{monster.name}</span>
                     <span className={styles.monsterMeta}>
+                      <CatalogIcon kind="monster" id={monster.category} />
                       {t(`reference.monsters.categories.${monster.category}`)} · {monster.habitat}
                     </span>
                     <span className={styles.monsterSource}>{monster.source}</span>

@@ -6,6 +6,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownManeuver, KnownStratagem } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const STRATAGEM_LEVELS = [1, 5, 10] as const;
 const MANEUVER_LEVELS = [1, 5] as const;
@@ -70,7 +71,7 @@ export function TacticianSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-tactician">
       <div className={styles.sectionHead}>
-        <h3 id="section-tactician">{t('sheet.tacticianStratagems')}</h3>
+        <h3 id="section-tactician"><GameIcon name="section.tactician" />{t('sheet.tacticianStratagems')}</h3>
         <p className={styles.sectionNote}>{level > 0 ? t('sheet.tacticianLevel', { level }) : t('sheet.noTacticianClass')}</p>
       </div>
 

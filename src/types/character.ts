@@ -399,6 +399,10 @@ export type KnownInfusion = z.infer<typeof KnownInfusionSchema>;
 export const RacialStateSchema = z.object({
   sunlight: z.boolean().default(false),
   witch: z.boolean().default(false),
+  /** The player's own soulscar count, over the race's (lib/soulscars.ts). */
+  soulscars: z.number().int().min(0).max(20).optional(),
+  /** Soulscar Shackles are on: their penalty rides in a status effect. */
+  shackled: z.boolean().default(false),
   usedToday: z.array(z.string()).default(() => []),
   usedInCombat: z.array(z.string()).default(() => []),
 });

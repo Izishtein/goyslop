@@ -1,0 +1,32 @@
+.credits {
+  margin-top: var(--sp-4);
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
+.credits summary {
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  opacity: 0.5;
+}
+
+.credits summary::-webkit-details-marker {
+  display: none;
+}
+
+.credits summary:hover,
+.credits summary:focus-visible,
+.credits details[open] summary {
+  opacity: 1;
+}
+
+.credits p {
+  margin: var(--sp-2) 0 0;
+}
+
+@media print {
+  .credits {
+    display: none;
+  }
+}

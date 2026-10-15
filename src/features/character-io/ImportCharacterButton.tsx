@@ -2,6 +2,8 @@ import { useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { charactersAtom, activeCharacterIdAtom } from '../../state/characters';
+import { Upload } from 'lucide-react';
+import { UI_ICON } from '../../components/icon-info';
 import { parseImportedCharacters } from './characterIo';
 
 export function ImportCharacterButton() {
@@ -32,6 +34,7 @@ export function ImportCharacterButton() {
   return (
     <span>
       <button type="button" onClick={() => inputRef.current?.click()}>
+        <Upload {...UI_ICON} />
         {t('io.import')}
       </button>
       <input ref={inputRef} type="file" accept="application/json" onChange={handleFileChange} style={{ display: 'none' }} aria-label={t('io.import')} />

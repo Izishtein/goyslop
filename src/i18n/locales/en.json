@@ -18,7 +18,13 @@
     "roster": "My characters",
     "rosterIntro": "Pick a character to open, or start a new one. Everything is stored in this browser — export a file to keep a copy.",
     "rosterClose": "Back to the sheet",
-    "rosterActive": "Open"
+    "rosterActive": "Open",
+    "credits": {
+      "ui": "Interface icons:",
+      "game": "game icons:",
+      "madeBy": "icons made by",
+      "title": "Icon credits"
+    }
   },
   "language": {
     "en": "English",
@@ -1410,6 +1416,39 @@
       "attack": "{{name}}",
       "declaration": "Declaration",
       "boosted": "chosen at random from those hit, the bonus falls on this one."
+    },
+    "showMonsterHp": "Show monsters’ HP",
+    "hpHidden": "{{style}} HP: hidden",
+    "field": {
+      "title": "Battlefield",
+      "intro": "A grid with tokens for you, your Fellows and the monsters on the table. Put a picture under it if you have a map. Tokens and the grid are remembered; the picture stays in this browser only.",
+      "cols": "Columns",
+      "rows": "Rows",
+      "cellMeters": "Cell, m",
+      "showGrid": "Show the grid",
+      "uploadMap": "Map picture",
+      "removeMap": "Remove the map",
+      "resetLayout": "Reset positions",
+      "pictureFailed": "The picture could not be read. Try a PNG or JPEG.",
+      "tokenName": "Name of a new token",
+      "addToken": "Add a token",
+      "hint": "Drag a token to move it, or focus it and use the arrow keys. A token never stands in an occupied cell.",
+      "label": "Battlefield",
+      "tokenAria": "{{label}}, {{side}}, column {{col}}, row {{row}}",
+      "side": {
+        "party": "party",
+        "foe": "enemy",
+        "custom": "other"
+      },
+      "selected": "Selected token",
+      "down": "down",
+      "uploadToken": "Token picture",
+      "clearToken": "Remove the picture",
+      "removeToken": "Remove the token",
+      "distances": "Distances from {{label}}",
+      "metres": "m",
+      "alone": "Nobody else is on the field.",
+      "pick": "Pick a token to see how far it is from the others."
     }
   },
   "guide": {
@@ -2055,7 +2094,8 @@
       "note": {
         "dark-troll": "Dark Troll (Barbarous Rage p. 24): [Weakened] under the sun, [Limited Regeneration] from level 6.",
         "baba-yaga": "Baba Yaga (p. 32): [Witch Transformation]; [Witch’s Fire] is offered on a cast spell in the Spells section while in the witch’s shape.",
-        "kobold": "Kobold (p. 48): [Disregard] once a combat; [Species Limit] holds every class to level 5; [Attention to Detail] gives +2 to Dexterity checks outside combat."
+        "kobold": "Kobold (p. 48): [Disregard] once a combat; [Species Limit] holds every class to level 5; [Attention to Detail] gives +2 to Dexterity checks outside combat.",
+        "alv": "Alv (Outlaw Profile Book p. 124): [Spirit Drain] takes Spirit Modifier + soulscars MP from a Humanoid or Barbarous target and gives it to the Alv; the soulscar count is in the Soulscars section."
       },
       "weakenedEffect": "Weakened (sunlight)",
       "sunlight": "Under the sun — [Weakened]: −{{penalty}} to Accuracy and Evasion checks",
@@ -2069,7 +2109,12 @@
       "witchEffects": "Magic Power +{{power}} in every class; soulscars {{soulscars}}. Going back takes a Major Action, and not before an hour has passed.",
       "disregard": "Disregard: ask the GM to turn an attack away from the Kobold",
       "newCombat": "New combat",
-      "newDay": "New day"
+      "newDay": "New day",
+      "attentionRoll": "Dexterity outside combat, [Attention to Detail] +{{bonus}}",
+      "spiritDrain": "Spirit Drain: take {{amount}} MP (restores your own MP)",
+      "spiritDrainUses": "{{left}} of {{max}} left today",
+      "drainTouch": "Touch",
+      "drainRange": "range 1 (10 m)"
     },
     "witchsFire": "Witch’s Fire (−{{cost}} MP)",
     "witchsFireModeLabel": "Witch’s Fire: kind of spell",
@@ -2092,7 +2137,34 @@
       "feet": "Feet"
     },
     "accessorySlotForbidden": "This race cannot wear anything in the {{slot}} slot.",
-    "accessorySlotCrowded": "The {{slot}} slot holds {{count}} accessories; it takes {{capacity}}."
+    "accessorySlotCrowded": "The {{slot}} slot holds {{count}} accessories; it takes {{capacity}}.",
+    "check_disguise": "Disguise (self; Familiar Darkness)",
+    "check_hide": "Hide (Familiar Darkness)",
+    "check_follow": "Follow (Familiar Darkness)",
+    "centaurStunts": "Stunts of the Centaur himself ([Martial Art of the Horse People], they take no slots)",
+    "soulscars": {
+      "title": "Soulscars",
+      "note": "The count is the race’s (+2 in a Baba Yaga’s witch shape); overwrite it for a soulscar taken in play. The items of Barbarous Rage pp. 69–73 run on it.",
+      "count": "Soulscars",
+      "reset": "Back to the race’s {{count}}",
+      "sumBonus": "Ignis Charm, Wrath Cloaker, Hell’s Earrings (Listen), Soulscar Processing (Extra Damage): +{{count}}",
+      "sumTinted": "Tinted Potion heals Power {{power}} (20 + Ranger level + INT modifier + soulscars)",
+      "sumWine": "Jet Black Revitalizing Wine: Max HP +{{hp}} for 3 minutes",
+      "sumVisor": "Soulscar Night Visor: darkvision for {{hours}} h",
+      "shackles": "Soulscar Shackles worn",
+      "shacklesEffect": "Soulscar Shackles",
+      "allSkillChecks": "all skill checks",
+      "shacklesHold": "The shackles hold: all skill checks −{{penalty}} (a status effect carries it).",
+      "shacklesFree": "The shackles have no hold on this many soulscars.",
+      "shacklesSlow": "Speed 1.",
+      "mirror": "Mirror against [Evil Eye of Petrification]",
+      "mirrorWillpower": "Your Willpower result",
+      "mirrorEye": "Eye’s Success Value",
+      "mirrorReflected": "Reflected: the result is over the eye’s value by {{margin}} or more — the eye turns on the Basilisk, who cannot resist.",
+      "mirrorNot": "Not reflected: the margin is under {{margin}}; the Willpower check stands as an ordinary resistance.",
+      "resurrected": "Resurrected: +1 soulscar",
+      "revenant": "With {{at}} soulscars a revived character becomes a Revenant under the GM’s control (Core I p. 185)."
+    }
   },
   "io": {
     "export": "Download JSON",
@@ -4472,6 +4544,63 @@
       "roll": "Success Value",
       "costHeader": "Cost"
     },
-    "uniqueSkillsNote": "Barbarous Rage pp. 65–68: what the Barbarous races do instead of casting spells. The Success Value is 2d6 plus the Standard Value; the target answers with the save named. Costs are as printed — “—” means the rank prints none of its own. A lower rank can always be used instead of the one learned."
+    "uniqueSkillsNote": "Barbarous Rage pp. 65–68: what the Barbarous races do instead of casting spells. The Success Value is 2d6 plus the Standard Value; the target answers with the save named. Costs are as printed — “—” means the rank prints none of its own. A lower rank can always be used instead of the one learned.",
+    "raceDescription": {
+      "human": "The most numerous Humanoid race of Raxia and the one with the most adventurers. Apt at every class, said to be able to shape their own destiny. Adult at 15, live about 100 years.",
+      "elf": "Tall, graceful, attuned to magic; they keep to lake shores and rivers and love nature, though curiosity sends many on journeys. Slender, clever, quick: good spellcasters, rangers, fencers and marksmen. Adult at 15, live up to about 500 years.",
+      "dwarf": "Shorter than Humans but hardy and strong; males are stout and bearded, females keep a youthful look. Stubborn but devoted to their companions, they train hard and are famed as smiths. Often live in cities carved into mountains. Adult at 15, live about 200 years.",
+      "tabbit": "Upright, rabbit-like folk about a metre tall, hungry for knowledge and truth. Gifted in almost every magic except divine, which they cannot learn; slow and clumsy on their short limbs. Adult at 10, live about 50 years.",
+      "runefolk": "Artificial humans of the Magitech Civilization, differing from Humans in metal neck and body parts. Strong and dexterous, good warriors and archers, often Artificers; they cannot hear the Gods, so there are no Priests among them. They do not age and run for about 50 years.",
+      "nightmare": "Mutants born to Humans, Elves or Dwarves with a single soulscar: small horns and body markings, very pale skin. Shunned as \"abominations\" by some, welcomed by adventurers; strong magic warriors. Adult at 15, no recorded death of old age.",
+      "lykant": "Humanoids of the Alframe continent with furry ears and tails, able to turn their head into a predator's. Slender, muscular, clever, good at spotting traps: warriors, scouts, hunters. Once mistaken for werewolves and persecuted. Adult at 15, live about 150 years.",
+      "lildraken": "Small upright dragonkin: fearsome to look at, peaceable traders in fact. Born from eggs, adult after three moults (about 30 years), live about 300 years.",
+      "grassrunner": "Small nomadic Humanoids who look like human children; their origin is a mystery, and they turn up in dungeons and the Shallow Abyss. Naturally insensitive to mana. Adult at 15, live about 200 years (curiosity often cuts that short).",
+      "meria": "Look human, with flowers blooming on head, shoulders and wrists that follow their mood; plant-bodied, they need no sleep and reproduce by seed. Two kinds, short-lived (about 10 years) and long-lived (about 300), count as one race.",
+      "tiens": "A northern Alframe race made in the Magic Civilization by blending humans and monsters to guard the Wall of the Abyss: sturdy, metallic hair, gem-like eyes and mana gems on forehead, chest and hands. Adult at 15, live about 50 years but can enter suspended animation without ageing (woken with 20 MP poured into the gem).",
+      "leprechaun": "Small folk (about 130 cm) of Alframe's towns, who helped build the Magitech Civilization and are gifted with items and magitech. Large hairy ears, bearded males; they live underground or in ruins and, being able to turn invisible, are rarely seen. Adult at 15, live about 200 years.",
+      "alv": "A rare northern race: waxy white skin, black sclerae, gold or red irises, slender and clever but frail. Often taken for Barbarous and shunned, so they live apart; they cannot live without others' mana and must drain some by touch at least weekly. One soulscar. Adult at 15, live about 250 years.",
+      "shadow": "People of the western continent Razeldawn: grey skin, three eyes that see in the dark, silver hair, whip-like limbs. Superb spies and assassins, weak in intellect and spirit but with strong resistance to magic from the third eye. Adult at 15, live about 100 years.",
+      "soleil": "Large, muscular, cheerful folk of Razeldawn, said to descend from the sun god Tidan; they dislike armour and tattoo sun patterns on their bodies. Their language, Soleilian, is made of gestures and poses and has no writing. Adult at 15, live about 300 years.",
+      "weakling": "Barbarous born with fewer soulscars than usual (two): human-like with traits of the Barbarous parent (Garuda, Tannoz, Basilisk or Minotaur in the books), strong but often dull of mind and spirit. Persecuted in Barbarous society, many flee and become Vagrants. Adult at 15, live about 100 years.",
+      "abyssborn": "Rare mutants conceived and born in the Shallow Abyss: large, stocky, dark-purple skin and eyes, otherwise human and able to pass with clothes and accessories. Discriminated against like Nightmares; fit for warriors and mages alike. No soulscars. Live about 100 years.",
+      "newman": "Made in the Ancient Magic Civilization by trying to evolve humans with magic; thought extinct, they woke after the Diabolic Triumph and are very rare. Brilliant minds and high Magic Power, snow-white skin and hair, a faintly glowing magic circle on the body; poor shots. Adult at 15, live only about 30 years.",
+      "spriggan": "An ancient race found in ruins of the Ancient Magic Civilization, once treasured guardians of treasure. Wrinkled as children, then the size of a ten-year-old for life; in a fight they turn into a three-metre giant. Few and slow to breed, no soulscars. Live about 350 years.",
+      "fluorite": "Rare beings with transparent mineral bodies that move like a Human's; the head glows and its colour shows their mood. They hide under robes and hoods. Humanoids with souls without soulscars, not Constructs; skilled mages, some heavy warriors, but brittle. Live about 400 years, after years as ore underground.",
+      "dark-dwarf": "Descendants of the dwarves who betrayed humankind in the War of the Gods and swore to the Barbarous kings, yet humanoids without soulscars. Pale skin, white or silver hair, red or black eyes with large pupils; prominent smiths of Barbarous society. PCs are those who remembered they are Humanoids. Adult at 15, live about 200 years.",
+      "snow-elf": "A rare Elf of the cold north and high mountains, who traded underwater ease for the power to make ice. Rustic, simple lives in timber houses on stone foundations; sometimes guard ruins of the Ancient Magic Civilization, often versed in Truespeech or Spiritualism.",
+      "mist-elf": "A rare Elf of deep forests who lives secluded by springs and streams, close to nature; many are Fairy Tamers or Druids. They guard ancient elven shrines and ruins, commonly worship Asteria, and wrap themselves in a mist that blurs the aim of enemies.",
+      "pico-tabbit": "Particularly small Tabbits, about 90 cm, with short ears and a bird-like voice carrying far; they speak their own Picospeak, which others can learn but not speak. More agile and nimble, timid and cautious, less arrogant than other Tabbits; they hoard treasure in their roosts.",
+      "lupus-tabbit": "Large Tabbits, about 110 cm: nocturnal, strong, short-tempered and rough. They have no permanent home, roam by night away from the sun and carry all their belongings with them.",
+      "guardian-runefolk": "Runefolk built to protect VIPs: metal parts on cheeks and forehead, tall and stout. Their generators often stand near ruins and cities of the Magitech Civilization that are worth guarding.",
+      "combat-runefolk": "Runefolk built as soldiers, with metallic limbs and a rugged look, not large, fitted to every environment. Loyal to orders and more organised than ordinary Runefolk, fierce in war yet not reckless; heavy arms may be kept near their generators.",
+      "shadowborn-nightmare": "A Nightmare born to Shadows. Among the night-living Shadows a Nightmare without darkvision and weak to magic is seen as inferior, so childhoods are unhappy. Their Weakness is a penalty against psychic attacks rather than extra damage; they often worship the moon goddess Sien.",
+      "soleilborn-nightmare": "A Nightmare born to Soleil. Thanks to the sun's blessing and their vitality, Soleil mothers survive the birth and raise them in peace. Their Weakness is +2 damage from energy-type attacks.",
+      "large-herbivore-lykant": "An extremely rare Lykant whose head becomes that of a horse, ox or other large herbivore: large, very tough, with a powerful headbutt. They shun other Lykants, form their own communities in wilderness and grassland, and keep away from towns.",
+      "small-herbivore-lykant": "Rarer than the large kind: their head becomes a rabbit's or kangaroo's, sharpening their senses. Agile and clever, they live near human settlements, seek human company and may try to found families; affectionate, and many love several partners at once.",
+      "small-winged-lildraken": "A rare Lildraken line with small wings that cannot fly; they inspire allies with their roar. Heavier and larger than others, suited to the front line of a village guard or army, and more often chosen as leaders and generals than as merchants.",
+      "hairy-lildraken": "A rare Lildraken of cold regions, of another bloodline: they keep to themselves and cannot have children with other Lildraken. Thoughtful, many trained in Fairy Magic, living in deep mountain forests; not very sociable but happy to host visitors. Their fur turns wind damage aside and strengthens their own.",
+      "alisha-grassrunner": "Curious daredevils, restless and cheerful even for Grassrunners, forever opening what is locked. Honest by their code: they take nothing without leave and return what they examined; they believe ownerless treasure should be protected, and sometimes amass splendid collections.",
+      "crimenos-grassrunner": "Quiet, unassuming and calm for Grassrunners, they talk little. Cool-headed enough to steal without a trace when needed — and to steal unrelated things for the sake of it; like Alisha, they may collect great treasures.",
+      "carnivorous-meria": "Short-lived Meria grown from flycatchers and pitcher plants. Quiet and patient but often belligerent in battle; unusually for Meria, they hunt, living in forest villages and travelling to find other Meria settlements to mate. Their villages may hoard valuable materials and guard ruins.",
+      "fungi-meria": "Long-lived Meria with mushroom-cap hair, living in their own communities deep in forests and avoiding others, believing their spores harm them. Thoughtful, quiet, not very active, but ready to help if asked; their hidden settlements may hold special treasures.",
+      "tech-tiens": "Tiens marked by brightly coloured jewels. They cannot talk to living creatures, but can \"talk\" to constructs and magitech, and are often found in their workshops among devices; in suspended animation they may sleep beside a favourite magitech or a powerful golem.",
+      "daemonic-tiens": "Tiens whose darker jewels look as if pierced with holes. They use their link with Daemons to defeat them, not befriend them, and stay a little aloof for fear of tainting their minds with their Daemonic soul.",
+      "leprechaun-nomad": "Leprechauns found mostly in ruins across the world: skilled at hiding, teleporting and evading notice. Curious and helpful but shy, they know ruins in many places and sometimes where treasure lies that cannot be taken alone.",
+      "leprechaun-explorer": "Leprechauns fond of exploring ruins, labyrinths and ancient cities, finding and disarming traps with care. They sometimes live as a family in a large ruin, quietly piecing together its story, or settle in explored dungeons and send trained youths to other ruins.",
+      "broken-drake": "A Drake born without a magic sword, or who survived losing it: mocked and scorned. Stuck in human form with small atrophied wings, they regain a dragon form only briefly by consuming a Sword Crystal. Three soulscars; adult at 15, ageless, lifespan over 1,000 years.",
+      "lamia": "Barbarous with a woman's upper body and a serpent's lower, able to shapeshift; many live among Humanoids, since they cannot survive without the blood of the young. Skilled spellcasters; the tail is a weapon and drinking blood heals them. Two soulscars. Adult at about 20, live about 200 years.",
+      "dhampir": "The rare, seldom-seen juvenile form of a vampire: children of a Nosferatu father and a human mother, raised as Humanoids with human values. Pale, eyes glowing red in the dark; they must resist the urge to drink blood and are weak in sunlight. Two soulscars. Adult at 15, then ageless, die around 300.",
+      "diablo": "Upper Barbarous resembling Daemons, seen only on Alframe; commanders of Barbarous armies. Made in the late Magic Civilization by fusing Barbarous and Daemons, they turned on their makers. Dark-blue skin, horns, black mana cores that let them float, and a Human form that swells into a Daemon form twice as tall. Four soulscars; adult at 20.",
+      "drake": "The most famous and feared Barbarous elites, long their leaders and conspirators: two horns, wings, born from an egg already holding a magic sword that lets them take dragon form. First-class warriors and magicians, raised as kings and generals. Four soulscars; adult at 15, then ageless, live about 1,000 years.",
+      "basilisk": "Upper Barbarous whose gaze petrifies. They look almost human and hide their eyes behind blindfolds, glasses or masks; masters of magic with strong bodies and poisonous blood, often eccentric schemers who rule through followers rather than fight in front. In monstrous form an eight-legged lizard. Four soulscars.",
+      "scissorscorpion": "Elite Androscorpions: a human upper body rising from a giant scorpion, with two scissor-like forelimbs. Emotionless, orderly, loyal to the mission and ready to sacrifice themselves, like social insects. Unusually for Barbarous, good with Magitech and magispheres. Born in their own settlements; more free-thinking individuals scout and train abroad. Four soulscars.",
+      "dark-troll": "Large, powerful warriors over 3 metres tall with skin black and hard as rock; proud, scornful of tormenting the weak, many devout followers of the war god Dalkhrem. Weakened by sunlight, but loyal to the Drakes as guards. Four soulscars; adult at 15, live about 300 years.",
+      "arbor": "A rare Barbarous believed to have evolved from plants: white skin, white or pale-green hair, eye-like patterns across forehead and body. Said to be the trees dwarves burned in the War of the Gods, they hate dwarves and Magitech and live deep in forests, sometimes spying for Drakes. Two soulscars.",
+      "baba-yaga": "Barbarous in the form of women, living alone in deep forests; only females exist and they bear children by Humanoids. Hair that regrows to the waist every morning, an obsession with magic and a gift for nature magic. They can briefly raise their soulscars for more power, turning into an ugly old crone. Two soulscars (four in the witch shape); adult at 15, live about 300 years.",
+      "centaur": "Barbarous with a human upper body on a horse's: over 2 metres tall, about 500 kg, proud, honourable fighters of the grasslands who excel in formation. Fewer soulscars give them a gift for Fairy Magic; clumsy in tight spaces. Three soulscars; adult at 10, live about 100 years.",
+      "dawn": "Fur-covered Barbarous of human stature, spies and assassins who slip into Humanoid towns in disguise, hooded, by night, and serve the Upper Barbarous faithfully. Darkvision and claws suit them; devout to the gods of the Second Sword. Two soulscars; adult at 10, live about 70 years.",
+      "kobold": "At the bottom of the Barbarous hierarchy: despised, treated like slaves, timid and submissive, yet dexterous, excellent cooks and good interpreters. Enemies ignore them, so they survive battles tenaciously; but they stop growing early (level 5 at most). One soulscar; adult at 5, live under 30 years."
+    },
+    "raceDescriptionHeading": "Description"
   }
 }

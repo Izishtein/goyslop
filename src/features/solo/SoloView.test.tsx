@@ -121,6 +121,25 @@ describe('SoloView encounter', () => {
     expect(store.get(encounterAtom).monsters.map((m) => m.sections[0].hp)).toEqual([16, 16]);
   });
 
+  it('keeps a monster’s HP out of sight until the player asks for it', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo();
+    await addMonster(user, 'Goblin');
+    const card = await screen.findByRole('article', { name: 'Goblin' });
+
+    expect(within(card).queryByRole('meter')).not.toBeInTheDocument();
+    expect(within(card).getByText(/HP: hidden/)).toBeInTheDocument();
+    expect(card).not.toHaveTextContent('16 / 16');
+
+    await user.type(within(card).getByLabelText('Weapon Amount'), '10');
+    await user.click(within(card).getByRole('button', { name: 'Damage' }));
+    expect(store.get(encounterAtom).monsters[0].sections[0].hp).toBe(8); // hidden is not inert
+
+    await user.click(screen.getByLabelText('Show monsters’ HP'));
+    expect(within(card).getByRole('meter')).toHaveAttribute('aria-valuenow', '8');
+    expect(within(card).queryByText(/HP: hidden/)).not.toBeInTheDocument();
+  });
+
   it('subtracts Defense from physical damage but not from magic', async () => {
     const user = userEvent.setup();
     const store = renderSolo();

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { BookOpen, Compass, Swords, Users, Zap } from 'lucide-react';
+import { IconCredits } from './components/IconCredits';
+import { UI_ICON } from './components/icon-info';
 import { charactersAtom, activeCharacterIdAtom, duplicateCharacter, STORAGE_ERROR_EVENT } from './state/characters';
 import { themeAtom, type ThemePreference } from './state/theme';
 import { CharacterCreationForm } from './features/character-creation/CharacterCreationForm';
@@ -107,6 +110,7 @@ function App() {
           onClick={() => openScreen(showRoster ? 'sheet' : 'roster')}
           aria-pressed={showRoster}
         >
+          <Users {...UI_ICON} />
           {t('app.roster')} ({characters.length})
         </button>
         <button
@@ -114,9 +118,11 @@ function App() {
           onClick={() => openScreen(showReference ? 'sheet' : 'reference')}
           aria-pressed={showReference}
         >
+          <BookOpen {...UI_ICON} />
           {t('reference.open')}
         </button>
         <button type="button" onClick={() => openScreen(showGuide ? 'sheet' : 'guide')} aria-pressed={showGuide}>
+          <Compass {...UI_ICON} />
           {t('guide.open')}
         </button>
         <button
@@ -124,9 +130,11 @@ function App() {
           onClick={() => openScreen(showQuickStart ? 'sheet' : 'quickStart')}
           aria-pressed={showQuickStart}
         >
+          <Zap {...UI_ICON} />
           {t('quickStart.open')}
         </button>
         <button type="button" onClick={() => openScreen(showSolo ? 'sheet' : 'solo')} aria-pressed={showSolo}>
+          <Swords {...UI_ICON} />
           {t('solo.open')}
         </button>
         <div className={styles.langSwitch}>
@@ -208,6 +216,7 @@ function App() {
       )}
 
       <FreeDiceRoller />
+      <IconCredits />
     </main>
   );
 }

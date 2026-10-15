@@ -11,6 +11,7 @@ import {
 } from '../../types/character';
 import { useUpdateCharacter } from '../../state/characters';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 type DurationKind = StatusEffectDuration['kind'];
 
@@ -97,7 +98,7 @@ export function StatusEffectsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-status-effects">
       <div className={styles.sectionHead}>
-        <h3 id="section-status-effects">{t('statusEffects.title')}</h3>
+        <h3 id="section-status-effects"><GameIcon name="section.status" />{t('statusEffects.title')}</h3>
         {character.statusEffects.length > 0 && (
           <button type="button" onClick={nextRound}>
             {t('statusEffects.nextRound')}

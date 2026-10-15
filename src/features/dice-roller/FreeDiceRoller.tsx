@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Dices } from 'lucide-react';
+import { UI_ICON } from '../../components/icon-info';
 import styles from './FreeDiceRoller.module.css';
 
 const DIE_SIZES = [4, 6, 8, 10, 12, 20, 100];
@@ -95,6 +97,7 @@ export function FreeDiceRoller() {
         aria-expanded={open}
         aria-label={t('dice.floatingButton')}
       >
+        <Dices {...UI_ICON} />
         {t('dice.floatingButtonShort')}
       </button>
     </div>

@@ -16,11 +16,12 @@ import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
 import { DEEP_MAGIC } from '../../data/spells';
-import { witchMagicPowerBonus } from '../../lib/racial-abilities';
+import { familiarDarknessBonus, witchMagicPowerBonus } from '../../lib/racial-abilities';
 import { deepMagicPower } from '../../lib/spellcasting';
 import type { Character } from '../../types/character';
 import { DiceRoll } from './DiceRoll';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 export function CombatStatsSection({ character }: { character: Character }) {
   const { t } = useTranslation();
@@ -62,12 +63,24 @@ export function CombatStatsSection({ character }: { character: Character }) {
   const sageLevel = levelOf('sage');
   const priestLevel = levelOf('priest');
 
+  const familiarDark = familiarDarknessBonus(character.raceId, advLevel);
+  const scoutOrRanger = Math.max(levelOf('scout'), levelOf('ranger'));
   const checkRows = [
     { key: 'initiative', value: initiative(scoutLevel, agiMod) },
     { key: 'firstAid', value: firstAid(advLevel, dexMod) },
     ...(levelOf('scout') > 0 ? [{ key: 'dangerSense', value: dangerSense(levelOf('scout'), intMod) }] : []),
     ...(sageLevel > 0 ? [{ key: 'monsterKnowledge', value: monsterKnowledge(sageLevel, intMod) }] : []),
     ...(priestLevel > 0 ? [{ key: 'healingPower', value: healingPower(priestLevel, intMod) }] : []),
+    // A Dawn's [Familiar Darkness] adds to the Success Value of these three (Core I pp. 102-104): Disguise is Scout
+    // level + DEX modifier, Hide and Follow Scout or Ranger level + AGI modifier. With no such class the check is a
+    // Straight Roll (Standard Value 0, no modifier), so the bonus stands alone.
+    ...(familiarDark > 0
+      ? [
+          { key: 'disguise', value: familiarDark + (levelOf('scout') > 0 ? levelOf('scout') + dexMod : 0) },
+          { key: 'hide', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) },
+          { key: 'follow', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) },
+        ]
+      : []),
   ];
 
   const deepPower = deepMagicPower(character, intMod);
@@ -88,7 +101,7 @@ export function CombatStatsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-combat-stats">
       <div className={styles.sectionHead}>
-        <h3 id="section-combat-stats">{t('sheet.combatStats')}</h3>
+        <h3 id="section-combat-stats"><GameIcon name="section.combatStats" />{t('sheet.combatStats')}</h3>
       </div>
 
       {warriorRows.length > 0 && (

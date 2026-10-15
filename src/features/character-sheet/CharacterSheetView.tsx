@@ -28,6 +28,7 @@ import { EssenceWeavingSection } from './EssenceWeavingSection';
 import { FormsSection } from './FormsSection';
 import { InfusionSection } from './InfusionSection';
 import { RacialAbilitiesSection } from './RacialAbilitiesSection';
+import { SoulscarsSection } from './SoulscarsSection';
 import { UniqueSkillsSection } from './UniqueSkillsSection';
 import { SchoolsSection } from './SchoolsSection';
 import { NotesSection } from './NotesSection';
@@ -37,6 +38,9 @@ import { SheetDrawer } from './SheetDrawer';
 import { hasMounts } from './sections';
 import { hpFillClass, percent } from './vitals';
 import styles from './CharacterSheetView.module.css';
+import { CatalogIcon, GameIcon } from '../../components/icons';
+import { UI_ICON } from '../../components/icon-info';
+import { Activity, GraduationCap, NotebookPen, Printer } from 'lucide-react';
 
 /* The seventeen sections used to stack into one long scroll (latterly balanced into CSS
    columns), which meant the half of the sheet a player needs mid-turn was usually below the
@@ -159,12 +163,14 @@ export function CharacterSheetView({ character }: { character: Character }) {
           <div className={styles.identityMain}>
             <h2>{character.name}</h2>
             <p className={styles.meta}>
+              <CatalogIcon kind="race" id={character.raceId} />
               {race?.name ?? character.raceId} · {character.background} · {t('sheet.adventurerLevel')} {advLevel}
             </p>
 
             <ul className={styles.classBadges}>
               {character.classes.map((classLevel) => (
                 <li key={classLevel.classId} className={styles.classBadge}>
+                  <CatalogIcon kind="class" id={classLevel.classId} />
                   {getClass(classLevel.classId)?.name ?? classLevel.classId} {classLevel.level}
                 </li>
               ))}
@@ -192,16 +198,20 @@ export function CharacterSheetView({ character }: { character: Character }) {
               looking at spells. */}
           <div className={`${styles.identityActions} ${styles.controlRow}`}>
             <button type="button" onClick={() => toggleDrawer('status')} aria-pressed={openDrawer === 'status'}>
+              <Activity {...UI_ICON} />
               {t('statusEffects.title')}
               {effectCount > 0 ? ` (${effectCount})` : ''}
             </button>
             <button type="button" onClick={() => toggleDrawer('classes')} aria-pressed={openDrawer === 'classes'}>
+              <GraduationCap {...UI_ICON} />
               {t('sheet.classes')}
             </button>
             <button type="button" onClick={() => toggleDrawer('notes')} aria-pressed={openDrawer === 'notes'}>
+              <NotebookPen {...UI_ICON} />
               {t('sheet.notes')}
             </button>
             <button type="button" onClick={() => window.print()}>
+              <Printer {...UI_ICON} />
               {t('sheet.print')}
             </button>
           </div>
@@ -303,6 +313,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
                 className={`${styles.tab} ${activeTab === id ? styles.tabActive : ''}`}
                 onClick={() => setRequestedTab(id)}
               >
+                <GameIcon name={`tab.${id}`} />
                 {t(`sheet.tab.${id}`)}
               </button>
             ))}
@@ -318,6 +329,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
 
           <Panel id="combat" activeTab={activeTab}>
             <RacialAbilitiesSection character={character} />
+            <SoulscarsSection character={character} />
             <FormsSection character={character} />
             <CombatFeatsSection character={character} />
             <SchoolsSection character={character} />
@@ -368,7 +380,7 @@ export function CharacterSheetView({ character }: { character: Character }) {
             fields nobody edits twice; they belong with the rest of who the character is. */}
         <section className={styles.section} aria-labelledby="section-profile">
           <div className={styles.sectionHead}>
-            <h3 id="section-profile">{t('sheet.profile')}</h3>
+            <h3 id="section-profile"><GameIcon name="section.profile" />{t('sheet.profile')}</h3>
           </div>
           <div className={styles.profileFields}>
             <label className={styles.profileField}>

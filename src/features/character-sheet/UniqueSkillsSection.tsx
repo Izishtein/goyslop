@@ -15,6 +15,7 @@ import { DiceRoll } from './DiceRoll';
 import { costParts, standardValueFor } from '../../lib/unique-skills';
 import { heritorLevel } from './sections';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /**
  * Unique skills of a Barbarous race (Barbarous Rage pp. 65-68): the player lists the ones the character has
@@ -53,7 +54,7 @@ export function UniqueSkillsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-unique-skills">
       <div className={styles.sectionHead}>
-        <h3 id="section-unique-skills">{t('reference.uniqueSkillUi.section')}</h3>
+        <h3 id="section-unique-skills"><GameIcon name="section.uniqueSkills" />{t('reference.uniqueSkillUi.section')}</h3>
         <p className={styles.sectionNote}>{t('reference.uniqueSkillUi.sectionNote')}</p>
       </div>
 

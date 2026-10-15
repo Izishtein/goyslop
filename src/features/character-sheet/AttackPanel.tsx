@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tableTargets } from '../../lib/encounter';
 import { resolveAttackSequence, rollAccuracy, snipeDoubles, strayTarget, tauntOutcome, type AttackPass, type AttackSequence } from '../../lib/player-attack';
-import { encounterAtom } from '../../state/encounter';
+import { encounterAtom, showMonsterHpAtom } from '../../state/encounter';
 import { useMonsters } from '../solo/useMonsters';
 import { FumbleXpButton } from './FumbleXp';
 import { WeaponDamageRoll, type DamageOptions } from './WeaponDamageRoll';
@@ -82,7 +82,8 @@ export function AttackPanel({
   const { t } = useTranslation();
   const encounter = useAtomValue(encounterAtom);
   const { byId } = useMonsters();
-  const targets = tableTargets(encounter, byId);
+  const showHp = useAtomValue(showMonsterHpAtom);
+  const targets = tableTargets(encounter, byId, showHp);
   const [weaponId, setWeaponId] = useState('');
   const [offHandId, setOffHandId] = useState('');
   const [selected, setSelected] = useState<string[]>([]);

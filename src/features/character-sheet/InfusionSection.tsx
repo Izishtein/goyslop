@@ -6,6 +6,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownInfusion } from '../../types/character';
 import { heritorLevel } from './sections';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /**
  * Heritor Infusions (Barbarous Rage pp. 57-63): one per Heritor level, each of the 1st, 5th or 10th tier, some
@@ -38,7 +39,7 @@ export function InfusionSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-infusions">
       <div className={styles.sectionHead}>
-        <h3 id="section-infusions">{t('sheet.infusions')}</h3>
+        <h3 id="section-infusions"><GameIcon name="section.infusions" />{t('sheet.infusions')}</h3>
         <p className={styles.sectionNote}>{level > 0 ? t('sheet.heritorLevel', { level }) : t('sheet.noHeritorClass')}</p>
       </div>
 

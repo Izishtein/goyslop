@@ -5,6 +5,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import { COMBAT_FEAT_CATEGORIES, type Character, type KnownSchool, type KnownSchoolSecret } from '../../types/character';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 export function SchoolsSection({ character }: { character: Character }) {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ export function SchoolsSection({ character }: { character: Character }) {
   return (
     <details className={styles.section} data-collapsible open={defaultOpen}>
       <summary className={styles.sectionHead}>
-        <h3>{t('sheet.schools')}</h3>
+        <h3><GameIcon name="section.schools" />{t('sheet.schools')}</h3>
         <p className={styles.sectionNote}>{t('sheet.schoolsNote')}</p>
       </summary>
 

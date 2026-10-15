@@ -12,6 +12,7 @@ import { PrintableField } from './PrintableField';
 import { SpellEffectRoll } from './SpellEffectRoll';
 import { SpellResistRoll } from './SpellResistRoll';
 import styles from './CharacterSheetView.module.css';
+import { CatalogIcon, GameIcon } from '../../components/icons';
 
 /** The circles a list of spells actually covers, in order. */
 function circlesIn(spells: SpellDefinition[]): number[] {
@@ -117,7 +118,7 @@ export function SpellsSection({ character }: { character: Character }) {
   return (
     <details className={styles.section} data-collapsible open={defaultOpen}>
       <summary className={styles.sectionHead}>
-        <h3>{t('sheet.spells')}</h3>
+        <h3><GameIcon name="section.spells" />{t('sheet.spells')}</h3>
         <p className={styles.sectionNote}>
           {schools.length > 0 ? schools.join(' · ') : t('sheet.noMagicSchools')}
           {schools.length > 0 && (
@@ -190,6 +191,7 @@ export function SpellsSection({ character }: { character: Character }) {
                     ))}
                   </td>
                   <td>
+                    <CatalogIcon kind="school" id={spell.school} />
                     <PrintableField value={spell.school} onChange={(e) => updateSpell(spell.id, { school: e.target.value })} aria-label={t('sheet.spellSchool')} />
                   </td>
                   <td>

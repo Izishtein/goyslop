@@ -355,8 +355,12 @@ export function knowledgeResult(monster: Monster, successValue: number): { ident
   };
 }
 
+/** How a section reads in a target list: its HP only when the player has chosen to see it. */
+export const sectionLabel = (monsterLabel: string, style: string, hp: number, showHp: boolean): string =>
+  showHp ? `${monsterLabel} — ${style} (${hp})` : `${monsterLabel} — ${style}`;
+
 /** Every standing section on the table, one row each: what a weapon attack can be aimed at. */
-export function tableTargets(encounter: Encounter, byId: Map<string, Monster>) {
+export function tableTargets(encounter: Encounter, byId: Map<string, Monster>, showHp = false) {
   return encounter.monsters.flatMap((instance, monsterIndex) => {
     const monster = byId.get(instance.monsterId);
     if (!monster) return [];
@@ -371,7 +375,7 @@ export function tableTargets(encounter: Encounter, byId: Map<string, Monster>) {
               sectionIndex,
               defense: numberOf(section.defense),
               evasion: typeof section.evasion === 'object' && section.evasion !== null && 'value' in section.evasion ? section.evasion.value : 0,
-              label: `${instance.label} — ${section.style} (${instance.sections[sectionIndex].hp})`,
+              label: sectionLabel(instance.label, section.style, instance.sections[sectionIndex].hp, showHp),
             },
           ],
     );

@@ -52,6 +52,7 @@ import { witchMagicPowerBonus } from '../../lib/racial-abilities';
 import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /** Warrior-type classes the character holds, highest level first. */
 function warriorClasses(character: Character) {
@@ -374,7 +375,7 @@ export function EquipmentSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-equipment">
       <div className={styles.sectionHead}>
-        <h3 id="section-equipment">{t('sheet.equipment')}</h3>
+        <h3 id="section-equipment"><GameIcon name="section.equipment" />{t('sheet.equipment')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.totalDefense')}: <strong className={styles.numeric}>{defense}</strong> · {t('sheet.totalEvasion')}:{' '}
           <strong className={styles.numeric}>{evasionTotal}</strong>
@@ -384,7 +385,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       {/* data-print-empty drops the whole sub-block from print: its "Add …" button is
           hidden on paper anyway, leaving a heading over nothing. */}
       <div className={styles.subsection} data-print-empty={character.equipment.weapons.length === 0 || undefined}>
-        <h4>{t('sheet.weapons')}</h4>
+        <h4><GameIcon name="equipment.weapons" />{t('sheet.weapons')}</h4>
         {canDualWield && (
           <label>
             <input type="checkbox" checked={dualWield} onChange={(event) => setDualWield(event.target.checked)} /> {t(dualPenaltyValue > 0 ? 'sheet.dualWield' : 'sheet.dualWieldFree')}
@@ -574,7 +575,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       </div>
 
       <div className={styles.subsection} data-print-empty={character.equipment.armor.length === 0 || undefined}>
-        <h4 className={styles.subHead}>{t('sheet.armor')}</h4>
+        <h4 className={styles.subHead}><GameIcon name="equipment.armor" />{t('sheet.armor')}</h4>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -662,7 +663,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       </div>
 
       <div className={styles.subsection} data-print-empty={character.equipment.shield === null || undefined}>
-        <h4 className={styles.subHead}>{t('sheet.shield')}</h4>
+        <h4 className={styles.subHead}><GameIcon name="equipment.shield" />{t('sheet.shield')}</h4>
         {character.equipment.shield ? (
           <div className={styles.inlineRow}>
             <input value={character.equipment.shield.name} onChange={(e) => setShield({ name: e.target.value })} aria-label={t('sheet.name')} />
@@ -741,7 +742,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       </div>
 
       <div className={styles.subsection} data-print-empty={character.equipment.accessories.length === 0 || undefined}>
-        <h4 className={styles.subHead}>{t('sheet.accessories')}</h4>
+        <h4 className={styles.subHead}><GameIcon name="equipment.accessories" />{t('sheet.accessories')}</h4>
         {character.equipment.accessories.length === 0 && <p className={styles.empty}>{t('sheet.noAccessories')}</p>}
         <ul className={styles.inlineList}>
           {character.equipment.accessories.map((accessory) => (
@@ -777,7 +778,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       </div>
 
       <div className={styles.subsection} data-print-empty={abyssRows.length === 0 || undefined}>
-        <h4 className={styles.subHead}>{t('sheet.abyssEnhancement')}</h4>
+        <h4 className={styles.subHead}><GameIcon name="equipment.abyss" />{t('sheet.abyssEnhancement')}</h4>
         {abyssRows.length > 0 && (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
@@ -907,7 +908,7 @@ export function EquipmentSection({ character }: { character: Character }) {
       </div>
 
       <div className={styles.subsection} data-print-empty={inventoryEmpty || undefined}>
-        <h4 className={styles.subHead}>{t('sheet.inventory')}</h4>
+        <h4 className={styles.subHead}><GameIcon name="equipment.inventory" />{t('sheet.inventory')}</h4>
 
         <label className={styles.noteField}>
           <span>{t('sheet.adventurersSet')}</span>

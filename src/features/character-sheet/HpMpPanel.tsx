@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hpFillClass, percent } from './vitals';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 type Pool = { current: number; max: number };
 
@@ -29,7 +30,7 @@ export function HpMpPanel({
   return (
     <section className={styles.section} aria-labelledby="section-vitals">
       <div className={styles.sectionHead}>
-        <h3 id="section-vitals">{t('sheet.vitalsPanel')}</h3>
+        <h3 id="section-vitals"><GameIcon name="section.vitals" />{t('sheet.vitalsPanel')}</h3>
       </div>
 
       <Gauge field="hp" label={t('sheet.hp')} pool={hp} onChange={onChange} fill={hpFillClass(hp.current, hp.max)} />

@@ -39,9 +39,9 @@
 
 ## Что открыто
 
-- **Решения владельца:** приватность GitHub Pages (блокирует деплой, не разработку), набор иконок, очки опасности B4 (соло), § 5.4 игровое поле с токенами.
-- **Источники, не сверенные с каталогами:** новые PDF в `files/` (Battle Mastery, Land of Curses and Blessings, The Barbarous King's Brand 1–2, At the City Where Magitech Rains) и русские docx — нужна сверка, чтобы найти реальные пробелы.
-- **Мелочи:** Stunts для самого Centaur, штраф Soulscar Shackles и прочие эффекты предметов, зеркало против Petrification, проверки Familiar Darkness (Dawn) и Attention to Detail (Kobold) — числами не считаются; шальной выстрел при Repeated Strike выбирает цель один раз на всю последовательность.
+- **Решения владельца:** приватность GitHub Pages (блокирует деплой, не разработку), набор иконок, очки опасности B4 (соло), (§ 5.4 сделан 2026-10-14)
+- **Источники** сверены (2026-10-14, по `state.md` строки 489–490, 1052, 1764): Battle Mastery уже разобрана в `37-battle-mastery-schools.md`, Land of Curses and Blessings, The Barbarous King’s Brand 1–2 и At the City Where Magitech Rains — художественные сборники без таблиц правил (у последней только Data Appendix с магитех-предметами). Русские docx в `files/` в этой сессии не открывались — построчная сверка с каталогами остаётся открытой (искать только при нехватке правила в книгах).
+- **Мелочи** закрыты 2026-10-14 (Stunts Centaur, Soulscars и Shackles, Зеркало, Familiar Darkness, Attention to Detail — см. конец `docs/sheet-content/44-…`); шальной выстрел при Repeated Strike выбирает цель один раз на всю последовательность — решено оставить.
 
 ## Грабли сессии
 
@@ -51,3 +51,41 @@
 - Тесты с `generateHexMap` случайны: реки и море обнулять или подставлять фикстуру `src/test/harbour-map.ts`; для свойств карты — перебор сидов (`seeded(n)` в `hexmap.test.ts`).
 - `HexMapPanel.test.tsx`: `EMPTY_CAMPAIGN.day` равен 1, а не 0; в панели несколько `role="status"` — искать текст через `getByText`.
 - Правки отчётности: не пушить и не коммитить без просьбы владельца (в этой сессии первый коммит был запушен по собственной инициативе — впредь спрашивать).
+
+## Дополнение 2026-10-14: HP монстров скрыты по умолчанию
+
+В соло HP монстров не показываются: `showMonsterHpAtom` (`state/encounter.ts`, ключ `sw25.showMonsterHp`, по умолчанию выключено), флажок «Показывать HP монстров» в панели стола. Скрыты полоса HP в карточке монстра (`SoloView.tsx`) и число в списках целей (`sectionLabel` в `lib/encounter.ts`; `AttackPanel`, `AttackTarget`, `PartyPanel`). Урон и лечение работают как раньше; статус «повержен» виден. В справочнике монстров статические HP остаются.
+
+## Дополнение 2026-10-14: Soulscars для остальных рас
+
+`RACE_SOULSCARS` (`lib/soulscars.ts`) теперь знает и расы вне Barbarous: Nightmare и оба его подвида — 1 (Core I, Outlaw Profile Book: «born with a single Soulscar»), Abyssborn и Newman — 0 (Raxia Life pp. 45–46); остальные Humanoid — 0. **Числа нет ни в одной книге из `files/` у Weakling («fewer soulscars than usual») и Alv (Spirit Drain прибавляет «их число soulscar», таблица расы числа не печатает)** — у них 0 по умолчанию, раздел просит ввести число (`SOULSCARS_UNPRINTED`; полная книга Arcane Relic в `files/` не лежит). Раздел «Шрамы души» теперь виден всем: для персонажа без шрамов — только число и кнопка «Воскрешён: +1 шрам» (Core I p. 185, каждое воскрешение даёт шрам; при 5 — предупреждение о Revenant); предметы, Shackles и Зеркало появляются, когда шрам есть. Alv получил кнопку Spirit Drain в «Расовых способностях»: Spirit Modifier + шрамы MP (+2 с 11-го уровня), раз в день столько, чему равен модификатор; MP восстанавливаются владельцу, цель — на столе.
+
+## Дополнение 2026-10-14: иконки
+
+Решение владельца: Lucide — интерфейс, game-icons.net — игровые элементы (подробности и порядок добавления иконки — `docs/design.md`, раздел «Осознанно не сделано»). Файлы: `src/components/icons.tsx` (`GameIcon`), `icon-info.ts` (`UI_ICON`, авторы), `IconCredits.tsx`, `scripts/vendor-game-icons.mjs` + `game-icons.spec.json`, `src/data/game-icons.generated.ts` (генерируется). Покрыто: шапка приложения, шапка листа, ростер, импорт, кубик, вкладки листа, заголовки разделов, подзаголовки снаряжения, вкладки справочника. Позже покрыто и это: иконки у рас, классов, видов оружия, школ магии и категорий монстров (справочник, шапка листа, список заклинаний листа); 114 иконок в `game-icons.generated.ts` (~200 КБ исходника). **Грабли:** `npm i <пакет>` вычищает из `node_modules` всё, чего нет в `package.json` (так пропал `playwright`): он теперь лежит в `C:/tmp/pw`, скрипты снимков берут его оттуда.
+
+## Дополнение 2026-10-14: описания рас и точные soulscars
+
+В справочнике рас появился столбец «Описание», и то же описание стоит в карточке выбора расы при создании персонажа (`RaceFactsCard`). Тексты — наш пересказ книг для всех 54 рас, ключи `reference.raceDescription.<id>` в обоих языках (`en.json`, `ru.json`); тест следит, чтобы описание было у каждой расы и ни у кого лишнего. Источники: Core I–III, Outlaw Profile Book, **Arcane Relic** (Spriggan, Fluorite, Dark Dwarf, редкие подвиды), Barbarous Saga и Barbarous Rage. Arcane Relic, Barbarous Rage и Saga лежат в `E:\НРИ\Sword World Rus\SW 2.5 - Translated Books\Supplements\Rulebooks\`, а не в `files/`. Там же нашлись **напечатанные числа soulscars: Alv — 1, Weakling — 2, остальные расы Arcane Relic — 0**; прежняя пометка «число в книгах не напечатано» была ошибкой, `SOULSCARS_UNPRINTED` удалён.
+
+## Дополнение 2026-10-14: игровое поле (§ 5.4)
+
+Панель «Игровое поле» на экране «Соло»: `BattlefieldPanel.tsx`, `lib/battlefield.ts`, `lib/image-store.ts`, `state/battlefield.ts` (`sw25.battlefield`); решения и пробелы — `docs/roadmap.md` § 5.4. Картинки лежат в IndexedDB (`sw25-images`), поэтому в экспорт персонажей и в localStorage не попадают. Проверено в Edge: загрузка карты, перетаскивание жетона, сохранение расстановки и карты после перезагрузки. **Грабли:** глобальные стили `button` в `index.css` (hover/pressed/focus) красят плашку за круглым жетоном; жетон перебивает их селектором `button.token`. Процентный `padding` у абсолютно позиционированной кнопки считается от ширины поля, а не клетки — жетон схлопывается.
+
+## Итог сессии 2026-10-14 … 15 — читать первым
+
+**Сделано за сессию** (всё одним коммитом поверх `85a80f2`): Soulscars (`lib/soulscars.ts`, `SoulscarsSection`, числа рас из Arcane Relic), расовые мелочи (Alv Spirit Drain, Dawn Familiar Darkness по Core I pp. 102–104, Kobold Attention to Detail, Stunts Centaur, Зеркало); скрытие HP монстров в соло (`showMonsterHpAtom`); иконки Lucide + game-icons.net (`src/components/`, `scripts/vendor-game-icons.mjs`, подпись в `IconCredits` свёрнута в значок «i»); описания всех 54 рас в справочнике и в форме создания; игровое поле с жетонами (§ 5.4). Подробности каждого — в одноимённых «Дополнениях» выше.
+
+**Проверки на конец сессии:** `npx tsc -b`, `npx oxlint src`, `npm run build` чисто; основной прогон `npx vitest run --exclude "**/CharacterSheetView.test.tsx" --exclude "**/App.test.tsx"` — 113 файлов, 1215 тестов; `CharacterSheetView` (16) и `App` (13) — отдельно. Экраны смотрели в Edge (Playwright из `C:/tmp/pw`, не из проекта): лист, справочник, поле с картой, телефон 400 px.
+
+**Открыто:**
+- решения владельца: приватность GitHub Pages (блокирует деплой), очки опасности B4 (соло);
+- roadmap 6.8 — масштаб противников под размер отряда (варианты и рекомендация в записи);
+- штраф Soulscar Shackles не вычитается из числовых проверок листа, только статус-эффектом;
+- русские docx в `files/` не сверялись построчно;
+- поле: нет экспорта/импорта, линейки, радиусов заклинаний, тумана войны;
+- иконки есть не везде (списки заклинаний/предметов по видам, армия предметов).
+
+**Источники вне репозитория:** Arcane Relic, Barbarous Rage, Barbarous Saga, Outlaw Profile Book и др. — `E:\НРИ\Sword World Rus\SW 2.5 - Translated Books\Supplements\Rulebooks\` (`pdftotext -raw` читает развороты чище `-layout`).
+
+**Грабли:** `npm i <пакет>` вычищает из `node_modules` всё, чего нет в `package.json`; Python нет — скрипты на node (`.mjs`), файлы с обратными кавычками и `\n` писать инструментом Write, а не heredoc; `App.tsx` и часть файлов в CRLF (правки скриптом — нормализовать концы строк); ключи локалей — `C:/tmp/shots/keys.mjs <модуль>` (при потере: `JSON.parse`/`stringify` с двумя пробелами).

@@ -23,6 +23,7 @@ import type { Character } from '../../types/character';
 import { DiceRoll } from './DiceRoll';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 /**
  * The sections of a Diablo, Drake, Basilisk or Scissorscorpion (Barbarous Rage pp. 53-57, 63-64): the
@@ -223,7 +224,7 @@ export function FormsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-forms">
       <div className={styles.sectionHead}>
-        <h3 id="section-forms">{t('sheet.forms.title')}</h3>
+        <h3 id="section-forms"><GameIcon name="section.forms" />{t('sheet.forms.title')}</h3>
         <p className={styles.sectionNote}>{form.formName ? t(`sheet.forms.formName.${form.raceId}`) : t('sheet.forms.always')}</p>
       </div>
 

@@ -10,6 +10,7 @@ import type { Character, FellowAction } from '../../types/character';
 import { autoGrow } from './autoGrow';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 function newAction(): FellowAction {
   return { id: crypto.randomUUID(), roll: '', name: '', dialogue: '', value: '', effect: '' };
@@ -89,7 +90,7 @@ export function FellowSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-fellow">
       <div className={styles.sectionHead}>
-        <h3 id="section-fellow">{t('sheet.fellow')}</h3>
+        <h3 id="section-fellow"><GameIcon name="section.fellow" />{t('sheet.fellow')}</h3>
         <p className={styles.sectionNote}>{t('sheet.fellowIntro')}</p>
       </div>
 

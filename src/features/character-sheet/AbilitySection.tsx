@@ -2,10 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { ABILITY_IDS, abilityModifier, abilityTotal, type AbilityId } from '../../lib/formulas/abilities';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { sumModifiersForField } from '../../lib/formulas/status-effects';
+import { ATTENTION_TO_DETAIL, attentionToDetailBonus } from '../../lib/racial-abilities';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character } from '../../types/character';
 import { DiceRoll } from './DiceRoll';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const EDITABLE_PARTS = [
   { key: 'correction', label: 'creation.correctionShort' },
@@ -65,7 +67,7 @@ export function AbilitySection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-abilities">
       <div className={styles.sectionHead}>
-        <h3 id="section-abilities">{t('sheet.abilities')}</h3>
+        <h3 id="section-abilities"><GameIcon name="section.abilities" />{t('sheet.abilities')}</h3>
       </div>
 
       <div className={styles.abilityGrid}>
@@ -87,6 +89,9 @@ export function AbilitySection({ character }: { character: Character }) {
                     (03-ability-scores-and-formulas.md) — everything from Open Locks to a
                     GM-called STR check the catalog never named. */}
                 <DiceRoll modifier={advLevel + modifier} label={id} />
+                {id === 'DEX' && attentionToDetailBonus(character.raceId) > 0 && (
+                  <DiceRoll modifier={advLevel + modifier + ATTENTION_TO_DETAIL} label={t('sheet.racial.attentionRoll', { bonus: ATTENTION_TO_DETAIL })} />
+                )}
               </div>
 
               <div className={styles.abilityParts}>

@@ -371,7 +371,7 @@ describe('SpellsSection Power roll', () => {
 describe("SpellsSection — a Baba Yaga's Witch's Fire", () => {
   afterEach(() => vi.restoreAllMocks());
   const bolt = { id: 's1', name: 'Energy Bolt', school: 'Truespeech Magic', circle: 1, mp: 3 };
-  const witch = { sunlight: false, witch: true, usedToday: [], usedInCombat: [] };
+  const witch = { sunlight: false, witch: true, shackled: false, usedToday: [], usedInCombat: [] };
 
   it('adds +1 Magic Power in the witch shape, and charges the spell’s circle in extra MP for Witch’s Fire', async () => {
     const user = userEvent.setup();

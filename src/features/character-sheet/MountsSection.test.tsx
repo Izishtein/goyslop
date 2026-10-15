@@ -228,3 +228,16 @@ describe('MountsSection Stunts', () => {
     expect(parsed.stunts).toEqual([]);
   });
 });
+
+describe('MountsSection Centaur', () => {
+  it('lists the Stunts a Centaur has himself by Rider level, apart from his slots', () => {
+    renderSection(makeCharacter({ raceId: 'centaur' }));
+    expect(screen.getByText(/Stunts of the Centaur himself/)).toHaveTextContent("Lion's Fury");
+    expect(screen.getByText(/Stunts of the Centaur himself/)).not.toHaveTextContent('Super Charge');
+  });
+
+  it('lists none for another race', () => {
+    renderSection(makeCharacter());
+    expect(screen.queryByText(/Stunts of the Centaur himself/)).not.toBeInTheDocument();
+  });
+});

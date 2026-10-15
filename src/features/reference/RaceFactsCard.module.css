@@ -57,3 +57,8 @@
   color: var(--text-faint);
   font-size: 0.78rem;
 }
+
+.description {
+  margin: 0;
+  line-height: 1.45;
+}

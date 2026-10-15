@@ -233,3 +233,11 @@ button[type='submit']:hover:not(:disabled) {
   color: var(--accent-text);
   filter: brightness(1.08);
 }
+
+/* Decorative icons (components/icons.tsx): inline with the text, never shrunk by a flex row, gone from the printed sheet's controls. */
+.icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.2em;
+  margin-inline-end: 0.35em;
+}

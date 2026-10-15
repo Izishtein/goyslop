@@ -5,6 +5,7 @@ import { getEssenceWeaving, listEssenceWeavingsByLevel } from '../../data/essenc
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownEssenceWeaving } from '../../types/character';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 const ESSENCE_WEAVING_LEVELS = [1, 5, 10] as const;
 
@@ -42,7 +43,7 @@ export function EssenceWeavingSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-essence-weavings">
       <div className={styles.sectionHead}>
-        <h3 id="section-essence-weavings">{t('sheet.essenceWeavings')}</h3>
+        <h3 id="section-essence-weavings"><GameIcon name="section.essenceWeavings" />{t('sheet.essenceWeavings')}</h3>
         <p className={styles.sectionNote}>
           {level > 0 ? t('sheet.darkHunterLevel', { level }) : t('sheet.noDarkHunterClass')}
         </p>

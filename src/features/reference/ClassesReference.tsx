@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { CLASSES, type ClassType } from '../../data/classes';
+import { CatalogIcon } from '../../components/icons';
 import { MAX_CLASS_LEVEL, classLevelXpCost, classLevelXpCumulative } from '../../lib/formulas/xp-cost';
 import styles from './ReferenceView.module.css';
 
@@ -37,11 +38,17 @@ export function ClassesReference() {
                 {CLASSES.filter((classDef) => classDef.type === group).map((classDef) => (
                   <tr key={classDef.id}>
                     <th scope="row" className={styles.rowName}>
+                      <CatalogIcon kind="class" id={classDef.id} />
                       {classDef.name}
                     </th>
                     <td>{t(`sheet.classRankName.${classDef.rank}`)}</td>
                     <td>{classDef.keyAbilities.join(', ')}</td>
-                    {group === 'wizard' && <td>{classDef.magicSchool}</td>}
+                    {group === 'wizard' && (
+                      <td>
+                        {classDef.magicSchool && <CatalogIcon kind="school" id={classDef.magicSchool} />}
+                        {classDef.magicSchool}
+                      </td>
+                    )}
                     <td className={styles.numeric}>{classLevelXpCost(classDef.rank, 1)}</td>
                     <td>{classDef.sourceBook}</td>
                     {/* The one place the app carries prose. It lives in the locale files, not

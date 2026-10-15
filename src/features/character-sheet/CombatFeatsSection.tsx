@@ -11,6 +11,7 @@ import { useUpdateCharacter } from '../../state/characters';
 import { useTurnFeats } from '../../state/turn';
 import { PrintableField } from './PrintableField';
 import styles from './CharacterSheetView.module.css';
+import { GameIcon } from '../../components/icons';
 
 function newFeat(): CombatFeat {
   return { id: crypto.randomUUID(), name: '', category: 'passive' };
@@ -88,7 +89,7 @@ export function CombatFeatsSection({ character }: { character: Character }) {
   return (
     <section className={styles.section} aria-labelledby="section-combat-feats">
       <div className={styles.sectionHead}>
-        <h3 id="section-combat-feats">{t('sheet.combatFeats')}</h3>
+        <h3 id="section-combat-feats"><GameIcon name="section.combatFeats" />{t('sheet.combatFeats')}</h3>
         <p className={styles.sectionNote}>
           {t('sheet.featSlots')}:{' '}
           <strong className={`${styles.numeric} ${chosen > slots ? styles.overspent : ''}`}>

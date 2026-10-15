@@ -44,3 +44,6 @@ export const encounterAtom = atomWithStorage<Encounter>('sw25.encounter', EMPTY_
 
 /** Hide a monster's Initiative, saves and Weak Point until Monster Knowledge has revealed them. */
 export const hideUnknownAtom = atomWithStorage<boolean>('sw25.hideUnknown', false);
+
+/** Show the monsters' HP (bars and the numbers in target lists). Off by default: in a solo game nobody tells the player how hurt the enemy is. */
+export const showMonsterHpAtom = atomWithStorage<boolean>('sw25.showMonsterHp', false);
