@@ -585,7 +585,12 @@
         "fate": "Two d10"
       },
       "fateLine": "2d10 = {{a}}+{{b}}, modifier {{modifier}} → {{total}}",
-      "fateModifier": "modifier {{modifier}}; yes at 11+, strongly at 18+, “no, and badly” at 4−"
+      "fateModifier": "modifier {{modifier}}; yes at 11+, strongly at 18+, “no, and badly” at 4−",
+      "peril": "Peril Points {{peril}}",
+      "perilSpend": "Spend 1",
+      "perilGain": "+1",
+      "perilRefill": "Refill to {{count}}",
+      "perilNote": "A stock of narrative saves: spend a point to bend the story so the adventure does not end (for example, a lucky escape). Refill when you like — each session or as a fixed stock. It does not replace the Death Check."
     },
     "campaign": {
       "title": "Campaign log",

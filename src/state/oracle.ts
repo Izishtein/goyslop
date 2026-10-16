@@ -14,6 +14,8 @@ import {
   CHAOS_MIN,
   CHAOS_START,
   EMPTY_ORACLE,
+  PERIL_MAX,
+  PERIL_START,
   FOCUS_MAX,
   LIKELIHOODS,
   LOG_LIMIT,
@@ -126,6 +128,7 @@ const OracleSchema = z.object({
   method: z.enum(ORACLE_METHODS).default('table'),
   style: z.enum(PLAY_STYLES).default('simulation'),
   ruleMode: z.boolean().default(false),
+  peril: z.number().int().min(0).max(PERIL_MAX).default(PERIL_START),
   log: z.array(EntrySchema).max(LOG_LIMIT).default(() => []),
 });
 

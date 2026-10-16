@@ -14,6 +14,8 @@ import {
   CHOOSE_FOCUS_EVERY,
   clampChaos,
   EMPTY_ORACLE,
+  PERIL_MAX,
+  PERIL_START,
   eventChance,
   fateModifier,
   FOCUS_COUNT,
@@ -286,11 +288,25 @@ export function OraclePanel() {
         <span className={styles.numeric}>{t('solo.oracle.eventChance', { chance: eventChance(oracle.chaos, oracle.chaosFlavor) })}</span>
         <button
           type="button"
-          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, method: state.method, style: state.style, ruleMode: state.ruleMode }))}
+          onClick={() => setOracle((state) => ({ ...EMPTY_ORACLE, chaosMode: state.chaosMode, chaosFlavor: state.chaosFlavor, method: state.method, style: state.style, ruleMode: state.ruleMode, peril: state.peril }))}
           disabled={oracle.log.length === 0 && oracle.scene === 0 && oracle.chaos === 5}
         >
           {t('solo.oracle.reset')}
         </button>
+      </div>
+
+      <div className={styles.toolbar}>
+        <span className={styles.round}>{t('solo.oracle.peril', { peril: oracle.peril })}</span>
+        <button type="button" onClick={() => setOracle((state) => ({ ...state, peril: Math.max(0, state.peril - 1) }))} disabled={oracle.peril <= 0}>
+          {t('solo.oracle.perilSpend')}
+        </button>
+        <button type="button" onClick={() => setOracle((state) => ({ ...state, peril: Math.min(PERIL_MAX, state.peril + 1) }))} disabled={oracle.peril >= PERIL_MAX}>
+          {t('solo.oracle.perilGain')}
+        </button>
+        <button type="button" onClick={() => setOracle((state) => ({ ...state, peril: Math.max(state.peril, PERIL_START) }))} disabled={oracle.peril >= PERIL_START}>
+          {t('solo.oracle.perilRefill', { count: PERIL_START })}
+        </button>
+        <span className={styles.note}>{t('solo.oracle.perilNote')}</span>
       </div>
 
       <div className={styles.toolbar}>

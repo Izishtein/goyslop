@@ -12,6 +12,10 @@ export const CHAOS_MIN = 1;
 export const CHAOS_MAX = 9;
 export const CHAOS_START = 5;
 
+/** Peril Points (Mythic B4): a stock of narrative saves, refilled by choice. */
+export const PERIL_START = 2;
+export const PERIL_MAX = 9;
+
 export const LIKELIHOODS = ['impossible', 'veryUnlikely', 'unlikely', 'even', 'likely', 'veryLikely', 'certain'] as const;
 export type Likelihood = (typeof LIKELIHOODS)[number];
 
@@ -449,10 +453,11 @@ export interface OracleState {
   style: PlayStyle;
   /** Questions are answered as a rule substitute (neutral chaos, no exceptional answers, no events). */
   ruleMode: boolean;
+  peril: number;
   log: OracleEntry[];
 }
 
-export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', method: 'table', style: 'simulation', ruleMode: false, log: [] };
+export const EMPTY_ORACLE: OracleState = { chaos: CHAOS_START, scene: 0, chaosMode: 'normal', chaosFlavor: 'full', method: 'table', style: 'simulation', ruleMode: false, peril: PERIL_START, log: [] };
 
 /** Every fifth scene the player may pick the event's focus instead of rolling — a way out of a rut. */
 export const CHOOSE_FOCUS_EVERY = 5;

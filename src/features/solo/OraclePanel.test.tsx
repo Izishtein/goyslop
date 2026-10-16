@@ -301,4 +301,20 @@ describe('OraclePanel two-d10 answers', () => {
     expect(log).toHaveTextContent('2d10 = 6+6, modifier 0 → 12');
     expect(log).toHaveTextContent('Yes');
   });
+
+  it('spends, gains and refills Peril Points', async () => {
+    const user = userEvent.setup();
+    const store = renderPanel();
+
+    expect(screen.getByText('Peril Points 2')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Spend 1' }));
+    await user.click(screen.getByRole('button', { name: 'Spend 1' }));
+    expect(store.get(oracleAtom).peril).toBe(0);
+    expect(screen.getByRole('button', { name: 'Spend 1' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Refill to 2' }));
+    expect(store.get(oracleAtom).peril).toBe(2);
+    await user.click(screen.getByRole('button', { name: '+1' }));
+    expect(store.get(oracleAtom).peril).toBe(3);
+    expect(screen.getByRole('button', { name: 'Refill to 2' })).toBeDisabled();
+  });
 });
