@@ -22,6 +22,7 @@ import { BIOMES, type Biome } from '../../lib/hexmap';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
 import { dungeonAtom } from '../../state/dungeon';
 import { encounterAtom } from '../../state/encounter';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -61,7 +62,7 @@ export function DungeonPanel() {
     return (
       <section className={styles.panel} aria-labelledby="solo-dungeon">
         <div className={styles.panelHead}>
-          <h3 id="solo-dungeon">{t('solo.dungeon.title')}</h3>
+          <h3 id="solo-dungeon"><GameIcon name="solo.dungeon" />{t('solo.dungeon.title')}</h3>
           <p className={styles.note}>{t('solo.dungeon.note')}</p>
         </div>
         <div className={styles.toolbar}>
@@ -142,7 +143,7 @@ export function DungeonPanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-dungeon">
       <div className={styles.panelHead}>
-        <h3 id="solo-dungeon">{t('solo.dungeon.title')}</h3>
+        <h3 id="solo-dungeon"><GameIcon name="solo.dungeon" />{t('solo.dungeon.title')}</h3>
         <p className={styles.note}>
           {dungeon.kind === 'settlement' ? t(`solo.hex.settlements.${dungeon.settlement}`) : dungeon.kind === 'lair' ? t(`solo.dungeon.lairThemes.${dungeon.theme}`) : t(`solo.dungeon.themes.${dungeon.theme}`)} · {t('solo.dungeon.depth', { level: dungeon.at.level + 1, total: dungeon.levels.length })} · {t('solo.dungeon.forLevel', { level: dungeon.level })}
         </p>

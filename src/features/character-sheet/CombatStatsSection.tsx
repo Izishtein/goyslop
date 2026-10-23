@@ -13,7 +13,7 @@ import {
 } from '../../lib/formulas/derived-stats';
 import { passiveAccuracyBonus } from '../../lib/formulas/attack-modifiers';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
-import { sumModifiersForField } from '../../lib/formulas/status-effects';
+import { skillCheckModifier, sumModifiersForField } from '../../lib/formulas/status-effects';
 import { getClass } from '../../data/classes';
 import { DEEP_MAGIC } from '../../data/spells';
 import { familiarDarknessBonus, witchMagicPowerBonus } from '../../lib/racial-abilities';
@@ -30,7 +30,9 @@ export function CombatStatsSection({ character }: { character: Character }) {
   const agiMod = abilityModifier(abilityTotal(character.abilities.AGI));
   const strMod = abilityModifier(abilityTotal(character.abilities.STR));
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
-  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + passiveAccuracyBonus(character.combatFeats);
+  // Soulscar Shackles and kin: a penalty to every skill check rides along with Accuracy, Magic Power and the check packages
+  const skillMod = skillCheckModifier(character.statusEffects);
+  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + passiveAccuracyBonus(character.combatFeats) + skillMod;
   const evasionStatusMod = sumModifiersForField(character.statusEffects, 'evasion');
 
   const warriorRows = character.classes
@@ -66,19 +68,19 @@ export function CombatStatsSection({ character }: { character: Character }) {
   const familiarDark = familiarDarknessBonus(character.raceId, advLevel);
   const scoutOrRanger = Math.max(levelOf('scout'), levelOf('ranger'));
   const checkRows = [
-    { key: 'initiative', value: initiative(scoutLevel, agiMod) },
-    { key: 'firstAid', value: firstAid(advLevel, dexMod) },
-    ...(levelOf('scout') > 0 ? [{ key: 'dangerSense', value: dangerSense(levelOf('scout'), intMod) }] : []),
-    ...(sageLevel > 0 ? [{ key: 'monsterKnowledge', value: monsterKnowledge(sageLevel, intMod) }] : []),
-    ...(priestLevel > 0 ? [{ key: 'healingPower', value: healingPower(priestLevel, intMod) }] : []),
+    { key: 'initiative', value: initiative(scoutLevel, agiMod) + skillMod },
+    { key: 'firstAid', value: firstAid(advLevel, dexMod) + skillMod },
+    ...(levelOf('scout') > 0 ? [{ key: 'dangerSense', value: dangerSense(levelOf('scout'), intMod) + skillMod }] : []),
+    ...(sageLevel > 0 ? [{ key: 'monsterKnowledge', value: monsterKnowledge(sageLevel, intMod) + skillMod }] : []),
+    ...(priestLevel > 0 ? [{ key: 'healingPower', value: healingPower(priestLevel, intMod) + skillMod }] : []),
     // A Dawn's [Familiar Darkness] adds to the Success Value of these three (Core I pp. 102-104): Disguise is Scout
     // level + DEX modifier, Hide and Follow Scout or Ranger level + AGI modifier. With no such class the check is a
     // Straight Roll (Standard Value 0, no modifier), so the bonus stands alone.
     ...(familiarDark > 0
       ? [
-          { key: 'disguise', value: familiarDark + (levelOf('scout') > 0 ? levelOf('scout') + dexMod : 0) },
-          { key: 'hide', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) },
-          { key: 'follow', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) },
+          { key: 'disguise', value: familiarDark + (levelOf('scout') > 0 ? levelOf('scout') + dexMod : 0) + skillMod },
+          { key: 'hide', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) + skillMod },
+          { key: 'follow', value: familiarDark + (scoutOrRanger > 0 ? scoutOrRanger + agiMod : 0) + skillMod },
         ]
       : []),
   ];
@@ -91,11 +93,11 @@ export function CombatStatsSection({ character }: { character: Character }) {
       .filter((classLevel) => getClass(classLevel.classId)?.type === 'wizard')
       .map((classLevel) => ({
         name: getClass(classLevel.classId)?.name ?? classLevel.classId,
-        magicPower: magicPower(classLevel.level, intMod) + witch,
+        magicPower: magicPower(classLevel.level, intMod) + witch + skillMod,
       })),
     // Deep Magic belongs to no single class: it runs on the higher of Sorcerer and Conjurer
     // (Magus Arts p. 95), so it gets its own row once both are mastered.
-    ...(deepPower === null ? [] : [{ name: DEEP_MAGIC, magicPower: deepPower + witch }]),
+    ...(deepPower === null ? [] : [{ name: DEEP_MAGIC, magicPower: deepPower + witch + skillMod }]),
   ];
 
   return (

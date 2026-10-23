@@ -13,6 +13,7 @@ import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../..
 import { encounterAtom, showMonsterHpAtom } from '../../state/encounter';
 import { partyAtom } from '../../state/party';
 import type { Character, FellowAction } from '../../types/character';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -298,7 +299,7 @@ export function PartyPanel({ fixed }: { fixed: boolean }) {
   return (
     <section className={styles.panel} aria-labelledby="solo-party">
       <div className={styles.panelHead}>
-        <h3 id="solo-party">{t('solo.party.title')}</h3>
+        <h3 id="solo-party"><GameIcon name="solo.party" />{t('solo.party.title')}</h3>
         <p className={styles.note}>{t('solo.party.note')}</p>
       </div>
 

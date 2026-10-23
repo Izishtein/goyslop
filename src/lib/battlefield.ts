@@ -121,3 +121,71 @@ export function initials(label: string): string {
   if (words.length === 0) return '?';
   return (words.length === 1 ? words[0].slice(0, 2) : words[0][0] + words[1][0]).toUpperCase();
 }
+
+/** The cell's centre in cell units, which is where a ruler, a radius and a sight line are measured from. */
+export const centreOf = (cell: Cell): { x: number; y: number } => ({ x: cell.col + 0.5, y: cell.row + 0.5 });
+
+/** What a ruler laid from `a` to `b` reads: the straight line in metres, and the cells a walker counts (diagonals as one). */
+export function rulerReadout(a: Cell, b: Cell, cellMeters: number): { meters: number; cells: number } {
+  return { meters: distanceMeters(a, b, cellMeters), cells: Math.max(Math.abs(a.col - b.col), Math.abs(a.row - b.row)) };
+}
+
+/** Whether a cell's centre lies within `meters` of `centre`'s centre: how an area spell decides who stands in it. */
+export const withinRadius = (centre: Cell, cell: Cell, meters: number, cellMeters: number): boolean => Math.hypot(centre.col - cell.col, centre.row - cell.row) * cellMeters <= meters + 1e-9;
+
+/** The cells (as keys) in the radius of a point, the point's own cell included. */
+export function cellsWithin(centre: Cell, meters: number, cellMeters: number, cols: number, rows: number): Set<string> {
+  const reach = Math.ceil(meters / cellMeters);
+  const found = new Set<string>();
+  for (let row = Math.max(0, centre.row - reach); row <= Math.min(rows - 1, centre.row + reach); row += 1) {
+    for (let col = Math.max(0, centre.col - reach); col <= Math.min(cols - 1, centre.col + reach); col += 1) {
+      if (withinRadius(centre, { col, row }, meters, cellMeters)) found.add(cellKey({ col, row }));
+    }
+  }
+  return found;
+}
+
+export const FOG_SIGHT_MAX = 100;
+
+/** Fog of war: switched on or off, how far the party sees on its own (0 = only the cells opened by hand), the opened cells. */
+export interface Fog {
+  on: boolean;
+  sight: number;
+  revealed: string[];
+}
+
+export const NO_FOG: Fog = { on: false, sight: 0, revealed: [] };
+
+/** The cells not under fog: the ones opened by hand, and everything within sight of a party token. */
+export function visibleCells(fog: Fog, watchers: readonly Cell[], cellMeters: number, cols: number, rows: number): Set<string> {
+  const seen = new Set(fog.revealed);
+  if (fog.sight > 0) {
+    for (const watcher of watchers) for (const key of cellsWithin(watcher, fog.sight, cellMeters, cols, rows)) seen.add(key);
+  }
+  return seen;
+}
+
+/** One SVG path (in cell units) that covers every cell not in `visible`; runs along a row are merged into one rectangle. */
+export function fogPath(visible: ReadonlySet<string>, cols: number, rows: number): string {
+  const parts: string[] = [];
+  for (let row = 0; row < rows; row += 1) {
+    let start = -1;
+    for (let col = 0; col <= cols; col += 1) {
+      const covered = col < cols && !visible.has(cellKey({ col, row }));
+      if (covered && start < 0) start = col;
+      if (!covered && start >= 0) {
+        parts.push(`M${start} ${row}h${col - start}v1h${start - col}z`);
+        start = -1;
+      }
+    }
+  }
+  return parts.join('');
+}
+
+/** `revealed` with one cell opened or closed again; the same array when nothing changes. */
+export function setRevealed(revealed: readonly string[], cell: Cell, open: boolean): string[] {
+  const key = cellKey(cell);
+  const has = revealed.includes(key);
+  if (open === has) return revealed as string[];
+  return open ? [...revealed, key] : revealed.filter((entry) => entry !== key);
+}

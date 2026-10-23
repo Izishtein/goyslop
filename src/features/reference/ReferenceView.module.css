@@ -118,6 +118,18 @@
   white-space: nowrap;
 }
 
+/* The book's picture of a race, above its name in the row header. */
+.raceArt {
+  display: block;
+  width: 9rem;
+  height: 9rem;
+  margin-bottom: var(--sp-1);
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
 .numeric {
   font-variant-numeric: tabular-nums;
   text-align: right;

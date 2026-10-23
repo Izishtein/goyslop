@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StatusEffect } from '../../types/character';
-import { sumModifiersForField, tickStatusEffects } from './status-effects';
+import { skillCheckModifier, sumModifiersForField, tickStatusEffects } from './status-effects';
 
 function makeEffect(overrides: Partial<StatusEffect> = {}): StatusEffect {
   return {
@@ -42,5 +42,19 @@ describe('sumModifiersForField', () => {
 
   it('returns 0 when no effect targets the field', () => {
     expect(sumModifiersForField([makeEffect()], 'evasion')).toBe(0);
+  });
+});
+
+describe('skillCheckModifier', () => {
+  const effect = (id: string, modifiers: StatusEffect['modifiers']): StatusEffect => ({ id, name: id, duration: { kind: 'untilRemoved' }, modifiers });
+
+  it('sums the skillChecks rows and ignores other fields', () => {
+    expect(skillCheckModifier([effect('a', [{ field: 'skillChecks', value: -2 }, { field: 'accuracy', value: 5 }]), effect('b', [{ field: 'skillChecks', value: 1 }])])).toBe(-1);
+    expect(skillCheckModifier([])).toBe(0);
+    expect(skillCheckModifier(undefined)).toBe(0);
+  });
+
+  it("still reads the penalty an older save's Shackles carried in a custom row", () => {
+    expect(skillCheckModifier([effect('racial-shackles', [{ field: 'custom', customLabel: 'all', value: -4 }]), effect('x', [{ field: 'custom', value: -9 }])])).toBe(-4);
   });
 });

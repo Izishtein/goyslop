@@ -121,6 +121,24 @@ describe('SoloView encounter', () => {
     expect(store.get(encounterAtom).monsters.map((m) => m.sections[0].hp)).toEqual([16, 16]);
   });
 
+  it('sizes a monster to the party: a stronger Goblin comes fewer than the adventurers, and the fight is graded', async () => {
+    const user = userEvent.setup();
+    const store = renderSolo(true, [makeCharacter({ id: 'char-2', name: 'Fellow' })]);
+    store.set(partyAtom, ['char-2']);
+
+    const select = await screen.findByLabelText('Monster');
+    await waitFor(() => expect(select).toBeEnabled());
+    await user.type(screen.getByLabelText('Search'), 'Goblin');
+    const option = [...select.querySelectorAll('option')].find((entry) => entry.textContent?.endsWith('· Goblin'));
+    await user.selectOptions(select, option!.value);
+    await user.click(screen.getByRole('button', { name: 'Size to party' }));
+
+    expect(screen.getByLabelText('How many')).toHaveValue(1); // a level-2 Goblin outweighs a level-1 adventurer
+    expect(screen.getByText(/Party: 2 · level 1/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Add to the table' }));
+    expect(await screen.findByText('Encounter difficulty: even')).toBeInTheDocument();
+  });
+
   it('keeps a monster’s HP out of sight until the player asks for it', async () => {
     const user = userEvent.setup();
     const store = renderSolo();

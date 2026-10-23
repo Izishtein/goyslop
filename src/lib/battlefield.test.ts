@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   cellAt,
+  cellsWithin,
+  fogPath,
+  rulerReadout,
+  setRevealed,
+  visibleCells,
   cellKey,
   clampCell,
   distanceMeters,
@@ -89,5 +94,36 @@ describe('token labels', () => {
     expect(initials('Rudolf')).toBe('RU');
     expect(initials('Torin Stone Fist')).toBe('TS');
     expect(initials('  ')).toBe('?');
+  });
+});
+
+describe('ruler, radius and fog', () => {
+  it('reads a ruler in metres and in cells', () => {
+    expect(rulerReadout({ col: 0, row: 0 }, { col: 3, row: 4 }, 1.5)).toEqual({ meters: 7.5, cells: 4 });
+  });
+
+  it('counts the cells within a radius, the centre included, and clips at the edge', () => {
+    expect(cellsWithin({ col: 5, row: 5 }, 1, 1, 10, 10)).toEqual(new Set(['5,5', '4,5', '6,5', '5,4', '5,6']));
+    expect(cellsWithin({ col: 0, row: 0 }, 1, 1, 10, 10)).toEqual(new Set(['0,0', '1,0', '0,1']));
+    expect(cellsWithin({ col: 5, row: 5 }, 3, 1.5, 10, 10).has('5,7')).toBe(true);
+    expect(cellsWithin({ col: 5, row: 5 }, 3, 1.5, 10, 10).has('5,8')).toBe(false);
+  });
+
+  it('shows what was opened by hand plus whatever the party sees', () => {
+    const fog = { on: true, sight: 1, revealed: ['9,9'] };
+    expect(visibleCells(fog, [{ col: 0, row: 0 }], 1, 10, 10)).toEqual(new Set(['9,9', '0,0', '1,0', '0,1']));
+    expect(visibleCells({ ...fog, sight: 0 }, [{ col: 0, row: 0 }], 1, 10, 10)).toEqual(new Set(['9,9']));
+  });
+
+  it('covers the rest with merged rows', () => {
+    expect(fogPath(new Set(['1,0']), 3, 2)).toBe('M0 0h1v1h-1zM2 0h1v1h-1zM0 1h3v1h-3z');
+    expect(fogPath(new Set(['0,0', '1,0', '0,1', '1,1']), 2, 2)).toBe('');
+  });
+
+  it('opens and closes a cell, returning the same array when nothing changes', () => {
+    const open = setRevealed([], { col: 1, row: 2 }, true);
+    expect(open).toEqual(['1,2']);
+    expect(setRevealed(open, { col: 1, row: 2 }, true)).toBe(open);
+    expect(setRevealed(open, { col: 1, row: 2 }, false)).toEqual([]);
   });
 });

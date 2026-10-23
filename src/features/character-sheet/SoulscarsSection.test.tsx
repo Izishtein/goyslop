@@ -128,7 +128,7 @@ describe('SoulscarsSection', () => {
     const count = screen.getByRole('spinbutton', { name: 'Soulscars' });
     expect(count).toHaveValue(1); // Kobold
     await user.click(screen.getByLabelText('Soulscar Shackles worn'));
-    expect(store.get(charactersAtom)[0].statusEffects[0]).toMatchObject({ name: 'Soulscar Shackles', modifiers: [{ field: 'custom', customLabel: 'all skill checks', value: -4 }] });
+    expect(store.get(charactersAtom)[0].statusEffects[0]).toMatchObject({ name: 'Soulscar Shackles', modifiers: [{ field: 'skillChecks', value: -4 }] });
     expect(screen.getByText(/Speed 1/)).toBeInTheDocument();
     await user.clear(count);
     await user.type(count, '2');

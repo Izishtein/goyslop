@@ -9,7 +9,7 @@ import { magicPower } from './formulas/derived-stats';
 import { mpMax } from './formulas/hp-mp';
 import { wizardLevelSum } from './formulas/character-levels';
 import { schoolLevel } from './spellcasting';
-import { sumModifiersForField } from './formulas/status-effects';
+import { skillCheckModifier, sumModifiersForField } from './formulas/status-effects';
 
 /** The faces of a d6 a Fellow Action Table row answers to: "1-2", "3 – 4", "5", "1, 2". */
 export function parseFellowRoll(text: string): number[] {
@@ -131,7 +131,7 @@ export function suggestFellowActions(character: Character, words: SuggestedWordi
   const mod = (id: 'DEX' | 'AGI' | 'STR' | 'INT') => abilityModifier(abilityTotal(character.abilities[id]));
   const scout = character.classes.filter((entry) => entry.classId === 'scout').reduce((max, entry) => Math.max(max, entry.level), 0);
   const isFencer = character.classes.some((entry) => entry.classId === 'fencer');
-  const accuracyStatus = sumModifiersForField(character.statusEffects, 'accuracy');
+  const accuracyStatus = sumModifiersForField(character.statusEffects, 'accuracy') + skillCheckModifier(character.statusEffects);
   const melee = [...character.equipment.weapons].filter((entry) => !entry.gun).sort((a, b) => b.power - a.power)[0];
   // A gun prints no Power: the bullet the Artificer loads carries it, and its Magic Power is the Extra
   // Damage (CR I p. 135). It is shot only when the Fellow can pay for the best Magitech damage spell.

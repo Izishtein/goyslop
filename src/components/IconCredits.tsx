@@ -31,6 +31,7 @@ export function IconCredits() {
           </a>
           ): {t('app.credits.madeBy')} {authors.map((author) => (author.cc0 ? `${author.name} (CC0)` : author.name)).join(', ')}.
         </p>
+        <p>{t('app.credits.raceArt')}</p>
       </details>
     </footer>
   );

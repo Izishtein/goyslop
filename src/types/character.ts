@@ -34,6 +34,8 @@ export const STATUS_EFFECT_FIELDS = [
   'willpower',
   'defense',
   'actionCheck',
+  /** Every skill check of the sheet: Accuracy, Magic Power and kin, Initiative, First Aid (Soulscar Shackles). */
+  'skillChecks',
   'custom',
 ] as const;
 export const StatusEffectFieldSchema = z.enum(STATUS_EFFECT_FIELDS);

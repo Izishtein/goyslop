@@ -15,6 +15,7 @@ import {
   type Trigger,
 } from '../../lib/keyed';
 import { adventureAtom } from '../../state/adventure';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 
 const percentKey = (value: number) => String(Math.round(value * 100));
@@ -63,7 +64,7 @@ export function AdventurePanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-adventure">
       <div className={styles.panelHead}>
-        <h3 id="solo-adventure">{t('solo.adventure.title')}</h3>
+        <h3 id="solo-adventure"><GameIcon name="solo.adventure" />{t('solo.adventure.title')}</h3>
         <p className={styles.note}>{t('solo.adventure.note')}</p>
       </div>
 

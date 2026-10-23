@@ -122,10 +122,10 @@ describe('soulscars', () => {
   it('Shackles: -4 and speed 1 at 0-1, -2 at 2, nothing from 3', () => {
     expect([0, 1, 2, 3, 4].map(shacklesPenalty)).toEqual([4, 4, 2, 0, 0]);
     expect([1, 2].map(shacklesSlowed)).toEqual([true, false]);
-    const on = withShackles([], true, 2, 'Shackles', 'all skill checks');
-    expect(on[0].modifiers).toEqual([{ field: 'custom', customLabel: 'all skill checks', value: -2 }]);
-    expect(withShackles(on, true, 3, 'Shackles', 'all skill checks')).toEqual([]);
-    expect(withShackles(on, false, 2, 'Shackles', 'all skill checks')).toEqual([]);
+    const on = withShackles([], true, 2, 'Shackles');
+    expect(on[0].modifiers).toEqual([{ field: 'skillChecks', value: -2 }]);
+    expect(withShackles(on, true, 3, 'Shackles')).toEqual([]);
+    expect(withShackles(on, false, 2, 'Shackles')).toEqual([]);
   });
 
   it('the Mirror reflects the eye at a margin of 4', () => {

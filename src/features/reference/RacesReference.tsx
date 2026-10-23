@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
 import { RACES, racialAbilitiesFor, type RaceDefinition } from '../../data/races';
 import { CatalogIcon } from '../../components/icons';
+import { RaceArt } from '../../components/RaceArt';
 import { ABILITY_IDS } from '../../lib/formulas/abilities';
 import { correctionRange, formatDiceNotation } from '../../lib/formulas/ability-base';
 import styles from './ReferenceView.module.css';
@@ -51,6 +52,7 @@ export function RacesReference() {
               return (
                 <tr key={race.id}>
                   <th scope="row" className={styles.rowName}>
+                    <RaceArt raceId={race.id} className={styles.raceArt} />
                     <CatalogIcon kind="race" id={race.id} />
                     {race.name}
                   </th>

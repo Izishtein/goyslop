@@ -195,4 +195,71 @@ describe('BattlefieldPanel', () => {
     await waitFor(() => expect(store.get(fieldAtom).hasMap).toBe(false));
     expect(screen.getByLabelText('Rows')).toBeEnabled();
   });
+
+  const sizeField = () => {
+    const field = screen.getByRole('group', { name: 'Battlefield' });
+    field.getBoundingClientRect = () => ({ left: 0, top: 0, right: 400, bottom: 280, width: 400, height: 280, x: 0, y: 0, toJSON: () => ({}) });
+  };
+
+  it('lays a ruler between two cells and reads it in metres and cells', async () => {
+    const user = userEvent.setup();
+    await renderField();
+    sizeField();
+    await user.selectOptions(screen.getByLabelText('Tool'), 'ruler');
+    const sheet = screen.getByTestId('field-capture');
+    fireEvent.pointerDown(sheet, { clientX: 10, clientY: 10 }); // column 1, row 1
+    fireEvent.pointerDown(sheet, { clientX: 70, clientY: 90 }); // column 4, row 5
+    expect(await screen.findByText('Ruler: 5 m straight, 4 cells walking')).toBeInTheDocument();
+  });
+
+  it('names who stands within the radius of the selected token', async () => {
+    const user = userEvent.setup();
+    await renderField({ party: [makeCharacter({ id: 'friend', name: 'Torin' })] });
+    await user.click(await token(/^Rudolf/));
+    await user.click(screen.getByRole('button', { name: '3 m' }));
+    expect(await screen.findByText('Within 3 m: Torin')).toBeInTheDocument();
+  });
+
+  it('hides a foe under fog until its cell is opened or the party sees it', async () => {
+    const user = userEvent.setup();
+    const store = await renderField({ monsters: 1 });
+    expect(await token(/^Goblin/)).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Fog of war'));
+    expect(screen.queryByRole('button', { name: /^Goblin/ })).not.toBeInTheDocument();
+
+    sizeField();
+    await user.selectOptions(screen.getByLabelText('Tool'), 'reveal');
+    const sheet = screen.getByTestId('field-capture');
+    fireEvent.pointerDown(sheet, { clientX: 10, clientY: 270 }); // column 1, row 14: where the goblin stands
+    fireEvent.pointerUp(sheet);
+    expect(store.get(fieldAtom).fog.revealed).toEqual(['0,13']);
+    expect(await token(/^Goblin/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cover all' }));
+    expect(screen.queryByRole('button', { name: /^Goblin/ })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Party sight, m (0 = by hand only)'), { target: { value: '14' } });
+    expect(await token(/^Goblin/)).toBeInTheDocument(); // 13 cells away, inside the sight
+  });
+
+  it('saves the field to a file and loads it back', async () => {
+    const user = userEvent.setup();
+    const created: Blob[] = [];
+    vi.spyOn(URL, 'createObjectURL').mockImplementation((blob) => (created.push(blob as Blob), 'blob:x'));
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const store = await renderField();
+    await user.type(screen.getByLabelText('Name of a new token'), 'Barrel');
+    await user.click(screen.getByRole('button', { name: 'Add a token' }));
+    await user.click(screen.getByRole('button', { name: 'Save field' }));
+    await waitFor(() => expect(created.length).toBeGreaterThan(0));
+    const text = await created[created.length - 1].text();
+
+    store.set(fieldAtom, EMPTY_FIELD);
+    await waitFor(() => expect(screen.queryByRole('button', { name: /^Barrel/ })).not.toBeInTheDocument());
+    await user.upload(screen.getByLabelText('Load field'), new File([text], 'f.json', { type: 'application/json' }));
+    expect(await token(/^Barrel, other/)).toBeInTheDocument();
+
+    await user.upload(screen.getByLabelText('Load field'), new File(['{}'], 'bad.json', { type: 'application/json' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('not a battlefield file');
+  });
 });

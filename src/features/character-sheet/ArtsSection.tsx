@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ART_CLASS_ID, getArt, listArtsByKind, type ArtDefinition, type ArtKind } from '../../data/arts';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { bardicPower, enhancerPower } from '../../lib/formulas/derived-stats';
+import { skillCheckModifier } from '../../lib/formulas/status-effects';
 import { mpAfterCast } from '../../lib/spellcasting';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownArt } from '../../types/character';
@@ -184,13 +185,13 @@ export function ArtsSection({ character }: { character: Character }) {
         <p className={styles.sectionNote}>
           {enhancerLevel > 0 && (
             <>
-              {t('sheet.enhancerSv')}: <strong className={styles.numeric}>{enhancerPower(enhancerLevel, intMod)}</strong>
+              {t('sheet.enhancerSv')}: <strong className={styles.numeric}>{enhancerPower(enhancerLevel, intMod) + skillCheckModifier(character.statusEffects)}</strong>
             </>
           )}
           {enhancerLevel > 0 && bardLevel > 0 && ' · '}
           {bardLevel > 0 && (
             <>
-              {t('sheet.bardicPower')}: <strong className={styles.numeric}>{bardicPower(bardLevel, intMod)}</strong>
+              {t('sheet.bardicPower')}: <strong className={styles.numeric}>{bardicPower(bardLevel, intMod) + skillCheckModifier(character.statusEffects)}</strong>
             </>
           )}
         </p>

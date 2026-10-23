@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getClass } from '../../data/classes';
 import { racialAbilitiesFor, type BackgroundEntry, type RaceDefinition } from '../../data/races';
 import { CatalogIcon } from '../../components/icons';
+import { RaceArt } from '../../components/RaceArt';
 import { ABILITY_IDS } from '../../lib/formulas/abilities';
 import { correctionRange, formatDiceNotation } from '../../lib/formulas/ability-base';
 import styles from './RaceFactsCard.module.css';
@@ -24,6 +25,7 @@ export function RaceFactsCard({ race, background }: { race: RaceDefinition; back
 
   return (
     <aside className={styles.card} aria-label={t('reference.raceFacts', { race: race.name })}>
+      <RaceArt raceId={race.id} className={styles.art} />
       <p className={styles.description}>
         <CatalogIcon kind="race" id={race.id} />
         {t(`reference.raceDescription.${race.id}`)}

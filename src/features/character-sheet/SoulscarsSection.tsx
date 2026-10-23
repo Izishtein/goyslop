@@ -33,7 +33,7 @@ export function SoulscarsSection({ character }: { character: Character }) {
     update((c) => {
       const racial = { ...racialStateOf(c), shackled, soulscars };
       const effective = soulscars ?? raceSoulscars(c.raceId, racial.witch);
-      return { ...c, racial, statusEffects: withShackles(c.statusEffects, shackled, effective, t('sheet.soulscars.shacklesEffect'), t('sheet.soulscars.allSkillChecks')) };
+      return { ...c, racial, statusEffects: withShackles(c.statusEffects, shackled, effective, t('sheet.soulscars.shacklesEffect')) };
     });
   }
 

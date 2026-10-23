@@ -23,7 +23,8 @@
       "ui": "Interface icons:",
       "game": "game icons:",
       "madeBy": "icons made by",
-      "title": "Icon credits"
+      "title": "Icon credits",
+      "raceArt": "Race pictures: illustrations by Susumu Kuroi and other artists from the Outlaw Profile Book and Barbarous Rage (Sword World 2.5); the rights belong to the books’ authors and publishers."
     }
   },
   "language": {
@@ -1453,7 +1454,35 @@
       "distances": "Distances from {{label}}",
       "metres": "m",
       "alone": "Nobody else is on the field.",
-      "pick": "Pick a token to see how far it is from the others."
+      "pick": "Pick a token to see how far it is from the others.",
+      "export": "Save field",
+      "import": "Load field",
+      "fileFailed": "That is not a battlefield file: pick a JSON saved with “Save field”.",
+      "tools": "Field tools",
+      "tool": "Tool",
+      "toolNone": "Move tokens",
+      "toolRuler": "Ruler (two cells)",
+      "toolReveal": "Reveal cells",
+      "toolCover": "Cover cells",
+      "fog": "Fog of war",
+      "sight": "Party sight, m (0 = by hand only)",
+      "fogCover": "Cover all",
+      "fogReveal": "Reveal all",
+      "rulerReadout": "Ruler: {{meters}} m straight, {{cells}} cells walking",
+      "radius": "Radius, m",
+      "inRadius": "Within {{radius}} m: {{list}}",
+      "noneInRadius": "Nobody within {{radius}} m."
+    },
+    "scale": {
+      "button": "Size to party",
+      "party": "Party: {{size}} · level {{level}}",
+      "suggested": "Set to {{count}} for the party",
+      "hint": "Our own numbers, the book has no rule: a monster of the party's level comes one per adventurer, higher ones fewer, lower ones more.",
+      "difficulty": "Encounter difficulty: {{label}}",
+      "easy": "easy",
+      "even": "even",
+      "hard": "hard",
+      "deadly": "deadly"
     }
   },
   "guide": {
@@ -2211,6 +2240,7 @@
       "willpower": "Willpower",
       "defense": "Defense",
       "actionCheck": "Action check",
+      "skillChecks": "All skill checks",
       "custom": "Custom"
     }
   },

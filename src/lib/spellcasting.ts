@@ -3,6 +3,7 @@ import { DEEP_MAGIC, SPELLS } from '../data/spells';
 import { DIVINE } from '../data/spells/types';
 import type { Character } from '../types/character';
 import { magicPower } from './formulas/derived-stats';
+import { skillCheckModifier } from './formulas/status-effects';
 import { abilityModifier, abilityTotal } from './formulas/abilities';
 import { witchMagicPowerBonus } from './racial-abilities';
 
@@ -55,9 +56,10 @@ export function deepMagicPower(character: Pick<Character, 'classes'>, intModifie
 }
 
 /** A spell's Magic Power: the level of the class that casts its school plus the INT bonus (Deep Magic: the higher of its two classes). */
-export function spellMagicPower(character: Pick<Character, 'classes' | 'abilities'> & Partial<Pick<Character, 'raceId' | 'racial'>>, school: string): number {
+export function spellMagicPower(character: Pick<Character, 'classes' | 'abilities'> & Partial<Pick<Character, 'raceId' | 'racial' | 'statusEffects'>>, school: string): number {
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
-  const witch = witchMagicPowerBonus(character);
+  // a penalty to every skill check (Soulscar Shackles) lowers Magic Power too
+  const witch = witchMagicPowerBonus(character) + skillCheckModifier(character.statusEffects);
   if (school === DEEP_MAGIC) {
     const deep = deepMagicPower(character, intMod);
     return deep === null ? 0 : deep + witch;

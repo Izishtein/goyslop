@@ -13,6 +13,7 @@ import {
 } from '../../data/evocations';
 import { abilityModifier, abilityTotal } from '../../lib/formulas/abilities';
 import { evocationPower } from '../../lib/formulas/derived-stats';
+import { skillCheckModifier } from '../../lib/formulas/status-effects';
 import { useUpdateCharacter } from '../../state/characters';
 import type { Character, KnownEvocation } from '../../types/character';
 import { PrintableField } from './PrintableField';
@@ -97,7 +98,7 @@ export function EvocationsSection({ character }: { character: Character }) {
       <div className={styles.sectionHead}>
         <h3 id="section-evocations"><GameIcon name="section.evocations" />{t('sheet.evocations')}</h3>
         <p className={styles.sectionNote}>
-          {t('sheet.evocationSv')}: <strong className={styles.numeric}>{evocationPower(level, intMod)}</strong>
+          {t('sheet.evocationSv')}: <strong className={styles.numeric}>{evocationPower(level, intMod) + skillCheckModifier(character.statusEffects)}</strong>
           {' · '}
           {/* The book grants one Evocation per Alchemist level, so the count is worth showing
               next to the class level the same way SCA slots are. */}

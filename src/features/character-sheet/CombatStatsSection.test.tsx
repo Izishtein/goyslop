@@ -93,6 +93,14 @@ describe('CombatStatsSection check packages', () => {
     expect(valueOf(/^First Aid/)).toBe('5');
   });
 
+  it('takes a penalty to every skill check (Soulscar Shackles) off the check packages', () => {
+    const shackles = { id: 'racial-shackles', name: 'Soulscar Shackles', duration: { kind: 'untilRemoved' as const }, modifiers: [{ field: 'skillChecks' as const, value: -4 }] };
+    renderSection(makeCharacter({ statusEffects: [shackles] }));
+
+    expect(valueOf(/^Initiative/)).toBe('-2'); // AGI 2, minus 4
+    expect(valueOf(/^First Aid/)).toBe('1');
+  });
+
   it('adds the Scout level to Initiative and unlocks Danger Sense', () => {
     renderSection(makeCharacter({ classes: [{ classId: 'scout', level: 4 }] }));
 

@@ -29,6 +29,7 @@ import { hexMapAtom } from '../../state/hexmap';
 import { oracleAtom } from '../../state/oracle';
 import { ThreadTrack } from './ThreadTrack';
 import { plotArmor } from '../../lib/thread';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 
 export function CampaignPanel() {
@@ -60,7 +61,7 @@ export function CampaignPanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-campaign">
       <div className={styles.panelHead}>
-        <h3 id="solo-campaign">{t('solo.campaign.title')}</h3>
+        <h3 id="solo-campaign"><GameIcon name="solo.campaign" />{t('solo.campaign.title')}</h3>
         <p className={styles.note}>{t('solo.campaign.note')}</p>
       </div>
 

@@ -19,6 +19,20 @@ export function sumModifiersForField(effects: StatusEffect[], field: StatusEffec
     .reduce((total, modifier) => total + modifier.value, 0);
 }
 
+/** Id of the Soulscar Shackles effect; before 'skillChecks' existed it carried its penalty in a 'custom' row. */
+const LEGACY_SHACKLES_ID = 'racial-shackles';
+
+/** The modifier every skill check takes: the 'skillChecks' rows, plus the penalty of an older save's Shackles. */
+export function skillCheckModifier(effects: StatusEffect[] | undefined): number {
+  if (!effects) return 0;
+  const legacy = effects
+    .filter((effect) => effect.id === LEGACY_SHACKLES_ID)
+    .flatMap((effect) => effect.modifiers)
+    .filter((modifier) => modifier.field === 'custom')
+    .reduce((total, modifier) => total + modifier.value, 0);
+  return sumModifiersForField(effects, 'skillChecks') + legacy;
+}
+
 /**
  * Brings one app-managed status effect (the fatigue of a march, the hunger or the pitching deck of a voyage)
  * up to date in a list: added or replaced when it has modifiers, removed when it has none. Returns the same

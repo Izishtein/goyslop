@@ -52,7 +52,7 @@ export function RacialAbilitiesSection({ character }: { character: Character }) 
     update((c) => {
       const racial = { ...racialStateOf(c), witch };
       const count = racial.soulscars ?? raceSoulscars(c.raceId, witch);
-      return { ...c, racial, statusEffects: racial.shackled ? withShackles(c.statusEffects, true, count, t('sheet.soulscars.shacklesEffect'), t('sheet.soulscars.allSkillChecks')) : c.statusEffects };
+      return { ...c, racial, statusEffects: racial.shackled ? withShackles(c.statusEffects, true, count, t('sheet.soulscars.shacklesEffect')) : c.statusEffects };
     });
   }
 

@@ -25,7 +25,7 @@ export function gameIconAuthors(): { name: string; cc0: boolean }[] {
   return [...folders].sort().map((folder) => ({ name: AUTHORS[folder]?.name ?? folder, cc0: AUTHORS[folder]?.cc0 === true }));
 }
 
-export type CatalogKind = 'weapon' | 'school' | 'class' | 'race' | 'monster';
+export type CatalogKind = 'weapon' | 'school' | 'class' | 'race' | 'monster' | 'armor' | 'item';
 
 /** A magic school's name (as the catalogues spell it) -> the id its icon is filed under. */
 const SCHOOL_ICON_ID: Record<string, string> = {

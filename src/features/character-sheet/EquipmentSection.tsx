@@ -11,7 +11,7 @@ import {
 } from '../../lib/formulas/attack-modifiers';
 import { characterDefense, characterEvasion } from '../../lib/formulas/character-defense';
 import { magicPower } from '../../lib/formulas/derived-stats';
-import { sumModifiersForField } from '../../lib/formulas/status-effects';
+import { skillCheckModifier, sumModifiersForField } from '../../lib/formulas/status-effects';
 import { meetsStrength, requiredStrength } from '../../lib/formulas/requirements';
 import { weaponTotalAccuracy, weaponTotalExtraDamage } from '../../lib/formulas/weapon-stats';
 import {
@@ -52,7 +52,7 @@ import { witchMagicPowerBonus } from '../../lib/racial-abilities';
 import { AttackPanel } from './AttackPanel';
 import { WeaponDamageRoll } from './WeaponDamageRoll';
 import styles from './CharacterSheetView.module.css';
-import { GameIcon } from '../../components/icons';
+import { CatalogIcon, GameIcon } from '../../components/icons';
 
 /** Warrior-type classes the character holds, highest level first. */
 function warriorClasses(character: Character) {
@@ -183,11 +183,12 @@ export function EquipmentSection({ character }: { character: Character }) {
   const strMod = abilityModifier(abilityTotal(character.abilities.STR));
   const intMod = abilityModifier(abilityTotal(character.abilities.INT));
 
+  const skillMod = skillCheckModifier(character.statusEffects);
   // Feats declared this turn (state shared with the feats section) feed every damage roll.
   const [declaredIds] = useTurnFeats(character.id);
   const bestMagicPower = Math.max(
     0,
-    ...character.classes.filter((entry) => getClass(entry.classId)?.type === 'wizard').map((entry) => magicPower(entry.level, intMod) + witchMagicPowerBonus(character)),
+    ...character.classes.filter((entry) => getClass(entry.classId)?.type === 'wizard').map((entry) => magicPower(entry.level, intMod) + witchMagicPowerBonus(character) + skillMod),
   );
   const attackMods = declaredAttackModifiers(
     character.combatFeats.filter((feat) => declaredIds.includes(feat.id)),
@@ -200,7 +201,7 @@ export function EquipmentSection({ character }: { character: Character }) {
   // [Dual Technique] takes the -2 away; [Twin Strike] lets the second attack pick its own target
   const dualPenaltyValue = dualWieldPenalty(hasFeat('dual technique'));
   const dualPenalty = canDualWield && dualWield ? -dualPenaltyValue : 0;
-  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + dualPenalty;
+  const accuracyStatusMod = sumModifiersForField(character.statusEffects, 'accuracy') + dualPenalty + skillMod;
   const pinpoint = passiveAccuracyBonus(character.combatFeats);
   const artificerLevel = character.classes.filter((entry) => entry.classId === 'artificer').reduce((max, entry) => Math.max(max, entry.level), 0);
 
@@ -416,6 +417,7 @@ export function EquipmentSection({ character }: { character: Character }) {
                 return (
                 <tr key={weapon.id}>
                   <td>
+                    <CatalogIcon kind="weapon" id={weapon.gun ? 'gun' : (getWeapon(equipmentId(weapon.name))?.category ?? '')} />
                     <PrintableField value={weapon.name} onChange={(e) => updateWeapon(weapon.id, { name: e.target.value })} aria-label={t('sheet.name')} />
                     {warriorClasses(character).length > 1 && !weapon.gun && (
                       <select
@@ -593,6 +595,7 @@ export function EquipmentSection({ character }: { character: Character }) {
               {character.equipment.armor.map((armor) => (
                 <tr key={armor.id}>
                   <td>
+                    <CatalogIcon kind="armor" id={getArmor(equipmentId(armor.name))?.kind ?? ''} />
                     <PrintableField value={armor.name} onChange={(e) => updateArmor(armor.id, { name: e.target.value })} aria-label={t('sheet.name')} />
                   </td>
                   <td>

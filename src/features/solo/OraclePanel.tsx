@@ -59,6 +59,7 @@ import {
 import { adventureAtom } from '../../state/adventure';
 import { campaignAtom } from '../../state/campaign';
 import { oracleAtom } from '../../state/oracle';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 
 type NewEntry = OracleAnswer | SceneCheck | EventEntry | SceneEnd | AdjustmentEntry | WordsEntry | DiscoveryEntry | KeyedEntry | ThemedEntry | OpeningEntry;
@@ -273,7 +274,7 @@ export function OraclePanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-oracle">
       <div className={styles.panelHead}>
-        <h3 id="solo-oracle">{t('solo.oracle.title')}</h3>
+        <h3 id="solo-oracle"><GameIcon name="solo.oracle" />{t('solo.oracle.title')}</h3>
         <p className={styles.note}>{t('solo.oracle.note')}</p>
       </div>
 

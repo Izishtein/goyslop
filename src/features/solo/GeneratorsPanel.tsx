@@ -13,6 +13,7 @@ import {
   type GeneratedTavern,
 } from '../../lib/generators';
 import { campaignAtom } from '../../state/campaign';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 
 type Result =
@@ -78,7 +79,7 @@ export function GeneratorsPanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-gen">
       <div className={styles.panelHead}>
-        <h3 id="solo-gen">{t('solo.gen.title')}</h3>
+        <h3 id="solo-gen"><GameIcon name="solo.generators" />{t('solo.gen.title')}</h3>
         <p className={styles.note}>{t('solo.gen.note')}</p>
       </div>
       <div className={styles.toolbar}>

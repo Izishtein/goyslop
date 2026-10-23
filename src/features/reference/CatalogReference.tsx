@@ -513,7 +513,7 @@ export function EquipmentReference() {
               {ARMORS.map((entry) => (
                 <tr key={entry.id}>
                   <th scope="row" className={styles.rowName}>
-                    {entry.name}
+                    <CatalogIcon kind="armor" id={entry.kind} /> {entry.name}
                   </th>
                   <td>{entry.rank}</td>
                   <td className={styles.numeric}>{entry.minStr}</td>
@@ -579,7 +579,7 @@ export function EquipmentReference() {
                 GENERAL_ITEMS.filter((entry) => entry.category === group).map((entry) => (
                   <tr key={entry.id}>
                     <th scope="row" className={styles.rowName}>
-                      {entry.name}
+                      <CatalogIcon kind="item" id={group} /> {entry.name}
                     </th>
                     <td>
                       {t(`reference.itemCategory.${group}`)}

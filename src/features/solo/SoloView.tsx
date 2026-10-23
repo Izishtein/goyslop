@@ -37,6 +37,9 @@ import { characterDefense, characterEvasion, characterFortitude } from '../../li
 import { chargeOf, damageTraitsOf, poisonRiderOf, resolvePoison, rollChargeAttack, traitAdjustment, type ChargeAttack, type PoisonResult } from '../../lib/monster-skills';
 import { adventurerLevel } from '../../lib/formulas/character-levels';
 import { initiative } from '../../lib/formulas/derived-stats';
+import { encounterDifficulty, partyStrength, suggestedCopies } from '../../lib/scaling';
+import { partyAtom } from '../../state/party';
+import { skillCheckModifier } from '../../lib/formulas/status-effects';
 import { activeCharacterIdAtom, charactersAtom, useUpdateCharacter } from '../../state/characters';
 import { encounterAtom, hideUnknownAtom, showMonsterHpAtom } from '../../state/encounter';
 import type { Character } from '../../types/character';
@@ -51,6 +54,7 @@ import { MonsterIntent } from './MonsterIntent';
 import { OraclePanel } from './OraclePanel';
 import { BattlefieldPanel } from './BattlefieldPanel';
 import { PartyPanel } from './PartyPanel';
+import { CatalogIcon, GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -212,7 +216,7 @@ function MonsterCard({
     <article className={`${styles.card} ${defeated ? styles.cardDefeated : ''}`} aria-label={instance.label}>
       <header className={styles.cardHead}>
         <h4>
-          {instance.label} <span className={styles.level}>{t('solo.level', { level: monster.level })}</span>
+          <CatalogIcon kind="monster" id={monster.category} /> {instance.label} <span className={styles.level}>{t('solo.level', { level: monster.level })}</span>
         </h4>
         {defeated && <span className={styles.defeated}>{t('solo.defeated')}</span>}
         <button type="button" onClick={onRemove} aria-label={t('solo.removeMonster', { name: instance.label })}>
@@ -429,6 +433,7 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
   const character = characters.find((entry) => entry.id === activeId);
 
   const { monsters, byId } = useMonsters();
+  const party = useAtomValue(partyAtom);
   const [regenNote, setRegenNote] = useState('');
   /** Under the sun a Dark Regeneration does nothing. */
   const [sunlight, setSunlight] = useState(false);
@@ -472,6 +477,20 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
     return (monsters ?? []).filter((monster) => monster.category !== 'Familiars' && (!query || monster.name.toLowerCase().includes(query))).slice(0, 80);
   }, [monsters, search]);
 
+  /** The player character and the Fellows travelling with them: their number and average Adventurer Level. */
+  const strength = useMemo(() => {
+    const members = characters.filter((entry) => entry.id === activeId || party.includes(entry.id));
+    return partyStrength(members.map((entry) => adventurerLevel(entry.classes)));
+  }, [characters, activeId, party]);
+  const picked = byId.get(pick);
+  const difficulty = useMemo(() => {
+    const levels = encounter.monsters.flatMap((entry) => {
+      const monster = byId.get(entry.monsterId);
+      return monster ? [monster.level] : [];
+    });
+    return levels.length > 0 ? encounterDifficulty(levels, strength) : null;
+  }, [encounter.monsters, byId, strength]);
+
   function addMonsters() {
     const monster = byId.get(pick);
     if (!monster) return;
@@ -493,14 +512,14 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
     if (!character) return;
     const dice: [number, number] = [rollD6(), rollD6()];
     const agiMod = abilityModifier(abilityTotal(character.abilities.AGI));
-    const value = dice[0] + dice[1] + initiative(Math.max(levelOf(character, 'scout'), levelOf(character, 'tactician')), agiMod);
+    const value = dice[0] + dice[1] + initiative(Math.max(levelOf(character, 'scout'), levelOf(character, 'tactician')), agiMod) + skillCheckModifier(character.statusEffects);
     setInitiativeRoll({ dice, value });
   }
 
   return (
     <section className={styles.panel} aria-labelledby="solo-encounter">
       <div className={styles.panelHead}>
-        <h3 id="solo-encounter">{t('solo.encounter')}</h3>
+        <h3 id="solo-encounter"><GameIcon name="solo.encounter" />{t('solo.encounter')}</h3>
         <p className={styles.note}>{t('solo.encounterNote')}</p>
       </div>
 
@@ -556,7 +575,19 @@ function EncounterPanel({ fixed, onFixedChange }: { fixed: boolean; onFixedChang
         <button type="button" onClick={addMonsters} disabled={!pick}>
           {t('solo.addMonsters')}
         </button>
+        <button type="button" onClick={() => picked && setCount(String(suggestedCopies(picked.level, strength)))} disabled={!picked} title={t('solo.scale.hint')}>
+          {t('solo.scale.button')}
+        </button>
+        <span className={styles.note}>
+          {t('solo.scale.party', { size: strength.size, level: strength.level })}
+          {picked && ` · ${t('solo.scale.suggested', { count: suggestedCopies(picked.level, strength) })}`}
+        </span>
       </div>
+      {difficulty && (
+        <p className={styles.note} role="status">
+          {t('solo.scale.difficulty', { label: t(`solo.scale.${difficulty.difficulty}`) })}
+        </p>
+      )}
 
       {encounter.monsters.length > 0 && (
         <div className={styles.toolbar}>

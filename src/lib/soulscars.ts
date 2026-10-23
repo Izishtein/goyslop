@@ -80,7 +80,7 @@ export function soulscarSums(soulscars: number, rangerLevel: number, intModifier
 export const SHACKLES_EFFECT_ID = 'racial-shackles';
 
 /** The status effects with the shackles' penalty on or off — it follows the soulscar count; the same array when nothing changes. */
-export function withShackles(effects: StatusEffect[], worn: boolean, soulscars: number, name: string, checksLabel: string): StatusEffect[] {
+export function withShackles(effects: StatusEffect[], worn: boolean, soulscars: number, name: string): StatusEffect[] {
   const penalty = worn ? shacklesPenalty(soulscars) : 0;
-  return upsertManagedEffect(effects, SHACKLES_EFFECT_ID, name, 'racial', penalty > 0 ? [{ field: 'custom', customLabel: checksLabel, value: -penalty }] : []);
+  return upsertManagedEffect(effects, SHACKLES_EFFECT_ID, name, 'racial', penalty > 0 ? [{ field: 'skillChecks', value: -penalty }] : []);
 }

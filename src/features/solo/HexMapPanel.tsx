@@ -43,6 +43,7 @@ import { encounterAtom } from '../../state/encounter';
 import { hexMapAtom } from '../../state/hexmap';
 import { voyageAtom } from '../../state/voyage';
 import { callShip, canLandAt, canSailTo, sailTo, setSail } from '../../lib/voyage';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -316,7 +317,7 @@ export function HexMapPanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-hex">
       <div className={styles.panelHead}>
-        <h3 id="solo-hex">{t('solo.hex.title')}</h3>
+        <h3 id="solo-hex"><GameIcon name="solo.hex" />{t('solo.hex.title')}</h3>
         <p className={styles.note}>{t('solo.hex.note')}</p>
       </div>
 

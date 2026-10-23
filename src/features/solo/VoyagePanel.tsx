@@ -50,6 +50,7 @@ import { dungeonAtom } from '../../state/dungeon';
 import { hexMapAtom } from '../../state/hexmap';
 import { encounterAtom } from '../../state/encounter';
 import { voyageAtom } from '../../state/voyage';
+import { GameIcon } from '../../components/icons';
 import styles from './SoloView.module.css';
 import { useMonsters } from './useMonsters';
 
@@ -145,7 +146,7 @@ export function VoyagePanel() {
     return (
       <section className={styles.panel} aria-labelledby="solo-voyage">
         <div className={styles.panelHead}>
-          <h3 id="solo-voyage">{t('solo.voyage.title')}</h3>
+          <h3 id="solo-voyage"><GameIcon name="solo.voyage" />{t('solo.voyage.title')}</h3>
           <p className={styles.note}>{t('solo.voyage.note')}</p>
         </div>
         <div className={styles.toolbar}>
@@ -352,7 +353,7 @@ export function VoyagePanel() {
   return (
     <section className={styles.panel} aria-labelledby="solo-voyage">
       <div className={styles.panelHead}>
-        <h3 id="solo-voyage">{t('solo.voyage.title')}</h3>
+        <h3 id="solo-voyage"><GameIcon name="solo.voyage" />{t('solo.voyage.title')}</h3>
         <p className={styles.note}>
           {t(`solo.voyage.ships.${voyage.ship}`, { hull: HULL[voyage.ship] })} ·{' '}
           {t('solo.voyage.status', {
